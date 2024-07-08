@@ -1,0 +1,33 @@
+{
+  "name": "sm-click-library-ui",
+  "version": "0.0.0",
+  "main": "dist/sm-click-library-ui.es.js",
+  "module": "dist/sm-click-library-ui.umd.js",
+  "private": false,
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "pnpm run build:lib && pnpm run build:style",
+    "build:lib": "vite build",
+    "build:style": "postcss src/tailwind.css -o dist/tailwind.css",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@tailwindcss/line-clamp": "^0.4.4",
+    "@tailwindcss/typography": "^0.5.13",
+    "tailwind-scrollbar": "^3.1.0",
+    "vue": "^3.4.29"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.5",
+    "autoprefixer": "^10.4.19",
+    "daisyui": "^4.12.10",
+    "postcss": "^8.4.39",
+    "postcss-cli": "^11.0.0",
+    "tailwindcss": "^3.4.4",
+    "vite": "^5.3.1"
+  }
+}
