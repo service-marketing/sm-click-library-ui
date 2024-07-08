@@ -3,9 +3,9 @@ import primarySelect from "~/components/selects/primary_select/primary_select.vu
 </script>
 
 <template>
-  <main class="justify-center flex items-center h-screen">
+  <!-- <main class="justify-center flex items-center h-screen">
     <primarySelect />
-  </main>
+  </main> -->
 </template>
 
 <style scoped>
