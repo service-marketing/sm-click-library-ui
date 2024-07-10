@@ -1,6 +1,6 @@
 {
   "name": "sm-click-library-ui",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "main": "dist/sm-click-library-ui.es.js",
   "module": "dist/sm-click-library-ui.umd.js",
   "private": false,
