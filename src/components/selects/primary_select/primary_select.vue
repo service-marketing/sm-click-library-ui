@@ -54,7 +54,7 @@ onClickOutside(target, closeSelectOutside);
   <div v-if="isConfigAvailable" ref="target" class="relative w-full">
     <button
       @click="toggleSelect"
-      class="bg-base-100 z-10 truncate flex items-center justify-between gap-6 p-2 rounded-md lg:mt-0 w-full shadow-md shadow-base-300"
+      class="bg-base-200 z-10 truncate flex items-center justify-between gap-6 p-2 rounded-md lg:mt-0 w-full shadow-md shadow-base-300"
     >
       <div>
         <p
@@ -84,23 +84,23 @@ onClickOutside(target, closeSelectOutside);
       </div>
     </button>
 
-    <section v-if="isOpen" class="select_widget">
+    <section v-if="isOpen" class="select_widget_lib">
       <div v-if="hasFreeSlot">
         <slot name="free-slot" />
       </div>
 
-      <div v-if="hasChartsConfig" class="space-y-2">
+      <div v-if="true" class="space-y-2 mt-2">
         <button
           :class="titleChartsConfig === 'Vertical' ? 'bg-green-500' : ''"
           @click="() => closeSelect('horizontal')"
-          class="btn_select_widget"
+          class="btn_select_widget_lib"
         >
           <p class="line-clamp-2 uppercase text-xs truncate">Vertical</p>
         </button>
         <button
           :class="titleChartsConfig !== 'Vertical' ? 'bg-green-500' : ''"
           @click="() => closeSelect('vertical')"
-          class="btn_select_widget"
+          class="btn_select_widget_lib"
         >
           <p class="line-clamp-2 uppercase text-xs truncate">Horizontal</p>
         </button>

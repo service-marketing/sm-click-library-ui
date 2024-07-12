@@ -1,6 +1,4 @@
 <script setup>
-import { defineProps, defineEmits } from "vue";
-
 const props = defineProps({
   isOpen: Boolean,
   default: false,
@@ -13,22 +11,22 @@ const toggleModal = () => {
 };
 </script>
 <template>
-  <div v-if="isOpen" class="modal_head">
-    <div class="modal-overlay absolute h-full bg-gray-600 w-full opacity-70" />
-    <div class="modal_responsive">
+  <div v-if="isOpen" class="modal_head_lib">
+    <div class="modal-overlay_lib absolute h-full bg-gray-600 w-full opacity-70" />
+    <div class="modal_responsive_lib">
       <div
         class="flex min-h-full items-center justify-center text-center sm:p-0"
       >
-        <div class="modal_size lg:w-2/6">
+        <div class="modal_size_lib lg:w-2/6">
           <!-- Modal content -->
-          <div class="modal_background">
+          <div class="modal_background_lib">
             <!-- Modal header -->
-            <div class="modal_tittle text-current">
+            <div class="modal_tittle_lib text-current">
               <slot name="header" />
 
               <button
                 @click="toggleModal"
-                class="modal_close_button"
+                class="modal_close_button_lib"
                 data-modal-toggle="editUserModal"
               >
                 <svg
@@ -54,7 +52,7 @@ const toggleModal = () => {
               </div>
             </div>
             <!-- Modal footer -->
-            <div class="modal_end_button">
+            <div class="modal_end_button_lib">
               <slot name="footer" />
             </div>
           </div>

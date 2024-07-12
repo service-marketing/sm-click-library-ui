@@ -12,7 +12,7 @@
     "dev": "vite",
     "build": "pnpm run build:lib && pnpm run build:style",
     "build:lib": "vite build",
-    "build:style": "postcss src/tailwind.css -o dist/tailwind.css",
+    "build:style": "postcss src/styleSmClick.css -o dist/styleSmClick.css",
     "preview": "vite preview"
   },
   "dependencies": {
