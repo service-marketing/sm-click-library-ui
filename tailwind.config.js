@@ -2,22 +2,13 @@ module.exports = {
   content: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
   darkMode: "class",
   theme: {
-    extend: {
-      colors: {
-        'lib-base': {
-          100: '#4B6374',
-          200: '#26343D',
-          300: '#111B21'
-        }
-      },
-    },
     screens: {
-      lib_ss: "305px",
-      lib_sm: "640px",
-      lib_md: "864px",
-      lib_lg: "1280px",
-      lib_xl: "1512px",
-      "lib_2xl": "1640px",
+      ss: "305px",
+      sm: "640px",
+      md: "864px",
+      lg: "1280px",
+      xl: "1512px",
+      "2xl": "1640px",
     },
     spacing: {
       px: "1px",
@@ -86,10 +77,50 @@ module.exports = {
       103: "42rem",
       104: "50rem",
     },
-  },
+    },
   plugins: [
     // require("@tailwindcss/line-clamp"),
     require("@tailwindcss/typography"),
+    require("daisyui"),
     require("tailwind-scrollbar"),
   ],
+  // daisyUI config (optional)
+  daisyui: {
+    styled: true,
+    themes: [
+      {
+        mytheme: {
+          color: "#fff",
+
+          primary: "#22C55E",
+          primary_alt: '#00799e',
+
+          secondary: "#3666f0",
+
+          text_current: '#fff',
+
+          accent: "#F471B5",
+
+          neutral: "rgb(71 85 105)",
+
+          "base-100": "#4B6374",
+          "base-200": "#26343D",
+          "base-300": "#111B21",
+
+          info: "#0CA5E9",
+
+          success: "#2DD4BF",
+
+          warning: "#F4BF50",
+
+          error: "#FB7085",
+        },
+      },
+    ],
+    base: true,
+    utils: true,
+    logs: true,
+    rtl: false,
+    prefix: "",
+  },
 };
