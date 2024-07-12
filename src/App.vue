@@ -10,36 +10,42 @@ const toggleRender = () => {
 </script>
 
 <template>
-    <primarySelect
+  <!-- <primarySelect
       titleFreeSlot="teste select"
-      :selectConfig="[{ freeSlot: true, selectConfig: true }]"
+      :selectConfig="[{ freeSlot: true, chartsConfig: true }]"
     >
       <template #free-slot>
         <button @click="toggleRender" class="p-2 rounded-md bg-base-300 w-full">
           Open Modal
         </button>
       </template>
-    </primarySelect>
-  <!-- <main
+    </primarySelect> -->
+  <main
     class="justify-center p-3 bg-blue-900 flex-col space-y-2 items-center h-screen"
   >
     <primarySelect
       titleFreeSlot="teste select"
-      :selectConfig="[{ freeSlot: true, selectConfig: true }]"
+      :selectConfig="[{ chartsConfig: true }]"
     >
       <template #free-slot>
-        <button @click="toggleRender" class="p-2 rounded-md bg-base-300 w-full">
+        <button
+          @click="toggleRender"
+          class="p-2 rounded-md bg-lib-base-300 w-full"
+        >
           Open Modal
         </button>
       </template>
     </primarySelect>
 
     <primarySelect
-      titleFreeSlot="teste select"
+      titleFreeSlot="Free Slot"
       :selectConfig="[{ freeSlot: true }]"
     >
       <template #free-slot>
-        <button @click="toggleRender" class="p-2 rounded-md bg-base-300 w-full">
+        <button
+          @click="toggleRender"
+          class="p-2 rounded-md bg-lib-base-300 w-full"
+        >
           Open Modal
         </button>
       </template>
@@ -56,7 +62,7 @@ const toggleRender = () => {
         <div>slot do footer</div>
       </template>
     </SimpleModal>
-  </main> -->
+  </main>
 </template>
 
 <style scoped>

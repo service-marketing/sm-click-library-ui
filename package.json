@@ -18,7 +18,6 @@
   "dependencies": {
     "@tailwindcss/typography": "^0.5.13",
     "@vueuse/core": "^10.11.0",
-    "daisyui": "^4.12.10",
     "tailwind-scrollbar": "^3.1.0",
     "vue": "^3.4.29"
   },
