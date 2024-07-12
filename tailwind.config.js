@@ -1,18 +1,7 @@
-// tailwind.config.js
 module.exports = {
-  purge: [],
-  purge: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
-  darkMode: 'media', // or 'media' or 'class'
+  content: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
+  darkMode: "class",
   theme: {
-    extend: {
-      colors: {
-        'base': {
-          100: '#4B6374',
-          200: '#26343D',
-          300: '#111B21'
-        }
-      },
-    },
     screens: {
       ss: "305px",
       sm: "640px",
@@ -88,41 +77,50 @@ module.exports = {
       103: "42rem",
       104: "50rem",
     },
-  },
-  variants: {
-    extend: {
     },
-  },
   plugins: [
+    // require("@tailwindcss/line-clamp"),
     require("@tailwindcss/typography"),
+    require("daisyui"),
     require("tailwind-scrollbar"),
   ],
-  // daisyui: {
-  //   styled: false,
-  //   themes: [
-  //     {
-  //       mytheme: {
-  //         color: "#fff",
-  //         primary: "#22C55E",
-  //         primary_alt: '#00799e',
-  //         secondary: "#3666f0",
-  //         text_current: '#fff',
-  //         accent: "#F471B5",
-  //         neutral: "rgb(71 85 105)",
-  //         "base-100": "#4B6374",
-  //         "base-200": "#26343D",
-  //         "base-300": "#111B21",
-  //         info: "#0CA5E9",
-  //         success: "#2DD4BF",
-  //         warning: "#F4BF50",
-  //         error: "#FB7085",
-  //       },
-  //     },
-  //   ],
-  //   base: true,
-  //   utils: true,
-  //   logs: true,
-  //   rtl: false,
-  //   prefix: "",
-  // },
-}
+  // daisyUI config (optional)
+  daisyui: {
+    styled: true,
+    themes: [
+      {
+        mytheme: {
+          color: "#fff",
+
+          primary: "#22C55E",
+          primary_alt: '#00799e',
+
+          secondary: "#3666f0",
+
+          text_current: '#fff',
+
+          accent: "#F471B5",
+
+          neutral: "rgb(71 85 105)",
+
+          "base-100": "#4B6374",
+          "base-200": "#26343D",
+          "base-300": "#111B21",
+
+          info: "#0CA5E9",
+
+          success: "#2DD4BF",
+
+          warning: "#F4BF50",
+
+          error: "#FB7085",
+        },
+      },
+    ],
+    base: true,
+    utils: true,
+    logs: true,
+    rtl: false,
+    prefix: "",
+  },
+};
