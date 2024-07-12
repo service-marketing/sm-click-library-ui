@@ -12,33 +12,35 @@ const toggleRender = () => {
   <main
     class="justify-center p-3 bg-blue-900 flex-col space-y-2 items-center h-screen"
   >
-    <primarySelect
-      titleFreeSlot="teste select"
-      :selectConfig="[{ chartsConfig: true }]"
-    >
-      <template #free-slot>
-        <button
-          @click="toggleRender"
-          class="p-2 rounded-md bg-lib-base-300 w-full"
-        >
-          Open Modal
-        </button>
-      </template>
-    </primarySelect>
+    <div class="bg-red-200 p-3 space-y-2 rounded-md">
+      <primarySelect
+        titleFreeSlot="teste select"
+        :selectConfig="[{ chartsConfig: true }]"
+      >
+        <template #free-slot>
+          <button
+            @click="toggleRender"
+            class="p-2 rounded-md bg-lib-base-300 w-full"
+          >
+            Open Modal
+          </button>
+        </template>
+      </primarySelect>
 
-    <primarySelect
-      titleFreeSlot="Free Slot"
-      :selectConfig="[{ freeSlot: true }]"
-    >
-      <template #free-slot>
-        <button
-          @click="toggleRender"
-          class="p-2 rounded-md bg-lib-base-300 w-full"
-        >
-          Open Modal
-        </button>
-      </template>
-    </primarySelect>
+      <primarySelect
+        titleFreeSlot="Free Slot"
+        :selectConfig="[{ freeSlot: true }]"
+      >
+        <template #free-slot>
+          <button
+            @click="toggleRender"
+            class="p-2 rounded-md bg-lib-base-300 w-full"
+          >
+            Open Modal
+          </button>
+        </template>
+      </primarySelect>
+    </div>
   </main>
 </template>
 
