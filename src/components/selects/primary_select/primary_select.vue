@@ -89,7 +89,7 @@ onClickOutside(target, closeSelectOutside);
         <slot name="free-slot" />
       </div>
 
-      <div v-if="true" class="space-y-2 mt-2">
+      <div v-if="hasChartsConfig" class="space-y-2 mt-2">
         <button
           :class="titleChartsConfig === 'Vertical' ? 'bg-green-500' : ''"
           @click="() => closeSelect('horizontal')"
@@ -108,3 +108,23 @@ onClickOutside(target, closeSelectOutside);
     </section>
   </div>
 </template>
+
+<style scoped>
+/* primary_select CSS  */
+.btn_select_widget {
+  @apply w-full p-2 rounded-md shadow-md shadow-base-300 bg-base-100 hover:bg-base-200/60;
+}
+.select_widget {
+  @apply bg-base-200 text-white rounded-md absolute w-full mt-2 z-30 p-1.5 shadow-md shadow-base-300;
+}
+</style>
+
+<style scoped>
+/* primary_select CSS  */
+.btn_select_widget_lib {
+  @apply w-full p-2 rounded-md shadow-md shadow-base-300 bg-base-100 hover:bg-base-200/60;
+}
+.select_widget_lib {
+  @apply bg-base-200 text-white rounded-md absolute w-full mt-2 z-30 p-1.5 shadow-md shadow-base-300;
+}
+</style>
