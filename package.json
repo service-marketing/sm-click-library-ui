@@ -1,8 +1,10 @@
 {
   "name": "sm-click-library-ui",
   "type": "module",
-  "files": ["dist"],
-  "version": "0.0.18",
+  "files": [
+    "dist"
+  ],
+  "version": "0.0.19",
   "main": "dist/sm-click-library-ui.es.js",
   "module": "dist/sm-click-library-ui.umd.js",
   "private": false,
