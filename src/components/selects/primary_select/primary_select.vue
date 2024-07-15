@@ -108,15 +108,3 @@ onClickOutside(target, closeSelectOutside);
     </section>
   </div>
 </template>
-
-<style scoped>
-/* primary_select CSS  */
-.btn_select_widget_lib {
-  @apply w-full p-2 rounded-md shadow-md shadow-base-300 bg-base-100 hover:bg-base-200/60;
-}
-
-.select_widget_lib {
-  @apply bg-base-200 text-white rounded-md absolute w-full mt-2 z-30 p-1.5 shadow-md shadow-base-300;
-}
-</style>
-
