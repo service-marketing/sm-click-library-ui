@@ -1,13 +1,11 @@
 {
   "name": "sm-click-library-ui",
+  "type": "module",
+  "files": ["dist"],
   "version": "0.0.18",
   "main": "dist/sm-click-library-ui.es.js",
   "module": "dist/sm-click-library-ui.umd.js",
   "private": false,
-  "files": [
-    "dist"
-  ],
-  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "pnpm run build:lib && pnpm run build:style",
