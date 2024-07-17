@@ -2,6 +2,8 @@
 import { ref } from "vue";
 import primarySelect from "~/components/selects/primary_select/primary_select.vue";
 import chartsSelect from "~/components/selects/chart_direction_select/chart_direction_select.vue";
+import simpleModal from "~/components/modals/simple_modal/simple_modal.vue";
+import simpleCard from "~/components/cards/simple_card/simple_card.vue";
 const testRender = ref(false);
 const toggleRender = () => {
   testRender.value = true;
@@ -38,6 +40,14 @@ const toggleRender = () => {
         <chartsSelect />
       </section>
     </div>
+    <simpleModal :isOpen="true">
+      <template #body>
+        <simpleCard
+          success
+          :content="{ title: 'informações', description: 'coisa linda' }"
+        />
+      </template>
+    </simpleModal>
   </main>
 </template>
 
