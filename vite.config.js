@@ -1,9 +1,6 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-// import cssOnly from 'rollup-plugin-css-only';
 import path from 'path'
-import tailwindcss from 'tailwindcss'
-import autoprefixer from 'autoprefixer'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -23,9 +20,6 @@ export default defineConfig({
     }
   },
   plugins: [vue(),
-    // cssOnly({
-    //   output: 'styleSmClick.css'
-    // })
   ],
   resolve: {
     alias: {
@@ -33,6 +27,8 @@ export default defineConfig({
     },
   },
   css: {
-    extract: true, // Consolidate all CSS into a single file
+    extract: {
+      filename: 'custom-name.css', // Specify the desired filename
+    },
   },
 })

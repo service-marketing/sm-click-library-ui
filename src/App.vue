@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from "vue";
 import primarySelect from "~/components/selects/primary_select/primary_select.vue";
-
+import chartsSelect from "~/components/selects/chart_direction_select/chart_direction_select.vue";
 const testRender = ref(false);
 const toggleRender = () => {
   testRender.value = true;
@@ -10,36 +10,33 @@ const toggleRender = () => {
 
 <template>
   <main
-    class="justify-center p-3 bg-blue-900 flex-col space-y-2 items-center h-screen"
+    class="justify-center p-3 bg-base-300 flex-col space-y-2 items-center h-screen"
   >
-    <div class="bg-red-200 p-3 space-y-2 rounded-md">
-      <primarySelect
-        titleFreeSlot="teste select"
-        :selectConfig="[{ chartsConfig: true }]"
-      >
-        <template #free-slot>
-          <button
-            @click="toggleRender"
-            class="p-2 rounded-md bg-lib-base-300 w-full"
-          >
-            Open Modal
-          </button>
-        </template>
-      </primarySelect>
+    <div class="bg-base-200 p-3 space-y-2 rounded-md">
+      <span class="text-white">Selects</span>
 
-      <primarySelect
-        titleFreeSlot="Free Slot"
-        :selectConfig="[{ freeSlot: true }]"
-      >
-        <template #free-slot>
-          <button
-            @click="toggleRender"
-            class="p-2 rounded-md bg-lib-base-300 w-full"
-          >
-            Open Modal
-          </button>
-        </template>
-      </primarySelect>
+      <section class="text-white">
+        primary_select
+        <primarySelect
+          :config="{
+            title: 'léo',
+          }"
+        >
+          <template #free-slot>
+            <button
+              @click="toggleRender"
+              class="p-2 rounded-md bg-base-300 w-full"
+            >
+              Open Modal
+            </button>
+          </template>
+        </primarySelect>
+      </section>
+
+      <section class="text-white">
+        chart_direction_select
+        <chartsSelect />
+      </section>
     </div>
   </main>
 </template>

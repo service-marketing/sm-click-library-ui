@@ -3,30 +3,18 @@ import { ref, computed } from "vue";
 import { onClickOutside } from "@vueuse/core";
 
 const props = defineProps({
-  titleFreeSlot: {
-    type: String,
-    default: "Free Slot",
-  },
-  selectConfig: {
+  config: {
     type: Object,
-    default: () => ({
-      chartsConfig: false,
-      freeSlot: false,
-    }),
+    default: {
+      title: "select_primary",
+    },
   },
 });
 
 const emits = defineEmits(["closeSelect"]);
 
 const isOpen = ref(false);
-const titleChartsConfig = ref("Horizontal");
 const target = ref(null);
-
-const isConfigAvailable = computed(() => props.selectConfig.length > 0);
-
-const hasChartsConfig = computed(() =>
-  props.selectConfig.some((item) => item.chartsConfig)
-);
 
 const hasFreeSlot = computed(() =>
   props.selectConfig.some((item) => item.freeSlot)
@@ -36,11 +24,9 @@ const toggleSelect = () => {
   isOpen.value = !isOpen.value;
 };
 
-const closeSelect = (selection) => {
+const closeSelect = () => {
   isOpen.value = false;
-  titleChartsConfig.value =
-    selection === "horizontal" ? "Vertical" : "Horizontal";
-  emits("closeSelect", selection);
+  emits("closeSelect");
 };
 
 const closeSelectOutside = () => {
@@ -51,20 +37,14 @@ onClickOutside(target, closeSelectOutside);
 </script>
 
 <template>
-  <div v-if="isConfigAvailable" ref="target" class="relative w-full">
+  <div ref="target" class="relative w-full">
     <button
       @click="toggleSelect"
       class="bg-base-100 z-10 truncate flex items-center justify-between gap-6 p-2 rounded-md lg:mt-0 w-full shadow-md shadow-base-300"
     >
       <div>
-        <p
-          class="line-clamp-2 uppercase text-xs truncate text-white"
-          v-if="hasChartsConfig"
-        >
-          {{ titleChartsConfig }}
-        </p>
-        <p class="line-clamp-2 uppercase text-xs truncate text-white" v-else>
-          {{ titleFreeSlot }}
+        <p class="line-clamp-2 uppercase text-xs truncate text-white">
+          {{ config.title }}
         </p>
       </div>
       <div>
@@ -85,25 +65,8 @@ onClickOutside(target, closeSelectOutside);
     </button>
 
     <section v-if="isOpen" class="select_widget_lib">
-      <div v-if="hasFreeSlot">
+      <div>
         <slot name="free-slot" />
-      </div>
-
-      <div v-if="hasChartsConfig" class="space-y-2">
-        <button
-          :class="titleChartsConfig === 'Vertical' ? 'bg-green-500' : ''"
-          @click="() => closeSelect('horizontal')"
-          class="btn_select_widget_lib"
-        >
-          <p class="line-clamp-2 uppercase text-xs truncate">Vertical</p>
-        </button>
-        <button
-          :class="titleChartsConfig !== 'Vertical' ? 'bg-green-500' : ''"
-          @click="() => closeSelect('vertical')"
-          class="btn_select_widget_lib"
-        >
-          <p class="line-clamp-2 uppercase text-xs truncate">Horizontal</p>
-        </button>
       </div>
     </section>
   </div>
@@ -111,10 +74,6 @@ onClickOutside(target, closeSelectOutside);
 
 <style scoped>
 /* primary_select CSS  */
-.btn_select_widget_lib {
-  @apply w-full p-2 rounded-md shadow-md shadow-base-300 bg-base-200 hover:bg-base-200/60;
-}
-
 .select_widget_lib {
   @apply bg-base-100 text-white rounded-md absolute w-full mt-2 z-30 p-1.5 shadow-md shadow-base-300;
 }

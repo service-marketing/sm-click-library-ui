@@ -1,17 +1,13 @@
 import primarySelect from '~/components/selects/primary_select/primary_select.vue'
-// import simpleModal from "~/components/modals/simple_modal/simple_modal.vue"
-
-// export {
-//     primarySelect,
-//     simpleModal
-// }
+import simpleModal from "~/components/modals/simple_modal/simple_modal.vue"
 
 function install(Vue) {
     Vue.component('primarySelect', primarySelect)
-    // Vue.component('simpleModal', simpleModal)
+    Vue.component('simpleModal', simpleModal)
 }
 
 export default {
     install,
-    primarySelect
+    primarySelect,
+    simpleModal
 }

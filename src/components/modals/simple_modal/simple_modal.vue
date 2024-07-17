@@ -17,7 +17,7 @@ const toggleModal = () => {
     />
     <div class="modal_responsive_lib">
       <div
-        class="flex min-h-full items-center justify-center text-center lib-sm:p-0"
+        class="flex min-h-full items-center justify-center text-center sm:p-0"
       >
         <div class="modal_size_lib lg:w-2/6">
           <!-- Modal content -->
@@ -54,7 +54,7 @@ const toggleModal = () => {
               </div>
             </div>
             <!-- Modal footer -->
-            <div class="modal_end_button_lib lib-sm">
+            <div class="modal_end_button_lib sm">
               <slot name="footer" />
             </div>
           </div>
@@ -84,22 +84,22 @@ const toggleModal = () => {
 }
 
 .modal_size_lib {
-  @apply z-50 w-full lib_md:w-1/2 lib_xl:w-1/3 shadow rounded-2xl shadow-black;
+  @apply z-50 w-full md:w-1/2 xl:w-1/3 shadow rounded-2xl shadow-black;
 }
 
 .modal_background_lib {
-  @apply relative rounded-2xl bg-lib-base-200 backdrop-blur-lg;
+  @apply relative rounded-2xl bg-base-200 backdrop-blur-lg;
 }
 
 .modal_tittle_lib {
-  @apply flex text-current uppercase justify-between bg-lib-base-300 items-center p-3 py-3 rounded-t-2xl border-lib-base-300;
+  @apply flex text-current uppercase justify-between bg-base-300 items-center p-3 py-3 rounded-t-2xl border-base-300;
 }
 
 .modal_end_button_lib {
-  @apply flex justify-end p-2 space-x-2 rounded-b-2xl border-lib-base-300 bg-lib-base-300;
+  @apply flex justify-end p-2 space-x-2 rounded-b-2xl border-base-300 bg-base-300;
 }
 
 .modal_close_button_lib {
-  @apply hover:scale-105 text-white duration-300 bg-lib-base-200/40 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center hover:bg-lib-base-100 hover:text-white;
+  @apply hover:scale-105 text-white duration-300 bg-base-200/40 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center hover:bg-base-100 hover:text-white;
 }
 </style>
