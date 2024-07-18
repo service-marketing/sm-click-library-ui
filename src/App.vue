@@ -4,6 +4,7 @@ import primarySelect from "~/components/selects/primary_select/primary_select.vu
 import chartsSelect from "~/components/selects/chart_direction_select/chart_direction_select.vue";
 import simpleModal from "~/components/modals/simple_modal/simple_modal.vue";
 import simpleCard from "~/components/cards/simple_card/simple_card.vue";
+import instanceSelect from "~/components/selects/instance_select/index.vue"
 const testRender = ref(false);
 const toggleRender = () => {
   testRender.value = true;
@@ -16,6 +17,8 @@ const toggleRender = () => {
   >
     <div class="bg-base-200 p-3 space-y-2 rounded-md">
       <span class="text-white">Selects</span>
+
+      <instanceSelect/>
 
       <section class="text-white">
         primary_select
@@ -40,14 +43,14 @@ const toggleRender = () => {
         <chartsSelect />
       </section>
     </div>
-    <simpleModal :isOpen="true">
+    <!-- <simpleModal :isOpen="true">
       <template #body>
         <simpleCard
           success
           :content="{ title: 'informações', description: 'coisa linda' }"
         />
       </template>
-    </simpleModal>
+    </simpleModal> -->
   </main>
 </template>
 
