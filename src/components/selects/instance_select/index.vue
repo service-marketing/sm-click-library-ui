@@ -90,7 +90,7 @@ onMounted(async () => {
 <template>
     <main class="w-full relative text-white">
         <div @click="open = !open" :class="{ 'rounded-b-none': open }"
-            class="rounded-lg shadow shadow-gray-900 bg-base-100 p-2 px-4 text-center">
+            class="rounded-lg shadow shadow-gray-900 bg-base-100 p-3 px-4 text-center">
             <div class="flex cursor-pointer justify-between items-center">
                 <p class="w-full select-none">
                 <div v-if="!getLoading">
@@ -134,12 +134,12 @@ onMounted(async () => {
                             </svg>
                             <div v-if="selectedInstance" class="relative group">
                                 <div :class="{ 'bg-red-500/80': selectedInstance.status === false, 'bg-green-500': selectedInstance.status === true, 'bg-purple-500': selectedInstance.status === 'Offline' }"
-                                    class="w-5 h-5 text-xs shadow flex justify-start shadow-gray-900 rounded-full cursor-pointer group-hover:w-auto group-hover:px-2 transition-all duration-200 ease-in-out">
-                                    <span class="hidden mt-[1px] text-center font-semibold group-hover:inline-block">
+                                    class="w-5 h-5 text-xs shadow flex  shadow-gray-900 rounded-full cursor-pointer group-hover:w-auto group-hover:px-2 transition-all duration-200 ease-in-out">
+                                    <div class="hidden my-auto text-center font-semibold group-hover:inline-block">
                                         {{ selectedInstance.status === true ? 'Conectado' : selectedInstance.status ===
             false ? 'Desconectado' :
             'Indefinido' }}
-                                    </span>
+                                    </div>
                                 </div>
                             </div>
                         </header>
@@ -223,10 +223,10 @@ onMounted(async () => {
                             <div v-if="!inst.isLoading" class="relative group">
                                 <div :class="{ 'bg-red-500/80': inst.status === false, 'bg-green-500': inst.status === true, 'bg-purple-500': inst.status === 'Offline' }"
                                     class="w-5 h-5 text-xs shadow flex justify-start shadow-gray-900 rounded-full cursor-pointer group-hover:w-auto group-hover:px-2 transition-all duration-200 ease-in-out">
-                                    <span class="hidden mt-[1px] text-center font-semibold group-hover:inline-block">
+                                    <div class="hidden my-auto text-center font-semibold group-hover:inline-block">
                                         {{ inst.status === true ? 'Conectado' : inst.status === false ? 'Desconectado' :
             'Indefinido' }}
-                                    </span>
+                                    </div>
                                 </div>
                             </div>
                             <div v-else> <svg aria-hidden="true"
