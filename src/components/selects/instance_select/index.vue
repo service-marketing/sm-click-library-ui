@@ -12,7 +12,7 @@ const props = defineProps({
     },
     token: {
         type: String,
-        default: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzIxNzMzMjg3LCJpYXQiOjE3MjE2NDY4ODcsImp0aSI6ImUyZDQ3NDUxMThjYTQ1ZjA4YjkzZGY1YTViYWQ0Yzk3IiwidXNlcl9pZCI6IjYyNGRmZTIzLTkyZDAtNDNmMS04MDYxLWEyMzIxZjJiNWViYiJ9.sWCrBDEbR8GVD8X4EyzDzULWL6MhaeCPYWR2SMs-dLU',
+        default: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzIxODIwNTYyLCJpYXQiOjE3MjE3MzQxNjIsImp0aSI6IjA1YjgyYmZlNjczOTQxMWJiZGEwMGFhZmFmM2QzY2MyIiwidXNlcl9pZCI6IjYyNGRmZTIzLTkyZDAtNDNmMS04MDYxLWEyMzIxZjJiNWViYiJ9.RJqgwYS5q16Gqj_Tm0-DjUqeMIAYxcMGOyqrTJOPJ5Y',
     },
     type: String,
     webhooks: Boolean,
@@ -90,7 +90,7 @@ onMounted(async () => {
 <template>
     <main class="w-full relative text-white">
         <div @click="open = !open" :class="{ 'rounded-b-none': open }"
-            class="rounded-lg shadow shadow-gray-900 bg-base-300 p-2 px-4 text-center">
+            class="rounded-lg shadow shadow-gray-900 bg-base-100 p-2 px-4 text-center">
             <div class="flex cursor-pointer justify-between items-center">
                 <p class="w-full select-none">
                 <div v-if="!getLoading">
@@ -99,13 +99,13 @@ onMounted(async () => {
                     <span class="flex items-center  gap-2" v-else>
                         <header class="flex gap-3 items-center flex-shrink-0">
                             <svg v-if="selectedInstance.type === 'whatsapp-qrcode'" xmlns="http://www.w3.org/2000/svg"
-                                fill="currentColor" class="w-[18px] h-[18px] text-green-400" viewBox="0 0 16 16">
+                                fill="currentColor" class="w-5 h-5 text-green-400" viewBox="0 0 16 16">
                                 <path
                                     d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z" />
                             </svg>
                             <svg v-if="selectedInstance.type === 'whatsapp-api-official'"
-                                class="w-[18px] h-[18px] mt-1 text-green-400" xmlns="http://www.w3.org/2000/svg"
-                                width="26" height="24" viewBox="0 0 26 24" fill="none">
+                                class="h-5 w-5 mt-1 text-green-400" xmlns="http://www.w3.org/2000/svg" width="26"
+                                height="24" viewBox="0 0 26 24" fill="none">
                                 <g filter="url(#filter0_d_1393_492)">
                                     <path fill-rule="evenodd" clip-rule="evenodd"
                                         d="M15.0313 0.599454C15.9939 0.998793 16.8675 1.58573 17.601 2.32605C18.3397 3.06088 18.9247 3.93462 19.3243 4.89693C19.7238 5.85924 19.929 6.89109 19.928 7.93305C19.9279 8.07377 19.9241 8.21365 19.9167 8.35259C19.8319 8.31268 19.7413 8.27036 19.6446 8.22551C19.232 8.03432 18.882 7.8685 18.5833 7.72357C18.5603 6.92804 18.3926 6.14274 18.0879 5.40628C17.757 4.60647 17.271 3.8801 16.658 3.26905C16.0471 2.65561 15.3208 2.16916 14.521 1.83774C13.7212 1.50632 12.8637 1.3365 11.998 1.33805C8.364 1.33805 5.407 4.29605 5.407 7.92205C5.40465 9.16208 5.75381 10.3774 6.414 11.427L6.57 11.678L5.904 14.111L8.398 13.457L8.638 13.601C9.08609 13.8669 9.56213 14.0773 10.0556 14.2294C10.0188 14.6669 10 15.0932 10 15.5C10 15.536 10.0002 15.5721 10.0007 15.608C9.37752 15.4461 8.77396 15.2082 8.204 14.898L4 16L5.121 11.891C4.43 10.686 4.064 9.32505 4.064 7.92605C4.068 3.55805 7.627 4.93305e-05 11.994 4.93305e-05C13.0362 -0.00364427 14.0687 0.200115 15.0313 0.599454ZM11.3127 9.01024C11.1234 9.44723 10.9533 9.91151 10.8031 10.3916C9.69535 9.53633 8.97603 8.49875 8.8099 8.25911C8.79528 8.23802 8.78494 8.22311 8.779 8.21505L8.77739 8.21291C8.67164 8.07229 7.969 7.13797 7.969 6.16605C7.969 5.24848 8.41796 4.77017 8.62334 4.55135C8.63665 4.53718 8.64893 4.52409 8.66 4.51205C8.7264 4.43665 8.80766 4.37579 8.89869 4.33328C8.98973 4.29078 9.08856 4.26755 9.189 4.26505C9.322 4.26505 9.455 4.26505 9.569 4.27205C9.58321 4.27263 9.59798 4.27241 9.61323 4.27219C9.72893 4.27048 9.87264 4.26836 10.014 4.61205C10.0845 4.77848 10.1958 5.04894 10.3045 5.31331C10.4531 5.67479 10.5971 6.02487 10.626 6.08205C10.675 6.18105 10.706 6.29505 10.641 6.42905C10.6316 6.44804 10.623 6.46604 10.6146 6.48327C10.5651 6.58584 10.5286 6.66145 10.443 6.75905C10.4062 6.80148 10.3678 6.84807 10.3296 6.89438C10.2653 6.97249 10.2016 7.0498 10.147 7.10505C10.048 7.20405 9.945 7.31005 10.059 7.50805C10.177 7.70505 10.572 8.35505 11.162 8.88005C11.2128 8.92552 11.263 8.96888 11.3127 9.01024Z"
@@ -132,22 +132,15 @@ onMounted(async () => {
                                     </filter>
                                 </defs>
                             </svg>
-                            <svg v-if="selectedInstance.status === false"
-                                class="w-5 h-5 text-red-200 bg-red-500/80 p-[3px] rounded-full" aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                                viewBox="0 0 24 24">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                    stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6" />
-                            </svg>
-                            <svg v-else-if="selectedInstance.status === true" class="w-5 h-5 text-green-500"
-                                aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                fill="currentColor" viewBox="0 0 24 24">
-                                <path fill-rule="evenodd"
-                                    d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            <div class="w-[18px] h-[18px] bg-purple-500 rounded-full"
-                                v-else-if="selectedInstance.status === 'Offline'">
+                            <div v-if="selectedInstance" class="relative group">
+                                <div :class="{ 'bg-red-500/80': selectedInstance.status === false, 'bg-green-500': selectedInstance.status === true, 'bg-purple-500': selectedInstance.status === 'Offline' }"
+                                    class="w-5 h-5 text-xs shadow flex justify-start shadow-gray-900 rounded-full cursor-pointer group-hover:w-auto group-hover:px-2 transition-all duration-200 ease-in-out">
+                                    <span class="hidden mt-[1px] text-center font-semibold group-hover:inline-block">
+                                        {{ selectedInstance.status === true ? 'Conectado' : selectedInstance.status ===
+            false ? 'Desconectado' :
+            'Indefinido' }}
+                                    </span>
+                                </div>
                             </div>
                         </header>
                         <div class="w-full">{{
@@ -183,22 +176,23 @@ onMounted(async () => {
         </div>
 
         <nav v-if="open"
-            class="rounded-b-lg absolute top-[32px] w-full z-20 text-sm  shadow shadow-gray-900 bg-base-300 p-2">
+            class="rounded-b-lg absolute top-[40px] w-full z-20 text-sm  shadow shadow-gray-900 bg-base-300 p-2">
             <ul class="gap-2 flex flex-col">
                 <li v-if="instances.length > 0" v-for="inst, index in instances"
-                    :class="selectedInstance && selectedInstance.id === inst.id ? 'bg-base-100/70' : 'bg-base-100/50'"
-                    class="hover:bg-base-200/90 select-none cursor-pointer w-full rounded-lg">
-                    <main @click="selectedInstance = inst, open = false"
-                        class="flex p-2 justify-between gap-2 divide-x-2 divide-gray-500 w-full">
-                        <div class="flex w-full items-center px-2 gap-3 justify-between">
+                    :class="selectedInstance && selectedInstance.id === inst.id ? 'bg-sky-400/50' : 'bg-base-100/50 hover:bg-base-200/90'"
+                    class=" select-none cursor-pointer w-full rounded-lg">
+                    <button @click="selectedInstance = inst, open = false"
+                        :disabled="selectedInstance && selectedInstance.id === inst.id"
+                        class="flex p-2 justify-between gap-2 divide-x-2 divide-gray-900 w-full">
+                        <div class="flex w-full items-center px-2 gap-2 justify-between">
                             <svg v-if="inst.type === 'whatsapp-qrcode'" xmlns="http://www.w3.org/2000/svg"
-                                fill="currentColor" class="w-5 h-5 text-green-400" viewBox="0 0 16 16">
+                                fill="currentColor" class="w-5 h-5 flex-shrink-0 text-green-400" viewBox="0 0 16 16">
                                 <path
                                     d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z" />
                             </svg>
-                            <svg v-if="inst.type === 'whatsapp-api-official'" class="w-5 h-5 mt- text-green-400"
-                                xmlns="http://www.w3.org/2000/svg" width="26" height="24" viewBox="0 0 26 24"
-                                fill="none">
+                            <svg v-if="inst.type === 'whatsapp-api-official'"
+                                class="w-5 h-5 flex-shrink-0 text-green-400" xmlns="http://www.w3.org/2000/svg"
+                                width="26" height="24" viewBox="0 0 26 24" fill="none">
                                 <g filter="url(#filter0_d_1393_492)">
                                     <path fill-rule="evenodd" clip-rule="evenodd"
                                         d="M15.0313 0.599454C15.9939 0.998793 16.8675 1.58573 17.601 2.32605C18.3397 3.06088 18.9247 3.93462 19.3243 4.89693C19.7238 5.85924 19.929 6.89109 19.928 7.93305C19.9279 8.07377 19.9241 8.21365 19.9167 8.35259C19.8319 8.31268 19.7413 8.27036 19.6446 8.22551C19.232 8.03432 18.882 7.8685 18.5833 7.72357C18.5603 6.92804 18.3926 6.14274 18.0879 5.40628C17.757 4.60647 17.271 3.8801 16.658 3.26905C16.0471 2.65561 15.3208 2.16916 14.521 1.83774C13.7212 1.50632 12.8637 1.3365 11.998 1.33805C8.364 1.33805 5.407 4.29605 5.407 7.92205C5.40465 9.16208 5.75381 10.3774 6.414 11.427L6.57 11.678L5.904 14.111L8.398 13.457L8.638 13.601C9.08609 13.8669 9.56213 14.0773 10.0556 14.2294C10.0188 14.6669 10 15.0932 10 15.5C10 15.536 10.0002 15.5721 10.0007 15.608C9.37752 15.4461 8.77396 15.2082 8.204 14.898L4 16L5.121 11.891C4.43 10.686 4.064 9.32505 4.064 7.92605C4.068 3.55805 7.627 4.93305e-05 11.994 4.93305e-05C13.0362 -0.00364427 14.0687 0.200115 15.0313 0.599454ZM11.3127 9.01024C11.1234 9.44723 10.9533 9.91151 10.8031 10.3916C9.69535 9.53633 8.97603 8.49875 8.8099 8.25911C8.79528 8.23802 8.78494 8.22311 8.779 8.21505L8.77739 8.21291C8.67164 8.07229 7.969 7.13797 7.969 6.16605C7.969 5.24848 8.41796 4.77017 8.62334 4.55135C8.63665 4.53718 8.64893 4.52409 8.66 4.51205C8.7264 4.43665 8.80766 4.37579 8.89869 4.33328C8.98973 4.29078 9.08856 4.26755 9.189 4.26505C9.322 4.26505 9.455 4.26505 9.569 4.27205C9.58321 4.27263 9.59798 4.27241 9.61323 4.27219C9.72893 4.27048 9.87264 4.26836 10.014 4.61205C10.0845 4.77848 10.1958 5.04894 10.3045 5.31331C10.4531 5.67479 10.5971 6.02487 10.626 6.08205C10.675 6.18105 10.706 6.29505 10.641 6.42905C10.6316 6.44804 10.623 6.46604 10.6146 6.48327C10.5651 6.58584 10.5286 6.66145 10.443 6.75905C10.4062 6.80148 10.3678 6.84807 10.3296 6.89438C10.2653 6.97249 10.2016 7.0498 10.147 7.10505C10.048 7.20405 9.945 7.31005 10.059 7.50805C10.177 7.70505 10.572 8.35505 11.162 8.88005C11.2128 8.92552 11.263 8.96888 11.3127 9.01024Z"
@@ -225,38 +219,18 @@ onMounted(async () => {
                                     </filter>
                                 </defs>
                             </svg>
-                            <p class="w-full text-center">{{ inst.name }} {{ index + 1 }}</p>
-                            <div class="" v-if="!inst.isLoading">
-                                <figure v-if="inst.status === false" class="relative group">
-                                    <svg class="w-5 h-5 text-red-200 bg-red-500/80 p-[3px] rounded-full"
-                                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                        fill="none" viewBox="0 0 24 24">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                            stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6" />
-                                    </svg>
-                                    <span
-                                        class="shadow shadow-gray-700 absolute bg-red-500 px-3 font-semibold rounded-lg p-1 -top-8 -translate-x-11 group-hover:opacity-100 opacity-0">Desconectada</span>
-                                </figure>
-                                <figure v-else-if="inst.status === true" class="relative group">
-                                    <svg class="w-5 h-5 text-green-500" aria-hidden="true"
-                                        xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path fill-rule="evenodd"
-                                            d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                    <span
-                                        class="shadow shadow-gray-700 absolute bg-green-500 px-3 font-semibold rounded-lg p-1 -top-8 -translate-x-[34px] group-hover:opacity-100 opacity-0">Conectado</span>
-                                </figure>
-                                <figure v-else-if="inst.status === 'Offline'" class="relative group">
-                                    <div class="w-4 mr-[2px] h-4 bg-purple-500 rounded-full">
-                                        <span
-                                            class="shadow shadow-gray-700 absolute bg-purple-500 px-3 font-semibold rounded-lg p-1 -top-8 -translate-x-[34px] group-hover:opacity-100 opacity-0">Indefinido</span>
-                                    </div>
-                                </figure>
+                            <p class="w-full text-center">{{ inst.name }} </p>
+                            <div v-if="!inst.isLoading" class="relative group">
+                                <div :class="{ 'bg-red-500/80': inst.status === false, 'bg-green-500': inst.status === true, 'bg-purple-500': inst.status === 'Offline' }"
+                                    class="w-5 h-5 text-xs shadow flex justify-start shadow-gray-900 rounded-full cursor-pointer group-hover:w-auto group-hover:px-2 transition-all duration-200 ease-in-out">
+                                    <span class="hidden mt-[1px] text-center font-semibold group-hover:inline-block">
+                                        {{ inst.status === true ? 'Conectado' : inst.status === false ? 'Desconectado' :
+            'Indefinido' }}
+                                    </span>
+                                </div>
                             </div>
                             <div v-else> <svg aria-hidden="true"
-                                    class="inline w-4 h-4 text-blue-300 animate-spin  fill-gray-600"
+                                    class="inline w-4 h-4 text-blue-300 flex-shrink-0 animate-spin fill-gray-700"
                                     viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path
                                         d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
@@ -266,7 +240,8 @@ onMounted(async () => {
                                         fill="currentFill" />
                                 </svg></div>
 
-                            <svg :class="inst.webhooks ? 'text-green-500' : 'text-red-600'" class="w-5 h-5 "
+                            <svg :class="inst.webhooks ? 'text-green-500' : 'text-red-600'"
+                                class="w-5 h-5 shadow shadow-gray-900 p-[3px] rounded-full bg-base-300 flex-shrink-0"
                                 aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                 fill="currentColor" viewBox="0 0 24 24">
                                 <path fill-rule="evenodd"
@@ -277,7 +252,7 @@ onMounted(async () => {
                         <div class="flex w-full px-2 justify-center">
                             {{ inst.telephone }}
                         </div>
-                    </main>
+                    </button>
                 </li>
                 <div v-else class="p-4"> Sem instâncias disponíveis</div>
             </ul>
