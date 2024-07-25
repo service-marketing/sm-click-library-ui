@@ -75,6 +75,6 @@ onClickOutside(target, closeSelectOutside);
 <style scoped>
 /* primary_select CSS  */
 .select_widget_lib {
-  @apply text-white rounded-md absolute w-full mt-2 z-30 p-1.5 shadow-md shadow-base-300;
+  @apply text-white rounded-md absolute w-full mt-2 z-30 p-1.5 shadow-md ;
 }
 </style>
