@@ -97,7 +97,7 @@ onMounted(async () => {
 <template>
     <main class="w-full relative text-current">
         <div :class="{ 'rounded-b-none': open }"
-            class="rounded-lg shadow dark:shadow-gray-400 shadow-gray-900 bg-base-100 text-center">
+            class="rounded-lg shadow dark:shadow-gray-400 shadow-gray-900 dark:bg-base-100 bg-base-100 text-center">
             <div class="flex cursor-pointer justify-between items-center">
                 <p @click="open = !open" class="w-full p-3 px-4 select-none">
                 <div v-if="!getLoading">
@@ -183,14 +183,14 @@ onMounted(async () => {
         </div>
 
         <nav v-if="open"
-            class="rounded-b-lg absolute top-[48px] w-full z-20 text-sm  shadow shadow-black dark:shadow-gray-400 bg-base-300 p-2">
+            class="rounded-b-lg absolute top-[48px] w-full z-20 text-sm shadow shadow-black dark:shadow-gray-400 bg-base-300 p-2">
             <ul class="gap-2 flex flex-col">
                 <li v-if="instances.length > 0" v-for="inst, index in instances"
-                    :class="selectedInstance && selectedInstance.id === inst.id ? 'bg-base-100' : 'bg-base-100 bg-opacity-30 hover:bg-base-100'"
+                    :class="selectedInstance && selectedInstance.id === inst.id ? 'bg-base-100' : 'bg-base-200 hover:bg-base-100'"
                     class=" select-none cursor-pointer w-full rounded-lg">
                     <button @click="selectedInstance = inst, open = false, functionEmit(selectedInstance)"
                         :disabled="selectedInstance && selectedInstance.id === inst.id"
-                        class="flex p-2 justify-between gap-2 w-full">
+                        class="flex justify-between items-center p-2 px-1  w-full">
                         <div class="flex w-full items-center px-2 gap-2">
                             <svg v-if="inst.type === 'whatsapp-qrcode'" xmlns="http://www.w3.org/2000/svg"
                                 fill="currentColor" class="w-5 h-5  flex-shrink-0 text-green-400" viewBox="0 0 16 16">
@@ -243,7 +243,7 @@ onMounted(async () => {
                             </div>
 
                             <svg :class="inst.webhooks ? 'text-green-500' : 'text-red-600'"
-                                class="w-5 h-5 shadow shadow-gray-900 dark:shadow-gray-400 p-[3px] rounded-full bg-base-300 flex-shrink-0"
+                                class="w-5 h-5 shadow shadow-gray-900 dark:shadow-gray-400 p-[3px] rounded-full dark:bg-base-100 bg-base-300 flex-shrink-0"
                                 aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                 fill="currentColor" viewBox="0 0 24 24">
                                 <path fill-rule="evenodd"
@@ -251,7 +251,8 @@ onMounted(async () => {
                                     clip-rule="evenodd" />
                             </svg>
                         </div>
-                        <div class="flex w-[150px] my-auto flex-shrink-0 px-2 justify-center">
+                        <div
+                            class="flex min-w-[180px] text-center items-center w-[180px] my-auto flex-shrink-0 px-2 justify-center">
                             {{ inst.telephone }}
                         </div>
                     </button>
