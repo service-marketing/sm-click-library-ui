@@ -88,18 +88,18 @@ const toggleModal = () => {
 }
 
 .modal_background_lib {
-  @apply relative rounded-2xl bg-base-200 backdrop-blur-lg;
+  @apply relative rounded-2xl backdrop-blur-lg;
 }
 
 .modal_tittle_lib {
-  @apply flex text-current uppercase justify-between bg-base-300 items-center p-3 py-3 rounded-t-2xl border-base-300;
+  @apply flex text-current uppercase justify-between  items-center p-3 py-3 rounded-t-2xl ;
 }
 
 .modal_end_button_lib {
-  @apply flex justify-end p-2 space-x-2 rounded-b-2xl border-base-300 bg-base-300;
+  @apply flex justify-end p-2 space-x-2 rounded-b-2xl;
 }
 
 .modal_close_button_lib {
-  @apply hover:scale-105 text-white duration-300 bg-base-200/40 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center hover:bg-base-100 hover:text-white;
+  @apply hover:scale-105 text-white duration-300  rounded-lg text-sm p-1.5 ml-auto inline-flex items-center  hover:text-white;
 }
 </style>
