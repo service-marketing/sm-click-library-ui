@@ -50,7 +50,7 @@ async function getInstances() {
                 Authorization: `Bearer ${props.token}`,
             },
         });
-        instances.value = response.data.results;
+        instances.value = response.data;
         instances.value.forEach(async (key) => {
             key.isLoading = true;
             try {
