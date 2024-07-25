@@ -16,13 +16,8 @@ const props = defineProps({
     },
     type: {
         type: String,
-        default: 'whatsapp-qrcode'
     },
     webhooks: Boolean,
-    client: {
-        type: String,
-        default: '624dfe23-92d0-43f1-8061-a2321f2b5ebb',
-    },
     url: {
         type: String,
         default: 'http://localhost:8000/v1/api/instances/instance/',
@@ -33,7 +28,7 @@ const props = defineProps({
     },
 });
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue', 'function']);
 
 const instances = ref(null);
 
@@ -41,9 +36,14 @@ async function getInstances() {
     try {
         let url = props.url;
         let status_url = props.status_url;
-        let params = `?client=${props.client}`;
+        let params = ``;
+
         if (props.type) params += `&type=${props.type}`;
         if (props.webhooks) params += `&webhooks=${props.webhooks}`;
+
+        if (params) {
+            params = `?` + params.substring(1);
+        }
 
         const response = await axios.get(`${url}${params}`, {
             headers: {
@@ -74,6 +74,10 @@ async function getInstances() {
     getLoading.value = false
 }
 
+function functionEmit(value){
+    emit('function', value)
+}
+
 watch(
     () => props.modelValue,
     (newValue) => {
@@ -92,7 +96,8 @@ onMounted(async () => {
 </script>
 <template>
     <main class="w-full relative text-current">
-        <div :class="{ 'rounded-b-none': open }" class="rounded-lg shadow dark:shadow-gray-400 shadow-gray-900 bg-base-100 text-center">
+        <div :class="{ 'rounded-b-none': open }"
+            class="rounded-lg shadow dark:shadow-gray-400 shadow-gray-900 bg-base-100 text-center">
             <div class="flex cursor-pointer justify-between items-center">
                 <p @click="open = !open" class="w-full p-3 px-4  select-none">
                 <div v-if="!getLoading">
@@ -183,7 +188,7 @@ onMounted(async () => {
                 <li v-if="instances.length > 0" v-for="inst, index in instances"
                     :class="selectedInstance && selectedInstance.id === inst.id ? 'bg-base-100' : 'bg-base-100/50 hover:bg-base-200/90'"
                     class=" select-none cursor-pointer w-full rounded-lg">
-                    <button @click="selectedInstance = inst, open = false"
+                    <button @click="selectedInstance = inst, open = false,functionEmit(selectedInstance)"
                         :disabled="selectedInstance && selectedInstance.id === inst.id"
                         class="flex p-2 justify-between gap-2 divide-x-2 divide-gray-900 w-full">
                         <div class="flex w-full items-center px-2 gap-2 justify-between">
