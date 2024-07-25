@@ -16,13 +16,8 @@ const props = defineProps({
     },
     type: {
         type: String,
-        default: 'whatsapp-qrcode'
     },
     webhooks: Boolean,
-    client: {
-        type: String,
-        default: '624dfe23-92d0-43f1-8061-a2321f2b5ebb',
-    },
     url: {
         type: String,
         default: 'http://localhost:8000/v1/api/instances/instance/',
@@ -33,7 +28,7 @@ const props = defineProps({
     },
 });
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue', 'function']);
 
 const instances = ref(null);
 
@@ -41,9 +36,14 @@ async function getInstances() {
     try {
         let url = props.url;
         let status_url = props.status_url;
-        let params = `?client=${props.client}`;
+        let params = ``;
+
         if (props.type) params += `&type=${props.type}`;
         if (props.webhooks) params += `&webhooks=${props.webhooks}`;
+
+        if (params) {
+            params = `?` + params.substring(1);
+        }
 
         const response = await axios.get(`${url}${params}`, {
             headers: {
@@ -74,6 +74,10 @@ async function getInstances() {
     getLoading.value = false
 }
 
+function functionEmit(value){
+    emit('function', value)
+}
+
 watch(
     () => props.modelValue,
     (newValue) => {
@@ -91,8 +95,9 @@ onMounted(async () => {
 });
 </script>
 <template>
-    <main class="w-full relative text-white">
-        <div :class="{ 'rounded-b-none': open }" class="rounded-lg shadow shadow-gray-900 bg-base-100 text-center">
+    <main class="w-full relative text-current">
+        <div :class="{ 'rounded-b-none': open }"
+            class="rounded-lg shadow dark:shadow-gray-400 shadow-gray-900 bg-base-100 text-center">
             <div class="flex cursor-pointer justify-between items-center">
                 <p @click="open = !open" class="w-full p-3 px-4  select-none">
                 <div v-if="!getLoading">
@@ -136,7 +141,7 @@ onMounted(async () => {
                             </svg>
                             <div v-if="selectedInstance && selectedInstance.status" class="relative group">
                                 <div :class="{ 'bg-red-500/80': selectedInstance.status === false, 'bg-green-500': selectedInstance.status === true, 'bg-purple-500': selectedInstance.status === 'Offline' }"
-                                    class="w-5 h-5 text-xs shadow flex  shadow-gray-900 rounded-full cursor-pointer group-hover:w-auto group-hover:px-2 transition-all duration-200 ease-in-out">
+                                    class="w-5 h-5 text-xs shadow flex shadow-gray-900 dark:shadow-gray-400 rounded-full cursor-pointer group-hover:w-auto group-hover:px-2 transition-all duration-200 ease-in-out">
                                     <div class="hidden my-auto text-center font-semibold group-hover:inline-block">
                                         {{ selectedInstance.status === true ? 'Conectado' : selectedInstance.status ===
             false ? 'Desconectado' :
@@ -178,12 +183,12 @@ onMounted(async () => {
         </div>
 
         <nav v-if="open"
-            class="rounded-b-lg absolute top-[48px] w-full z-20 text-sm  shadow shadow-gray-900 bg-base-300 p-2">
+            class="rounded-b-lg absolute top-[48px] w-full z-20 text-sm  shadow shadow-gray-900 dark:shadow-gray-400 bg-base-300 p-2">
             <ul class="gap-2 flex flex-col">
                 <li v-if="instances.length > 0" v-for="inst, index in instances"
                     :class="selectedInstance && selectedInstance.id === inst.id ? 'bg-base-100' : 'bg-base-100/50 hover:bg-base-200/90'"
                     class=" select-none cursor-pointer w-full rounded-lg">
-                    <button @click="selectedInstance = inst, open = false"
+                    <button @click="selectedInstance = inst, open = false,functionEmit(selectedInstance)"
                         :disabled="selectedInstance && selectedInstance.id === inst.id"
                         class="flex p-2 justify-between gap-2 divide-x-2 divide-gray-900 w-full">
                         <div class="flex w-full items-center px-2 gap-2 justify-between">
@@ -224,7 +229,7 @@ onMounted(async () => {
                             <p class="w-full text-center">{{ inst.name }} </p>
                             <div v-if="!inst.isLoading" class="relative group">
                                 <div :class="{ 'bg-red-500/80': inst.status === false, 'bg-green-500': inst.status === true, 'bg-purple-500': inst.status === 'Offline' }"
-                                    class="w-5 h-5 text-xs shadow flex justify-start shadow-gray-900 rounded-full cursor-pointer group-hover:w-auto group-hover:px-2 transition-all duration-200 ease-in-out">
+                                    class="w-5 h-5 text-xs shadow flex justify-start shadow-gray-900 dark:shadow-gray-400 rounded-full cursor-pointer group-hover:w-auto group-hover:px-2 transition-all duration-200 ease-in-out">
                                     <div class="hidden my-auto text-center font-semibold group-hover:inline-block">
                                         {{ inst.status === true ? 'Conectado' : inst.status === false ? 'Desconectado' :
             'Indefinido' }}
@@ -238,7 +243,7 @@ onMounted(async () => {
                             </div>
 
                             <svg :class="inst.webhooks ? 'text-green-500' : 'text-red-600'"
-                                class="w-5 h-5 shadow shadow-gray-900 p-[3px] rounded-full bg-base-300 flex-shrink-0"
+                                class="w-5 h-5 shadow shadow-gray-900 dark:shadow-gray-400 p-[3px] rounded-full bg-base-300 flex-shrink-0"
                                 aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                 fill="currentColor" viewBox="0 0 24 24">
                                 <path fill-rule="evenodd"
