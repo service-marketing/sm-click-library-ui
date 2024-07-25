@@ -12,7 +12,7 @@ const props = defineProps({
     },
     token: {
         type: String,
-        default: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzIxOTA3NjYxLCJpYXQiOjE3MjE4MjEyNjEsImp0aSI6ImRlNDYyYzI2N2NjZTRkMGNiZDg4NmQ0OTljZTA1YjZjIiwidXNlcl9pZCI6IjYyNGRmZTIzLTkyZDAtNDNmMS04MDYxLWEyMzIxZjJiNWViYiJ9.i-89MhKg-aYZHtDD6cPOW4glsBWGOGINiWmIBQ1LQMs',
+        default: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzIyMDA1NTc0LCJpYXQiOjE3MjE5MTkxNzQsImp0aSI6IjI3MzE4ZjU2NzQ2NjQ1YzBiYzY4OTg5ODJjODIzYzFkIiwidXNlcl9pZCI6IjYyNGRmZTIzLTkyZDAtNDNmMS04MDYxLWEyMzIxZjJiNWViYiJ9.s7mCpCHGbnNgHEAZn_T0B2aCr2zXOG4vZQ1--ePfEEE',
     },
     type: {
         type: String,
@@ -74,7 +74,7 @@ async function getInstances() {
     getLoading.value = false
 }
 
-function functionEmit(value){
+function functionEmit(value) {
     emit('function', value)
 }
 
@@ -99,7 +99,7 @@ onMounted(async () => {
         <div :class="{ 'rounded-b-none': open }"
             class="rounded-lg shadow dark:shadow-gray-400 shadow-gray-900 bg-base-100 text-center">
             <div class="flex cursor-pointer justify-between items-center">
-                <p @click="open = !open" class="w-full p-3 px-4  select-none">
+                <p @click="open = !open" class="w-full p-3 px-4 select-none">
                 <div v-if="!getLoading">
                     <span v-if="!selectedInstance">{{ instances ? instances.length : 'Sem' }} Instâncias
                         disponíveis</span>
@@ -183,15 +183,15 @@ onMounted(async () => {
         </div>
 
         <nav v-if="open"
-            class="rounded-b-lg absolute top-[48px] w-full z-20 text-sm  shadow shadow-gray-900 dark:shadow-gray-400 bg-base-300 p-2">
+            class="rounded-b-lg absolute top-[48px] w-full z-20 text-sm  shadow shadow-black dark:shadow-gray-400 bg-base-300 p-2">
             <ul class="gap-2 flex flex-col">
                 <li v-if="instances.length > 0" v-for="inst, index in instances"
-                    :class="selectedInstance && selectedInstance.id === inst.id ? 'bg-base-100' : 'bg-base-100/50 hover:bg-base-200/90'"
+                    :class="selectedInstance && selectedInstance.id === inst.id ? 'bg-base-100' : 'bg-base-100 bg-opacity-30 hover:bg-base-100'"
                     class=" select-none cursor-pointer w-full rounded-lg">
-                    <button @click="selectedInstance = inst, open = false,functionEmit(selectedInstance)"
+                    <button @click="selectedInstance = inst, open = false, functionEmit(selectedInstance)"
                         :disabled="selectedInstance && selectedInstance.id === inst.id"
-                        class="flex p-2 justify-between gap-2 divide-x-2 divide-gray-900 w-full">
-                        <div class="flex w-full items-center px-2 gap-2 justify-between">
+                        class="flex p-2 justify-between gap-2 w-full">
+                        <div class="flex w-full items-center px-2 gap-2">
                             <svg v-if="inst.type === 'whatsapp-qrcode'" xmlns="http://www.w3.org/2000/svg"
                                 fill="currentColor" class="w-5 h-5  flex-shrink-0 text-green-400" viewBox="0 0 16 16">
                                 <path
@@ -251,7 +251,7 @@ onMounted(async () => {
                                     clip-rule="evenodd" />
                             </svg>
                         </div>
-                        <div class="flex w-full px-2 justify-center">
+                        <div class="flex w-[150px] my-auto flex-shrink-0 px-2 justify-center">
                             {{ inst.telephone }}
                         </div>
                     </button>
