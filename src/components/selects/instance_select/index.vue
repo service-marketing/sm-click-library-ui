@@ -12,9 +12,12 @@ const props = defineProps({
     },
     token: {
         type: String,
-        default: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzIxODIwNTYyLCJpYXQiOjE3MjE3MzQxNjIsImp0aSI6IjA1YjgyYmZlNjczOTQxMWJiZGEwMGFhZmFmM2QzY2MyIiwidXNlcl9pZCI6IjYyNGRmZTIzLTkyZDAtNDNmMS04MDYxLWEyMzIxZjJiNWViYiJ9.RJqgwYS5q16Gqj_Tm0-DjUqeMIAYxcMGOyqrTJOPJ5Y',
+        default: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzIxOTA3NjYxLCJpYXQiOjE3MjE4MjEyNjEsImp0aSI6ImRlNDYyYzI2N2NjZTRkMGNiZDg4NmQ0OTljZTA1YjZjIiwidXNlcl9pZCI6IjYyNGRmZTIzLTkyZDAtNDNmMS04MDYxLWEyMzIxZjJiNWViYiJ9.i-89MhKg-aYZHtDD6cPOW4glsBWGOGINiWmIBQ1LQMs',
     },
-    type: String,
+    type: {
+        type: String,
+        default: 'whatsapp-qrcode'
+    },
     webhooks: Boolean,
     client: {
         type: String,
@@ -42,12 +45,12 @@ async function getInstances() {
         if (props.type) params += `&type=${props.type}`;
         if (props.webhooks) params += `&webhooks=${props.webhooks}`;
 
-        const response = await axios.get(`${url}`, {
+        const response = await axios.get(`${url}${params}`, {
             headers: {
                 Authorization: `Bearer ${props.token}`,
             },
         });
-        instances.value = response.data.results;
+        instances.value = response.data;
         instances.value.forEach(async (key) => {
             key.isLoading = true;
             try {
@@ -89,10 +92,9 @@ onMounted(async () => {
 </script>
 <template>
     <main class="w-full relative text-white">
-        <div @click="open = !open" :class="{ 'rounded-b-none': open }"
-            class="rounded-lg shadow shadow-gray-900 bg-base-100 p-3 px-4 text-center">
+        <div :class="{ 'rounded-b-none': open }" class="rounded-lg shadow shadow-gray-900 bg-base-100 text-center">
             <div class="flex cursor-pointer justify-between items-center">
-                <p class="w-full select-none">
+                <p @click="open = !open" class="w-full p-3 px-4  select-none">
                 <div v-if="!getLoading">
                     <span v-if="!selectedInstance">{{ instances ? instances.length : 'Sem' }} Instâncias
                         disponíveis</span>
@@ -132,7 +134,7 @@ onMounted(async () => {
                                     </filter>
                                 </defs>
                             </svg>
-                            <div v-if="selectedInstance" class="relative group">
+                            <div v-if="selectedInstance && selectedInstance.status" class="relative group">
                                 <div :class="{ 'bg-red-500/80': selectedInstance.status === false, 'bg-green-500': selectedInstance.status === true, 'bg-purple-500': selectedInstance.status === 'Offline' }"
                                     class="w-5 h-5 text-xs shadow flex  shadow-gray-900 rounded-full cursor-pointer group-hover:w-auto group-hover:px-2 transition-all duration-200 ease-in-out">
                                     <div class="hidden my-auto text-center font-semibold group-hover:inline-block">
@@ -147,7 +149,7 @@ onMounted(async () => {
             selectedInstance.name }}</div>
                     </span>
                 </div>
-                <div v-else class="flex items-center gap-2 justify-center"><svg aria-hidden="true"
+                <div v-else class="flex items-center  gap-2 justify-center"><svg aria-hidden="true"
                         class="inline w-5 h-5 text-blue-300 animate-spin  fill-gray-600" viewBox="0 0 100 101"
                         fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
@@ -158,13 +160,13 @@ onMounted(async () => {
                             fill="currentFill" />
                     </svg>Carregando instâncias...</div>
                 </p>
-                <footer class="flex items-center gap-2"><button @click="selectedInstance = null"><svg class="w-4 h-4"
-                            aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                            viewBox="0 0 24 24">
+                <footer class="flex px-4 items-center gap-2"><button @click="selectedInstance = null, open = false"><svg
+                            class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            fill="none" viewBox="0 0 24 24">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M6 18 17.94 6M18 18 6.06 6" />
                         </svg></button>
-                    <button>
+                    <button @click="open = !open">
                         <svg :class="{ 'rotate-180': open }" class="w-4 h-4 ease-out transition" aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -176,7 +178,7 @@ onMounted(async () => {
         </div>
 
         <nav v-if="open"
-            class="rounded-b-lg absolute top-[40px] w-full z-20 text-sm  shadow shadow-gray-900 bg-base-300 p-2">
+            class="rounded-b-lg absolute top-[48px] w-full z-20 text-sm  shadow shadow-gray-900 bg-base-300 p-2">
             <ul class="gap-2 flex flex-col">
                 <li v-if="instances.length > 0" v-for="inst, index in instances"
                     :class="selectedInstance && selectedInstance.id === inst.id ? 'bg-base-100' : 'bg-base-100/50 hover:bg-base-200/90'"
@@ -229,16 +231,11 @@ onMounted(async () => {
                                     </div>
                                 </div>
                             </div>
-                            <div v-else> <svg aria-hidden="true"
-                                    class="inline w-4 h-4 text-blue-300 flex-shrink-0 animate-spin fill-gray-700"
-                                    viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                                        fill="currentColor" />
-                                    <path
-                                        d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                                        fill="currentFill" />
-                                </svg></div>
+                            <div v-else>
+                                <div
+                                    class="h-5 w-5 border-t-transparent border-solid animate-spin rounded-full border-white border-4">
+                                </div>
+                            </div>
 
                             <svg :class="inst.webhooks ? 'text-green-500' : 'text-red-600'"
                                 class="w-5 h-5 shadow shadow-gray-900 p-[3px] rounded-full bg-base-300 flex-shrink-0"
