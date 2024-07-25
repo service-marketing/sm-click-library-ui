@@ -183,14 +183,14 @@ onMounted(async () => {
         </div>
 
         <nav v-if="open"
-            class="rounded-b-lg absolute top-[48px] w-full z-20 text-sm shadow shadow-black dark:shadow-gray-400 bg-base-300 p-2">
+            class="rounded-b-lg overflow-y-auto max-h-[200px] absolute top-[48px] w-full z-20 text-sm shadow shadow-black dark:shadow-gray-400 bg-base-300 p-2">
             <ul class="gap-2 flex flex-col">
                 <li v-if="instances.length > 0" v-for="inst, index in instances"
                     :class="selectedInstance && selectedInstance.id === inst.id ? 'bg-base-100' : 'bg-base-200 hover:bg-base-100'"
                     class=" select-none cursor-pointer w-full rounded-lg">
                     <button @click="selectedInstance = inst, open = false, functionEmit(selectedInstance)"
                         :disabled="selectedInstance && selectedInstance.id === inst.id"
-                        class="flex justify-between items-center p-2 px-1  w-full">
+                        class="flex justify-between items-center p-2 px-1 w-full">
                         <div class="flex w-full items-center px-2 gap-2">
                             <svg v-if="inst.type === 'whatsapp-qrcode'" xmlns="http://www.w3.org/2000/svg"
                                 fill="currentColor" class="w-5 h-5  flex-shrink-0 text-green-400" viewBox="0 0 16 16">
@@ -252,7 +252,7 @@ onMounted(async () => {
                             </svg>
                         </div>
                         <div
-                            class="flex min-w-[180px] text-center items-center w-[180px] my-auto flex-shrink-0 px-2 justify-center">
+                            class="flex min-w-[150px] text-center items-center w-[10%] my-auto flex-shrink-0 px-2 justify-center">
                             {{ inst.telephone }}
                         </div>
                     </button>
