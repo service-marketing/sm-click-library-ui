@@ -225,7 +225,7 @@ onMounted(async () => {
                             </svg>
                             <p class="w-full text-center">{{ inst.name }} </p>
                             <div v-if="!inst.isLoading" class="relative group">
-                                <div :class="{ 'bg-red-500/80': inst.status === false, 'bg-green-500': inst.status === true, 'bg-purple-500': inst.status === 'Offline' }"
+                                <div :class="{ 'bg-red-500': inst.status === false, 'bg-green-500': inst.status === true, 'bg-purple-500': inst.status === 'Offline' }"
                                     class="text-xs px-2 py-1 shadow flex justify-start shadow-gray-900 dark:shadow-gray-400 rounded-full cursor-pointer transition-all duration-200 ease-in-out">
                                     <div class=" my-auto text-center font-semibold group-hover:inline-block">
                                         {{ inst.status === true ? 'Conectado' : inst.status === false ? 'Desconectada' :
