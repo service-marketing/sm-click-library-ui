@@ -241,7 +241,7 @@ onMounted(async () => {
                         </div>
                         <div
                             class="flex min-w-[120px] text-center items-center my-auto flex-shrink-0 px-1 justify-center">
-                            {{ inst.telephone }} 11940658446
+                            {{ inst.telephone }}
                         </div>
                     </button>
                 </li>
