@@ -223,7 +223,7 @@ onMounted(async () => {
                                     </filter>
                                 </defs>
                             </svg>
-                            <p class="w-full text-center">{{ inst.name }} </p>
+                            <p class="w-full text-start">{{ inst.name }} </p>
                             <div v-if="!inst.isLoading" class="relative group">
                                 <div :class="{ 'bg-red-500': inst.status === false, 'bg-green-500': inst.status === true, 'bg-purple-500': inst.status === 'Offline' }"
                                     class="text-xs px-2 py-1 shadow flex justify-start shadow-gray-900 dark:shadow-gray-400 rounded-full cursor-pointer transition-all duration-200 ease-in-out">
@@ -240,7 +240,7 @@ onMounted(async () => {
                             </div>
                         </div>
                         <div
-                            class="flex min-w-[120px] text-center items-center my-auto flex-shrink-0 px-1 justify-center">
+                            class="flex min-w-[150px] text-sm text-center items-center my-auto flex-shrink-0 px-1 justify-center">
                             {{ inst.telephone }}
                         </div>
                     </button>
