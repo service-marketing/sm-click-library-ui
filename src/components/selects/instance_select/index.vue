@@ -12,7 +12,7 @@ const props = defineProps({
     },
     token: {
         type: String,
-        default: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzIyMDgzNzI1LCJpYXQiOjE3MjE5OTczMjUsImp0aSI6Ijg4NmYzNjRjM2NhNTQ3NDg5NDVjY2JiNGVkYjVkNzk3IiwidXNlcl9pZCI6ImUyZjkyYjE1LTE2MGItNGVhYS04MzIzLWM5MmNhN2NlOTZlYyJ9.oJ5XMa9sNuvPM8ezsCu-tDdTKKP6eMa-nai6hj9fRZE',
+        default: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzIyMzQwMjYxLCJpYXQiOjE3MjIyNTM4NjEsImp0aSI6IjViZGRmMjJiMWIyMDRmMDQ5MWEwZWFjNzIyYjZiNTFiIiwidXNlcl9pZCI6IjYyNGRmZTIzLTkyZDAtNDNmMS04MDYxLWEyMzIxZjJiNWViYiJ9.ck1s6mHEzJ0IQNmEJGxCd2jdFC6r0oIMgClP5l5nbdI',
     },
     type: {
         type: String,
@@ -93,6 +93,28 @@ watch(selectedInstance, (newValue) => {
 onMounted(async () => {
     await getInstances();
 });
+
+function formatTelephone(number) {
+    // Remove caracteres não numéricos
+    number = number.replace(/\D/g, '');
+
+    // Verifica se o número já tem o código do país
+    if (number.length >= 12 && number.startsWith('55')) {
+        // Número no formato internacional, começa com +55
+        return '+' + number.slice(0, 2) + ' ' + number.slice(2, 4) + ' ' + number.slice(4, 9) + '-' + number.slice(9);
+    } else if (number.length === 11) {
+        // Número no formato nacional com DDD
+        return '+55 ' + number.slice(0, 2) + ' ' + number.slice(2, 7) + '-' + number.slice(7);
+    } else if (number.length === 10) {
+        // Número no formato nacional sem DDD
+        const ddd = number.slice(0, 2);
+        const rest = number.slice(2);
+        return '+55 ' + ddd + ' ' + rest.slice(0, 5) + '-' + rest.slice(5);
+    } else {
+        // Número inválido ou não suportado
+        return number;
+    }
+}
 </script>
 <template>
     <main class="w-full relative text-current">
@@ -190,13 +212,13 @@ onMounted(async () => {
                     <button @click="selectedInstance = inst, open = false, functionEmit(selectedInstance)"
                         :disabled="selectedInstance && selectedInstance.id === inst.id"
                         class="flex justify-between items-center p-2 px-1 w-full">
-                        <div class="flex w-full items-center pl-2 gap-2">
+                        <div class="flex w-full items-center pl-2 gap-4">
                             <svg v-if="inst.type === 'whatsapp-qrcode'" xmlns="http://www.w3.org/2000/svg"
-                                fill="currentColor" class="w-5 h-5  flex-shrink-0 text-green-400" viewBox="0 0 16 16">
+                                fill="currentColor" class="w-4 h-4  flex-shrink-0 text-green-400" viewBox="0 0 16 16">
                                 <path
                                     d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z" />
                             </svg>
-                            <svg v-if="inst.type === 'whatsapp-api-official'" class="w-5 h-5 flex-shrink-0 text-green-400"
+                            <svg v-if="inst.type === 'whatsapp-api-official'" class="w-4 h-4 flex-shrink-0 text-green-400"
                                 xmlns="http://www.w3.org/2000/svg" width="26" height="24" viewBox="0 0 26 24" fill="none">
                                 <g filter="url(#filter0_d_1393_492)">
                                     <path fill-rule="evenodd" clip-rule="evenodd"
@@ -223,25 +245,25 @@ onMounted(async () => {
                                     </filter>
                                 </defs>
                             </svg>
-                            <p class="w-full text-start">{{ inst.name }} </p>
+                            <p class="w-full te text-center">{{ inst.name }} </p>
                             <div v-if="!inst.isLoading" class="relative group">
                                 <div :class="{ 'bg-red-500': inst.status === false, 'bg-green-500': inst.status === true, 'bg-purple-500': inst.status === 'Offline' }"
-                                    class="text-xs px-2 py-1 shadow flex justify-start shadow-gray-900 dark:shadow-gray-400 rounded-full cursor-pointer transition-all duration-200 ease-in-out">
-                                    <div class=" my-auto text-center font-semibold group-hover:inline-block">
+                                    class="text-xs px-2 w-22 py-1 shadow flex justify-start shadow-gray-900 dark:shadow-gray-400 rounded-full cursor-pointer transition-all duration-200 ease-in-out">
+                                    <div class="my-auto text-center mx-auto font-semibold group-hover:inline-block">
                                         {{ inst.status === true ? 'Conectado' : inst.status === false ? 'Desconectada' :
                                             'Indefinido' }}
                                     </div>
                                 </div>
                             </div>
-                            <div v-else>
+                            <div v-else class="flex justify-center">
                                 <div
-                                    class="h-5 w-5 border-t-transparent border-solid animate-spin rounded-full border-white border-4">
+                                    class="h-5 w-5 mr-8 border-t-transparent border-solid animate-spin rounded-full border-white border-4">
                                 </div>
                             </div>
                         </div>
                         <div
                             class="flex min-w-[150px] text-sm text-center items-center my-auto flex-shrink-0 px-1 justify-center">
-                            {{ inst.telephone }}
+                            {{ inst.telephone? formatTelephone(inst.telephone) : '' }}
                         </div>
                     </button>
                 </li>
