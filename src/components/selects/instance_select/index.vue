@@ -152,7 +152,8 @@ function formatTelephone(number) {
                                         <feOffset dy="4" />
                                         <feGaussianBlur stdDeviation="2" />
                                         <feComposite in2="hardAlpha" operator="out" />
-                                        <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
+                                        <feColorMatrix type="matrix"
+                                            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
                                         <feBlend mode="normal" in2="BackgroundImageFix"
                                             result="effect1_dropShadow_1393_492" />
                                         <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1393_492"
@@ -165,19 +166,19 @@ function formatTelephone(number) {
                                     class="w-5 h-5 text-xs shadow flex shadow-gray-900 dark:shadow-gray-400 rounded-full cursor-pointer group-hover:w-auto group-hover:px-2 transition-all duration-200 ease-in-out">
                                     <div class="hidden my-auto text-center font-semibold group-hover:inline-block">
                                         {{ selectedInstance.status === true ? 'Conectado' : selectedInstance.status ===
-                                            false ? 'Desconectado' :
-                                            'Indefinido' }}
+            false ? 'Desconectado' :
+            'Indefinido' }}
                                     </div>
                                 </div>
                             </div>
                         </header>
                         <div class="w-full">{{
-                            selectedInstance.name }}</div>
+            selectedInstance.name }}</div>
                     </span>
                 </div>
                 <div v-else class="flex items-center  gap-2 justify-center"><svg aria-hidden="true"
-                        class="inline w-5 h-5 text-blue-300 animate-spin  fill-gray-600" viewBox="0 0 100 101" fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
+                        class="inline w-5 h-5 text-blue-300 animate-spin  fill-gray-600" viewBox="0 0 100 101"
+                        fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
                             d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
                             fill="currentColor" />
@@ -218,8 +219,9 @@ function formatTelephone(number) {
                                 <path
                                     d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z" />
                             </svg>
-                            <svg v-if="inst.type === 'whatsapp-api-official'" class="w-4 h-4 flex-shrink-0 text-green-400"
-                                xmlns="http://www.w3.org/2000/svg" width="26" height="24" viewBox="0 0 26 24" fill="none">
+                            <svg v-if="inst.type === 'whatsapp-api-official'"
+                                class="w-4 h-4 flex-shrink-0 text-green-400" xmlns="http://www.w3.org/2000/svg"
+                                width="26" height="24" viewBox="0 0 26 24" fill="none">
                                 <g filter="url(#filter0_d_1393_492)">
                                     <path fill-rule="evenodd" clip-rule="evenodd"
                                         d="M15.0313 0.599454C15.9939 0.998793 16.8675 1.58573 17.601 2.32605C18.3397 3.06088 18.9247 3.93462 19.3243 4.89693C19.7238 5.85924 19.929 6.89109 19.928 7.93305C19.9279 8.07377 19.9241 8.21365 19.9167 8.35259C19.8319 8.31268 19.7413 8.27036 19.6446 8.22551C19.232 8.03432 18.882 7.8685 18.5833 7.72357C18.5603 6.92804 18.3926 6.14274 18.0879 5.40628C17.757 4.60647 17.271 3.8801 16.658 3.26905C16.0471 2.65561 15.3208 2.16916 14.521 1.83774C13.7212 1.50632 12.8637 1.3365 11.998 1.33805C8.364 1.33805 5.407 4.29605 5.407 7.92205C5.40465 9.16208 5.75381 10.3774 6.414 11.427L6.57 11.678L5.904 14.111L8.398 13.457L8.638 13.601C9.08609 13.8669 9.56213 14.0773 10.0556 14.2294C10.0188 14.6669 10 15.0932 10 15.5C10 15.536 10.0002 15.5721 10.0007 15.608C9.37752 15.4461 8.77396 15.2082 8.204 14.898L4 16L5.121 11.891C4.43 10.686 4.064 9.32505 4.064 7.92605C4.068 3.55805 7.627 4.93305e-05 11.994 4.93305e-05C13.0362 -0.00364427 14.0687 0.200115 15.0313 0.599454ZM11.3127 9.01024C11.1234 9.44723 10.9533 9.91151 10.8031 10.3916C9.69535 9.53633 8.97603 8.49875 8.8099 8.25911C8.79528 8.23802 8.78494 8.22311 8.779 8.21505L8.77739 8.21291C8.67164 8.07229 7.969 7.13797 7.969 6.16605C7.969 5.24848 8.41796 4.77017 8.62334 4.55135C8.63665 4.53718 8.64893 4.52409 8.66 4.51205C8.7264 4.43665 8.80766 4.37579 8.89869 4.33328C8.98973 4.29078 9.08856 4.26755 9.189 4.26505C9.322 4.26505 9.455 4.26505 9.569 4.27205C9.58321 4.27263 9.59798 4.27241 9.61323 4.27219C9.72893 4.27048 9.87264 4.26836 10.014 4.61205C10.0845 4.77848 10.1958 5.04894 10.3045 5.31331C10.4531 5.67479 10.5971 6.02487 10.626 6.08205C10.675 6.18105 10.706 6.29505 10.641 6.42905C10.6316 6.44804 10.623 6.46604 10.6146 6.48327C10.5651 6.58584 10.5286 6.66145 10.443 6.75905C10.4062 6.80148 10.3678 6.84807 10.3296 6.89438C10.2653 6.97249 10.2016 7.0498 10.147 7.10505C10.048 7.20405 9.945 7.31005 10.059 7.50805C10.177 7.70505 10.572 8.35505 11.162 8.88005C11.2128 8.92552 11.263 8.96888 11.3127 9.01024Z"
@@ -237,7 +239,8 @@ function formatTelephone(number) {
                                         <feOffset dy="4" />
                                         <feGaussianBlur stdDeviation="2" />
                                         <feComposite in2="hardAlpha" operator="out" />
-                                        <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
+                                        <feColorMatrix type="matrix"
+                                            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
                                         <feBlend mode="normal" in2="BackgroundImageFix"
                                             result="effect1_dropShadow_1393_492" />
                                         <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1393_492"
@@ -248,10 +251,10 @@ function formatTelephone(number) {
                             <p class="w-full te text-center">{{ inst.name }} </p>
                             <div v-if="!inst.isLoading" class="relative group">
                                 <div :class="{ 'bg-red-500': inst.status === false, 'bg-green-500': inst.status === true, 'bg-purple-500': inst.status === 'Offline' }"
-                                    class="text-xs px-2 w-22 py-1 shadow flex justify-start shadow-gray-900 dark:shadow-gray-400 rounded-full cursor-pointer transition-all duration-200 ease-in-out">
+                                    class="text-xs w-[100px] py-1 shadow flex justify-start shadow-gray-900 dark:shadow-gray-400 rounded-full cursor-pointer transition-all duration-200 ease-in-out">
                                     <div class="my-auto text-center mx-auto font-semibold group-hover:inline-block">
                                         {{ inst.status === true ? 'Conectado' : inst.status === false ? 'Desconectada' :
-                                            'Indefinido' }}
+            'Indefinido' }}
                                     </div>
                                 </div>
                             </div>
@@ -263,7 +266,8 @@ function formatTelephone(number) {
                         </div>
                         <div
                             class="flex min-w-[150px] text-sm text-center items-center my-auto flex-shrink-0 px-1 justify-center">
-                            {{ inst.telephone? formatTelephone(inst.telephone) : '' }}
+                            <div> {{ inst.telephone ? formatTelephone(inst.telephone) : '' }}</div>
+
                         </div>
                     </button>
                 </li>
