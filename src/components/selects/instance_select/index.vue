@@ -16,9 +16,12 @@ const props = defineProps({
     },
     type: {
         type: String,
-        default: 'whatsapp-api-official',
+        // default: 'whatsapp-api-official',
     },
-    webhooks: Boolean,
+    webhooks: {
+        type: Boolean,
+        default: undefined
+    },
     url: {
         type: String,
         default: 'http://localhost:8000/v1/api/instances/instance/',
@@ -147,7 +150,8 @@ function formatTelephone(number) {
                                         d="M8.217 5.243C9.145 3.988 10.171 3 11.483 3 13.96 3 16 6.153 16.001 9.907c0 2.29-.986 3.725-2.757 3.725-1.543 0-2.395-.866-3.924-3.424l-.667-1.123-.118-.197a54.944 54.944 0 0 0-.53-.877l-1.178 2.08c-1.673 2.925-2.615 3.541-3.923 3.541C1.086 13.632 0 12.217 0 9.973 0 6.388 1.995 3 4.598 3c.319 0 .625.039.924.122.31.086.611.22.913.407.577.359 1.154.915 1.782 1.714Zm1.516 2.224c-.252-.41-.494-.787-.727-1.133L9 6.326c.845-1.305 1.543-1.954 2.372-1.954 1.723 0 3.102 2.537 3.102 5.653 0 1.188-.39 1.877-1.195 1.877-.773 0-1.142-.51-2.61-2.87l-.937-1.565ZM4.846 4.756c.725.1 1.385.634 2.34 2.001A212.13 212.13 0 0 0 5.551 9.3c-1.357 2.126-1.826 2.603-2.581 2.603-.777 0-1.24-.682-1.24-1.9 0-2.602 1.298-5.264 2.846-5.264.091 0 .181.006.27.018Z" />
                                 </svg>
                             </div>
-                            <div v-if="selectedInstance && selectedInstance.status" class="relative group">
+                            <div v-if="selectedInstance && selectedInstance.status !== undefined"
+                                class="relative group">
                                 <div :class="{ 'bg-red-500/80': selectedInstance.status === false, 'bg-green-500': selectedInstance.status === true, 'bg-purple-500': selectedInstance.status === 'Offline' }"
                                     class="w-5 h-5 text-xs shadow flex shadow-gray-900 dark:shadow-gray-400 rounded-full cursor-pointer group-hover:w-auto group-hover:px-2 transition-all duration-200 ease-in-out">
                                     <div class="hidden my-auto text-center font-semibold group-hover:inline-block">
@@ -198,7 +202,7 @@ function formatTelephone(number) {
                     <button
                         :class="selectedInstance && selectedInstance.id === inst.id ? 'bg-base-100' : 'bg-base-200 hover:bg-base-100'"
                         @click="selectedInstance = inst, open = false, functionEmit(selectedInstance)"
-                        :disabled="selectedInstance && selectedInstance.id === inst.id || (webhooks === true && inst.webhooks === true) || (type === 'whatsapp-qrcode' && inst.type === 'whatsapp-qrcode') || (type === 'whatsapp-api-official' && inst.type === 'whatsapp-api-official')"
+                        :disabled="selectedInstance && selectedInstance.id === inst.id || (type && inst.type !== type) || (webhooks !== undefined && webhooks !== inst.webhooks)"
                         class="flex rounded-md justify-between items-center p-2 px-1 w-full">
                         <div class="flex w-full items-center pl-2 gap-3">
                             <svg v-if="inst.type === 'whatsapp-qrcode'" xmlns="http://www.w3.org/2000/svg"
@@ -220,9 +224,9 @@ function formatTelephone(number) {
                                         d="M8.217 5.243C9.145 3.988 10.171 3 11.483 3 13.96 3 16 6.153 16.001 9.907c0 2.29-.986 3.725-2.757 3.725-1.543 0-2.395-.866-3.924-3.424l-.667-1.123-.118-.197a54.944 54.944 0 0 0-.53-.877l-1.178 2.08c-1.673 2.925-2.615 3.541-3.923 3.541C1.086 13.632 0 12.217 0 9.973 0 6.388 1.995 3 4.598 3c.319 0 .625.039.924.122.31.086.611.22.913.407.577.359 1.154.915 1.782 1.714Zm1.516 2.224c-.252-.41-.494-.787-.727-1.133L9 6.326c.845-1.305 1.543-1.954 2.372-1.954 1.723 0 3.102 2.537 3.102 5.653 0 1.188-.39 1.877-1.195 1.877-.773 0-1.142-.51-2.61-2.87l-.937-1.565ZM4.846 4.756c.725.1 1.385.634 2.34 2.001A212.13 212.13 0 0 0 5.551 9.3c-1.357 2.126-1.826 2.603-2.581 2.603-.777 0-1.24-.682-1.24-1.9 0-2.602 1.298-5.264 2.846-5.264.091 0 .181.006.27.018Z" />
                                 </svg>
                             </div>
-                            <svg v-if="(webhooks === true && inst.webhooks === true) || (type === 'whatsapp-qrcode' && inst.type === 'whatsapp-qrcode') || (type === 'whatsapp-api-official' && inst.type === 'whatsapp-api-official')"
-                                class="w-6 h-6 flex-shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
-                                height="24" fill="currentColor" viewBox="0 0 24 24">
+                            <svg v-if="(type && inst.type !== type) || (webhooks !== undefined && webhooks !== inst.webhooks)"
+                                class=" w-6 h-6 flex-shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
                                 <path fill-rule="evenodd"
                                     d="M8 10V7a4 4 0 1 1 8 0v3h1a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h1Zm2-3a2 2 0 1 1 4 0v3h-4V7Zm2 6a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1Z"
                                     clip-rule="evenodd" />
@@ -234,7 +238,7 @@ function formatTelephone(number) {
                                     class="text-xs w-[100px] py-1 shadow flex justify-start shadow-gray-900 dark:shadow-gray-400 rounded-full cursor-pointer transition-all duration-200 ease-in-out">
                                     <div class="my-auto text-center mx-auto font-semibold group-hover:inline-block">
                                         {{ inst.status === true ? 'Conectada' : inst.status === false ? 'Desconectada' :
-                                        'Indefinida' }}
+            'Indefinida' }}
                                     </div>
                                 </div>
                             </div>
