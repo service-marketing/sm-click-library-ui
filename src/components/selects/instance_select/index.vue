@@ -152,7 +152,7 @@ function formatTelephone(number) {
                             </div>
                             <div v-if="selectedInstance && selectedInstance.status !== undefined"
                                 class="relative group">
-                                <div :class="{ 'bg-red-500/80': selectedInstance.status === false, 'bg-green-500': selectedInstance.status === true, 'bg-purple-500': selectedInstance.status === 'Offline' }"
+                                <div :class="{ 'bg-red-500': selectedInstance.status === false, 'bg-green-500': selectedInstance.status === true, 'bg-purple-500': selectedInstance.status === 'Offline' }"
                                     class="w-5 h-5 text-xs shadow flex shadow-gray-900 dark:shadow-gray-400 rounded-full cursor-pointer group-hover:w-auto group-hover:px-2 transition-all duration-200 ease-in-out">
                                     <div class="hidden my-auto text-center font-semibold group-hover:inline-block">
                                         {{ selectedInstance.status === true ? 'Conectada' : selectedInstance.status ===
@@ -166,7 +166,7 @@ function formatTelephone(number) {
             selectedInstance.name }}</div>
                     </span>
                 </div>
-                <div v-else class="flex items-center  gap-2 justify-center"><svg aria-hidden="true"
+                <div v-else class="flex items-center gap-2 justify-center"><svg aria-hidden="true"
                         class="inline w-5 h-5 text-blue-300 animate-spin  fill-gray-600" viewBox="0 0 100 101"
                         fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
@@ -238,7 +238,7 @@ function formatTelephone(number) {
                                     class="text-xs w-[100px] py-1 shadow flex justify-start shadow-gray-900 dark:shadow-gray-400 rounded-full cursor-pointer transition-all duration-200 ease-in-out">
                                     <div class="my-auto text-center mx-auto font-semibold group-hover:inline-block">
                                         {{ inst.status === true ? 'Conectada' : inst.status === false ? 'Desconectada' :
-            'Indefinida' }}
+                                        'Indefinida' }}
                                     </div>
                                 </div>
                             </div>
