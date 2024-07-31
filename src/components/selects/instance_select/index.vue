@@ -12,7 +12,7 @@ const props = defineProps({
     },
     token: {
         type: String,
-        default: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzIyMzQwMjYxLCJpYXQiOjE3MjIyNTM4NjEsImp0aSI6IjViZGRmMjJiMWIyMDRmMDQ5MWEwZWFjNzIyYjZiNTFiIiwidXNlcl9pZCI6IjYyNGRmZTIzLTkyZDAtNDNmMS04MDYxLWEyMzIxZjJiNWViYiJ9.ck1s6mHEzJ0IQNmEJGxCd2jdFC6r0oIMgClP5l5nbdI',
+        default: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzIyNDI2NzkyLCJpYXQiOjE3MjIzNDAzOTIsImp0aSI6IjcwMjM2MDlkNDUzMjRhNWI5YmY4OTI2NGYzOGM3NWExIiwidXNlcl9pZCI6IjYyNGRmZTIzLTkyZDAtNDNmMS04MDYxLWEyMzIxZjJiNWViYiJ9.kMVi60nhWhyQLm1xP3hSBo4oF7HcrCrCJNpWj5LkA8E',
     },
     type: {
         type: String,
@@ -79,6 +79,7 @@ async function getInstances() {
 }
 
 function functionEmit(value) {
+    selectedInstance.value = value
     emit('function', value)
 }
 
@@ -201,7 +202,7 @@ function formatTelephone(number) {
                     class=" select-none cursor-pointer w-full">
                     <button
                         :class="selectedInstance && selectedInstance.id === inst.id ? 'bg-base-100' : 'bg-base-200 hover:bg-base-100'"
-                        @click="selectedInstance = inst, open = false, functionEmit(selectedInstance)"
+                        @click="selectedInstance = inst, open = false, functionEmit(inst)"
                         :disabled="selectedInstance && selectedInstance.id === inst.id || (type && inst.type !== type) || (webhooks !== undefined && webhooks !== inst.webhooks)"
                         class="flex rounded-md justify-between items-center p-2 px-1 w-full">
                         <div class="flex w-full items-center pl-2 gap-3">
@@ -238,7 +239,7 @@ function formatTelephone(number) {
                                     class="text-xs w-[100px] py-1 shadow flex justify-start shadow-gray-900 dark:shadow-gray-400 rounded-full cursor-pointer transition-all duration-200 ease-in-out">
                                     <div class="my-auto text-center mx-auto font-semibold group-hover:inline-block">
                                         {{ inst.status === true ? 'Conectada' : inst.status === false ? 'Desconectada' :
-                                        'Indefinida' }}
+            'Indefinida' }}
                                     </div>
                                 </div>
                             </div>
