@@ -151,9 +151,9 @@ function formatTelephone(number) {
                                         d="M8.217 5.243C9.145 3.988 10.171 3 11.483 3 13.96 3 16 6.153 16.001 9.907c0 2.29-.986 3.725-2.757 3.725-1.543 0-2.395-.866-3.924-3.424l-.667-1.123-.118-.197a54.944 54.944 0 0 0-.53-.877l-1.178 2.08c-1.673 2.925-2.615 3.541-3.923 3.541C1.086 13.632 0 12.217 0 9.973 0 6.388 1.995 3 4.598 3c.319 0 .625.039.924.122.31.086.611.22.913.407.577.359 1.154.915 1.782 1.714Zm1.516 2.224c-.252-.41-.494-.787-.727-1.133L9 6.326c.845-1.305 1.543-1.954 2.372-1.954 1.723 0 3.102 2.537 3.102 5.653 0 1.188-.39 1.877-1.195 1.877-.773 0-1.142-.51-2.61-2.87l-.937-1.565ZM4.846 4.756c.725.1 1.385.634 2.34 2.001A212.13 212.13 0 0 0 5.551 9.3c-1.357 2.126-1.826 2.603-2.581 2.603-.777 0-1.24-.682-1.24-1.9 0-2.602 1.298-5.264 2.846-5.264.091 0 .181.006.27.018Z" />
                                 </svg>
                             </div>
-                            <Popper v-if="selectedInstance && selectedInstance.status !== undefined" class="dark:popper-light popper-dark" :hover="true" placement="right">
+                            <Popper v-if="selectedInstance && selectedInstance.status !== undefined" class="dark:popper-light popper-dark" :hover="true" placement="top">
                                 <template #content>
-                                    <main class="p-1 rounded px-3"
+                                    <main class="p-1 rounded text-sm px-3"
                                         :class="{ 'bg-red-500': selectedInstance.status === false, 'bg-green-500': selectedInstance.status === true, 'bg-purple-500': selectedInstance.status === 'Offline' }">
                                         <div class="my-auto text-center mx-auto group-hover:inline-block">
                                             {{ selectedInstance.status === true ? 'Conectada' : selectedInstance.status === false ?
@@ -201,8 +201,8 @@ function formatTelephone(number) {
         </div>
 
         <nav v-if="open"
-            class="rounded-b-lg overflow-y-auto max-h-[200px] absolute top-[48px] w-full z-20 text-sm shadow shadow-black dark:shadow-gray-400 bg-base-300 p-2">
-            <ul class="gap-2 flex flex-col">
+            class="absolute top-[48px] w-full z-20 text-sm ">
+            <ul class="gap-2 rounded-b-lg flex overflow-y-auto p-2 shadow shadow-black dark:shadow-gray-400 bg-base-300  max-h-[200px] flex-col">
                 <li v-if="instances.length > 0" v-for="inst, index in instances"
                     class="select-none cursor-pointer w-full">
                     <button
@@ -230,7 +230,7 @@ function formatTelephone(number) {
                                         d="M8.217 5.243C9.145 3.988 10.171 3 11.483 3 13.96 3 16 6.153 16.001 9.907c0 2.29-.986 3.725-2.757 3.725-1.543 0-2.395-.866-3.924-3.424l-.667-1.123-.118-.197a54.944 54.944 0 0 0-.53-.877l-1.178 2.08c-1.673 2.925-2.615 3.541-3.923 3.541C1.086 13.632 0 12.217 0 9.973 0 6.388 1.995 3 4.598 3c.319 0 .625.039.924.122.31.086.611.22.913.407.577.359 1.154.915 1.782 1.714Zm1.516 2.224c-.252-.41-.494-.787-.727-1.133L9 6.326c.845-1.305 1.543-1.954 2.372-1.954 1.723 0 3.102 2.537 3.102 5.653 0 1.188-.39 1.877-1.195 1.877-.773 0-1.142-.51-2.61-2.87l-.937-1.565ZM4.846 4.756c.725.1 1.385.634 2.34 2.001A212.13 212.13 0 0 0 5.551 9.3c-1.357 2.126-1.826 2.603-2.581 2.603-.777 0-1.24-.682-1.24-1.9 0-2.602 1.298-5.264 2.846-5.264.091 0 .181.006.27.018Z" />
                                 </svg>
                             </div>
-                            <Popper class="dark:popper-light popper-dark" :hover="true" placement="right">
+                            <Popper class="dark:popper-light popper-dark" :hover="true" placement="top">
                                 <template #content>
                                     <span>{{ type && inst.type !== type ? 'Não é possível utilizar esse tipo de Instância neste recurso' : webhooks === true ? 'Essa instância está com o Atendimento desabilitado' : 'Essa aplicação é somente para instâncias sem atendimento habilitado.' }}</span>
                                 </template>
@@ -243,7 +243,7 @@ function formatTelephone(number) {
                                 </svg>
                             </Popper>
                             <p class="w-full text-center">{{ inst.name }} </p>
-                            <Popper class="dark:popper-light popper-dark" :hover="true" placement="left">
+                            <Popper class="dark:popper-light popper-dark" :hover="true" placement="top">
                                 <template #content>
                                     <main class="p-1 rounded px-3"
                                         :class="{ 'bg-red-500': inst.status === false, 'bg-green-500': inst.status === true, 'bg-purple-500': inst.status === 'Offline' }">
@@ -268,7 +268,7 @@ function formatTelephone(number) {
                         <div
                             class="flex min-w-[50px] text-sm text-center items-center my-auto flex-shrink-0 px-1 justify-center">
                             <Popper v-if="inst.telephone" class="dark:popper-light popper-dark" :hover="true"
-                                placement="left">
+                                placement="top">
                                 <template #content>
                                     <div> {{ inst.telephone ? formatTelephone(inst.telephone) : '' }}</div>
                                 </template>
