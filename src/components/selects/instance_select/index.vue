@@ -12,7 +12,7 @@ const props = defineProps({
     },
     token: {
         type: String,
-        default: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzIyMzQwMjYxLCJpYXQiOjE3MjIyNTM4NjEsImp0aSI6IjViZGRmMjJiMWIyMDRmMDQ5MWEwZWFjNzIyYjZiNTFiIiwidXNlcl9pZCI6IjYyNGRmZTIzLTkyZDAtNDNmMS04MDYxLWEyMzIxZjJiNWViYiJ9.ck1s6mHEzJ0IQNmEJGxCd2jdFC6r0oIMgClP5l5nbdI',
+        default: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzIyNTE5NjE1LCJpYXQiOjE3MjI0MzMyMTUsImp0aSI6ImUzYzJmMThjZmNjODQ1NTY4OTBhNmZjNDk4OTM2M2NhIiwidXNlcl9pZCI6IjYyNGRmZTIzLTkyZDAtNDNmMS04MDYxLWEyMzIxZjJiNWViYiJ9.lIQ_m_89bc4rskubPHm0YTNkzn_PwGpJmedLr_A0MkM',
     },
     type: {
         type: String,
@@ -225,34 +225,54 @@ function formatTelephone(number) {
                                         d="M8.217 5.243C9.145 3.988 10.171 3 11.483 3 13.96 3 16 6.153 16.001 9.907c0 2.29-.986 3.725-2.757 3.725-1.543 0-2.395-.866-3.924-3.424l-.667-1.123-.118-.197a54.944 54.944 0 0 0-.53-.877l-1.178 2.08c-1.673 2.925-2.615 3.541-3.923 3.541C1.086 13.632 0 12.217 0 9.973 0 6.388 1.995 3 4.598 3c.319 0 .625.039.924.122.31.086.611.22.913.407.577.359 1.154.915 1.782 1.714Zm1.516 2.224c-.252-.41-.494-.787-.727-1.133L9 6.326c.845-1.305 1.543-1.954 2.372-1.954 1.723 0 3.102 2.537 3.102 5.653 0 1.188-.39 1.877-1.195 1.877-.773 0-1.142-.51-2.61-2.87l-.937-1.565ZM4.846 4.756c.725.1 1.385.634 2.34 2.001A212.13 212.13 0 0 0 5.551 9.3c-1.357 2.126-1.826 2.603-2.581 2.603-.777 0-1.24-.682-1.24-1.9 0-2.602 1.298-5.264 2.846-5.264.091 0 .181.006.27.018Z" />
                                 </svg>
                             </div>
-                            <svg v-if="(type && inst.type !== type) || (webhooks !== undefined && webhooks !== inst.webhooks)"
-                                class=" w-6 h-6 flex-shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                                width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                                <path fill-rule="evenodd"
-                                    d="M8 10V7a4 4 0 1 1 8 0v3h1a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h1Zm2-3a2 2 0 1 1 4 0v3h-4V7Zm2 6a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1Z"
-                                    clip-rule="evenodd" />
-                            </svg>
-
-                            <p class="w-full te text-center">{{ inst.name }} </p>
-                            <div v-if="!inst.isLoading" class="relative group">
-                                <div :class="{ 'bg-red-500': inst.status === false, 'bg-green-500': inst.status === true, 'bg-purple-500': inst.status === 'Offline' }"
-                                    class="text-xs w-[100px] py-1 shadow flex justify-start shadow-gray-900 dark:shadow-gray-400 rounded-full cursor-pointer transition-all duration-200 ease-in-out">
-                                    <div class="my-auto text-center mx-auto font-semibold group-hover:inline-block">
-                                        {{ inst.status === true ? 'Conectada' : inst.status === false ? 'Desconectada' :
-                                        'Indefinida' }}
+                            <Popper class="dark:popper-light popper-dark" :hover="true" placement="left">
+                                <template #content>
+                                    <span>{{ type && inst.type !== type ? 'Esse tipo de instância não é permitido nessa aplicação.' : webhooks === true ? 'O atendimento não está habilitado para essa instância' : 'Essa aplicação é somente para instâncias sem atendimento habilitado.' }}</span>
+                                </template>
+                                <svg v-if="(type && inst.type !== type) || (webhooks !== undefined && webhooks !== inst.webhooks)"
+                                    class=" w-6 h-6 flex-shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                    width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                                    <path fill-rule="evenodd"
+                                        d="M8 10V7a4 4 0 1 1 8 0v3h1a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h1Zm2-3a2 2 0 1 1 4 0v3h-4V7Zm2 6a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1Z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </Popper>
+                            <p class="w-full text-center">{{ inst.name }} </p>
+                            <Popper class="dark:popper-light popper-dark" :hover="true" placement="left">
+                                <template #content>
+                                    <main class="p-1 rounded px-3"
+                                        :class="{ 'bg-red-500': inst.status === false, 'bg-green-500': inst.status === true, 'bg-purple-500': inst.status === 'Offline' }">
+                                        <div class="my-auto text-center mx-auto font-semibold group-hover:inline-block">
+                                            {{ inst.status === true ? 'Conectada' : inst.status === false ?
+            'Desconectada' :
+            'Indefinida' }}
+                                        </div>
+                                    </main>
+                                </template>
+                                <div v-if="!inst.isLoading"
+                                    :class="{ 'bg-red-500': inst.status === false, 'bg-green-500': inst.status === true, 'bg-purple-500': inst.status === 'Offline' }"
+                                    class="text-xs w-5 h-5 py-1 shadow flex justify-start shadow-gray-900 dark:shadow-gray-400 rounded-full cursor-pointer transition-all duration-200 ease-in-out">
+                                </div>
+                                <div v-else class="flex justify-center">
+                                    <div
+                                        class="h-5 w-5 border-t-transparent border-solid animate-spin rounded-full border-white border-4">
                                     </div>
                                 </div>
-                            </div>
-                            <div v-else class="flex justify-center">
-                                <div
-                                    class="h-5 w-5 mr-8 border-t-transparent border-solid animate-spin rounded-full border-white border-4">
-                                </div>
-                            </div>
+                            </Popper>
                         </div>
                         <div
-                            class="flex min-w-[150px] text-sm text-center items-center my-auto flex-shrink-0 px-1 justify-center">
-                            <div> {{ inst.telephone ? formatTelephone(inst.telephone) : '' }}</div>
-
+                            class="flex min-w-[50px] text-sm text-center items-center my-auto flex-shrink-0 px-1 justify-center">
+                            <Popper v-if="inst.telephone" class="dark:popper-light popper-dark" :hover="true"
+                                placement="left">
+                                <template #content>
+                                    <div> {{ inst.telephone ? formatTelephone(inst.telephone) : '' }}</div>
+                                </template>
+                                <svg class="w-6 h-6 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
+                                    height="24" fill="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        d="M7.978 4a2.553 2.553 0 0 0-1.926.877C4.233 6.7 3.699 8.751 4.153 10.814c.44 1.995 1.778 3.893 3.456 5.572 1.68 1.679 3.577 3.018 5.57 3.459 2.062.456 4.115-.073 5.94-1.885a2.556 2.556 0 0 0 .001-3.861l-1.21-1.21a2.689 2.689 0 0 0-3.802 0l-.617.618a.806.806 0 0 1-1.14 0l-1.854-1.855a.807.807 0 0 1 0-1.14l.618-.62a2.692 2.692 0 0 0 0-3.803l-1.21-1.211A2.555 2.555 0 0 0 7.978 4Z" />
+                                </svg>
+                            </Popper>
                         </div>
                     </button>
                 </li>
@@ -265,5 +285,27 @@ function formatTelephone(number) {
 button[disabled] {
     opacity: 50;
     cursor: not-allowed;
+}
+
+.popper-dark {
+    --popper-theme-background-color: #111B21;
+    --popper-theme-background-color-hover: #111B21;
+    --popper-theme-text-color: white;
+    --popper-theme-border-width: 0px;
+    --popper-theme-border-radius: 6px;
+    --popper-theme-padding: 10px;
+    --popper-theme-box-shadow: 0 6px 30px -6px rgba(0, 0, 0, 1);
+}
+
+.popper-light {
+    --popper-theme-background-color: #ffffff;
+    --popper-theme-background-color-hover: #ffffff;
+    --popper-theme-text-color: #333333;
+    --popper-theme-border-width: 1px;
+    --popper-theme-border-style: solid;
+    --popper-theme-border-color: #eeeeee;
+    --popper-theme-border-radius: 6px;
+    --popper-theme-padding: 10px;
+    --popper-theme-box-shadow: 0 6px 30px -6px rgba(0, 0, 0, .60);
 }
 </style>
