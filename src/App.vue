@@ -5,6 +5,7 @@ import chartsSelect from "~/components/selects/chart_direction_select/chart_dire
 import simpleModal from "~/components/modals/simple_modal/simple_modal.vue";
 import simpleCard from "~/components/cards/simple_card/simple_card.vue";
 import instanceSelect from "~/components/selects/instance_select/index.vue"
+import calendar from "./components/calendar/calendar.vue";
 const testRender = ref(false);
 const toggleRender = () => {
   testRender.value = true;
@@ -15,7 +16,7 @@ const toggleRender = () => {
   <main
     class="justify-center p-3 bg-base-300 flex-col space-y-2 items-center h-screen"
   >
-    <div class="bg-base-200 p-3 space-y-2 rounded-md">
+    <!-- <div class="bg-base-200 p-3 space-y-2 rounded-md">
       <span class="text-white">Selects</span>
 
       <instanceSelect/>
@@ -42,7 +43,8 @@ const toggleRender = () => {
         chart_direction_select
         <chartsSelect />
       </section>
-    </div>
+    </div> -->
+    <calendar/>
     <!-- <simpleModal :isOpen="true">
       <template #body>
         <simpleCard
