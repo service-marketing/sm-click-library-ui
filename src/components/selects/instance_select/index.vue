@@ -12,7 +12,7 @@ const props = defineProps({
     },
     token: {
         type: String,
-        default: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzIyNTE5NjE1LCJpYXQiOjE3MjI0MzMyMTUsImp0aSI6ImUzYzJmMThjZmNjODQ1NTY4OTBhNmZjNDk4OTM2M2NhIiwidXNlcl9pZCI6IjYyNGRmZTIzLTkyZDAtNDNmMS04MDYxLWEyMzIxZjJiNWViYiJ9.lIQ_m_89bc4rskubPHm0YTNkzn_PwGpJmedLr_A0MkM',
+        default: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI0MjQwNDUwLCJpYXQiOjE3MjQxNTQwNTAsImp0aSI6IjFiMWY5YjU4NDFmYzQ4YjZhZTQxNzIxOTFlMDMxMDUzIiwidXNlcl9pZCI6IjYyNGRmZTIzLTkyZDAtNDNmMS04MDYxLWEyMzIxZjJiNWViYiJ9.-ETm-64tLM1HokxXNMSiQt9uCJyprugg95rVUJQa-vU',
     },
     type: {
         type: String,
@@ -37,24 +37,20 @@ const emit = defineEmits(['update:modelValue', 'function']);
 const instances = ref(null);
 
 async function getInstances() {
+    getLoading.value = true;
     try {
         let url = props.url;
         let status_url = props.status_url;
         let params = ``;
-
-        // if (props.type) params += `&type=${props.type}`;
-        // if (props.webhooks) params += `&webhooks=${props.webhooks}`;
-
-        // if (params) {
-        //     params = `?` + params.substring(1);
-        // }
 
         const response = await axios.get(`${url}${params}`, {
             headers: {
                 Authorization: `Bearer ${props.token}`,
             },
         });
+
         instances.value = response.data;
+
         instances.value.forEach(async (key) => {
             key.isLoading = true;
             try {
@@ -71,12 +67,18 @@ async function getInstances() {
                 key.status = 'Offline';
             }
             key.isLoading = false;
+
+            // Sincronize o status da instância selecionada
+            if (selectedInstance.value && selectedInstance.value.id === key.id) {
+                selectedInstance.value.status = key.status;
+            }
         });
     } catch (err) {
         console.log(err);
     }
-    getLoading.value = false
+    getLoading.value = false;
 }
+
 
 function functionEmit(value) {
     selectedInstance.value = value
@@ -97,8 +99,15 @@ watch(selectedInstance, (newValue) => {
 
 onMounted(async () => {
     await getInstances();
-});
 
+    // Caso haja uma instância já selecionada, atualize o status dela
+    if (selectedInstance.value) {
+        const selected = instances.value.find(inst => inst.id === selectedInstance.value.id);
+        if (selected) {
+            selectedInstance.value.status = selected.status;
+        }
+    }
+});
 function formatTelephone(number) {
     // Remove caracteres não numéricos
     number = number.replace(/\D/g, '');
