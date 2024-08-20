@@ -175,6 +175,11 @@ function formatTelephone(number) {
                                     :class="{ 'bg-red-500': selectedInstance.status === false, 'bg-green-500': selectedInstance.status === true, 'bg-purple-500': selectedInstance.status === 'Offline' }"
                                     class="text-xs w-5 h-5 py-1 shadow flex justify-start shadow-gray-900 dark:shadow-gray-400 rounded-full cursor-pointer transition-all duration-200 ease-in-out">
                                 </div>
+                                <div v-else class="flex justify-center">
+                                    <div
+                                        class="h-5 w-5 border-t-transparent border-solid animate-spin rounded-full border-white border-4">
+                                    </div>
+                                </div>
                             </Popper>
                         </header>
                         <div class="w-full">{{
