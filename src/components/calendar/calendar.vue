@@ -24,12 +24,14 @@
             </button>
         </div>
         <div class="calendar">
-            <div v-for="(day, index) in weekDays" :key="index" class="day-name bg-base-200 border border-base-100">
+            <div v-for="(day, index) in weekDays" :key="index"
+                class="day-name shadow shadow-black/90 dark:shadow-gray-400 bg-base-200 border border-base-100">
                 {{ day }}
             </div>
             <div v-for="(day, index) in daysInMonth" :key="day.date" :class="{
                 'rounded-br': index === daysInMonth.length - 1
-            }" class="day bg-base-300 hover:bg-base-200 border border-base-200">
+            }"
+                class="day shadow shadow-black/90 dark:shadow-gray-400 bg-base-300 hover:bg-base-200 border border-base-200">
                 <div class="date">{{ day.date.getDate() }}</div>
                 <footer class="events-container">
                     <div v-for="event in day.events" :key="event.title" class="event" :class="event.tag">

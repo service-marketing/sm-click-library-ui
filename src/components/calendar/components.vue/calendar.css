@@ -14,6 +14,7 @@
     background-color: #1a68c2; /* bg-blue-300 */
     border-radius: 0.75rem; /* rounded-xl */
     padding: 0.25rem; /* p-1 */
+    color: white;
     @apply shadow shadow-black/70 dark:shadow-gray-400
 }
 
@@ -40,7 +41,6 @@
     justify-content: center;
     align-items: center;
     padding: 0.5rem 0.25rem; /* px-2 py-1 */
-    @apply shadow shadow-black/90 dark:shadow-gray-400
 } 
 
 .day {
@@ -50,7 +50,6 @@
     min-height: 130px;
     padding-top: 0.25rem; /* py-1 */
     transition: background-color 0.3s ease; /* duration-300 */
-    @apply shadow shadow-black/90 dark:shadow-gray-400
 }
 
 .day.rounded-br {
