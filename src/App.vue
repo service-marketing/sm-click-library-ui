@@ -14,7 +14,7 @@ const toggleRender = () => {
 
 <template>
   <main
-    class="justify-center p-3 bg-base-300 flex-col space-y-2 items-center h-screen"
+    class="h-screen overflow-auto"
   >
     <!-- <div class="bg-base-200 p-3 space-y-2 rounded-md">
       <span class="text-white">Selects</span>
