@@ -1,0 +1,56 @@
+.calendar-button {
+    background-color: #93c5fd; /* bg-blue-300 */
+    border-radius: 0.75rem; /* rounded-xl */
+    padding: 0.25rem; /* p-1 */
+}
+
+.calendar-header {
+    display: flex;
+    align-items: center;
+}
+
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    height: calc(100% - 48px); /* Altura total menos a altura dos controles */
+}
+
+.day-name {
+    text-align: center;
+    font-weight: bold;
+    background-color: var(--bg-base-300); /* bg-base-300 */
+    padding: 0.5rem 0.25rem; /* px-2 py-1 */
+    border: 1px solid var(--border-base-200); /* border border-base-200 */
+}
+
+.day {
+    padding: 8px;
+    min-height: 130px;
+    background-color: var(--bg-base-300); /* bg-base-300 */
+    border: 1px solid var(--border-base-200); /* border border-base-200 */
+    padding-top: 0.25rem; /* py-1 */
+    transition: background-color 0.3s ease; /* duration-300 */
+}
+
+.day:hover {
+    background-color: var(--bg-base-200); /* hover:bg-base-200 */
+}
+
+.event {
+    display: inline-block;
+    border-radius: 0.25rem; /* rounded */
+    padding: 0.25rem 0.5rem; /* p-1 */
+    color: #000; /* text-black */
+}
+
+.blue {
+    background-color: #cce5ff; /* bg-blue */
+}
+
+.orange {
+    background-color: #ffe5b4; /* bg-orange */
+}
+
+.green {
+    background-color: #d4edda; /* bg-green */
+}

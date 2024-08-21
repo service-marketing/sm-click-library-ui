@@ -64,7 +64,7 @@
 <script setup>
 import { ref } from 'vue';
 import DatePicker from '@vuepic/vue-datepicker';
-// import './components.vue/date.css'; // Importa o CSS do DatePicker
+import './components.vue/calendar.css'; // Importa o CSS do DatePicker
 const props = defineProps({
     theme: {
         type: Boolean,
@@ -169,44 +169,3 @@ const nextMonth = () => {
     updateCalendar();
 };
 </script>
-
-
-<style scoped>
-.calendar-button {
-    @apply bg-blue-300 rounded-xl p-1;
-}
-
-.calendar-header {
-    display: flex;
-    align-items: center;
-}
-
-.calendar {
-    /* grid-auto-rows: minmax(100px, 1fr); */
-    /* Garante que os dias expandam para ocupar todo o espaço disponível */
-    height: calc(100% - 48px);
-}
-
-.day-name {
-    text-align: center;
-    font-weight: bold;
-    @apply border border-base-200;
-}
-
-
-.event {
-    @apply inline-block rounded;
-}
-
-.blue {
-    background-color: #cce5ff;
-}
-
-.orange {
-    background-color: #ffe5b4;
-}
-
-.green {
-    background-color: #d4edda;
-}
-</style>
