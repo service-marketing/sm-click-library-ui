@@ -9,12 +9,17 @@
     align-items: center;
     gap: 1rem; /* gap-4 */
     padding: 0.5rem 0.75rem; /* px-3 py-2 */
+    padding-top: 0px;
 }
 
 .calendar-button {
-    background-color: #93c5fd; /* bg-blue-300 */
+    background-color: #1a68c2; /* bg-blue-300 */
     border-radius: 0.75rem; /* rounded-xl */
     padding: 0.25rem; /* p-1 */
+}
+
+.calendar-button:hover{
+    background-color: #1f7be4; 
 }
 
 .icon {
@@ -37,7 +42,7 @@
     align-items: center;
     background-color: var(--bg-base-300); /* bg-base-300 */
     padding: 0.5rem 0.25rem; /* px-2 py-1 */
-    border: 1px solid var(--border-base-200); /* border border-base-200 */
+    @apply bg-base-300 border border-base-200
 }
 
 .day-name.rounded-tl {
@@ -52,13 +57,11 @@
     height: 100%;
     padding: 8px;
     min-height: 130px;
-    background-color: var(--bg-base-300); /* bg-base-300 */
-    border: 1px solid var(--border-base-200); /* border border-base-200 */
     padding-top: 0.25rem; /* py-1 */
     transition: background-color 0.3s ease; /* duration-300 */
     display: inline-block;
     flex-direction: column;
-    @apply bg-base-300 border border-base-200
+    @apply bg-base-300 border border-base-200 shadow shadow-black/90 dark:shadow-gray-400
 }
 
 .day.rounded-br {
@@ -86,7 +89,6 @@
     border-radius: 0.25rem; /* rounded */
     color: black; /* text-black */
     margin-right: 12px;
-    
 }
 
 .event-main {

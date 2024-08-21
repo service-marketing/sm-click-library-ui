@@ -58,7 +58,8 @@
 <script setup>
 import { ref } from 'vue';
 import DatePicker from '@vuepic/vue-datepicker';
-import './components.vue/calendar.css'; // Importa o CSS do DatePicker
+import './components.vue/calendar.css';
+import './components.vue/date.css'; // Importa o CSS do DatePicker
 const props = defineProps({
     theme: {
         type: Boolean,
