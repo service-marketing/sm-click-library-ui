@@ -32,6 +32,9 @@
 .day-name {
     text-align: center;
     font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     background-color: var(--bg-base-300); /* bg-base-300 */
     padding: 0.5rem 0.25rem; /* px-2 py-1 */
     border: 1px solid var(--border-base-200); /* border border-base-200 */
@@ -46,14 +49,16 @@
 }
 
 .day {
+    height: 100%;
     padding: 8px;
     min-height: 130px;
     background-color: var(--bg-base-300); /* bg-base-300 */
     border: 1px solid var(--border-base-200); /* border border-base-200 */
     padding-top: 0.25rem; /* py-1 */
     transition: background-color 0.3s ease; /* duration-300 */
-    display: flex;
+    display: inline-block;
     flex-direction: column;
+    @apply bg-base-300 border border-base-200
 }
 
 .day.rounded-br {
@@ -70,9 +75,9 @@
 
 .events-container {
     margin-top: 0.25rem; /* mt-1 */
-    display: flex;
     flex-wrap: wrap;
-    gap: 0.25rem; /* gap-1 */
+    height: 100%;
+    overflow-y: auto;
 }
 
 .event {
@@ -80,6 +85,8 @@
     padding: 0.25rem 0.5rem; /* p-1 */
     border-radius: 0.25rem; /* rounded */
     color: black; /* text-black */
+    margin-right: 12px;
+    
 }
 
 .event-main {
@@ -97,10 +104,27 @@
     font-size: 0.875rem; /* text-sm */
 }
 
-.popper {
-    /* Estilos do Popper podem ser definidos aqui se necessário */
+.popper-dark {
+    --popper-theme-background-color: #111B21;
+    --popper-theme-background-color-hover: #111B21;
+    --popper-theme-text-color: white;
+    --popper-theme-border-width: 0px;
+    --popper-theme-border-radius: 6px;
+    --popper-theme-padding: 8px;
+    --popper-theme-box-shadow: 0 6px 30px -6px rgba(0, 0, 0, 1);
 }
 
+.popper-light {
+    --popper-theme-background-color: #ffffff;
+    --popper-theme-background-color-hover: #ffffff;
+    --popper-theme-text-color: #333333;
+    --popper-theme-border-width: 1px;
+    --popper-theme-border-style: solid;
+    --popper-theme-border-color: #eeeeee;
+    --popper-theme-border-radius: 6px;
+    --popper-theme-padding: 10px;
+    --popper-theme-box-shadow: 0 6px 30px -6px rgba(0, 0, 0, .60);
+}
 /* Classes personalizadas para cores dos eventos */
 .blue {
     background-color: #cce5ff;
