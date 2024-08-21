@@ -9,7 +9,6 @@
     align-items: center;
     gap: 1rem; /* gap-4 */
     padding: 0.5rem 0.75rem; /* px-3 py-2 */
-    @apply bg-base-300
 }
 
 .calendar-button {
@@ -42,7 +41,7 @@
     justify-content: center;
     align-items: center;
     padding: 0.5rem 0.25rem; /* px-2 py-1 */
-    @apply bg-base-200 border border-base-100 shadow shadow-black/90 dark:shadow-gray-400
+    @apply shadow shadow-black/90 dark:shadow-gray-400
 } 
 
 .day {
@@ -52,7 +51,7 @@
     min-height: 130px;
     padding-top: 0.25rem; /* py-1 */
     transition: background-color 0.3s ease; /* duration-300 */
-    @apply bg-base-300 hover:bg-base-200 border border-base-200 shadow shadow-black/90 dark:shadow-gray-400
+    @apply shadow shadow-black/90 dark:shadow-gray-400
 }
 
 .day.rounded-br {
