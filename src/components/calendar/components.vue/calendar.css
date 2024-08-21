@@ -9,12 +9,14 @@
     align-items: center;
     gap: 1rem; /* gap-4 */
     padding: 0.5rem 0.75rem; /* px-3 py-2 */
+    @apply bg-base-300
 }
 
 .calendar-button {
     background-color: #1a68c2; /* bg-blue-300 */
     border-radius: 0.75rem; /* rounded-xl */
     padding: 0.25rem; /* p-1 */
+    @apply shadow shadow-black/70 dark:shadow-gray-400
 }
 
 .calendar-button:hover{
@@ -39,18 +41,9 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: var(--bg-base-300); /* bg-base-300 */
     padding: 0.5rem 0.25rem; /* px-2 py-1 */
-    @apply bg-base-300 border border-base-200
-}
-
-.day-name.rounded-tl {
-    border-top-left-radius: 0.75rem; /* rounded-tl-xl */
-}
-
-.day-name.rounded-tr {
-    border-top-right-radius: 0.75rem; /* rounded-tr-xl */
-}
+    @apply bg-base-200 border border-base-100 shadow shadow-black/90 dark:shadow-gray-400
+} 
 
 .day {
     height: 100%;
@@ -59,15 +52,11 @@
     min-height: 130px;
     padding-top: 0.25rem; /* py-1 */
     transition: background-color 0.3s ease; /* duration-300 */
-    @apply bg-base-300 border border-base-200 shadow shadow-black/90 dark:shadow-gray-400
+    @apply bg-base-300 hover:bg-base-200 border border-base-200 shadow shadow-black/90 dark:shadow-gray-400
 }
 
 .day.rounded-br {
     border-bottom-right-radius: 0.75rem; /* rounded-br-xl */
-}
-
-.day:hover {
-    background-color: var(--bg-base-200); /* hover:bg-base-200 */
 }
 
 .date {

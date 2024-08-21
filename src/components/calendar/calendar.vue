@@ -24,10 +24,7 @@
             </button>
         </div>
         <div class="calendar">
-            <div v-for="(day, index) in weekDays" :key="index" :class="{
-                'rounded-tl': index === 0,
-                'rounded-tr': index === weekDays.length - 1
-            }" class="day-name">
+            <div v-for="(day, index) in weekDays" :key="index" class="day-name">
                 {{ day }}
             </div>
             <div v-for="(day, index) in daysInMonth" :key="day.date" :class="{
