@@ -531,6 +531,7 @@
   width: 33%;
   padding: var(--dp-overlay-col-padding);
   white-space: nowrap;
+  overflow-y: auto;
 }
 .dp__overlay_cell_pad {
   padding: var(--dp-common-padding) 0;

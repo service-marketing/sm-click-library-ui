@@ -60,7 +60,7 @@
 import { ref } from 'vue';
 import DatePicker from '@vuepic/vue-datepicker';
 import './components.vue/calendar.css';
-import './components.vue/date.css'; // Importa o CSS do DatePicker
+import '@vuepic/vue-datepicker/dist/main.css'
 const props = defineProps({
     theme: {
         type: Boolean,
