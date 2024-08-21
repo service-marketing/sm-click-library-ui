@@ -25,7 +25,7 @@
                 </svg>
             </button>
         </div>
-        <div class="calendar rounded-bl-xl rounded-br-xl">
+        <div class="calendar grid grid-cols-7 rounded-bl-xl rounded-br-xl">
             <!-- Nomes dos dias da semana -->
             <div v-for="(day, index) in weekDays" :key="index" :class="{
                 'rounded-tl-xl': index === 0,
@@ -36,11 +36,12 @@
             <!-- Dias do mês -->
             <div v-for="(day, index) in daysInMonth" :key="day.date" :class="{
                 'rounded-br-xl': index === daysInMonth.length - 1
-            }" class="day shadow shadow-black/60 h-full overflow-auto">
+            }"
+                class="flex flex-col p-2 bg-base-300 border border-base-200 py-1 hover:bg-base-200 transition duration-300 min-h-[130px] shadow shadow-black/60 h-full overflow-auto">
                 <div class="date">{{ day.date.getDate() }}</div>
                 <footer class="mt-1 flex flex-wrap gap-1">
-                    <div v-for="event in day.events" :key="event.title"
-                        class="inline-block text-black p-1 items-center rounded px-1 pr-2" :class="event.tag">
+                    <div :style="`background: ${event.color}`" v-for="event in day.events" :key="event.title"
+                        class="inline-block text-black p-1 items-center rounded px-1 pr-2">
                         <main class="flex gap-1 items-center">
                             <Popper placement="top" class="dark:popper-light popper-dark" :hover="true"
                                 :content="event.hours">
@@ -63,7 +64,7 @@
 <script setup>
 import { ref } from 'vue';
 import DatePicker from '@vuepic/vue-datepicker';
-import './components.vue/date.css'; // Importa o CSS do DatePicker
+// import './components.vue/date.css'; // Importa o CSS do DatePicker
 const props = defineProps({
     theme: {
         type: Boolean,
@@ -112,9 +113,9 @@ const dateFormatter = (date) => {
 };
 
 const events = ref([
-    { title: 'Meeting Alex', date: '2024-08-10', tag: 'blue', hours: '13:42:00' },
-    { title: '1:1 João', date: '2024-08-10', tag: 'blue', hours: '13:42:00' },
-    { title: '1:1 João', date: '2024-08-10', tag: 'blue', hours: '13:42:00' },
+    { title: 'Meeting Alex', date: '2024-08-10', tag: 'blue', hours: '13:42:00', color: '#cce5ff' },
+    { title: '1:1 João', date: '2024-08-10', tag: 'blue', hours: '13:42:00', color: '#cDe5ff' },
+    { title: '1:1 João', date: '2024-08-10', tag: 'blue', hours: '13:42:00', color: '#6De5ff' },
 ]);
 
 const generateCalendar = (year, month) => {
@@ -181,8 +182,6 @@ const nextMonth = () => {
 }
 
 .calendar {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
     /* grid-auto-rows: minmax(100px, 1fr); */
     /* Garante que os dias expandam para ocupar todo o espaço disponível */
     height: calc(100% - 48px);
@@ -194,13 +193,6 @@ const nextMonth = () => {
     @apply border border-base-200;
 }
 
-.day {
-    padding: 8px;
-    min-height: 130px;
-    @apply bg-base-300 border border-base-200 py-1 hover:bg-base-200 transition duration-300;
-    display: flex;
-    flex-direction: column;
-}
 
 .event {
     @apply inline-block rounded;
