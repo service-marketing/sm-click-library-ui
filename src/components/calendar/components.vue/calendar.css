@@ -1,18 +1,32 @@
+.calendar-container {
+    color: white;
+    width: 100%;
+    height: 100%;
+}
+
+.calendar-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem; /* gap-4 */
+    padding: 0.5rem 0.75rem; /* px-3 py-2 */
+}
+
 .calendar-button {
     background-color: #93c5fd; /* bg-blue-300 */
     border-radius: 0.75rem; /* rounded-xl */
     padding: 0.25rem; /* p-1 */
 }
 
-.calendar-header {
-    display: flex;
-    align-items: center;
+.icon {
+    width: 1.5rem; /* w-6 */
+    height: 1.5rem; /* h-6 */
 }
 
 .calendar {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     height: calc(100% - 48px); /* Altura total menos a altura dos controles */
+    border-radius: 0.75rem 0.75rem 0 0; /* rounded-bl-xl rounded-br-xl */
 }
 
 .day-name {
@@ -23,6 +37,14 @@
     border: 1px solid var(--border-base-200); /* border border-base-200 */
 }
 
+.day-name.rounded-tl {
+    border-top-left-radius: 0.75rem; /* rounded-tl-xl */
+}
+
+.day-name.rounded-tr {
+    border-top-right-radius: 0.75rem; /* rounded-tr-xl */
+}
+
 .day {
     padding: 8px;
     min-height: 130px;
@@ -30,27 +52,64 @@
     border: 1px solid var(--border-base-200); /* border border-base-200 */
     padding-top: 0.25rem; /* py-1 */
     transition: background-color 0.3s ease; /* duration-300 */
+    display: flex;
+    flex-direction: column;
+}
+
+.day.rounded-br {
+    border-bottom-right-radius: 0.75rem; /* rounded-br-xl */
 }
 
 .day:hover {
     background-color: var(--bg-base-200); /* hover:bg-base-200 */
 }
 
-.event {
-    display: inline-block;
-    border-radius: 0.25rem; /* rounded */
-    padding: 0.25rem 0.5rem; /* p-1 */
-    color: #000; /* text-black */
+.date {
+    font-size: 1rem;
 }
 
+.events-container {
+    margin-top: 0.25rem; /* mt-1 */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem; /* gap-1 */
+}
+
+.event {
+    display: inline-block;
+    padding: 0.25rem 0.5rem; /* p-1 */
+    border-radius: 0.25rem; /* rounded */
+    color: black; /* text-black */
+}
+
+.event-main {
+    display: flex;
+    gap: 0.25rem; /* gap-1 */
+    align-items: center;
+}
+
+.event-icon {
+    width: 1.25rem; /* w-5 */
+    height: 1.25rem; /* h-5 */
+}
+
+.event-title {
+    font-size: 0.875rem; /* text-sm */
+}
+
+.popper {
+    /* Estilos do Popper podem ser definidos aqui se necessário */
+}
+
+/* Classes personalizadas para cores dos eventos */
 .blue {
-    background-color: #cce5ff; /* bg-blue */
+    background-color: #cce5ff;
 }
 
 .orange {
-    background-color: #ffe5b4; /* bg-orange */
+    background-color: #ffe5b4;
 }
 
 .green {
-    background-color: #d4edda; /* bg-green */
+    background-color: #d4edda;
 }

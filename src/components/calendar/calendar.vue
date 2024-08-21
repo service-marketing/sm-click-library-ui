@@ -1,58 +1,47 @@
 <template>
-    <div class="calendar-container  text-white w-full h-full">
-        <div class="flex items-center gap-4 px-3 py-2">
+    <div class="calendar-container">
+        <div class="calendar-header">
             <button @click="prevMonth" class="calendar-button">
-                <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                    fill="none" viewBox="0 0 24 24">
+                <svg class="icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M5 12h14M5 12l4-4m-4 4 4 4" />
                 </svg>
             </button>
-            <!-- Date Picker para seleção do mês e ano -->
             <div>
                 <DatePicker :dark="theme" cancel-text="Cancelar" select-text="Selecionar" locale="pt-BR"
                     v-model="selectedDate" :format="dateFormatter" :only-month-picker="true" :month-picker="true"
-                    @update:model-value="onDateChange"> <template #clear-icon="{ clear }">
+                    @update:model-value="onDateChange">
+                    <template #clear-icon="{ clear }">
                     </template>
                 </DatePicker>
             </div>
-
-            <button class="calendar-button" @click="nextMonth">
-                <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                    fill="none" viewBox="0 0 24 24">
+            <button @click="nextMonth" class="calendar-button">
+                <svg class="icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M19 12H5m14 0-4 4m4-4-4-4" />
                 </svg>
             </button>
         </div>
-        <div class="calendar grid grid-cols-7 rounded-bl-xl rounded-br-xl">
-            <!-- Nomes dos dias da semana -->
+        <div class="calendar">
             <div v-for="(day, index) in weekDays" :key="index" :class="{
-                'rounded-tl-xl': index === 0,
-                'rounded-tr-xl': index === weekDays.length - 1
-            }" class="day-name flex justify-center items-center uppercase bg-base-300 px-2 py-1">
+                'rounded-tl': index === 0,
+                'rounded-tr': index === weekDays.length - 1
+            }" class="day-name">
                 {{ day }}
             </div>
-            <!-- Dias do mês -->
             <div v-for="(day, index) in daysInMonth" :key="day.date" :class="{
-                'rounded-br-xl': index === daysInMonth.length - 1
-            }"
-                class="flex flex-col p-2 bg-base-300 border border-base-200 py-1 hover:bg-base-200 transition duration-300 min-h-[130px] shadow shadow-black/60 h-full overflow-auto">
+                'rounded-br': index === daysInMonth.length - 1
+            }" class="day">
                 <div class="date">{{ day.date.getDate() }}</div>
-                <footer class="mt-1 flex flex-wrap gap-1">
-                    <div :style="`background: ${event.color}`" v-for="event in day.events" :key="event.title"
-                        class="inline-block text-black p-1 items-center rounded px-1 pr-2">
-                        <main class="flex gap-1 items-center">
-                            <Popper placement="top" class="dark:popper-light popper-dark" :hover="true"
-                                :content="event.hours">
-                                <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
-                                    height="24" fill="currentColor" viewBox="0 0 24 24">
-                                    <path fill-rule="evenodd"
-                                        d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v4a1 1 0 0 0 .293.707l3 3a1 1 0 0 0 1.414-1.414L13 11.586V8Z"
-                                        clip-rule="evenodd" />
+                <footer class="events-container">
+                    <div v-for="event in day.events" :key="event.title" class="event" :class="event.tag">
+                        <main class="event-main">
+                            <Popper placement="top" class="popper" :hover="true" :content="event.hours">
+                                <svg class="event-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                    <path fill-rule="evenodd" d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v4a1 1 0 0 0 .293.707l3 3a1 1 0 0 0 1.414-1.414L13 11.586V8Z" clip-rule="evenodd" />
                                 </svg>
                             </Popper>
-                            <p class="items-center text-sm">{{ event.title }}</p>
+                            <p class="event-title">{{ event.title }}</p>
                         </main>
                     </div>
                 </footer>
@@ -60,6 +49,7 @@
         </div>
     </div>
 </template>
+
 
 <script setup>
 import { ref } from 'vue';
