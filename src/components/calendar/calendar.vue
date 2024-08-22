@@ -28,12 +28,14 @@
                 class="day-name shadow shadow-black/90 dark:shadow-gray-400 bg-base-200 border border-base-100">
                 {{ day }}
             </div>
-            <div v-for="(day, index) in daysInMonth" :key="day.date" :class="{
-                'rounded-br': index === daysInMonth.length - 1
-            }"
-                class="day shadow shadow-black/90 dark:shadow-gray-400 bg-base-300 hover:bg-base-200 border border-base-200">
+            <div v-for="(day, index) in daysInMonth" :key="index" :class="{
+                'rounded-br': index === daysInMonth.length - 1,
+                'empty-day': !day.date,
+                'prev-month-day': day.isPrevMonth, // Classe CSS para os dias do mês anterior
+                'next-month-day': day.isNextMonth  // Classe CSS para os dias do próximo mês
+            }" class="day shadow shadow-black/90 dark:shadow-gray-400 bg-base-300 hover:bg-base-200 border border-base-200">
                 <div class="date">{{ day.date.getDate() }}</div>
-                <footer class="events-container">
+                <footer v-if="day.date && !day.isPrevMonth && !day.isNextMonth" class="events-container">
                     <div v-for="event in day.events" :key="event.title" class="event" :class="event.tag">
                         <main class="event-main">
                             <Popper placement="top" class="dark:popper-light popper-dark" :hover="true"
@@ -50,10 +52,10 @@
                     </div>
                 </footer>
             </div>
+
         </div>
     </div>
 </template>
-
 
 <script setup>
 import { ref } from 'vue';
@@ -108,8 +110,8 @@ const dateFormatter = (date) => {
 };
 
 const events = ref([
-    { title: 'Meeting Alex', date: '2024-08-10', tag: 'blue', hours: '13:42:00', color: '#cce5ff' },
-    { title: '1:1 João', date: '2024-08-10', tag: 'blue', hours: '13:42:00', color: '#cDe5ff' },
+    { title: 'Reunião', date: '2024-08-10', tag: 'blue', hours: '13:42:00', color: '#cce5ff' },
+    { title: 'Mensagem programada', date: '2024-08-10', tag: 'blue', hours: '13:42:00', color: '#cDe5ff' },
     { title: '1:1 João', date: '2024-08-10', tag: 'blue', hours: '13:42:00', color: '#6De5ff' },
 ]);
 
@@ -118,14 +120,46 @@ const generateCalendar = (year, month) => {
     const startOfMonth = new Date(year, month, 1);
     const endOfMonth = new Date(year, month + 1, 0);
 
+    // Dia da semana do primeiro dia do mês (0 = domingo, 1 = segunda, etc.)
+    const startDayOfWeek = startOfMonth.getDay();
+
+    // Obtém o último dia do mês anterior
+    const prevMonthEnd = new Date(year, month, 0);
+    const prevMonthDaysCount = prevMonthEnd.getDate();
+
+    // Adiciona os últimos dias do mês anterior
+    for (let i = startDayOfWeek - 1; i >= 0; i--) {
+        days.push({
+            date: new Date(year, month - 1, prevMonthDaysCount - i),
+            events: [], // Eventos do mês anterior, se necessário
+            isPrevMonth: true, // Identificador para estilização diferente, se necessário
+        });
+    }
+
+    // Adiciona os dias reais do mês
     for (let date = startOfMonth; date <= endOfMonth; date.setDate(date.getDate() + 1)) {
         days.push({
             date: new Date(date),
             events: getEventsForDate(new Date(date)),
+            isPrevMonth: false,
+            isNextMonth: false,
         });
     }
+
+    // Adiciona os primeiros dias do próximo mês para completar a grade
+    const remainingDays = 42 - days.length;
+    for (let i = 1; i <= remainingDays; i++) {
+        days.push({
+            date: new Date(year, month + 1, i),
+            events: [], // Eventos do próximo mês, se necessário
+            isNextMonth: true, // Identificador para estilização diferente, se necessário
+        });
+    }
+
     return days;
 };
+
+
 
 const getEventsForDate = (date) => {
     return events.value.filter(event => {

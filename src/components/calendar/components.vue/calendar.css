@@ -6,32 +6,41 @@
 .calendar-header {
     display: flex;
     align-items: center;
-    gap: 1rem; /* gap-4 */
-    padding: 0.5rem 0.75rem; /* px-3 py-2 */
+    gap: 1rem;
+    /* gap-4 */
+    padding: 0.5rem 0.75rem;
+    /* px-3 py-2 */
 }
 
 .calendar-button {
-    background-color: #1a68c2; /* bg-blue-300 */
-    border-radius: 0.75rem; /* rounded-xl */
-    padding: 0.25rem; /* p-1 */
+    background-color: #1a68c2;
+    /* bg-blue-300 */
+    border-radius: 0.75rem;
+    /* rounded-xl */
+    padding: 0.25rem;
+    /* p-1 */
     color: white;
     @apply shadow shadow-black/70 dark:shadow-gray-400
 }
 
-.calendar-button:hover{
-    background-color: #1f7be4; 
+.calendar-button:hover {
+    background-color: #1f7be4;
 }
 
 .icon {
-    width: 1.5rem; /* w-6 */
-    height: 1.5rem; /* h-6 */
+    width: 1.5rem;
+    /* w-6 */
+    height: 1.5rem;
+    /* h-6 */
 }
 
 .calendar {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    height: calc(100% - 72px); /* Altura total menos a altura dos controles */
-    border-radius: 0.75rem 0.75rem 0 0; /* rounded-bl-xl rounded-br-xl */
+    height: calc(100% - 72px);
+    /* Altura total menos a altura dos controles */
+    border-radius: 0.75rem 0.75rem 0 0;
+    /* rounded-bl-xl rounded-br-xl */
 }
 
 .day-name {
@@ -40,20 +49,36 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 0.5rem 0.25rem; /* px-2 py-1 */
-} 
+    padding: 0.5rem 0.25rem;
+    /* px-2 py-1 */
+}
 
 .day {
     height: 100%;
     padding: 8px;
     overflow: auto;
     min-height: 130px;
-    padding-top: 0.25rem; /* py-1 */
-    transition: background-color 0.3s ease; /* duration-300 */
+    padding-top: 0.25rem;
+    /* py-1 */
+    transition: background-color 0.3s ease;
+    /* duration-300 */
+}
+
+.next-month-day .date {
+    opacity: 75;
+    @apply text-opacity-75
+    /* Cor mais clara para os dias do próximo mês */
+}
+
+.prev-month-day .date {
+    opacity: 75;
+    @apply text-opacity-75
+    /* Cor mais clara para os dias do mês anterior */
 }
 
 .day.rounded-br {
-    border-bottom-right-radius: 0.75rem; /* rounded-br-xl */
+    border-bottom-right-radius: 0.75rem;
+    /* rounded-br-xl */
 }
 
 .date {
@@ -61,7 +86,8 @@
 }
 
 .events-container {
-    margin-top: 0.25rem; /* mt-1 */
+    margin-top: 0.25rem;
+    /* mt-1 */
     flex-wrap: wrap;
     gap: 2px;
     display: inline-flex;
@@ -70,24 +96,31 @@
 
 .event {
     display: inline-block;
-    padding: 0.25rem 0.5rem; /* p-1 */
-    border-radius: 0.25rem; /* rounded */
-    color: black; /* text-black */
+    padding: 0.25rem 0.5rem;
+    /* p-1 */
+    border-radius: 0.25rem;
+    /* rounded */
+    color: black;
+    /* text-black */
 }
 
 .event-main {
     display: flex;
-    gap: 0.25rem; /* gap-1 */
+    gap: 0.25rem;
+    /* gap-1 */
     align-items: center;
 }
 
 .event-icon {
-    width: 1.25rem; /* w-5 */
-    height: 1.25rem; /* h-5 */
+    width: 1.25rem;
+    /* w-5 */
+    height: 1.25rem;
+    /* h-5 */
 }
 
 .event-title {
-    font-size: 0.875rem; /* text-sm */
+    font-size: 0.875rem;
+    /* text-sm */
 }
 
 .popper-dark {
@@ -111,6 +144,7 @@
     --popper-theme-padding: 10px;
     --popper-theme-box-shadow: 0 6px 30px -6px rgba(0, 0, 0, .60);
 }
+
 /* Classes personalizadas para cores dos eventos */
 .blue {
     background-color: #cce5ff;
