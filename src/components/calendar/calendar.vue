@@ -1,5 +1,5 @@
 <template>
-    <div class="calendar-container">
+    <div class="calendar-container text-white">
         <div class="calendar-header bg-base-300">
             <slot name="backButton"></slot>
             <button @click="prevMonth" class="calendar-button">
@@ -29,14 +29,25 @@
                 {{ day }}
             </div>
             <div v-for="(day, index) in daysInMonth" :key="index" :class="{
-                'rounded-br': index === daysInMonth.length - 1,
+                // 'rounded-br': index === daysInMonth.length - 1,
                 'empty-day': !day.date,
-                'prev-month-day': day.isPrevMonth, // Classe CSS para os dias do mês anterior
-                'next-month-day': day.isNextMonth  // Classe CSS para os dias do próximo mês
-            }" class="day shadow shadow-black/90 dark:shadow-gray-400 bg-base-300 hover:bg-base-200 border border-base-200">
-                <div class="date">{{ day.date.getDate() }}</div>
-                <footer v-if="day.date && !day.isPrevMonth && !day.isNextMonth" class="events-container">
-                    <div v-for="event in day.events" :key="event.title" class="event" :class="event.tag">
+                'prev-month-day': day.isPrevMonth,
+                'next-month-day': day.isNextMonth
+            }"
+                class="day group h-full shadow shadow-black/90 dark:shadow-gray-400 bg-base-300 hover:bg-base-200 border border-base-200">
+                <div class="date-container">
+                    <div class="date">{{ day.date.getDate() }}</div>
+                    <button @click="eventModal.modal = true, eventModal.date = day.date"
+                        class="add-event-button hidden group-hover:inline-block"><svg class="w-5 h-5" aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M5 12h14m-7 7V5" />
+                        </svg>
+                    </button>
+                </div>
+                <footer @click="getCurrentDay(day)" v-if="day.events.length > 0"
+                    class="events-container cursor-pointer">
+                    <div v-for="event in day.events" :key="event.title" class="event">
                         <main class="event-main">
                             <Popper placement="top" class="dark:popper-light popper-dark" :hover="true"
                                 :content="event.hours">
@@ -52,20 +63,76 @@
                     </div>
                 </footer>
             </div>
-
         </div>
     </div>
+    <eventsModal v-model="currentDay.seeEvents"> <template v-slot:title>
+            {{ currentDay.date }}
+        </template>
+        <template v-slot:body>
+            <main v-if="currentDay.events.length > 0" class="grid md:grid-cols-3 sm:grid-cols-2 gap-2">
+                <div v-for="event in currentDay.events" :key="event.title" class="event">
+                    <main class="event-main">
+                        <Popper placement="top" class="dark:popper-light popper-dark" :hover="true"
+                            :content="event.hours">
+                            <svg class="event-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                fill="currentColor" viewBox="0 0 24 24">
+                                <path fill-rule="evenodd"
+                                    d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v4a1 1 0 0 0 .293.707l3 3a1 1 0 0 0 1.414-1.414L13 11.586V8Z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </Popper>
+                        <p class="event-title">{{ event.title }}</p>
+                    </main>
+                </div>
+            </main>
+            <div v-else>Nenhum evento no dia selecionado</div>
+        </template>
+        <template v-slot:footer>
+            <button @click="showModal = false">Fechar</button>
+        </template>
+    </eventsModal>
+    <createEvents @close="closeEvent" :modal="eventModal.modal" :date="eventModal.date" />
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, triggerRef } from 'vue';
+import axios from 'axios';
 import DatePicker from '@vuepic/vue-datepicker';
 import './components.vue/calendar.css';
 import './components.vue/date.css'; // Importa o CSS do DatePicker
+import eventsModal from './components.vue/eventsModal.vue';
+import createEvents from './components.vue/createEvents.vue';
+const currentDay = ref({
+    seeEvents: false,
+    events: null,
+    date: new Date
+})
+
+const eventModal = ref({
+    date: new Date,
+    modal: false
+})
+
+function closeEvent(value) {
+    eventModal.value.modal = value
+}
+
+function getCurrentDay(day) {
+    currentDay.value.events = day.events;
+    currentDay.value.seeEvents = true;
+
+    const options = { day: 'numeric', month: 'long', year: 'numeric' };
+    currentDay.value.date = day.date.toLocaleDateString('pt-BR', options);
+}
+
 const props = defineProps({
     theme: {
         type: Boolean,
         default: true,
+    },
+    token: {
+        type: String,
+        default: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI0NTAyOTk2LCJpYXQiOjE3MjQ0MTY1OTYsImp0aSI6ImM5MzIyMmFmNTY3ZDQxY2NhYzAzNGY4ZjliNDkwYjQ1IiwidXNlcl9pZCI6IjYyNGRmZTIzLTkyZDAtNDNmMS04MDYxLWEyMzIxZjJiNWViYiJ9.IQKK_SXVAtYipHtzKaOEKycERm8GVkkzicQNtU1igAQ'
     }
 })
 
@@ -82,6 +149,8 @@ const currentYear = ref(today.getFullYear());
 
 // Data selecionada pelo DatePicker
 const selectedDate = ref(new Date(currentYear.value, currentMonth.value));
+
+const events = ref([]);
 
 const onDateChange = (date) => {
     if (date && typeof date.year === 'number' && typeof date.month === 'number') {
@@ -109,11 +178,54 @@ const dateFormatter = (date) => {
     }
 };
 
-const events = ref([
-    { title: 'Reunião', date: '2024-08-10', tag: 'blue', hours: '13:42:00', color: '#cce5ff' },
-    { title: 'Mensagem programada', date: '2024-08-10', tag: 'blue', hours: '13:42:00', color: '#cDe5ff' },
-    { title: '1:1 João', date: '2024-08-10', tag: 'blue', hours: '13:42:00', color: '#6De5ff' },
-]);
+const getTitleForFunction = (eventFunction) => {
+    const functionTitleMap = {
+        scheduled_messages: 'Mensagens Programadas',
+        // Adicione outros mapeamentos conforme necessário
+        another_function: 'Outro Título', // Exemplo
+        default: 'Evento Desconhecido' // Caso a função não esteja mapeada
+    };
+
+    return functionTitleMap[eventFunction] || functionTitleMap['default'];
+};
+
+const fetchEvents = async (url = 'http://localhost:8000/v1/api/crm/event/') => {
+    try {
+        const response = await axios.get(url, {
+            headers: {
+                Authorization: `Bearer ${props.token}`,
+            },
+        });
+        const data = response.data;
+
+        const formattedEvents = data.results.map(event => ({
+            ...event, // Inclui todas as propriedades do evento original
+            title: getTitleForFunction(event.function), // Substitui ou adiciona o título
+            date: event.params.schedule.time.split(' ')[0], // Extrai e substitui a data
+            hours: event.params.schedule.time.split(' ')[1], // Extrai e substitui o horário
+            color: '#cce5ff', // Adiciona ou substitui a cor conforme necessário
+            tag: 'blue' // Adiciona ou substitui a tag conforme necessário
+        }));
+
+        events.value.push(...formattedEvents);
+
+        // Se houver mais páginas, continue a buscar
+        if (data.next) {
+            await fetchEvents(data.next);
+        }
+    } catch (error) {
+        console.error('Erro ao buscar eventos:', error);
+    }
+};
+
+const getEventsForDate = (date) => {
+    return events.value.filter(event => {
+        const eventDate = new Date(event.date + 'T00:00:00'); // Força o uso de meia-noite no horário local
+        const currentDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+        return eventDate.getTime() === currentDate.getTime();
+    });
+};
 
 const generateCalendar = (year, month) => {
     const days = [];
@@ -129,9 +241,10 @@ const generateCalendar = (year, month) => {
 
     // Adiciona os últimos dias do mês anterior
     for (let i = startDayOfWeek - 1; i >= 0; i--) {
+        const date = new Date(year, month - 1, prevMonthDaysCount - i);
         days.push({
-            date: new Date(year, month - 1, prevMonthDaysCount - i),
-            events: [], // Eventos do mês anterior, se necessário
+            date: date,
+            events: getEventsForDate(date), // Associar eventos ao dia do mês anterior
             isPrevMonth: true, // Identificador para estilização diferente, se necessário
         });
     }
@@ -149,9 +262,10 @@ const generateCalendar = (year, month) => {
     // Adiciona os primeiros dias do próximo mês para completar a grade
     const remainingDays = 42 - days.length;
     for (let i = 1; i <= remainingDays; i++) {
+        const date = new Date(year, month + 1, i);
         days.push({
-            date: new Date(year, month + 1, i),
-            events: [], // Eventos do próximo mês, se necessário
+            date: date,
+            events: getEventsForDate(date), // Associar eventos ao dia do próximo mês
             isNextMonth: true, // Identificador para estilização diferente, se necessário
         });
     }
@@ -160,21 +274,17 @@ const generateCalendar = (year, month) => {
 };
 
 
-
-const getEventsForDate = (date) => {
-    return events.value.filter(event => {
-        const eventDate = new Date(event.date + 'T00:00:00'); // Força o uso de meia-noite no horário local
-        const currentDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-
-        return eventDate.getTime() === currentDate.getTime();
-    });
-};
-
-const daysInMonth = ref(generateCalendar(currentYear.value, currentMonth.value));
+const daysInMonth = ref([]);
 
 const updateCalendar = () => {
     daysInMonth.value = generateCalendar(currentYear.value, currentMonth.value);
 };
+
+// Carrega os eventos e atualiza o calendário na montagem do componente
+onMounted(async () => {
+    await fetchEvents();
+    updateCalendar();
+});
 
 const prevMonth = () => {
     if (currentMonth.value === 0) {
