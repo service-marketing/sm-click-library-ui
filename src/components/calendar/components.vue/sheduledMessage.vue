@@ -3,9 +3,8 @@ import { themes } from 'storybook/internal/theming';
 import { ref, nextTick, onMounted } from 'vue';
 import DatePicker from '@vuepic/vue-datepicker';
 import axios from 'axios';
-// import { useGlobalStore } from '../../stores/globalStore';
-// import { crm_scheduled } from '../../hooks/new_urls';
 import { notify } from 'notiwind';
+
 const props = defineProps({
     currentChat: {
         type: Object,
@@ -21,8 +20,8 @@ const props = defineProps({
     },
     date: Date,
     token: String
-})
-const emit = defineEmits(['close'])
+});
+const emit = defineEmits(['close']);
 const seeMethod = ref('post');
 
 const config = ref({
@@ -100,10 +99,9 @@ async function programMessage() {
             },
         });
         notify({ group: "success", title: "Sucesso", text: response.data.message }, 2000);
-        emit('close', false)
+        emit('close', false);
     } catch (e) {
-        // console.log(e)
-        emit('close', false)
+        emit('close', false);
         notify({ group: "error", title: 'Erro', text: e.response.data.message }, 2000);
     }
 }
@@ -118,8 +116,8 @@ function getConfig(value) {
 </script>
 
 <template>
-    <div class="pt-2 space-y-2">
-        <div class="flex flex-col gap-2">
+    <div class="container">
+        <div class="form-group">
             <label for="contentInput">Horário</label>
             <DatePicker auto-apply="true" :time-picker="true" locale="pt-BR" cancel-text="Cancelar"
                 select-text="Confirmar" :enable-time-picker="true" :min-date="new Date()" text-input :dark="theme"
@@ -128,43 +126,44 @@ function getConfig(value) {
                 </template>
             </DatePicker>
         </div>
-        <div class="flex flex-col gap-2">
+        <div class="form-group">
             <label for="contentInput">Conteúdo</label>
             <textarea id="sheduleMessageArea" ref="textareaRef" autofocus v-model="config.message[0].content"
                 placeholder="Olá cliente, tudo bem?" class="input bg-base-200" />
         </div>
         <div v-if="currentChat.contact && currentChat.contact.segmentation_fields.length > 0"
-            class="p-2 pt-4 border border-base-100 rounded relative hadow shadow-gray-900 dark:shadow-gray-00">
-            <div class="absolute gap-1 -top-3 left-3 px-2 bg-base-300 flex items-center">Campos
-                personalizáveis disponíveis <Popper placement="top" :arrow="true" :hover="true" class="info" content="">
-                    <svg class="w-5 h-5 dark:text-primary text-white" aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+            class="custom-fields-container border border-base-100">
+            <div class="custom-fields-header bg-base-300">
+                Campos personalizáveis disponíveis
+                <Popper placement="top" :arrow="true" :hover="true" class="info" content="">
+                    <svg class="info-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                        viewBox="0 0 24 24">
                         <path fill-rule="evenodd"
                             d="M2 12a10 10 0 1 1 20 0 10 10 0 0 1-20 0Zm9.4-5.5a1 1 0 1 0 0 2 1 1 0 1 0 0-2ZM10 10a1 1 0 1 0 0 2h1v3h-1a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2h-1v-4c0-.6-.4-1-1-1h-2Z"
                             clip-rule="evenodd" />
                     </svg>
                     <template #content>
-                        <p class="break-words text-justify w-[470px]">Ao enviar a mensagem para o
+                        <p class="info-content">Ao enviar a mensagem para o
                             cliente o valor deste campo será substituído pelo valor correspondente
                             no momento do envio</p>
                     </template>
                 </Popper>
             </div>
-            <div class="flex flex-wrap gap-2">
+            <div class="custom-fields-list">
                 <div @click="addVar(variable)"
                     v-for="variable in globalStore.messageStore.currentChat.contact.segmentation_fields" :key="variable"
-                    class="bg-primary_alt cursor-pointer text-white py-1 px-2 rounded-lg">
+                    class="custom-field bg-primary">
                     {{ variable.name }}
                 </div>
             </div>
         </div>
 
-        <div class="bg-base-100 shadow shadow-gray-900 dark:shadow-gray-300 p-2 px-2 rounded-md" v-if="config.file">
+        <div class="file-container bg-base-100" v-if="config.file">
             <p>{{ config.fileName }}</p>
-            <div class="flex justify-end">
-                <button @click="config.file = ''" class="bg-red-500 text-white hover:bg-red-400 rounded-md p-0.5"><svg
-                        class="w-5 h-5 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                        fill="currentColor" viewBox="0 0 24 24">
+            <div class="file-actions">
+                <button @click="config.file = ''" class="file-remove-button">
+                    <svg class="file-remove-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
+                        height="24" fill="currentColor" viewBox="0 0 24 24">
                         <path fill-rule="evenodd"
                             d="M8.586 2.586A2 2 0 0 1 10 2h4a2 2 0 0 1 2 2v2h3a1 1 0 1 1 0 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V8a1 1 0 0 1 0-2h3V4a2 2 0 0 1 .586-1.414ZM10 6h4V4h-4v2Zm1 4a1 1 0 1 0-2 0v8a1 1 0 1 0 2 0v-8Zm4 0a1 1 0 1 0-2 0v8a1 1 0 1 0 2 0v-8Z"
                             clip-rule="evenodd" />
@@ -172,14 +171,119 @@ function getConfig(value) {
                 </button>
             </div>
         </div>
-        <div class="pt-2"><button @click="programMessage"
-                class="bg-green-500 w-full hover:bg-green-400 p-2 px-5 rounded-md mx-auto uppercase">Salvar</button>
+        <div class="button-container">
+            <button @click="programMessage" class="save-button">Salvar</button>
         </div>
-
     </div>
 </template>
+
 <style scoped>
+.container {
+    padding-top: 8px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
 .input {
-    @apply w-full outline-none p-2 rounded px-3
+    width: 100%;
+    outline: none;
+    padding: 8px;
+    border-radius: 4px;
+    padding-left: 12px;
+}
+
+.custom-fields-container {
+    padding: 8px 0;
+    border-radius: 4px;
+    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.custom-fields-header {
+    position: absolute;
+    top: -12px;
+    left: 12px;
+    padding: 4px 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.info-icon {
+    width: 20px;
+    height: 20px;
+    color: var(--primary-color, #007bff);
+}
+
+.info-content {
+    word-break: break-word;
+    text-align: justify;
+    max-width: 470px;
+}
+
+.custom-fields-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.custom-field {
+    color: white;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.file-container {
+    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 8px;
+    border-radius: 4px;
+    margin-top: 8px;
+}
+
+.file-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.file-remove-button {
+    background-color: #e53e3e;
+    color: white;
+    padding: 4px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.file-remove-button:hover {
+    background-color: #f56565;
+}
+
+.file-remove-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.button-container {
+    padding-top: 8px;
+}
+
+.save-button {
+    background-color: #38a169;
+    width: 100%;
+    padding: 8px 20px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.save-button:hover {
+    background-color: #48bb78;
 }
 </style>
