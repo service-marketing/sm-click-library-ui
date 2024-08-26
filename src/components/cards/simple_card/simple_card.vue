@@ -5,7 +5,7 @@
   >
     <div class="flex items-center gap-3 mb-2">
       <svg
-        v-if="success"
+        v-if="typeCard === 'success'"
         class="text-green-500"
         xmlns="http://www.w3.org/2000/svg"
         width="20"
@@ -22,7 +22,7 @@
       </svg>
 
       <svg
-        v-if="info"
+        v-if="typeCard === 'info'"
         class="text-blue-400"
         xmlns="http://www.w3.org/2000/svg"
         width="20"
@@ -39,7 +39,7 @@
       </svg>
 
       <svg
-        v-if="alert"
+        v-if="typeCard === 'alert'"
         class="text-yellow-400"
         xmlns="http://www.w3.org/2000/svg"
         width="22"
@@ -56,7 +56,7 @@
       </svg>
 
       <svg
-        v-if="error"
+        v-if="typeCard === 'error'"
         class="w-6 h-6 text-red-500"
         aria-hidden="true"
         xmlns="http://www.w3.org/2000/svg"
@@ -90,29 +90,17 @@ const props = defineProps({
     default: {
       title: "Title",
       description:
-        "Garanta que essas informações acima esteja configuradas no Webhook do seu aplicativo META.",
+        "Coloque aqui a descrição",
     },
   },
-  success: {
-    type: Boolean,
-    default: false,
-  },
-  info: {
-    type: Boolean,
-    default: false,
-  },
-  alert: {
-    type: Boolean,
-    default: false,
-  },
-  error: {
-    type: Boolean,
-    default: false,
+  typeCard: {
+    type: String,
+    default: "default",
   },
 });
 
 const detectClass = computed(() => {
-  if (props.success) {
+  if (props.typeCard === "success") {
     return "border-green-500 text-green-500 shadow-md shadow-green-700";
   } else if (props.info) {
     return "border-blue-400 text-blue-400 shadow-md shadow-blue-700";
