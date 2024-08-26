@@ -37,7 +37,7 @@
                 class="day group h-full shadow shadow-black/90 dark:shadow-gray-400 bg-base-300 hover:bg-base-200 border border-base-200">
                 <div class="date-container">
                     <div class="date">{{ day.date.getDate() }}</div>
-                    <button @click="eventModal.modal = true, eventModal.date = day.date"
+                    <button :disabled="day.date < new Date" @click="eventModal.modal = true, eventModal.date = day.date"
                         class="add-event-button hidden group-hover:inline-block"><svg class="w-5 h-5" aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -91,7 +91,7 @@
             <button @click="showModal = false">Fechar</button>
         </template>
     </eventsModal>
-    <createEvents @close="closeEvent" :modal="eventModal.modal" :date="eventModal.date" />
+    <createEvents :currentChat="currentChat" :token="token" @close="closeEvent" :modal="eventModal.modal" :date="eventModal.date" />
 </template>
 
 <script setup>
@@ -132,8 +132,9 @@ const props = defineProps({
     },
     token: {
         type: String,
-        default: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI0NTAyOTk2LCJpYXQiOjE3MjQ0MTY1OTYsImp0aSI6ImM5MzIyMmFmNTY3ZDQxY2NhYzAzNGY4ZjliNDkwYjQ1IiwidXNlcl9pZCI6IjYyNGRmZTIzLTkyZDAtNDNmMS04MDYxLWEyMzIxZjJiNWViYiJ9.IQKK_SXVAtYipHtzKaOEKycERm8GVkkzicQNtU1igAQ'
-    }
+        default: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI0NzU4NDE2LCJpYXQiOjE3MjQ2NzIwMTYsImp0aSI6IjJhZTI2MTQ0NTg0ZTRjMmI5MmJjYzdjNzI4YzAxZmU1IiwidXNlcl9pZCI6IjYyNGRmZTIzLTkyZDAtNDNmMS04MDYxLWEyMzIxZjJiNWViYiJ9.MbLUle-N23XCCfPtGX-aBVuht7siMECxSIZXFs0WLYU'
+    },
+    currentChat: Object
 })
 
 // Lista dos meses (em português)
