@@ -1,5 +1,4 @@
 <template>
-  <p class="text-black">oi{{ codeAuth.join("") }}</p>
   <div
     class="text-white w-full h-full bg-base-300 items-center flex flex-col justify-around"
   >
