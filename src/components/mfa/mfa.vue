@@ -8,16 +8,18 @@
         :src="sm_click_logo"
       />
 
-      <div class="flex flex-col space-y-3 gap-1 justify-center">
+      <div class="flex flex-col space-y-3 justify-center">
         <p>
-          Acesse seu aplicativo Google Authenticator e informe o Token de acesso
+          Acesse seu aplicativo Google Authenticator e<br />
+          informe o Token de acesso
         </p>
         <div class="gap-2 flex-col text-black justify-center">
           <input
             v-for="(input, index) in 6"
             :key="index"
             v-model="codeAuth[index]"
-            class="flex-col gap-2 w-10 h-10 border border-black rounded-md text-center"
+            :class="controlClassInput ? 'border-red-500' : 'border-green-500'"
+            class="inline-block mx-4 w-10 h-10 border-[3px] rounded-md text-center"
             type="text"
             maxlength="1"
             @input="handleInput(index)"
@@ -25,14 +27,11 @@
             ref="inputs"
           />
 
-          <Card :content="cardInfo" typeCard="success" class="mt-3" />
+          <div v-if="cardInfo.showCard" class="mt-4 justify-center mx-auto">
+            <Card :content="cardInfo.content" :typeCard="cardInfo.typeCard" />
+          </div>
         </div>
       </div>
-
-      <p v-if="false">
-        Login realizado com sucesso, você está sendo redirecionado
-      </p>
-      <p v-if="false">Codigo informado invalido</p>
     </section>
 
     <div class="text-center mt-12">ADWMTecnologia LTDA @ 2023 - 2024</div>
@@ -47,9 +46,14 @@ import Card from "~/components/cards/simple_card/simple_card.vue";
 const emit = defineEmits(["filled"]);
 const codeAuth = ref(Array(6).fill(""));
 const inputs = ref([]);
+const controlClassInput = ref(false);
 const cardInfo = ref({
-  title: "Sucesso",
-  description: "Alou",
+  showCard: false,
+  typeCard: "",
+  content: {
+    title: "Sucesso",
+    description: "Alou",
+  },
 });
 
 // Função para lidar com a entrada e permitir apenas números
@@ -88,5 +92,20 @@ const moveToPrev = (index, event) => {
 const onComplete = () => {
   const sendAuth = codeAuth.value.join("");
   emit("filled", sendAuth);
+
+  if (sendAuth === "123456") {
+    controlClassInput.value = false;
+    cardInfo.value.showCard = true;
+    cardInfo.value.typeCard = "success";
+    cardInfo.value.content.title = "Sucesso";
+    cardInfo.value.content.description =
+      "Login realizado com sucesso, você está sendo redirecionado";
+  } else {
+    controlClassInput.value = true;
+    cardInfo.value.showCard = true;
+    cardInfo.value.typeCard = "error";
+    cardInfo.value.content.title = "Erro";
+    cardInfo.value.content.description = "Codigo informado invalido";
+  }
 };
 </script>

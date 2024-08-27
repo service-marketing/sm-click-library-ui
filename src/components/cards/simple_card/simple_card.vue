@@ -3,7 +3,7 @@
     :class="detectClass"
     class="bg-base-300 border-2 p-2 rounded-lg flex-col items-center"
   >
-    <div class="flex items-center gap-3 mb-2">
+    <div class="flex justify-center gap-3">
       <svg
         v-if="typeCard === 'success'"
         class="text-green-500"
@@ -76,7 +76,7 @@
       </span>
     </div>
 
-    <section class="text-white flex text-left">
+    <section class="text-white">
       {{ content.description }}
     </section>
   </div>
@@ -89,8 +89,7 @@ const props = defineProps({
     type: Object,
     default: {
       title: "Title",
-      description:
-        "Coloque aqui a descrição",
+      description: "Coloque aqui a descrição",
     },
   },
   typeCard: {
@@ -102,11 +101,11 @@ const props = defineProps({
 const detectClass = computed(() => {
   if (props.typeCard === "success") {
     return "border-green-500 text-green-500 shadow-md shadow-green-700";
-  } else if (props.info) {
+  } else if (props.typeCard === "info") {
     return "border-blue-400 text-blue-400 shadow-md shadow-blue-700";
-  } else if (props.alert) {
+  } else if (props.typeCard === "alert") {
     return "border-yellow-400 text-yellow-400 shadow-md shadow-yellow-700";
-  } else if (props.error) {
+  } else if (props.typeCard === "error") {
     return "border-red-500 text-red-500 shadow-md shadow-red-700";
   } else {
     return "border-white text-white";
