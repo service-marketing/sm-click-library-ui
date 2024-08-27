@@ -3,11 +3,6 @@
     class="text-white w-full h-full bg-base-300 items-center flex flex-col justify-around"
   >
     <section class="flex flex-col text-center">
-      <img
-        class="w-[230px] h-auto mx-auto lg:w-[24%] mb-6"
-        :src="sm_click_logo"
-      />
-
       <div class="flex flex-col space-y-3 justify-center">
         <p>
           Acesse seu aplicativo Google Authenticator e<br />
@@ -33,8 +28,6 @@
         </div>
       </div>
     </section>
-
-    <div class="text-center mt-12">ADWMTecnologia LTDA @ 2023 - 2024</div>
   </div>
 </template>
 
