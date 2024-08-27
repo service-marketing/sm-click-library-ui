@@ -12,8 +12,8 @@
       <div class="bg-base-100 rounded-lg p-2">
         <img class="w-72 h-72" v-if="base64" :src="base64" alt="QRCode" />
 
-        <div class="h-72 w-72 items-center justify-center inline-flex">
-          <div class="loader"></div>
+        <div v-else class="h-72 w-72 items-center justify-center inline-flex">
+          <div class="loaderMFA"></div>
         </div>
       </div>
     </section>
@@ -31,15 +31,15 @@ const props = defineProps({
 
 <style scoped>
 /* HTML: <div class="loader"></div> */
-.loader {
+.loaderMFA {
   font-weight: bold;
   font-family: monospace;
   font-size: 30px;
   line-height: 1.2em;
   display: inline-grid;
 }
-.loader:before,
-.loader:after {
+.loaderMFA:before,
+.loaderMFA:after {
   content: "aguarde...";
   grid-area: 1/1;
   -webkit-mask: linear-gradient(90deg, #000 50%, #0000 0) 0 50%/2ch 100%;
@@ -47,7 +47,7 @@ const props = defineProps({
   text-shadow: 0 0 0 #000, 0 calc(var(--s, 1) * 1.2em) 0 #000;
   animation: l15 1s infinite;
 }
-.loader:after {
+.loaderMFA:after {
   -webkit-mask-position: 1ch 50%;
   --s: -1;
 }
