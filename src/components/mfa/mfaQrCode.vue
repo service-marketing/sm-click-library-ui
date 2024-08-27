@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-red-200 text-center">
+  <div class="text-center">
     <div class="justify-center uppercase font-medium">
       <p>Acesse seu aplicativo</p>
       <span class="gap-1 flex justify-center">
