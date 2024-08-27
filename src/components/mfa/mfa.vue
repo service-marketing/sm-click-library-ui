@@ -1,34 +1,30 @@
 <template>
-  <div
-    class="text-white w-full h-full bg-base-300 items-center flex flex-col justify-around"
-  >
-    <section class="flex flex-col text-center">
-      <div class="flex flex-col space-y-3 justify-center">
-        <p>
-          Acesse seu aplicativo Google Authenticator e<br />
-          informe o Token de acesso
-        </p>
-        <div class="gap-2 flex-col text-black justify-center">
-          <input
-            v-for="(input, index) in 6"
-            :key="index"
-            v-model="codeAuth[index]"
-            :class="controlClassInput ? 'border-red-500' : 'border-green-500'"
-            class="inline-block mx-4 w-10 h-10 border-[3px] rounded-md text-center"
-            type="text"
-            maxlength="1"
-            @input="handleInput(index)"
-            @keydown.backspace="moveToPrev(index, $event)"
-            ref="inputs"
-          />
+  <section class="flex flex-col text-center">
+    <div class="flex flex-col space-y-3 justify-center">
+      <p>
+        Acesse seu aplicativo Google Authenticator e<br />
+        informe o Token de acesso
+      </p>
+      <div class="gap-2 flex-col text-black justify-center">
+        <input
+          v-for="(input, index) in 6"
+          :key="index"
+          v-model="codeAuth[index]"
+          :class="controlClassInput ? 'border-red-500' : 'border-green-500'"
+          class="inline-block mx-4 w-10 h-10 border-[3px] rounded-md text-center"
+          type="text"
+          maxlength="1"
+          @input="handleInput(index)"
+          @keydown.backspace="moveToPrev(index, $event)"
+          ref="inputs"
+        />
 
-          <div v-if="cardInfo.showCard" class="mt-4 justify-center mx-auto">
-            <Card :content="cardInfo.content" :typeCard="cardInfo.typeCard" />
-          </div>
+        <div v-if="cardInfo.showCard" class="mt-4 justify-center max-w-98 mx-auto">
+          <Card :content="cardInfo.content" :typeCard="cardInfo.typeCard" />
         </div>
       </div>
-    </section>
-  </div>
+    </div>
+  </section>
 </template>
 
 <script setup>

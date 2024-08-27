@@ -6,13 +6,15 @@ import simpleModal from "~/components/modals/simple_modal/simple_modal.vue";
 import simpleCard from "~/components/cards/simple_card/simple_card.vue";
 import instanceSelect from "~/components/selects/instance_select/index.vue";
 import calendar from "./components/calendar/calendar.vue";
-import MFA from "./components/mfa/mfa.vue"
+import MFA from "./components/mfa/mfa.vue";
+import MfaQrCode from "./components/mfa/mfaQrCode.vue";
 </script>
 
 <template>
   <main class="h-screen overflow-auto">
-    <calendar v-if="false" />
-    <MFA/>
+    <!-- <calendar v-if="false" /> -->
+    <MfaQrCode />
+    <!-- <MFA /> -->
   </main>
 </template>
 
