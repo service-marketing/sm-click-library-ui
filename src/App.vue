@@ -17,10 +17,10 @@ const img =
 </script>
 
 <template>
-  <main class="h-screen bg-gray-900 w-[50%] text-white">
+  <main class="h-screen bg-gray-900 text-white">
     <!-- <calendar v-if="false" /> -->
-    <MfaQrCode :base64="img" />
-    <MFA @filled="test" />
+    <!-- <MfaQrCode :base64="img" /> -->
+    <MFA eventHandling="err" @filled="test" />
   </main>
 </template>
 

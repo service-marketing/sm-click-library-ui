@@ -7,13 +7,11 @@
       </p>
       <div class="gap-2 flex-col text-black justify-center">
         <input
-          v-for="(input, index) in 6"
+          v-for="(input, index) in codeAuth"
           :key="index"
           v-model="codeAuth[index]"
-          :class="
-            eventHandling === 'check' ? 'border-green-500' : 'border-red-500'
-          "
-          class="inline-block mx-4 w-10 h-10 border-[3px] rounded-md text-center"
+          :class="eventHandling === 'check' ? 'checked_mfa' : 'err_mfa'"
+          class="inline-block mx-4 w-10 h-10 rounded-md text-center"
           type="text"
           maxlength="1"
           @input="handleInput(index)"
@@ -84,3 +82,23 @@ const onComplete = () => {
   // console.log(sendAuth);
 };
 </script>
+
+<style scoped>
+.checked_mfa {
+  --border-opacity_mfa: 1;
+  /* Define a opacidade padrão */
+  border-color: rgb(
+    34 197 94 / var(--border-opacity_mfa)
+  ); /* Aplica a cor verde com opacidade configurável */
+  border-width: 3px; /* Certifique-se de definir a largura da borda */
+  border-style: solid; /* Certifique-se de definir o estilo da borda */
+}
+.err_mfa {
+  --border-opacity_mfa: 1; /* Define a opacidade padrão */
+  border-color: rgb(
+    239 68 68 / var(--border-opacity_mfa)
+  ); /* Aplica a cor verde com opacidade configurável */
+  border-width: 3px; /* Certifique-se de definir a largura da borda */
+  border-style: solid; /* Certifique-se de definir o estilo da borda */
+}
+</style>
