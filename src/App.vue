@@ -8,13 +8,17 @@ import instanceSelect from "~/components/selects/instance_select/index.vue";
 import calendar from "./components/calendar/calendar.vue";
 import MFA from "./components/mfa/mfa.vue";
 import MfaQrCode from "./components/mfa/mfaQrCode.vue";
+
+const test = (data) => {
+  console.log(data);
+};
 </script>
 
 <template>
   <main class="h-screen overflow-auto">
     <!-- <calendar v-if="false" /> -->
-    <MfaQrCode />
-    <!-- <MFA /> -->
+    <!-- <MfaQrCode /> -->
+    <MFA @filled="test" />
   </main>
 </template>
 

@@ -19,8 +19,11 @@
           ref="inputs"
         />
 
-        <div v-if="cardInfo.showCard" class="mt-4 justify-center max-w-98 mx-auto">
-          <Card :content="cardInfo.content" :typeCard="cardInfo.typeCard" />
+        <div
+          v-if="cardInfo.showCard"
+          class="mt-4 justify-center max-w-9 mx-auto"
+        >
+          <!-- <Card :content="cardInfo.content" :typeCard="cardInfo.typeCard" /> -->
         </div>
       </div>
     </div>
@@ -81,20 +84,6 @@ const moveToPrev = (index, event) => {
 const onComplete = () => {
   const sendAuth = codeAuth.value.join("");
   emit("filled", sendAuth);
-
-  if (sendAuth === "123456") {
-    controlClassInput.value = false;
-    cardInfo.value.showCard = true;
-    cardInfo.value.typeCard = "success";
-    cardInfo.value.content.title = "Sucesso";
-    cardInfo.value.content.description =
-      "Login realizado com sucesso, você está sendo redirecionado";
-  } else {
-    controlClassInput.value = true;
-    cardInfo.value.showCard = true;
-    cardInfo.value.typeCard = "error";
-    cardInfo.value.content.title = "Erro";
-    cardInfo.value.content.description = "Codigo informado invalido";
-  }
+  // console.log(sendAuth);
 };
 </script>
