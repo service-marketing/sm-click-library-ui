@@ -1,7 +1,7 @@
 <template>
   <section class="flex flex-col text-center">
     <div class="flex flex-col space-y-3 justify-center">
-      <p>
+      <p class="uppercase">
         Acesse seu aplicativo Google Authenticator e<br />
         informe o Token de acesso
       </p>
@@ -10,7 +10,9 @@
           v-for="(input, index) in 6"
           :key="index"
           v-model="codeAuth[index]"
-          :class="controlClassInput ? 'border-red-500' : 'border-green-500'"
+          :class="
+            eventHandling === 'check' ? 'border-green-500' : 'border-red-500'
+          "
           class="inline-block mx-4 w-10 h-10 border-[3px] rounded-md text-center"
           type="text"
           maxlength="1"
@@ -18,13 +20,6 @@
           @keydown.backspace="moveToPrev(index, $event)"
           ref="inputs"
         />
-
-        <div
-          v-if="cardInfo.showCard"
-          class="mt-4 justify-center max-w-9 mx-auto"
-        >
-          <!-- <Card :content="cardInfo.content" :typeCard="cardInfo.typeCard" /> -->
-        </div>
       </div>
     </div>
   </section>
@@ -32,21 +27,23 @@
 
 <script setup>
 import { sm_click_logo } from "~/assets/imgLinks.js";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import Card from "~/components/cards/simple_card/simple_card.vue";
 
+onMounted(() => {
+  inputs.value[0].focus();
+});
+
+const props = defineProps({
+  eventHandling: {
+    type: String,
+    default: "check",
+  },
+});
 const emit = defineEmits(["filled"]);
 const codeAuth = ref(Array(6).fill(""));
 const inputs = ref([]);
 const controlClassInput = ref(false);
-const cardInfo = ref({
-  showCard: false,
-  typeCard: "",
-  content: {
-    title: "Sucesso",
-    description: "Alou",
-  },
-});
 
 // Função para lidar com a entrada e permitir apenas números
 const handleInput = (index) => {

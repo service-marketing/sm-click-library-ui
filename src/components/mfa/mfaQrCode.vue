@@ -1,18 +1,22 @@
 <template>
   <div class="text-center">
-    <div class="justify-center uppercase font-medium">
-      <p>Acesse seu aplicativo</p>
-      <span class="gap-1 flex justify-center">
-        <p>Google Authenticator</p>
-        <p>e escaneie o QRCode</p>
-      </span>
+    <div class="justify-center uppercase">
+      <p>
+        Acesse seu aplicativo Google Authenticator e<br />
+        escaneie o QRCode
+      </p>
     </div>
 
     <section class="flex justify-center p-2 gap-2">
-      <div class="bg-base-100 rounded-lg p-2">
-        <img class="w-72 h-72" v-if="base64" :src="base64" alt="QRCode" />
+      <div class="bg-base-200 rounded-lg p-2">
+        <img
+          class="w-64 h-64 rounded-md"
+          v-if="base64"
+          :src="base64"
+          alt="QRCode"
+        />
 
-        <div v-else class="h-72 w-72 items-center justify-center inline-flex">
+        <div v-else class="h-64 w-64 items-center justify-center inline-flex">
           <div class="loaderMFA"></div>
         </div>
       </div>
