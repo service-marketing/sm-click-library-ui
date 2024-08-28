@@ -26,6 +26,7 @@
 <script setup>
 import { sm_click_logo } from "~/assets/imgLinks.js";
 import { onMounted, ref } from "vue";
+import "./styleMfa.css";
 import Card from "~/components/cards/simple_card/simple_card.vue";
 
 onMounted(() => {
@@ -82,23 +83,3 @@ const onComplete = () => {
   // console.log(sendAuth);
 };
 </script>
-
-<style scoped>
-.checked_mfa {
-  --border-opacity_mfa: 1;
-  /* Define a opacidade padrão */
-  border-color: rgb(
-    34 197 94 / var(--border-opacity_mfa)
-  ); /* Aplica a cor verde com opacidade configurável */
-  border-width: 3px; /* Certifique-se de definir a largura da borda */
-  border-style: solid; /* Certifique-se de definir o estilo da borda */
-}
-.err_mfa {
-  --border-opacity_mfa: 1; /* Define a opacidade padrão */
-  border-color: rgb(
-    239 68 68 / var(--border-opacity_mfa)
-  ); /* Aplica a cor verde com opacidade configurável */
-  border-width: 3px; /* Certifique-se de definir a largura da borda */
-  border-style: solid; /* Certifique-se de definir o estilo da borda */
-}
-</style>
