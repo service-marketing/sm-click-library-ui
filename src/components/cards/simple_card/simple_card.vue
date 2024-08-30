@@ -1,9 +1,9 @@
 <template>
   <div
     :class="detectClass"
-    class="bg-base-300 border-2 p-2 rounded-lg flex-col items-center"
+    class="bg-base-300 border-2 p-2 rounded-lg flex-col justify-left items-center"
   >
-    <div class="flex justify-center gap-3">
+    <div class="flex justify-left gap-3">
       <svg
         v-if="typeCard === 'success'"
         class="text-green-500"
@@ -75,9 +75,8 @@
         <p class="font-bold">{{ content.title }}</p>
       </span>
     </div>
-
-    <section class="text-white">
-      {{ content.description }}
+    <section class="text-white flex">
+      <p>{{ content.description }}</p>
     </section>
   </div>
 </template>

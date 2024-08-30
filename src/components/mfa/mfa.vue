@@ -19,6 +19,8 @@
           ref="inputs"
         />
       </div>
+
+      <Card typeCard="alert" />
     </div>
   </section>
 </template>
@@ -80,6 +82,7 @@ const moveToPrev = (index, event) => {
 const onComplete = () => {
   const sendAuth = codeAuth.value.join("");
   emit("filled", sendAuth);
+
   // console.log(sendAuth);
 };
 </script>

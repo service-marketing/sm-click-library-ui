@@ -1,21 +1,27 @@
 .checked_mfa {
     --border-opacity_mfa: 1;
-    /* Define a opacidade padrão */
     border-color: rgb(34 197 94 / var(--border-opacity_mfa));
-    /* Aplica a cor verde com opacidade configurável */
-    border-width: 3px;
-    /* Certifique-se de definir a largura da borda */
+    border-width: 2px;
     border-style: solid;
-    /* Certifique-se de definir o estilo da borda */
 }
 
 .err_mfa {
     --border-opacity_mfa: 1;
-    /* Define a opacidade padrão */
     border-color: rgb(239 68 68 / var(--border-opacity_mfa));
-    /* Aplica a cor verde com opacidade configurável */
-    border-width: 3px;
-    /* Certifique-se de definir a largura da borda */
+    border-width: 2px;
     border-style: solid;
-    /* Certifique-se de definir o estilo da borda */
+}
+
+input.checked_mfa:focus {
+    --border-opacity_mfa: 1;
+    border-color: rgb(34 197 94 / var(--border-opacity_mfa));
+    border-width: 2px;
+    border-style: solid;
+}
+
+input.err_mfa:focus {
+    --border-opacity_mfa: 1;
+    border-color: rgb(239 68 68 / var(--border-opacity_mfa));
+    border-width: 2px;
+    border-style: solid;
 }

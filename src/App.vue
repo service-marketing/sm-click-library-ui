@@ -19,8 +19,8 @@ const img =
 <template>
   <main class="h-screen bg-gray-900 text-white">
     <!-- <calendar v-if="false" /> -->
-    <!-- <MfaQrCode :base64="img" /> -->
-    <MFA eventHandling="err" @filled="test" />
+    <MfaQrCode />
+    <MFA eventHandling="check" @filled="test" />
   </main>
 </template>
 
