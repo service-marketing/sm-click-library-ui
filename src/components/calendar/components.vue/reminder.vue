@@ -42,13 +42,12 @@ const config = ref({
         </div>
         <div class="form-group">
             <label for="titleInput">Título</label>
-            <input v-model="config.title" id="titleInput" placeholder="Remédio"
-                class="input" />
+            <input v-model="config.title" id="titleInput" placeholder="Remédio" class="input bg-base-200" />
         </div>
         <div class="form-group">
             <label for="contentInput">Conteúdo</label>
-            <textarea v-model="config.content" id="contentInput"
-                placeholder="Não esquecer do remédio de alzheimer" class="input bg-base-200" />
+            <textarea v-model="config.content" id="contentInput" placeholder="Não esquecer do remédio de alzheimer"
+                class="areaInput bg-base-200" />
         </div>
         <div class="button-container">
             <button class="save-button">Salvar</button>
@@ -59,6 +58,10 @@ const config = ref({
 <style scoped>
 .container {
     padding-top: 8px;
+    gap: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .form-group {
@@ -72,7 +75,18 @@ const config = ref({
     outline: none;
     padding: 8px;
     border-radius: 4px;
-    padding-left: 12px;/* Cor substituída pelo valor da sua variável CSS */
+    padding-left: 12px;
+    /* Cor substituída pelo valor da sua variável CSS */
+}
+
+.areaInput {
+    width: 100%;
+    outline: none;
+    padding: 8px;
+    border-radius: 4px;
+    padding-left: 12px;
+    /* Cor substituída pelo valor da sua variável CSS */
+    border: none;
 }
 
 .button-container {

@@ -284,7 +284,7 @@ function formatTelephone(number) {
                             <Popper v-if="inst.telephone" class="dark:popper-light popper-dark" :hover="true"
                                 placement="top">
                                 <template #content>
-                                    <div> {{ inst.telephone ? formatTelephone(inst.telephone) : '' }}</div>
+                                    <div> {{ inst.telephone ? `${inst.telephone}` : '' }}</div>
                                 </template>
                                 <svg class="w-6 h-6 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
                                     height="24" fill="currentColor" viewBox="0 0 24 24">

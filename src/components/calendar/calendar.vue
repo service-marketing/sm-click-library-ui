@@ -37,9 +37,11 @@
                 class="day group h-full shadow shadow-black/90 dark:shadow-gray-400 bg-base-300 hover:bg-base-200 border border-base-200">
                 <div class="date-container">
                     <div class="date">{{ day.date.getDate() }}</div>
-                    <button :disabled="day.date < new Date" @click="eventModal.modal = true, eventModal.date = day.date"
-                        class="add-event-button hidden group-hover:inline-block"><svg class="w-5 h-5" aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                    <button :disabled="day.date < new Date(new Date().setHours(0, 0, 0, 0))"
+                        @click="eventModal.modal = true, eventModal.date = day.date"
+                        class="add-event-button hidden group-hover:inline-block">
+                        <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
+                            height="24" fill="none" viewBox="0 0 24 24">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M5 12h14m-7 7V5" />
                         </svg>
@@ -69,7 +71,7 @@
             {{ currentDay.date }}
         </template>
         <template v-slot:body>
-            <main v-if="currentDay.events.length > 0" class="grid md:grid-cols-3 sm:grid-cols-2 gap-2">
+            <!-- <main v-if="currentDay.events.length > 0" class="events-grid">
                 <div v-for="event in currentDay.events" :key="event.title" class="event">
                     <main class="event-main">
                         <Popper placement="top" class="dark:popper-light popper-dark" :hover="true"
@@ -84,14 +86,39 @@
                         <p class="event-title">{{ event.title }}</p>
                     </main>
                 </div>
-            </main>
-            <div v-else>Nenhum evento no dia selecionado</div>
-        </template>
-        <template v-slot:footer>
-            <button @click="showModal = false">Fechar</button>
+            </main> -->
+            <table class="text-center w-full">
+                <thead class="bg-base-200 rounded-md flex text-white w-full">
+                    <tr class="flex font-normal w-full">
+                        <th class="p-2 w-[40%]">Evento</th>
+                        <th class="p-2 w-1/4">Horário</th>
+                        <th class="p-2 w-1/4">Paramêtros</th>
+                        <th class="p-2 w-1/4">Ações</th>
+                    </tr>
+                </thead>
+                <tbody class="flex flex-col gap- text-sm items-center align-middle overflow-y-scroll w-full"
+                    style="height: 50vh;">
+                    <tr v-for="event in currentDay.events" :key="event.title"
+                        class="flex mt-1 hover:bg-base-200 align-middle items-center rounded-xl py-2 w-full">
+                        <td class="w-[40%]">{{ event.title }}</td>
+                        <td class="p- w-1/4">{{ event.hours }}</td>
+                        <td class="p- w-1/4">{{ event.date }}</td>
+                        <td class="p- w-1/4"><button @click="editEvent(event)"
+                                class="bg-green-500 hover:bg-green-400 rounded-md p-1"><svg class="w-5 h-5"
+                                    aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                    fill="currentColor" viewBox="0 0 24 24">
+                                    <path fill-rule="evenodd"
+                                        d="M14 4.182A4.136 4.136 0 0 1 16.9 3c1.087 0 2.13.425 2.899 1.182A4.01 4.01 0 0 1 21 7.037c0 1.068-.43 2.092-1.194 2.849L18.5 11.214l-5.8-5.71 1.287-1.31.012-.012Zm-2.717 2.763L6.186 12.13l2.175 2.141 5.063-5.218-2.141-2.108Zm-6.25 6.886-1.98 5.849a.992.992 0 0 0 .245 1.026 1.03 1.03 0 0 0 1.043.242L10.282 19l-5.25-5.168Zm6.954 4.01 5.096-5.186-2.218-2.183-5.063 5.218 2.185 2.15Z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </button></td>
+                    </tr>
+                </tbody>
+            </table>
         </template>
     </eventsModal>
-    <createEvents :currentChat="currentChat" :token="token" @close="closeEvent" :modal="eventModal.modal" :date="eventModal.date" />
+    <createEvents v-if="eventModal.modal" :currentEvent="currentEvent" :currentChat="currentChat" :token="token" @close="closeEvent"
+        :modal="eventModal.modal" :date="eventModal.date" />
 </template>
 
 <script setup>
@@ -112,9 +139,19 @@ const eventModal = ref({
     date: new Date,
     modal: false
 })
+const currentEvent = ref(null)
+function editEvent(event) {
+    currentEvent.value = event
+    eventModal.value = {
+        date: event.date,
+        modal: true
+    }
+    currentDay.value.seeEvents = false
+}
 
 function closeEvent(value) {
     eventModal.value.modal = value
+    currentEvent.value = null
 }
 
 function getCurrentDay(day) {
@@ -132,7 +169,7 @@ const props = defineProps({
     },
     token: {
         type: String,
-        default: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI0NzU4NDE2LCJpYXQiOjE3MjQ2NzIwMTYsImp0aSI6IjJhZTI2MTQ0NTg0ZTRjMmI5MmJjYzdjNzI4YzAxZmU1IiwidXNlcl9pZCI6IjYyNGRmZTIzLTkyZDAtNDNmMS04MDYxLWEyMzIxZjJiNWViYiJ9.MbLUle-N23XCCfPtGX-aBVuht7siMECxSIZXFs0WLYU'
+        default: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI1MTEwNzY3LCJpYXQiOjE3MjUwMjQzNjcsImp0aSI6ImRiY2E3MjIzZTE2NzRmODJiZjQzOWQyNjYwZDIyYTRhIiwidXNlcl9pZCI6IjYyNGRmZTIzLTkyZDAtNDNmMS04MDYxLWEyMzIxZjJiNWViYiJ9.MMlinTjeEFJcIqzYkM3SgPzJrLafE-GLiZn1wQi4ggs'
     },
     currentChat: Object
 })
@@ -309,3 +346,38 @@ const nextMonth = () => {
     updateCalendar();
 };
 </script>
+
+
+<style scoped>
+.events-grid {
+    display: grid;
+    gap: 3px;
+    grid-template-columns: repeat(3, 1fr);
+    /* 3 colunas no modo MD e 2 colunas no modo SM */
+}
+
+@media (max-width: 768px) {
+    .events-grid {
+        grid-template-columns: repeat(2, 1fr);
+        /* Ajuste para telas menores */
+    }
+}
+
+.event-main {
+    display: flex;
+    align-items: center;
+}
+
+.popper-container {
+    position: relative;
+}
+
+.event-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.event-title {
+    font-size: 15px;
+}
+</style>
