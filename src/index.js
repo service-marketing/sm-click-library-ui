@@ -3,6 +3,8 @@ import simpleModal from "~/components/modals/simple_modal/simple_modal.vue"
 import simpleCard from "~/components/cards/simple_card/simple_card.vue";
 import instanceSelect from "~/components/selects/instance_select/index.vue"
 import calendar from './components/calendar/calendar.vue';
+import MFA from "./components/mfa/mfa.vue"
+import MfaQrCode from "./components/mfa/MfaQrCode.vue"
 
 function install(Vue) {
     Vue.component('primarySelect', primarySelect)
@@ -10,6 +12,8 @@ function install(Vue) {
     Vue.component('simpleCard', simpleCard)
     Vue.component('instanceSelect', instanceSelect)
     Vue.component('calendar', calendar)
+    Vue.component('MFA', MFA)
+    Vue.component('MfaQrCode', MfaQrCode)
 }
 
 export default {
@@ -18,5 +22,6 @@ export default {
     simpleModal,
     simpleCard,
     instanceSelect,
-    calendar
+    calendar,
+    MFA
 }

@@ -1,0 +1,27 @@
+.checked_mfa {
+    --border-opacity_mfa: 1;
+    border-color: rgb(34 197 94 / var(--border-opacity_mfa));
+    border-width: 2px;
+    border-style: solid;
+}
+
+.err_mfa {
+    --border-opacity_mfa: 1;
+    border-color: rgb(239 68 68 / var(--border-opacity_mfa));
+    border-width: 2px;
+    border-style: solid;
+}
+
+input.checked_mfa:focus {
+    --border-opacity_mfa: 1;
+    border-color: rgb(34 197 94 / var(--border-opacity_mfa));
+    border-width: 2px;
+    border-style: solid;
+}
+
+input.err_mfa:focus {
+    --border-opacity_mfa: 1;
+    border-color: rgb(239 68 68 / var(--border-opacity_mfa));
+    border-width: 2px;
+    border-style: solid;
+}
