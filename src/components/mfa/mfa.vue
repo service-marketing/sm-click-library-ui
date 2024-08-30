@@ -21,6 +21,16 @@
       </div>
     </div>
   </section>
+
+  <div class="w-[30%]">
+    <Card
+      :content="{
+        title: 'marabiiiiiiiiiiiiii',
+        description:
+          'O atendimento não está habilitado para essa instância, mensagens nessa conexão não irão iniciar conversas no sistema de atendimento.',
+      }"
+    />
+  </div>
 </template>
 
 <script setup>
