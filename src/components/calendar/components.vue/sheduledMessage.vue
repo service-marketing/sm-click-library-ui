@@ -30,10 +30,7 @@ const emit = defineEmits(['close']);
 const seeMethod = ref('post');
 
 const config = ref({
-    message: [{
-        type: 'text',
-        content: ''
-    }],
+    message: [{ type: 'text', content: '' }],
     schedule: {
         time: props.date,
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -46,34 +43,35 @@ onMounted(() => {
     if (props.event) {
         config.value = props.event.params;
         seeMethod.value = 'patch';
+        config.value.schedule.time = extractTimeFromDate(config.value.schedule.time);
     } else {
-        // Inicializa com a data e horário corretos
-        config.value.schedule.time = mergeDateAndTime(props.date, config.value.schedule.time);
+        const now = new Date();
+        config.value.schedule.time = formatTime(now);
     }
 });
 
 const textareaRef = ref(null);
 
-function addOneMinute() {
-    const date = new Date(props.date);
-    if (!isValidTime()) {
-        date.setMinutes(date.getMinutes() + 1);
-        config.value.schedule.time = formatDateTime(date);
-    }
+function extractTimeFromDate(dateInput) {
+    const date = new Date(dateInput);
+    return {
+        hours: date.getHours(),
+        minutes: date.getMinutes(),
+        seconds: date.getSeconds()
+    };
 }
 
-function isValidTime() {
-    const currentTime = new Date();
-    const selectedTime = new Date(config.value.schedule.time);
-    console.log(config.value.schedule.time);
-    return selectedTime >= currentTime;
+function formatTime(date) {
+    return {
+        hours: date.getHours(),
+        minutes: date.getMinutes(),
+        seconds: date.getSeconds()
+    };
 }
 
 function addVar(variable) {
     config.value.message[0].content += ` {${variable.name}} `;
-    nextTick(() => {
-        textareaRef.value.focus();
-    });
+    nextTick(() => textareaRef.value.focus());
 }
 
 const fileInput = ref(null);
@@ -94,38 +92,19 @@ function handleFileUpload(event) {
     }
 }
 
-function formatDateTime(date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-
-    return `${year}-${month}-${day} ${hours}:${minutes}`;
-}
-
 function mergeDateAndTime(originalDate, time) {
     const mergedDate = new Date(originalDate);
-    mergedDate.setHours(time.hours);
-    mergedDate.setMinutes(time.minutes);
-    mergedDate.setSeconds(time.seconds || 0);
-    return formatDateTime(mergedDate);
+    mergedDate.setHours(time.hours, time.minutes, time.seconds || 0);
+    const adjustedDate = new Date(mergedDate.getTime() - mergedDate.getTimezoneOffset() * 60000);
+    return adjustedDate.toISOString().replace('T', ' ').slice(0, 16);
 }
-
 async function programMessage() {
     saveLoading.value = true;
     try {
-        // if (!isValidTime()) {
-        //     notify({ group: "error", title: 'Erro', text: 'O horário selecionado deve ser maior do que o horário atual.' }, 2000);
-        //     return;
-        // }
-        console.log(props.date)
         const sendConfig = JSON.parse(JSON.stringify(config.value));
         sendConfig.schedule.time = mergeDateAndTime(props.date, sendConfig.schedule.time);
 
-        const response = await axios[seeMethod.value](`http://localhost:8000/v1/api/crm/event/scheduled_message/${config.value.event_id ? `${config.value.event_id}/` : ''}`, {
-            ...sendConfig
-        }, {
+        const response = await axios[seeMethod.value](`http://localhost:8000/v1/api/crm/event/scheduled_message/${config.value.event_id ? `${config.value.event_id}/` : ''}`, sendConfig, {
             headers: {
                 Authorization: `Bearer ${props.token}`,
             },
@@ -134,7 +113,6 @@ async function programMessage() {
         emit('close', false);
     } catch (e) {
         notify({ group: "error", title: 'Erro', text: e.response.data.message }, 2000);
-        console.log(e);
     } finally {
         saveLoading.value = false;
     }
@@ -143,14 +121,12 @@ async function programMessage() {
 
 <template>
     <div class="container">
-        {{config.schedule.time}}
         <div class="form-group">
             <label for="contentInput">Horário</label>
             <DatePicker auto-apply="true" :time-picker="true" locale="pt-BR" cancel-text="Cancelar"
-                select-text="Confirmar" :enable-time-picker="true" :min-date="new Date()" text-input :dark="theme"
+                select-text="Confirmar" :enable-time-picker="true"  text-input :dark="theme"
                 v-model="config.schedule.time">
-                <template #clear-icon="{ clear }">
-                </template>
+                <template #clear-icon="{ clear }"></template>
             </DatePicker>
         </div>
         <div class="form-group">
@@ -207,6 +183,7 @@ async function programMessage() {
         </div>
     </div>
 </template>
+
 
 <style scoped>
 .container {

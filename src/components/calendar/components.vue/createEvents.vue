@@ -67,7 +67,6 @@ onMounted(() => {
 const emit = defineEmits(['close']);
 
 function getCurrentDay(day) {
-    console.log(day)
     const options = { day: 'numeric', month: 'long', year: 'numeric' };
     return day.toLocaleDateString('pt-BR', options);
 }

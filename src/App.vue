@@ -12,9 +12,9 @@ import MfaQrCode from "./components/mfa/mfaQrCode.vue";
 
 <template>
   <main class="h-screen bg-gray-900 text-white">
-    <!-- <calendar v-if="false" /> -->
-    <MfaQrCode />
-    <MFA eventHandling="check" @filled="test" />
+    <calendar  />
+    <!-- <MfaQrCode />
+    <MFA eventHandling="check" @filled="test" /> -->
   </main>
 </template>
 

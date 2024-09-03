@@ -169,7 +169,7 @@ const props = defineProps({
     },
     token: {
         type: String,
-        default: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI1MTEwNzY3LCJpYXQiOjE3MjUwMjQzNjcsImp0aSI6ImRiY2E3MjIzZTE2NzRmODJiZjQzOWQyNjYwZDIyYTRhIiwidXNlcl9pZCI6IjYyNGRmZTIzLTkyZDAtNDNmMS04MDYxLWEyMzIxZjJiNWViYiJ9.MMlinTjeEFJcIqzYkM3SgPzJrLafE-GLiZn1wQi4ggs'
+        default: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI1MzcwMjg5LCJpYXQiOjE3MjUyODM4ODksImp0aSI6ImI3MDVjNGM5ZmI4NTQ5OTY4ZTM2ZmQ3Njg0NGM5YWNjIiwidXNlcl9pZCI6IjYyNGRmZTIzLTkyZDAtNDNmMS04MDYxLWEyMzIxZjJiNWViYiJ9.fUcok6a2TrG4TjevqIsT_XrLMdaSZpdelX7vc3QfDG8'
     },
     currentChat: Object
 })
