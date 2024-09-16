@@ -23,6 +23,7 @@
     "@vueuse/core": "^10.11.0",
     "axios": "^1.7.2",
     "daisyui": "^4.12.10",
+    "date-fns": "^4.0.0",
     "notiwind": "^2.0.2",
     "tailwind-scrollbar": "^3.1.0",
     "uuid": "^10.0.0",

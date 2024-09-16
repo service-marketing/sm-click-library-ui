@@ -8,7 +8,7 @@ import instanceSelect from "~/components/selects/instance_select/index.vue";
 import calendar from "./components/calendar/calendar.vue";
 import MFA from "./components/mfa/mfa.vue";
 import MfaQrCode from "./components/mfa/mfaQrCode.vue";
-import chatIntern from "./components/intern-chat/index.vue"
+import chatIntern from "./components/intern-chat/chatWindow.vue"
 </script>
 
 <template>
