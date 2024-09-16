@@ -8,10 +8,12 @@ import instanceSelect from "~/components/selects/instance_select/index.vue";
 import calendar from "./components/calendar/calendar.vue";
 import MFA from "./components/mfa/mfa.vue";
 import MfaQrCode from "./components/mfa/mfaQrCode.vue";
+import chatIntern from "./components/intern-chat/index.vue"
 </script>
 
 <template>
   <main class="h-screen bg-gray-900 text-white">
+    <chatIntern/>
     <!-- <calendar v-if="false" /> -->
     <MfaQrCode />
     <MFA eventHandling="check" @filled="test" />
