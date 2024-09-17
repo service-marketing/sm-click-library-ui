@@ -1,8 +1,16 @@
-import { createApp } from 'vue'
-import '~/styles/tailwind.css'
-import App from './App.vue'
-import Popper from 'vue3-popper'
+import { createApp } from 'vue';
+import { createPinia } from 'pinia';
+import '~/styles/tailwind.css';
+import App from './App.vue';
+import Popper from 'vue3-popper';
 
-const app = createApp(App)
-app.component('Popper', Popper)
-app.mount('#app')
+// Criar instância do Pinia
+const pinia = createPinia();
+
+const app = createApp(App);
+
+// Usar Pinia no app
+app.use(pinia);
+
+app.component('Popper', Popper);
+app.mount('#app');

@@ -23,31 +23,26 @@
 
         <!-- Área de mensagens -->
         <div class="message-area" ref="chatArea">
-            <div v-if="isLoading" class="loading">
-                <svg class="spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                </svg>
-            </div>
+            <v3-infinite-loading v-if="!isLoading && hasNextPage && mounted" @infinite="loadMoreMessages" :distance="30"
+                :top="true" direction="top" class="p-3">
+                <template #complete>
+                    <span></span>
+                </template>
+                <template #spinner>
+                    <div class="loading">
+                        <svg class="spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                            </circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                        </svg>
+                    </div>
+                </template>
+            </v3-infinite-loading>
 
             <!-- Mensagens -->
-            <div v-if="!isLoading">
-                <v3-infinite-loading v-if="hasNextPage" @infinite="loadMoreMessages" :top="true" direction="top">
-                    <template #complete>
-                        <span></span>
-                    </template>
-                    <template #spinner>
-                        <div class="loading">
-                            <svg class="spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                    stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor"
-                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                            </svg>
-                        </div>
-                    </template>
-                </v3-infinite-loading>
 
+            <div>
                 <div v-for="(msg, index) in mensagens" :key="index">
                     <!-- Exibir separador de datas -->
                     <div v-if="shouldShowDateSeparator(index)" class="date-separator">
@@ -58,10 +53,10 @@
 
                     <!-- Mensagem -->
                     <div
-                        :class="['message', { 'me': msg.sender === 'me', 'not-me': msg.sender !== 'me', 'new-message': index === mensagens.length - 1 }]">
-                        <div :class="msg.sender === 'me' ? 'text-right' : 'text-left'">
+                        :class="['message', { 'me': msg.sender.id === attendant.id, 'not-me': msg.sender.id !== attendant.id, 'new-message': index === mensagens.length - 1 }]">
+                        <div :class="msg.sender.id === attendant.id ? 'text-right' : 'text-left'">
                             <div
-                                :class="['message-content', { 'me': msg.sender === 'me', 'not-me': msg.sender !== 'me' }]">
+                                :class="['message-content', { 'me': msg.sender.id === attendant.id, 'not-me': msg.sender.id !== attendant.id }]">
                                 {{ msg.content.content }}
                                 <div class="message-time">
                                     {{ formatMessageTime(msg.created_at) }}
@@ -83,8 +78,8 @@
 </template>
 
 <script setup>
-import { ref, nextTick, onMounted } from 'vue';
-import axios from 'axios';
+import { ref, nextTick, onMounted, computed, watch } from 'vue';
+import { useChatStore } from './chatsStore';
 import V3InfiniteLoading from 'v3-infinite-loading';
 import { v4 as uuidv4 } from 'uuid';
 import { format, isToday, isYesterday, isThisWeek } from 'date-fns';
@@ -94,16 +89,24 @@ const props = defineProps({
     selectedAtendente: { type: Object, required: true },
     token: { required: true },
     getInternalChat: { required: true },
+    attendant: { required: true }
 });
 
+const chatStore = useChatStore();
 const novaMensagem = ref('');
-const mensagens = ref([]);
-const currentPage = ref(1);
-const hasNextPage = ref(false);
-const channel = ref(null);
+const isLoading = computed(() => chatStore.loadingMessages);
 const chatArea = ref(null);
-const isLoading = ref(true);
-const emit = defineEmits(['voltar']);
+const mounted = ref(false)
+
+const mensagens = computed(() => {
+    const atendente = chatStore.attendants.find(att => att.id === props.selectedAtendente.id);
+    return atendente ? atendente.messages : [];
+});
+
+const hasNextPage = computed(() => {
+    const atendente = chatStore.attendants.find(att => att.id === props.selectedAtendente.id);
+    return atendente.hasNextPage
+});
 
 const formatMessageTime = (dateStr) => {
     const date = new Date(dateStr);
@@ -145,91 +148,38 @@ const scrollToBottom = () => {
     }
 };
 
-const scrollToBottomIfNearEnd = () => {
-    if (chatArea.value) {
-        const threshold = 100;
-        const distanceFromBottom = chatArea.value.scrollHeight - chatArea.value.scrollTop - chatArea.value.clientHeight;
-
-        // Se estiver dentro do threshold, rolar para o final
-        if (distanceFromBottom <= threshold) {
-            chatArea.value.scrollTop = chatArea.value.scrollHeight;
-        }
-    }
-};
-
-const loadMessages = async () => {
-    try {
-        const response = await axios.get(`${props.getInternalChat}?attendant=${props.selectedAtendente.id}&page=${currentPage.value}`, {
-            headers: { Authorization: `Bearer ${props.token}` },
-        });
-        mensagens.value = response.data.results.reverse();
-        hasNextPage.value = response.data.next !== null;
-        channel.value = response.data.channel_id;
-        await nextTick();
-        isLoading.value = false;
-        setTimeout(() => {
-            scrollToBottom();
-        }, 0);
-    } catch (e) {
-        console.error(e);
-        isLoading.value = false;
-    }
-};
-
-const isLoadingMore = ref(false); // Adicionar estado de carregamento
-
 const loadMoreMessages = async ($state) => {
-    if (isLoadingMore.value || !hasNextPage.value) {
-        return $state.complete(); // Evitar chamadas concorrentes
-    }
-
-    isLoadingMore.value = true;  // Definir estado como "carregando"
-
-    const previousScrollHeight = chatArea.value.scrollHeight;
-    const previousScrollTop = chatArea.value.scrollTop;
-
-    currentPage.value++;
-
     try {
-        const response = await axios.get(`${props.getInternalChat}?attendant=${props.selectedAtendente.id}&page=${currentPage.value}`, {
-            headers: { Authorization: `Bearer ${props.token}` },
-        });
+        if (!hasNextPage) {
+            $state.complete();
+            return;
+        }
+        const previousScrollHeight = chatArea.value.scrollHeight; // Armazena a altura atual do scroll
+        const previousScrollTop = chatArea.value.scrollTop; // Armazena a posição atual do scroll
 
-        mensagens.value = [...response.data.results.reverse(), ...mensagens.value];
-        hasNextPage.value = response.data.next !== null;
+        await chatStore.loadMessagesForAtendente(props.selectedAtendente.id, props.token, props.getInternalChat);
 
-        await nextTick();
+        await nextTick(); // Aguarda a renderização das novas mensagens
+
+        // Ajusta a posição do scroll para onde estava antes de carregar mais mensagens
         chatArea.value.scrollTop = chatArea.value.scrollHeight - previousScrollHeight + previousScrollTop;
+
         $state.loaded();
-    } catch (e) {
-        console.error(e);
+    } catch (error) {
+        console.error(error);
         $state.complete();
-    } finally {
-        isLoadingMore.value = false;  // Libere o estado de carregamento
     }
 };
 
 const enviarMensagem = async () => {
     if (novaMensagem.value.trim() !== '') {
         try {
-            mensagens.value.push({ created_at: new Date().toISOString(), content: { type: 'text', content: novaMensagem.value } });
-            const message = JSON.parse(JSON.stringify(novaMensagem.value));
-            await nextTick();
-            setTimeout(() => {
-                scrollToBottomIfNearEnd(); // Rolar para o final se o usuário estiver perto
-            }, 0);
+            await chatStore.sendMessageToAtendente(props.selectedAtendente.id, novaMensagem.value, props.token, props.getInternalChat, props.attendant);
             novaMensagem.value = '';
-            await axios.post(`${props.getInternalChat}${channel.value}/message/`, {
-                id: uuidv4(),
-                content: {
-                    type: 'text',
-                    content: message,
-                },
-            }, {
-                headers: { Authorization: `Bearer ${props.token}` },
-            });
-        } catch (e) {
-            // console.error(e);
+            await nextTick();
+            scrollToBottom();
+        } catch (error) {
+            console.error('Erro ao enviar mensagem:', error);
         }
     }
 };
@@ -243,10 +193,31 @@ const handleButtonClick = () => {
     }, 200);
 };
 
-onMounted(() => {
-    loadMessages();
+onMounted(async () => {
+    await nextTick(() => {
+        scrollToBottom();
+        mounted.value = true
+    })
+})
+
+watch(() => mensagens.value?.length, (newVal, oldVal) => {
+    if (mensagens.value) {
+        const isNearBottom = checkIsNearBottom();
+        if (isNearBottom) {
+            setTimeout(() => {
+                chatArea.value.scrollTo({ top: chatArea.value.scrollHeight, behavior: 'instant' });
+            }, 100);
+        }
+    }
 });
+function checkIsNearBottom() {
+    const threshold = 200; // pixels do final do scroll considerados "perto do final"
+    const position = chatArea.value.scrollTop + chatArea.value.clientHeight;
+    const height = chatArea.value.scrollHeight;
+    return (height - position) <= threshold;
+}
 </script>
+
 
 <style scoped>
 /* Estilos para o container principal */
@@ -303,10 +274,11 @@ onMounted(() => {
 .message-area {
     display: flex;
     flex-direction: column;
-    height: 282px;
+    height: 100%;
     background: linear-gradient(to top right, rgba(48, 107, 201, 0.9), rgba(40, 46, 138, 0.8));
     padding: 0.25rem;
     overflow-y: auto;
+    position: relative;
 }
 
 /* Carregando */
@@ -338,8 +310,9 @@ onMounted(() => {
 /* Estilos das mensagens */
 .message {
     margin-bottom: 0.25rem;
-    max-width: 80%;
+    /* max-width: 80%; */
     word-wrap: break-word;
+    @apply px-2
 }
 
 .message.me {
@@ -401,6 +374,7 @@ onMounted(() => {
     align-items: center;
     position: relative;
     width: 100%;
+    flex-shrink: 0;
 }
 
 .message-input {
