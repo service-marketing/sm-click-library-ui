@@ -118,6 +118,7 @@ watch(isChatOpen, (newVal) => {
   max-height: 384px;
   background-color: #3b82f6; /* Cor azul */
   border-radius: 20px;
+  cursor: default;
   overflow: hidden;
 }
 
