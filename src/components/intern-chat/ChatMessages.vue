@@ -41,7 +41,6 @@
             </v3-infinite-loading>
 
             <!-- Mensagens -->
-
             <div>
                 <div v-for="(msg, index) in mensagens" :key="index">
                     <!-- Exibir separador de datas -->
@@ -79,9 +78,7 @@
 
 <script setup>
 import { ref, nextTick, onMounted, computed, watch } from 'vue';
-import { useChatStore } from './chatsStore';
 import V3InfiniteLoading from 'v3-infinite-loading';
-import { v4 as uuidv4 } from 'uuid';
 import { format, isToday, isYesterday, isThisWeek } from 'date-fns';
 import { ptBR } from 'date-fns/locale'; // Para formatação em português
 
@@ -89,25 +86,23 @@ const props = defineProps({
     selectedAtendente: { type: Object, required: true },
     token: { required: true },
     getInternalChat: { required: true },
-    attendant: { required: true }
+    attendant: { required: true },
+    loadMessagesForAtendente: { type: Function, required: true }, // Recebe do pai
+    sendMessageToAtendente: { type: Function, required: true },  // Recebe do pai
+    hasNextPageForAtendente: { type: Function, required: true }, // Recebe do pai,
+    sendMessageToAtendente: { type: Function, required: true }
 });
 
-const chatStore = useChatStore();
 const novaMensagem = ref('');
-const isLoading = computed(() => chatStore.loadingMessages);
 const chatArea = ref(null);
-const mounted = ref(false)
+const mounted = ref(false);
 
+const isLoading = ref(false);
 const mensagens = computed(() => {
-    const atendente = chatStore.attendants.find(att => att.id === props.selectedAtendente.id);
-    return atendente ? atendente.messages : [];
+    return props.selectedAtendente?.messages || [];
 });
 
-const hasNextPage = computed(() => {
-    const atendente = chatStore.attendants.find(att => att.id === props.selectedAtendente.id);
-    return atendente.hasNextPage
-});
-
+const hasNextPage = computed(() => props.hasNextPageForAtendente(props.selectedAtendente.id));
 const formatMessageTime = (dateStr) => {
     const date = new Date(dateStr);
     return format(date, 'HH:mm', { locale: ptBR });
@@ -150,14 +145,15 @@ const scrollToBottom = () => {
 
 const loadMoreMessages = async ($state) => {
     try {
-        if (!hasNextPage) {
+        if (!hasNextPage.value) {
             $state.complete();
             return;
         }
+
         const previousScrollHeight = chatArea.value.scrollHeight; // Armazena a altura atual do scroll
         const previousScrollTop = chatArea.value.scrollTop; // Armazena a posição atual do scroll
 
-        await chatStore.loadMessagesForAtendente(props.selectedAtendente.id, props.token, props.getInternalChat);
+        await props.loadMessagesForAtendente(props.selectedAtendente.id, props.token, props.getInternalChat);
 
         await nextTick(); // Aguarda a renderização das novas mensagens
 
@@ -174,8 +170,9 @@ const loadMoreMessages = async ($state) => {
 const enviarMensagem = async () => {
     if (novaMensagem.value.trim() !== '') {
         try {
-            await chatStore.sendMessageToAtendente(props.selectedAtendente.id, novaMensagem.value, props.token, props.getInternalChat, props.attendant);
+            const newMessage = JSON.parse(JSON.stringify(novaMensagem.value))
             novaMensagem.value = '';
+            await props.sendMessageToAtendente(props.selectedAtendente.id, newMessage, props.token, props.getInternalChat, props.attendant);
             await nextTick();
             scrollToBottom();
         } catch (error) {
@@ -196,9 +193,9 @@ const handleButtonClick = () => {
 onMounted(async () => {
     await nextTick(() => {
         scrollToBottom();
-        mounted.value = true
-    })
-})
+        mounted.value = true;
+    });
+});
 
 watch(() => mensagens.value?.length, (newVal, oldVal) => {
     if (mensagens.value) {
@@ -210,6 +207,7 @@ watch(() => mensagens.value?.length, (newVal, oldVal) => {
         }
     }
 });
+
 function checkIsNearBottom() {
     const threshold = 200; // pixels do final do scroll considerados "perto do final"
     const position = chatArea.value.scrollTop + chatArea.value.clientHeight;
@@ -217,7 +215,6 @@ function checkIsNearBottom() {
     return (height - position) <= threshold;
 }
 </script>
-
 
 <style scoped>
 /* Estilos para o container principal */

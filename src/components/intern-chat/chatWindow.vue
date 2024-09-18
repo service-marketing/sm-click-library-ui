@@ -1,31 +1,25 @@
 <template>
   <div class="chat-container">
     <div @click="handleChatClick" :class="isChatOpen ? 'chat-box open' : 'chat-box closed'">
-
-      <!-- Ícone do chat (mostrado quando fechado) -->
       <span v-if="!isChatOpen" class="chat-icon">💬</span>
-
-      <!-- Conteúdo do chat (mostrado quando aberto) -->
       <transition name="fade" v-if="isChatOpen">
         <div v-if="showContent" class="chat-content">
-
-          <!-- Botão para fechar o chat -->
           <button @click.stop="toggleChat" class="close-button">
-            <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-              fill="none" viewBox="0 0 24 24">
+            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+              viewBox="0 0 24 24">
               <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M6 18L17.94 6M18 18L6.06 6" />
             </svg>
           </button>
 
-          <!-- Componente de mensagens do chat -->
-          <loading v-if="chatStore.loadingMessages" />
-          <div v-else-if="selectedAtendente && !chatStore.loadingMessages" class="h-full">
+          <loading v-if="loadingMessages" />
+          <div v-else-if="selectedAtendente && !loadingMessages" class="h-full">
             <ChatMessages :attendant="attendant" :selectedAtendente="selectedAtendente" :token="token"
-              :getInternalChat="get_internal_chat" @voltar="selectedAtendente = null" />
+              :getInternalChat="get_internal_chat" @voltar="selectedAtendente = null"
+              :loadMessagesForAtendente="loadMessagesForAtendente" :sendMessageToAtendente="sendMessageToAtendente"
+              :hasNextPageForAtendente="hasNextPageForAtendente" />
           </div>
 
-          <!-- Lista de atendentes (mostrada quando nenhum atendente está selecionado) -->
           <div v-if="!selectedAtendente">
             <ChatList :attendant="attendant" :atendentes="attendants" @atendenteSelecionado="selecionarAtendente" />
           </div>
@@ -34,18 +28,15 @@
     </div>
   </div>
 </template>
-
-
 <script setup>
-import { ref, watch, onMounted, computed } from 'vue';
-import axios from 'axios';
+import { ref, onMounted, computed, watch, nextTick } from 'vue';
+import { useChat } from './useChat'; // Importe o composable
 import ChatList from './ChatList.vue';
 import ChatMessages from './ChatMessages.vue';
-import { useChatStore } from './chatsStore';
 import loading from './loading.vue';
 
 const props = defineProps({
-  token: { default: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI2NjU5NDUwLCJpYXQiOjE3MjY1NzMwNTAsImp0aSI6ImJhODRkMTIwMTNiYjQzYTRiN2JlYmMxYTQ2ZDRkYmE4IiwidXNlcl9pZCI6ImRlYTVjMTNmLTQ0NjQtNGNjNi04NjUzLThjODUyNGFjZGQzYiJ9.sT4tLb9fvFXRt1eZTpmPn2COIRFOdl3yIhyknPBaafE', required: true },
+  token: { default: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI2NzY4MjE3LCJpYXQiOjE3MjY2ODE4MTcsImp0aSI6IjIwMjY0YWVkZDhjZjRlYjRiOWVjNzRkZDhjZTNlNDQ5IiwidXNlcl9pZCI6ImRlYTVjMTNmLTQ0NjQtNGNjNi04NjUzLThjODUyNGFjZGQzYiJ9.c5chuTKVeQhDIPT81DnoyszIAfIuAoF_W5O4oYhbozA', required: true },
   get_attendants: { default: 'http://localhost:8000/v1/api/attendances/attendant/all/' },
   get_internal_chat: { default: 'http://localhost:8000/v1/api/attendances/internal_chat/' },
   attendant: {
@@ -72,22 +63,28 @@ const props = defineProps({
     }
   }
 });
-const chatStore = useChatStore();
+
+const {
+  attendants,
+  loadingMessages,
+  fetchAtendentes,
+  fetchMessagesForAtendente,
+  addMessageToAtendente,
+  hasNextPageForAtendente,
+  sendMessageToAtendente,
+  loadMessagesForAtendente
+} = useChat();
+
 const isChatOpen = ref(false);
 const showContent = ref(false);
 const selectedAtendente = ref(null);
-const attendants = computed(() => chatStore.attendants);
 
 onMounted(async () => {
-  await chatStore.fetchAtendentes(props.token, props.get_attendants);  // Carrega os atendentes
+  await fetchAtendentes(props.token, props.get_attendants);  // Carrega os atendentes
 });
 
 const toggleChat = () => {
   isChatOpen.value = !isChatOpen.value;
-  if (!isChatOpen.value) {
-    // selectedAtendente.value = null;
-    // showContent.value = false;
-  }
 };
 
 const handleChatClick = () => {
@@ -97,9 +94,15 @@ const handleChatClick = () => {
 const selecionarAtendente = async (atendente) => {
   selectedAtendente.value = atendente;
   if (!atendente.messages) {  // Se ainda não tiver mensagens carregadas
-    await chatStore.fetchMessagesForAtendente(atendente.id, props.token, props.get_internal_chat);
+    await fetchMessagesForAtendente(atendente.id, props.token, props.get_internal_chat);
   }
 };
+
+watch(() => props.socketMessage, (newVal, oldVal) => {
+  if (newVal !== oldVal) {
+    addMessageToAtendente(newVal);
+  }
+});
 
 watch(isChatOpen, (newVal) => {
   if (newVal) {
@@ -108,17 +111,6 @@ watch(isChatOpen, (newVal) => {
     }, 400);
   }
 });
-
-const receiveMessage = (message) => {
-  chatStore.addMessageToAtendente(message);  // Adiciona a mensagem via store
-};
-
-watch(() => props.socketMessage, (newVal, oldVal) => {
-  if (newVal !== oldVal) {
-    receiveMessage(newVal)
-  }
-});
-
 </script>
 
 <style scoped>
