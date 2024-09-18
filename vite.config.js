@@ -11,10 +11,11 @@ export default defineConfig({
       fileName: (format) => `sm-click-library-ui.${format}.js`
     },
     rollupOptions: {
-      external: ['vue'],
+      external: ['vue', 'pinia'],
       output: {
         globals: {
-          vue: 'Vue'
+          vue: 'Vue',
+          pinia: 'Pinia'
         }
       }
     }
