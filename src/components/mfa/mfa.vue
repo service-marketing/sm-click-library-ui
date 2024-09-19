@@ -1,10 +1,6 @@
 <template>
   <section class="flex flex-col text-center">
     <div class="flex flex-col space-y-3 justify-center">
-      <p class="uppercase">
-        Acesse seu aplicativo Google Authenticator e<br />
-        informe o Token de acesso
-      </p>
       <div class="gap-2 flex-col text-black justify-center">
         <input
           v-for="(input, index) in codeAuth"
