@@ -69,7 +69,7 @@
 
         <!-- Área de input e botão de enviar -->
         <div class="input-area">
-            <textarea type="text" v-model="novaMensagem" class="message-input bg-base-300"
+            <textarea type="text" v-model="novaMensagem" class="message-input bg-base-300 focus:ring-0"
                 placeholder="Digite sua mensagem..." @keydown="handleKeydown" />
             <button @click="handleButtonClick" class="send-button">Enviar</button>
         </div>
@@ -105,11 +105,11 @@ const mensagens = computed(() => {
 const hasNextPage = computed(() => props.hasNextPageForAtendente(props.selectedAtendente.id));
 const formatMessageTime = (dateStr) => {
     const date = new Date(dateStr);
-    return date.toLocaleString('pt-BR', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,  // Usar formato de 24 horas
-    });
+    // Obtém a hora local ajustada automaticamente pelo navegador
+    const localHours = date.getHours();
+    const localMinutes = date.getMinutes();
+    // Formata para 'HH:mm'
+    return `${localHours.toString().padStart(2, '0')}:${localMinutes.toString().padStart(2, '0')}`;
 };
 
 const formatDateSeparator = (dateStr) => {
@@ -173,8 +173,6 @@ const loadMoreMessages = async ($state) => {
         $state.complete();
     }
 };
-
-
 
 const enviarMensagem = async () => {
     if (novaMensagem.value.trim() !== '') {
@@ -410,6 +408,9 @@ function checkIsNearBottom() {
     outline: 2px solid transparent;
     outline-offset: 2px;
     border-style: none;
+    --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+    --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+    box-shadow: var(--tw-ring-offset-shadow)
 }
 
 .send-button {
