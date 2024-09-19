@@ -162,7 +162,7 @@ watch(isChatOpen, (newVal) => {
   position: relative;
   width: 100%;
   height: 100%;
-  color: white;
+  /* color: white; */
 }
 
 /* Botão de fechar o chat */

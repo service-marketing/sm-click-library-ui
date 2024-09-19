@@ -1,17 +1,18 @@
 <template>
   <div class="container">
     <!-- Campo de busca -->
-    <input v-model="searchQuery" class="search-input" placeholder="Antonio Jose" />
+    <input v-model="searchQuery" class="search-input bg-base-300 border-b border-base-200" placeholder="Antonio Jose" />
 
     <!-- Lista de atendentes -->
     <ul class="atendentes-list">
       <!-- Mensagem de ausência de atendentes -->
-      <li v-if="filteredAtendentes.length === 0" class="empty-message">
+      <li v-if="filteredAtendentes.length === 0" class="empty-message bg-base-300">
         {{ atendentes.length === 0 ? 'Não há atendentes disponíveis' : 'Não há atendentes com esse nome' }}
       </li>
 
       <!-- Itens da lista de atendentes -->
-      <li v-for="att in filteredAtendentes" :key="att.id" @click="selectAtendente(att)" class="atendente-item">
+      <li v-for="att in filteredAtendentes" :key="att.id" @click="selectAtendente(att)"
+        class="atendente-item border-b bg-base-300 border-base-200 hover:bg-base-200">
 
         <!-- Informações principais do atendente -->
         <main class="atendente-main">
@@ -85,10 +86,8 @@ const filteredAtendentes = computed(() => {
   width: 100%;
   /* color: black; */
   padding: 0.75rem;
-  border-bottom: 1px solid #ccc;
   border-radius: 16px 16px 0 0;
   outline: none;
-  @apply bg-base-300 border-base-200;
 }
 
 .search-input:focus {
@@ -107,7 +106,6 @@ const filteredAtendentes = computed(() => {
   /* color: #4b5563; */
   /* Cor cinza */
   /* background-color: white; */
-  @apply bg-base-300;
 }
 
 /* Itens da lista de atendentes */
@@ -120,13 +118,10 @@ const filteredAtendentes = computed(() => {
   /* color: #4b5563; */
   cursor: pointer;
   transition: background-color 0.3s ease;
-  border-bottom: 1px solid #ccc;
-  @apply bg-base-300 border-base-200;
 }
 
 .atendente-item:hover {
-  background-color: #ebf8ff;
-  @apply bg-base-200;
+  /* background-color: #ebf8ff; */
   /* Cor azul clara */
 }
 

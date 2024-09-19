@@ -1,5 +1,5 @@
 <template>
-    <div class="container">
+    <div class="container bg-base-300">
         <!-- Cabeçalho -->
         <div class="header">
             <button @click="$emit('voltar')" class="back-button">
@@ -69,7 +69,7 @@
 
         <!-- Área de input e botão de enviar -->
         <div class="input-area">
-            <textarea v-model="novaMensagem" class="message-input" placeholder="Digite sua mensagem..."
+            <textarea v-model="novaMensagem" class="message-input bg-base-300" placeholder="Digite sua mensagem..."
                 @keydown="handleKeydown" />
             <button @click="handleButtonClick" class="send-button">Enviar</button>
         </div>
@@ -161,7 +161,7 @@ const loadMoreMessages = async ($state) => {
         await nextTick();
 
         // Ajusta a posição do scroll de forma relativa ao aumento do scrollHeight
-        chatArea.value.scrollTop = chatArea.value.scrollHeight - previousScrollHeight + previousScrollTop;
+        chatArea.value.scrollTop = chatArea.value.scrollHeight - previousScrollHeight + previousScrollTop - 32;
 
         $state.loaded();
     } catch (error) {
@@ -230,7 +230,6 @@ function checkIsNearBottom() {
     /* background-color: white; */
     border-radius: 16px 16px 16px 16px;
     /* color: black; */
-    @apply bg-base-300 border-base-200;
 }
 
 /* Cabeçalho */
@@ -238,12 +237,11 @@ function checkIsNearBottom() {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    height: 47px;
+    height: 52px;
     /* background-color: white; */
     border-radius: 16px 16px 0 0;
     padding: 0.5rem;
     flex-shrink: 0;
-    @apply bg-base-300;
 }
 
 .back-button {
@@ -399,7 +397,9 @@ function checkIsNearBottom() {
     max-height: 56px;
     min-height: 56px;
     border-radius: 0 0 16px 16px;
-    @apply bg-base-300;
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    border-style: none;
 }
 
 .send-button {
@@ -429,10 +429,12 @@ function checkIsNearBottom() {
         transform: scale(0.8);
         opacity: 0;
     }
+
     50% {
         transform: scale(1.1);
         opacity: 1;
     }
+
     100% {
         transform: scale(1);
     }
@@ -454,6 +456,7 @@ function checkIsNearBottom() {
         transform: translateX(-100%);
         opacity: 0;
     }
+
     100% {
         transform: translateX(0);
         opacity: 1;
@@ -472,10 +475,10 @@ function checkIsNearBottom() {
         transform: translateX(100%);
         opacity: 0;
     }
+
     100% {
         transform: translateX(0);
         opacity: 1;
     }
 }
-
 </style>
