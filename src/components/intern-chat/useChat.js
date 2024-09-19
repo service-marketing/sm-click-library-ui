@@ -72,10 +72,10 @@ export function useChat() {
 
       if (existingMessageIndex !== -1) {
         atendente.messages[existingMessageIndex] = message;
-        console.log(`Mensagem com ID ${message.id} atualizada.`);
+        console.log(`Mensagem com ID ${message.id} atualizada.`, message);
       } else {
         atendente.messages.push(message);
-        console.log(`Nova mensagem com ID ${message.id} adicionada.`);
+        console.log(`Nova mensagem com ID ${message.id} adicionada.`, message);
       }
     }
   };

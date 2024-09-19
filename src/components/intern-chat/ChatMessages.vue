@@ -1,7 +1,7 @@
 <template>
     <div class="container bg-base-300">
         <!-- Cabeçalho -->
-        <div class="header">
+        <div class="header-intern bg-base-300">
             <button @click="$emit('voltar')" class="back-button">
                 <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
                     viewBox="0 0 24 24">
@@ -69,8 +69,8 @@
 
         <!-- Área de input e botão de enviar -->
         <div class="input-area">
-            <textarea v-model="novaMensagem" class="message-input bg-base-300" placeholder="Digite sua mensagem..."
-                @keydown="handleKeydown" />
+            <textarea type="text" v-model="novaMensagem" class="message-input bg-base-300"
+                placeholder="Digite sua mensagem..." @keydown="handleKeydown" />
             <button @click="handleButtonClick" class="send-button">Enviar</button>
         </div>
     </div>
@@ -233,7 +233,7 @@ function checkIsNearBottom() {
 }
 
 /* Cabeçalho */
-.header {
+.header-intern {
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -397,6 +397,12 @@ function checkIsNearBottom() {
     max-height: 56px;
     min-height: 56px;
     border-radius: 0 0 16px 16px;
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    border-style: none;
+}
+
+.message-input:focus {
     outline: 2px solid transparent;
     outline-offset: 2px;
     border-style: none;
