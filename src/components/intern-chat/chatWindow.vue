@@ -140,7 +140,7 @@ watch(isChatOpen, (newVal) => {
   /* Cor azul */
   border-radius: 20px;
   cursor: default;
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 
 .chat-box.closed {
@@ -170,7 +170,7 @@ watch(isChatOpen, (newVal) => {
   position: absolute;
   top: 12px;
   right: 12px;
-  color: #6b7280;
+  /* color: #454b57; */
   /* Cor cinza */
   cursor: pointer;
   transition: color 0.3s ease;

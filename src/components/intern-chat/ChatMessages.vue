@@ -150,14 +150,17 @@ const loadMoreMessages = async ($state) => {
             return;
         }
 
-        const previousScrollHeight = chatArea.value.scrollHeight; // Armazena a altura atual do scroll
-        const previousScrollTop = chatArea.value.scrollTop; // Armazena a posição atual do scroll
+        // Captura a altura anterior do scroll e a posição anterior do scroll
+        const previousScrollHeight = chatArea.value.scrollHeight;
+        const previousScrollTop = chatArea.value.scrollTop;
 
+        // Carrega mais mensagens
         await props.loadMessagesForAtendente(props.selectedAtendente.id, props.token, props.getInternalChat);
 
-        await nextTick(); // Aguarda a renderização das novas mensagens
+        // Aguarda a renderização das novas mensagens
+        await nextTick();
 
-        // Ajusta a posição do scroll para onde estava antes de carregar mais mensagens
+        // Ajusta a posição do scroll de forma relativa ao aumento do scrollHeight
         chatArea.value.scrollTop = chatArea.value.scrollHeight - previousScrollHeight + previousScrollTop;
 
         $state.loaded();
@@ -166,6 +169,8 @@ const loadMoreMessages = async ($state) => {
         $state.complete();
     }
 };
+
+
 
 const enviarMensagem = async () => {
     if (novaMensagem.value.trim() !== '') {
@@ -222,8 +227,10 @@ function checkIsNearBottom() {
     display: flex;
     flex-direction: column;
     height: 100%;
-    background-color: white;
-    color: black;
+    /* background-color: white; */
+    border-radius: 16px 16px 16px 16px;
+    /* color: black; */
+    @apply bg-base-300 border-base-200;
 }
 
 /* Cabeçalho */
@@ -232,13 +239,15 @@ function checkIsNearBottom() {
     align-items: center;
     gap: 0.5rem;
     height: 47px;
-    background-color: white;
+    /* background-color: white; */
+    border-radius: 16px 16px 0 0;
     padding: 0.5rem;
     flex-shrink: 0;
+    @apply bg-base-300;
 }
 
 .back-button {
-    color: #6b7280;
+    /* color: #6b7280; */
     cursor: pointer;
     transition: color 0.3s ease;
 }
@@ -276,6 +285,7 @@ function checkIsNearBottom() {
     padding: 0.25rem;
     overflow-y: auto;
     position: relative;
+    scroll-behavior: smooth;
 }
 
 /* Carregando */
@@ -324,23 +334,25 @@ function checkIsNearBottom() {
     display: inline-block;
     padding: 0.5rem;
     border-radius: 1rem;
+    color: black;
 }
 
 .message-content.me {
     background-color: #60a5fa;
-    color: white;
+    /* color: white; */
 }
 
 .message-content.not-me {
     background-color: rgba(125, 211, 252, 0.9);
-    color: black;
+    /* color: black; */
 }
 
 .message-time {
     font-size: 0.75rem;
-    color: #374151;
+    /* color: #374151; */
     text-align: right;
     margin-top: -0.25rem;
+    opacity: 50%;
 }
 
 /* Estilos do separador de datas */
@@ -376,8 +388,8 @@ function checkIsNearBottom() {
 
 .message-input {
     width: 100%;
-    background-color: white;
-    color: black;
+    /* background-color: white; */
+    /* color: black; */
     resize: none;
     padding: 0.5rem;
     height: 56px;
@@ -386,6 +398,8 @@ function checkIsNearBottom() {
     padding-right: 80px;
     max-height: 56px;
     min-height: 56px;
+    border-radius: 0 0 16px 16px;
+    @apply bg-base-300;
 }
 
 .send-button {
@@ -407,7 +421,7 @@ function checkIsNearBottom() {
 
 /* Animação para a mensagem */
 .new-message {
-    animation: bounce-in 0.6s ease-in-out;
+    /* animation: bounce-in 0.6s ease-in-out; */
 }
 
 @keyframes bounce-in {
@@ -415,14 +429,53 @@ function checkIsNearBottom() {
         transform: scale(0.8);
         opacity: 0;
     }
-
     50% {
         transform: scale(1.1);
         opacity: 1;
     }
-
     100% {
         transform: scale(1);
     }
 }
+
+/* Animação para as mensagens enviadas pelo usuário (vindo da esquerda) */
+.message-enter-active {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.message.me.new-message {
+    transform: translateX(-100%);
+    opacity: 0;
+    animation: slide-in-left 0.3s forwards ease;
+}
+
+@keyframes slide-in-left {
+    0% {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Animação para as mensagens enviadas por outra pessoa (vindo da direita) */
+.message.not-me.new-message {
+    transform: translateX(100%);
+    opacity: 0;
+    animation: slide-in-right 0.3s forwards ease;
+}
+
+@keyframes slide-in-right {
+    0% {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
 </style>

@@ -83,11 +83,12 @@ const filteredAtendentes = computed(() => {
 /* Estilo do input de busca */
 .search-input {
   width: 100%;
-  color: black;
+  /* color: black; */
   padding: 0.75rem;
   border-bottom: 1px solid #ccc;
-  border-radius: 20px 20px 0 0;
+  border-radius: 16px 16px 0 0;
   outline: none;
+  @apply bg-base-300 border-base-200;
 }
 
 .search-input:focus {
@@ -103,9 +104,10 @@ const filteredAtendentes = computed(() => {
 
 .atendentes-list .empty-message {
   padding: 0.5rem;
-  color: #4b5563;
+  /* color: #4b5563; */
   /* Cor cinza */
-  background-color: white;
+  /* background-color: white; */
+  @apply bg-base-300;
 }
 
 /* Itens da lista de atendentes */
@@ -114,15 +116,17 @@ const filteredAtendentes = computed(() => {
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem;
-  background-color: white;
-  color: #4b5563;
+  /* background-color: white; */
+  /* color: #4b5563; */
   cursor: pointer;
   transition: background-color 0.3s ease;
   border-bottom: 1px solid #ccc;
+  @apply bg-base-300 border-base-200;
 }
 
 .atendente-item:hover {
   background-color: #ebf8ff;
+  @apply bg-base-200;
   /* Cor azul clara */
 }
 
