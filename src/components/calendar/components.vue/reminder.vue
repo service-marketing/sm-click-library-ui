@@ -30,8 +30,8 @@ const config = ref({
 </script>
 
 <template>
-    <div class="space-y-2 pt-2">
-        <div class="flex flex-col gap-2">
+    <div class="container">
+        <div class="form-group">
             <label for="contentInput">Horário</label>
             <DatePicker format="HH:mm" auto-apply="true" :time-picker="true" locale="pt-BR" cancel-text="Cancelar"
                 select-text="Confirmar" :enable-time-picker="true" :min-date="new Date()" text-input :dark="theme"
@@ -40,24 +40,71 @@ const config = ref({
                 </template>
             </DatePicker>
         </div>
-        <div class="flex flex-col gap-2">
+        <div class="form-group">
             <label for="titleInput">Título</label>
-            <input v-model="config.title" id="titleInput" placeholder="Remédio"
-                class="input bg-base-200" />
+            <input v-model="config.title" id="titleInput" placeholder="Remédio" class="input bg-base-200" />
         </div>
-        <div class="flex flex-col gap-2">
+        <div class="form-group">
             <label for="contentInput">Conteúdo</label>
-            <textarea v-model="config.content" id="contentInput"
-                placeholder="Não esquecer do remédio de alzheimer" class="input bg-base-200" />
+            <textarea v-model="config.content" id="contentInput" placeholder="Não esquecer do remédio de alzheimer"
+                class="areaInput bg-base-200" />
         </div>
-        <div class="pt-2">
-            <button class="bg-green-500 w-full hover:bg-green-400 p-2 px-5 rounded-md mx-auto uppercase">Salvar</button>
+        <div class="button-container">
+            <button class="save-button">Salvar</button>
         </div>
     </div>
 </template>
 
 <style scoped>
+.container {
+    padding-top: 8px;
+    gap: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
 .input {
-    @apply w-full outline-none p-2 rounded px-3
+    width: 100%;
+    outline: none;
+    padding: 8px;
+    border-radius: 4px;
+    padding-left: 12px;
+    /* Cor substituída pelo valor da sua variável CSS */
+}
+
+.areaInput {
+    width: 100%;
+    outline: none;
+    padding: 8px;
+    border-radius: 4px;
+    padding-left: 12px;
+    /* Cor substituída pelo valor da sua variável CSS */
+    border: none;
+}
+
+.button-container {
+    padding-top: 8px;
+}
+
+.save-button {
+    background-color: #38a169;
+    width: 100%;
+    padding: 8px 20px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.save-button:hover {
+    background-color: #48bb78;
 }
 </style>
