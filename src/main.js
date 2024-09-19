@@ -11,6 +11,5 @@ const app = createApp(App);
 
 // Usar Pinia no app
 app.use(pinia);
-
 app.component('Popper', Popper);
 app.mount('#app');
