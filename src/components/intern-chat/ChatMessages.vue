@@ -105,7 +105,11 @@ const mensagens = computed(() => {
 const hasNextPage = computed(() => props.hasNextPageForAtendente(props.selectedAtendente.id));
 const formatMessageTime = (dateStr) => {
     const date = new Date(dateStr);
-    return format(date, 'HH:mm', { locale: ptBR });
+    return date.toLocaleString('pt-BR', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,  // Usar formato de 24 horas
+    });
 };
 
 const formatDateSeparator = (dateStr) => {
