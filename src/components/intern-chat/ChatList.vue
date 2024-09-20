@@ -11,9 +11,8 @@
       </li>
 
       <!-- Itens da lista de atendentes -->
-      <!-- Itens da lista de atendentes -->
       <li v-for="att in filteredAtendentes" :key="att.id" @click="selectAtendente(att)"
-        class="atendente-item border-b bg-base-100/10 even:bg-base-300 border-base-200 hover:bg-base-200 relative">
+        class="atendente-item border-b even:bg-base-300 bg-blue-400/10 border-base-200 hover:bg-base-200 relative">
 
         <!-- Informações principais do atendente -->
         <main class="atendente-main">
