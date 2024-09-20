@@ -1,13 +1,13 @@
 <template>
   <section class="flex flex-col text-center">
     <div class="flex flex-col space-y-3 justify-center">
-      <div class="gap-2 flex-col text-black justify-center">
+      <div class="space-x-4 flex-col text-black justify-center">
         <input
           v-for="(input, index) in codeAuth"
           :key="index"
           v-model="codeAuth[index]"
           :class="eventHandling === 'check' ? 'checked_mfa' : 'err_mfa'"
-          class="inline-block mx-4 w-10 h-10 rounded-md text-center"
+          class="inline-block w-10 h-10 rounded-md text-center"
           type="text"
           maxlength="1"
           @input="handleInput(index)"

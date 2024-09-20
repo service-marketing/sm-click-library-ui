@@ -17,8 +17,8 @@ const test = ref(
 <template>
   <main class="h-screen bg-gray-900 text-white justify-center flex">
     <!-- <calendar v-if="false" /> -->
-    <MfaQrCode :base64="test" :dimensions="[20, 20]" />
-    <!-- <MFA eventHandling="check" @filled="test" /> -->
+    <!-- <MfaQrCode :base64="test" :dimensions="[20, 20]" /> -->
+    <MFA eventHandling="check" @filled="test" />
   </main>
 </template>
 
