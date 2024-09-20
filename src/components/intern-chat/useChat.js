@@ -5,9 +5,11 @@ import { v4 as uuidv4 } from 'uuid';
 export function useChat() {
   const attendants = ref([]); // Lista de atendentes com suas mensagens e canais
   const loadingMessages = ref(false);
+  const loadingAttendants = ref(false)
 
   const fetchAtendentes = async (token, getAttendantsUrl) => {
     try {
+      loadingAttendants.value = true
       const response = await axios.get(getAttendantsUrl, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -22,6 +24,8 @@ export function useChat() {
       }));
     } catch (error) {
       console.error(error);
+    } finally {
+      loadingAttendants.value = false
     }
   };
 
@@ -130,12 +134,13 @@ export function useChat() {
   return {
     attendants: computed(() => attendants.value),
     loadingMessages: computed(() => loadingMessages.value),
+    loadingAttendants: computed(() => loadingAttendants.value),
     fetchAtendentes,
     fetchMessagesForAtendente,
     loadMessagesForAtendente,
     addMessageToAtendente,
     sendMessageToAtendente,
     hasNextPageForAtendente,
-    resetUnreadMessages
+    resetUnreadMessages,
   };
 }

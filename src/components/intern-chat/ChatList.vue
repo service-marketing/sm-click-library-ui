@@ -4,45 +4,45 @@
     <input v-model="searchQuery" class="search-input bg-base-300 border-b border-base-200" placeholder="Antonio Jose" />
 
     <!-- Lista de atendentes -->
-    <ul class="atendentes-list">
+    <ul class="atendentes-list bg-base-300">
       <!-- Mensagem de ausência de atendentes -->
       <li v-if="filteredAtendentes.length === 0" class="empty-message bg-base-300">
         {{ atendentes.length === 0 ? 'Não há atendentes disponíveis' : 'Não há atendentes com esse nome' }}
       </li>
 
       <!-- Itens da lista de atendentes -->
+      <!-- Itens da lista de atendentes -->
       <li v-for="att in filteredAtendentes" :key="att.id" @click="selectAtendente(att)"
-        class="atendente-item border-b bg-base-300 border-base-200 hover:bg-base-200">
+        class="atendente-item border-b bg-base-100/10 even:bg-base-300 border-base-200 hover:bg-base-200 relative">
 
         <!-- Informações principais do atendente -->
         <main class="atendente-main">
-          <div v-if="!att.photo" class="atendente-photo-placeholder">
-            <svg class="w-8 h-8 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-              fill="currentColor" viewBox="0 0 24 24">
-              <path fill-rule="evenodd"
-                d="M12 2a7 7 0 0 0-7 7 3 3 0 0 0-3 3v2a3 3 0 0 0 3 3h1a1 1 0 0 0 1-1V9a5 5 0 1 1 10 0v7.083A2.919 2.919 0 0 1 14.083 19H14a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v1a2 2 0 0 0 2 2h1a2 2 0 0 0 1.732-1h.351a4.917 4.917 0 0 0 4.83-4H19a3 3 0 0 0 3-3v-2a3 3 0 0 0-3-3 7 7 0 0 0-7-7Zm1.45 3.275a4 4 0 0 0-4.352.976 1 1 0 0 0 1.452 1.376 2.001 2.001 0 0 1 2.836-.067 1 1 0 1 0 1.386-1.442 4 4 0 0 0-1.321-.843Z"
-                clip-rule="evenodd" />
-            </svg>
-          </div>
-          <img v-else :src="att.photo" class="atendente-photo" />
+          <Avatar :url="att.photo" />
           <span class="atendente-name">{{ att.name }}</span>
         </main>
 
         <!-- Indicador de status -->
         <footer class="flex items-center gap-4">
-          <span v-if="att.unreadMessages > 0" style="background-color: rgb(34 197 94);color: white;padding: 0.5rem;padding-top: 0px;
-    padding-bottom: 0px;border-radius: 9999px;
-">{{ att.unreadMessages }}</span>
+          <span v-if="att.unreadMessages > 0" class="message-indicator">{{ att.unreadMessages }}</span>
           <div :class="['status-indicator', getStatusClass(att.login_status)]"></div>
         </footer>
+
+        <!-- Indicador de "conversar" no hover -->
+        <div class="hover-action">
+          Conversar
+        </div>
       </li>
+
     </ul>
+    <!-- Footer fixo -->
+    <footer class="chat-footer bg-base-200 rounded-b-xl">
+    </footer>
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
-
+import Avatar from './Avatar.vue'
 const props = defineProps({
   atendentes: { type: Array, required: true },
   attendant: { required: true }
@@ -80,14 +80,16 @@ const filteredAtendentes = computed(() => {
 <style scoped>
 /* Container com rolagem vertical e altura cheia */
 .container {
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
   height: 100%;
+  /* Garante que o container ocupe a altura total da tela */
+  overflow: hidden;
 }
 
 /* Estilo do input de busca */
 .search-input {
   width: 100%;
-  /* color: black; */
   padding: 0.75rem;
   border-radius: 16px 16px 0 0;
   outline: none;
@@ -97,35 +99,68 @@ const filteredAtendentes = computed(() => {
   border-color: #3b82f6;
 }
 
-/* Lista de atendentes */
+/* Lista de atendentes ocupa o espaço disponível */
 .atendentes-list {
+  flex-grow: 1;
+  /* Faz a lista ocupar o espaço restante */
   list-style: none;
-  padding: 0;
-  margin: 0;
+  overflow-y: auto;
+  /* Habilita rolagem se houver muitos atendentes */
+  height: 100%;
 }
 
 .atendentes-list .empty-message {
   padding: 0.5rem;
-  /* color: #4b5563; */
-  /* Cor cinza */
-  /* background-color: white; */
 }
 
+/* Itens da lista de atendentes */
 /* Itens da lista de atendentes */
 .atendente-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem;
-  /* background-color: white; */
-  /* color: #4b5563; */
   cursor: pointer;
   transition: background-color 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  padding-right: 1rem;
 }
 
+/* Efeito de hover */
 .atendente-item:hover {
-  /* background-color: #ebf8ff; */
-  /* Cor azul clara */
+  background-color: rgba(59, 130, 246, 0.2);
+}
+
+/* Indicador "Conversar" no hover */
+.hover-action {
+  position: absolute;
+  right: -100px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: #3b82f6;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: right 0.3s ease;
+  white-space: nowrap;
+}
+
+/* Animação ao passar o mouse */
+.atendente-item:hover .hover-action {
+  right: 10px;
+}
+
+/* Indicador de mensagens não lidas */
+.message-indicator {
+  background-color: rgb(34 197 94);
+  color: white;
+  padding: 0.5rem;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  border-radius: 9999px;
 }
 
 .atendente-main {
@@ -149,7 +184,6 @@ const filteredAtendentes = computed(() => {
   height: 40px;
   border-radius: 50%;
   background-color: #9ca3af;
-  /* Cor cinza */
 }
 
 .atendente-name {
@@ -165,19 +199,26 @@ const filteredAtendentes = computed(() => {
   border-radius: 50%;
 }
 
-/* Classes de status */
-.status-online {
-  background-color: #34d399;
-  /* Verde para online */
+/* Footer fixo no final */
+.chat-footer {
+  padding: 0.6rem;
+  text-align: center;
+  color: white;
+  /* Fixo na parte inferior */
 }
 
-.status-offline {
-  background-color: #f87171;
-  /* Vermelho para offline */
+/* Botões da navbar */
+.nav-button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
 }
 
-.status-away {
-  background-color: #fbbf24;
-  /* Amarelo para ausente */
+.nav-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
 }
 </style>
