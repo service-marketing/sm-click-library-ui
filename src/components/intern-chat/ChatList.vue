@@ -1,12 +1,12 @@
 <template>
   <div class="container">
     <!-- Campo de busca -->
-    <input v-model="searchQuery" class="search-input bg-base-300 border-b border-base-200" placeholder="Antonio Jose" />
+    <input v-model="searchQuery" class="search-input bg-base-300 border-b border-base-200" placeholder="Pesquise entre os atendentes..." />
 
     <!-- Lista de atendentes -->
     <ul class="atendentes-list bg-base-300">
       <!-- Mensagem de ausência de atendentes -->
-      <li v-if="filteredAtendentes.length === 0" class="empty-message bg-base-300">
+      <li v-if="filteredAtendentes.length === 0" class="empty-message bg-base-200">
         {{ atendentes.length === 0 ? 'Não há atendentes disponíveis' : 'Não há atendentes com esse nome' }}
       </li>
 
@@ -124,7 +124,7 @@ const filteredAtendentes = computed(() => {
 }
 
 .atendentes-list .empty-message {
-  padding: 0.5rem;
+  padding: 1rem;
 }
 
 /* Itens da lista de atendentes */
