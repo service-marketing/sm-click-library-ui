@@ -90,9 +90,9 @@ export function useChat() {
 
   const resetUnreadMessages = (atendenteId) => {
     const atendente = attendants.value.find(att => att.id === atendenteId);
-    // if (atendente) {
-    //   atendente.unreadMessages = 0;
-    // }
+    if (atendente) {
+      atendente.unreadMessages = 0;
+    }
   };
 
   const sendMessageToAtendente = async (atendenteId, messageContent, token, getInternalChatUrl, att) => {
