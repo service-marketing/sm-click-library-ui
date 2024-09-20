@@ -29,7 +29,10 @@
         </main>
 
         <!-- Indicador de status -->
-        <footer>
+        <footer class="flex items-center gap-4">
+          <span v-if="att.unreadMessages > 0" style="background-color: rgb(34 197 94);color: white;padding: 0.5rem;padding-top: 0px;
+    padding-bottom: 0px;border-radius: 9999px;
+">{{ att.unreadMessages }}</span>
           <div :class="['status-indicator', getStatusClass(att.login_status)]"></div>
         </footer>
       </li>

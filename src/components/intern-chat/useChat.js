@@ -17,7 +17,8 @@ export function useChat() {
         messages: null,
         channel_id: null,
         currentPage: 1,
-        hasNextPage: null
+        hasNextPage: null,
+        unreadMessages: 0,
       }));
     } catch (error) {
       console.error(error);
@@ -63,7 +64,7 @@ export function useChat() {
     }
   };
 
-  const addMessageToAtendente = (event) => {
+  const addMessageToAtendente = (event, isChatOpen, selectedAtendenteId) => {
     const message = event.message;
     const atendente = attendants.value.find(att => att.channel_id === message.channel_id);
 
@@ -72,11 +73,22 @@ export function useChat() {
 
       if (existingMessageIndex !== -1) {
         atendente.messages[existingMessageIndex] = message;
-        console.log(`Mensagem com ID ${message.id} atualizada.`, message);
       } else {
         atendente.messages.push(message);
-        console.log(`Nova mensagem com ID ${message.id} adicionada.`, message);
+
+        // Verifica se o chat está aberto e se o atendente está selecionado
+        if (!isChatOpen || atendente.id !== selectedAtendenteId) {
+          // Incrementa as mensagens não lidas se o atendente não está visualizado
+          atendente.unreadMessages += 1;
+        }
       }
+    }
+  };
+
+  const resetUnreadMessages = (atendenteId) => {
+    const atendente = attendants.value.find(att => att.id === atendenteId);
+    if (atendente) {
+      atendente.unreadMessages = 0;
     }
   };
 
@@ -120,6 +132,7 @@ export function useChat() {
     loadMessagesForAtendente,
     addMessageToAtendente,
     sendMessageToAtendente,
-    hasNextPageForAtendente
+    hasNextPageForAtendente,
+    resetUnreadMessages
   };
 }

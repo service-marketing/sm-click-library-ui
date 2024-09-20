@@ -1,7 +1,7 @@
 <template>
   <div class="chat-container">
-    <div @click="handleChatClick" :class="isChatOpen ? 'chat-box open' : 'chat-box closed'">
-      <span v-if="!isChatOpen" class="chat-icon">💬</span>
+    <div @click="handleChatClick" :class="isChatOpen ? 'chat-box open bg-base-200' : 'chat-box closed'">
+      <span v-if="!isChatOpen" class="chat-icon">💬 </span>
       <transition name="fade" v-if="isChatOpen">
         <div v-if="showContent" class="chat-content">
           <button @click.stop="toggleChat" class="close-button">
@@ -36,7 +36,7 @@ import ChatMessages from './ChatMessages.vue';
 import loading from './loading.vue';
 
 const props = defineProps({
-  token: { default: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI2NzY4MjE3LCJpYXQiOjE3MjY2ODE4MTcsImp0aSI6IjIwMjY0YWVkZDhjZjRlYjRiOWVjNzRkZDhjZTNlNDQ5IiwidXNlcl9pZCI6ImRlYTVjMTNmLTQ0NjQtNGNjNi04NjUzLThjODUyNGFjZGQzYiJ9.c5chuTKVeQhDIPT81DnoyszIAfIuAoF_W5O4oYhbozA', required: true },
+  token: { default: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI2OTMzMTIxLCJpYXQiOjE3MjY4NDY3MjEsImp0aSI6IjJmMGI2OTBlZGY3NjQxMjY4MTlmMjM3NTRjY2E0Yjg5IiwidXNlcl9pZCI6ImRlYTVjMTNmLTQ0NjQtNGNjNi04NjUzLThjODUyNGFjZGQzYiJ9.5RSjQ-Q1P5jOOQtpRLxPsO-j97SSLGatNhjniNbD2-U', required: true },
   get_attendants: { default: 'http://localhost:8000/v1/api/attendances/attendant/all/' },
   get_internal_chat: { default: 'http://localhost:8000/v1/api/attendances/internal_chat/' },
   attendant: {
@@ -72,7 +72,8 @@ const {
   addMessageToAtendente,
   hasNextPageForAtendente,
   sendMessageToAtendente,
-  loadMessagesForAtendente
+  loadMessagesForAtendente,
+  resetUnreadMessages
 } = useChat();
 
 const isChatOpen = ref(false);
@@ -93,14 +94,15 @@ const handleChatClick = () => {
 
 const selecionarAtendente = async (atendente) => {
   selectedAtendente.value = atendente;
-  if (!atendente.messages) {  // Se ainda não tiver mensagens carregadas
+  resetUnreadMessages(atendente.id); // Reseta as mensagens não lidas ao selecionar o atendente
+  if (!atendente.messages) {
     await fetchMessagesForAtendente(atendente.id, props.token, props.get_internal_chat);
   }
 };
 
 watch(() => props.socketMessage, (newVal, oldVal) => {
   if (newVal !== oldVal) {
-    addMessageToAtendente(newVal);
+    addMessageToAtendente(newVal, isChatOpen.value, selectedAtendente.value?.id);
   }
 });
 
@@ -136,7 +138,6 @@ watch(isChatOpen, (newVal) => {
   height: 384px;
   /* 96rem = 384px */
   max-height: 384px;
-  background-color: #3b82f6;
   /* Cor azul */
   border-radius: 20px;
   cursor: default;
