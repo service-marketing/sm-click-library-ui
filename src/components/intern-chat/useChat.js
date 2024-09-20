@@ -18,7 +18,7 @@ export function useChat() {
         channel_id: null,
         currentPage: 1,
         hasNextPage: null,
-        unreadMessages: 5,
+        unreadMessages: 0,
       }));
     } catch (error) {
       console.error(error);
