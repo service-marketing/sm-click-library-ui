@@ -1,7 +1,13 @@
 <template>
   <div class="chat-container">
-    <div @click="handleChatClick" :class="isChatOpen ? 'chat-box open' : 'chat-box closed'">
-      <span v-if="!isChatOpen" class="chat-icon">💬</span>
+    <div @click="handleChatClick" :class="isChatOpen ? 'chat-box open bg-base-200' : 'chat-box closed'">
+      <!-- Ícone de chat com contador de mensagens não lidas -->
+      <span v-if="!isChatOpen" class="chat-icon">
+        💬
+        <!-- Exibe o número de mensagens não lidas -->
+        <span v-if="unreadMessagesCount > 0" class="unread-count">{{ unreadMessagesCount }}</span>
+      </span>
+      
       <transition name="fade" v-if="isChatOpen">
         <div v-if="showContent" class="chat-content">
           <button @click.stop="toggleChat" class="close-button">
@@ -28,6 +34,7 @@
     </div>
   </div>
 </template>
+
 <script setup>
 import { ref, onMounted, computed, watch, nextTick } from 'vue';
 import { useChat } from './useChat'; // Importe o composable
@@ -36,7 +43,7 @@ import ChatMessages from './ChatMessages.vue';
 import loading from './loading.vue';
 
 const props = defineProps({
-  token: { default: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI2NzY4MjE3LCJpYXQiOjE3MjY2ODE4MTcsImp0aSI6IjIwMjY0YWVkZDhjZjRlYjRiOWVjNzRkZDhjZTNlNDQ5IiwidXNlcl9pZCI6ImRlYTVjMTNmLTQ0NjQtNGNjNi04NjUzLThjODUyNGFjZGQzYiJ9.c5chuTKVeQhDIPT81DnoyszIAfIuAoF_W5O4oYhbozA', required: true },
+  token: { default: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI2OTMzMTIxLCJpYXQiOjE3MjY4NDY3MjEsImp0aSI6IjJmMGI2OTBlZGY3NjQxMjY4MTlmMjM3NTRjY2E0Yjg5IiwidXNlcl9pZCI6ImRlYTVjMTNmLTQ0NjQtNGNjNi04NjUzLThjODUyNGFjZGQzYiJ9.5RSjQ-Q1P5jOOQtpRLxPsO-j97SSLGatNhjniNbD2-U', required: true },
   get_attendants: { default: 'http://localhost:8000/v1/api/attendances/attendant/all/' },
   get_internal_chat: { default: 'http://localhost:8000/v1/api/attendances/internal_chat/' },
   attendant: {
@@ -72,12 +79,22 @@ const {
   addMessageToAtendente,
   hasNextPageForAtendente,
   sendMessageToAtendente,
-  loadMessagesForAtendente
+  loadMessagesForAtendente,
+  resetUnreadMessages
 } = useChat();
 
 const isChatOpen = ref(false);
 const showContent = ref(false);
 const selectedAtendente = ref(null);
+
+// Computed property para obter o número de mensagens não lidas
+const unreadMessagesCount = computed(() => {
+  if (selectedAtendente.value) {
+    const atendente = attendants.value.find(att => att.id === selectedAtendente.value.id);
+    return atendente ? atendente.unreadMessages : 0;
+  }
+  return 0;
+});
 
 onMounted(async () => {
   await fetchAtendentes(props.token, props.get_attendants);  // Carrega os atendentes
@@ -85,6 +102,9 @@ onMounted(async () => {
 
 const toggleChat = () => {
   isChatOpen.value = !isChatOpen.value;
+  if (isChatOpen.value && selectedAtendente.value) {
+    resetUnreadMessages(selectedAtendente.value.id); // Reseta as mensagens não lidas ao abrir o chat
+  }
 };
 
 const handleChatClick = () => {
@@ -93,14 +113,15 @@ const handleChatClick = () => {
 
 const selecionarAtendente = async (atendente) => {
   selectedAtendente.value = atendente;
-  if (!atendente.messages) {  // Se ainda não tiver mensagens carregadas
+  resetUnreadMessages(atendente.id); // Reseta as mensagens não lidas ao selecionar o atendente
+  if (!atendente.messages) {
     await fetchMessagesForAtendente(atendente.id, props.token, props.get_internal_chat);
   }
 };
 
 watch(() => props.socketMessage, (newVal, oldVal) => {
   if (newVal !== oldVal) {
-    addMessageToAtendente(newVal);
+    addMessageToAtendente(newVal, isChatOpen.value, selectedAtendente.value?.id);
   }
 });
 
@@ -136,19 +157,16 @@ watch(isChatOpen, (newVal) => {
   height: 384px;
   /* 96rem = 384px */
   max-height: 384px;
-  background-color: #3b82f6;
-  /* Cor azul */
   border-radius: 20px;
   cursor: default;
-  /* overflow: hidden; */
 }
 
 .chat-box.closed {
   width: 48px;
   height: 48px;
   background-color: #3b82f6;
-  /* Cor azul */
   border-radius: 50%;
+  position: relative;
 }
 
 /* Ícone de mensagem */
@@ -157,12 +175,23 @@ watch(isChatOpen, (newVal) => {
   font-size: 2rem;
 }
 
+/* Contador de mensagens não lidas */
+.unread-count {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: #32d432;
+  color: white;
+  border-radius: 50%;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.8rem;
+}
+
 /* Conteúdo do chat */
 .chat-content {
   position: relative;
   width: 100%;
   height: 100%;
-  /* color: white; */
 }
 
 /* Botão de fechar o chat */
@@ -170,15 +199,12 @@ watch(isChatOpen, (newVal) => {
   position: absolute;
   top: 12px;
   right: 12px;
-  /* color: #454b57; */
-  /* Cor cinza */
   cursor: pointer;
   transition: color 0.3s ease;
 }
 
 .close-button:hover {
   color: #ef4444;
-  /* Cor vermelha ao passar o mouse */
 }
 
 /* Animações de transição de opacidade */
