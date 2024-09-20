@@ -19,7 +19,7 @@
     animation: spin 1s linear infinite;
     height: 32px;
     width: 32px;
-    color: #f3f4f6;
+    color: #2162e4;
 }
 
 /* Animação de rotação */

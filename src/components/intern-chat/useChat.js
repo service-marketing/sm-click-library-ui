@@ -18,7 +18,7 @@ export function useChat() {
         channel_id: null,
         currentPage: 1,
         hasNextPage: null,
-        unreadMessages: 0,
+        unreadMessages: 5,
       }));
     } catch (error) {
       console.error(error);
@@ -73,13 +73,16 @@ export function useChat() {
 
       if (existingMessageIndex !== -1) {
         atendente.messages[existingMessageIndex] = message;
+        console.log(`Mensagem com ID ${message.id} atualizada.`, message);
       } else {
         atendente.messages.push(message);
+        console.log(`Nova mensagem com ID ${message.id} adicionada.`, message);
 
         // Verifica se o chat está aberto e se o atendente está selecionado
         if (!isChatOpen || atendente.id !== selectedAtendenteId) {
           // Incrementa as mensagens não lidas se o atendente não está visualizado
           atendente.unreadMessages += 1;
+          console.log(`Nova mensagem não lida para o atendente ${atendente.name}. Total: ${atendente.unreadMessages}`);
         }
       }
     }
@@ -87,9 +90,9 @@ export function useChat() {
 
   const resetUnreadMessages = (atendenteId) => {
     const atendente = attendants.value.find(att => att.id === atendenteId);
-    if (atendente) {
-      atendente.unreadMessages = 0;
-    }
+    // if (atendente) {
+    //   atendente.unreadMessages = 0;
+    // }
   };
 
   const sendMessageToAtendente = async (atendenteId, messageContent, token, getInternalChatUrl, att) => {
