@@ -12,8 +12,8 @@
 
       <!-- Itens da lista de atendentes -->
       <li v-for="att in filteredAtendentes" :key="att.id" @click="selectAtendente(att)"
-        class="atendente-item border-b even:bg-base-300 bg-blue-400/10 border-base-200 hover:bg-base-200 relative">
-
+        :class="['atendente-item', att.isMoved ? 'moved' : '']"
+        class="border-b even:bg-base-300 bg-blue-400/10 border-base-200 hover:bg-base-200 relative">
         <!-- Informações principais do atendente -->
         <main class="atendente-main">
           <Avatar :url="att.photo" />
@@ -77,16 +77,31 @@ const filteredAtendentes = computed(() => {
 </script>
 
 <style scoped>
-/* Container com rolagem vertical e altura cheia */
+.atendente-item {
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.atendente-item.moved {
+  animation: highlight 0.8s ease-in-out;
+}
+
+@keyframes highlight {
+  0% {
+    background-color: rgba(59, 130, 246, 0.2);
+  }
+
+  100% {
+    background-color: transparent;
+  }
+}
+
 .container {
   display: flex;
   flex-direction: column;
   height: 100%;
-  /* Garante que o container ocupe a altura total da tela */
   overflow: hidden;
 }
 
-/* Estilo do input de busca */
 .search-input {
   width: 100%;
   padding: 0.75rem;
