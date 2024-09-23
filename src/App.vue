@@ -25,7 +25,12 @@ const test = () => {
   <main class="h-screen bg-gray-900 text-white justify-center flex">
     <chatWindow />
     <!-- <calendar v-if="false" /> -->
-    <MfaQrCode :generated="qrGenerated" @generateQR="test" :loading="loader" />
+    <MfaQrCode
+      :dimensions="[32, 32]"
+      :generated="qrGenerated"
+      @generateQR="test"
+      :loading="loader"
+    />
     <!-- <MFA eventHandling="check" @filled="test" /> -->
   </main>
 </template>
