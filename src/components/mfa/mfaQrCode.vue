@@ -3,11 +3,7 @@
     <section
       class="flex justify-center gap-2 relative bg-base-200 p-2 rounded-lg shadow-md shadow-black"
     >
-      <div
-        :class="setDimensions"
-        v-if="!generated"
-        class="absolute flex items-center justify-center text-sm bg-base-300 opacity-90 hover:opacity-95 hover:border hover:border-white transition-all ease-in z-20"
-      >
+      <div :class="setDimensions" v-if="!generated" class="btnQrCode">
         <div v-if="loading" class="items-center justify-center inline-flex">
           <div class="loaderMFA"></div>
         </div>

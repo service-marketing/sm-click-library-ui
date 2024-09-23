@@ -37,6 +37,23 @@ input.err_mfa:focus {
     animation: l7 1.5s infinite;
 }
 
+.btnQrCode {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    opacity: 0.9;
+    z-index: 20;
+    transition: all 0.2s ease-in;
+    @apply bg-base-300
+}
+
+.btnQrCode:hover {
+    opacity: 0.95;
+    border: 1px solid white;
+}
+
 @keyframes l7 {
     0% {
         background-position: 0 0, 0 100%, 100% 100%
