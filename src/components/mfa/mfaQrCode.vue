@@ -1,5 +1,5 @@
 <template>
-  <div class="text-center">
+  <div class="text-center flex gap-3">
     <section
       class="flex justify-center gap-2 relative bg-base-200 p-2 rounded-lg shadow-md shadow-black"
     >
@@ -25,13 +25,58 @@
         alt="QRCode"
       />
     </section>
+
+    <section>
+      <Popper placement="top" :arrow="true" :hover="true" class="">
+        <button @click="expandQr = true">
+          <svg
+            class="w-12 h-12 text-gray-800"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M8 4H4m0 0v4m0-4 5 5m7-5h4m0 0v4m0-4-5 5M8 20H4m0 0v-4m0 4 5-5m7 5h4m0 0v-4m0 4-5-5"
+            />
+          </svg>
+        </button>
+        <template #content>
+          <div>Expandir</div>
+        </template>
+      </Popper>
+    </section>
   </div>
+  <SimpleModal @update:isOpen="toggleExpand" :isOpen="expandQr">
+    <template v-slot:body>
+      <div class="w-full justify-center bg-base-200 p-3">
+        <img
+          :class="[setDimensions, generated ? 'rounded-md' : 'rounded-none']"
+          class=""
+          v-if="base64"
+          :src="base64"
+          alt="QRCode"
+        />
+      </div>
+    </template>
+  </SimpleModal>
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, ref } from "vue";
+import SimpleModal from "../modals/simple_modal/simple_modal.vue";
 
 const emits = defineEmits(["generateQR"]);
+const expandQr = ref(false);
+const toggleExpand = (data) => {
+  expandQr.value = data;
+};
 
 const props = defineProps({
   base64: {

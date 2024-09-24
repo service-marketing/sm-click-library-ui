@@ -22,15 +22,17 @@ const test = () => {
 </script>
 
 <template>
-  <main class="h-screen bg-gray-900 text-white justify-center flex">
+  <main class="h-screen bg-gray-200 text-white justify-center flex">
     <chatWindow />
     <!-- <calendar v-if="false" /> -->
-    <MfaQrCode
-      :dimensions="[32, 32]"
-      :generated="qrGenerated"
-      @generateQR="test"
-      :loading="loader"
-    />
+    <div class="flex justify-center items-center">
+      <MfaQrCode
+        :dimensions="[64, 64]"
+        :generated="qrGenerated"
+        @generateQR="test"
+        :loading="loader"
+      />
+    </div>
     <!-- <MFA eventHandling="check" @filled="test" /> -->
   </main>
 </template>
