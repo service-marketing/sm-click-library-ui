@@ -101,7 +101,7 @@ const generateQRCode = () => {
 };
 
 const content = computed(() => {
-  return props.base64 ? base64 : mockBase64.value;
+  return props.base64 ? props.base64 : mockBase64.value;
 });
 
 const setDimensions = computed(() => {
