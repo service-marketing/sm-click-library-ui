@@ -25,7 +25,7 @@
       />
     </section>
 
-    <section v-if="generated">
+    <!-- <section v-if="generated">
       <Popper placement="top" :arrow="true" :hover="true" class="">
         <button @click="expandQr = true">
           <svg
@@ -50,9 +50,9 @@
           <div>Expandir</div>
         </template>
       </Popper>
-    </section>
+    </section> -->
   </div>
-  <SimpleModal @update:isOpen="toggleExpand" :isOpen="expandQr">
+  <!-- <SimpleModal @update:isOpen="toggleExpand" :isOpen="expandQr">
     <template v-slot:body>
       <div class="w-full justify-center bg-base-200 p-3">
         <img
@@ -64,7 +64,7 @@
       </div>
     </template>
     {{ base64 }}
-  </SimpleModal>
+  </SimpleModal> -->
 </template>
 
 <script setup>
