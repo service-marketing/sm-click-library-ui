@@ -11,6 +11,12 @@
     border-width: 2px;
     border-style: solid;
 }
+.reset_input {
+    --border-opacity_mfa: 1;
+    border-color: rgb(48, 48, 48);
+    border-width: 2px;
+    border-style: solid;
+}
 
 input.checked_mfa:focus {
     --border-opacity_mfa: 1;

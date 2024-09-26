@@ -29,15 +29,16 @@ const mockBase64 = ref(
     <chatWindow />
     <!-- <calendar v-if="false" /> -->
     <div class="flex justify-center items-center">
-      <MfaQrCode
+      <!-- <MfaQrCode
         :base64="mockBase64"
         :dimensions="[64, 64]"
         :generated="qrGenerated"
         @generateQR="test"
         :loading="loader"
-      />
+      /> -->
+      <MFA eventHandling="check" @filled="test" />
     </div>
-    <!-- <MFA eventHandling="check" @filled="test" /> -->
+    
   </main>
 </template>
 

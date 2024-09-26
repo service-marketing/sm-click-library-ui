@@ -6,7 +6,13 @@
           v-for="(input, index) in codeAuth"
           :key="index"
           v-model="codeAuth[index]"
-          :class="eventHandling === 'check' ? 'checked_mfa' : 'err_mfa'"
+          :class="
+            eventHandling === 'check'
+              ? 'checked_mfa'
+              : eventHandling === 'err'
+              ? 'err_mfa'
+              : 'reset_input'
+          "
           class="inline-block w-10 h-10 rounded-md text-center"
           type="text"
           maxlength="1"
@@ -31,7 +37,7 @@ onMounted(() => {
 const props = defineProps({
   eventHandling: {
     type: String,
-    default: "check",
+    default: "",
   },
 });
 const emit = defineEmits(["filled"]);
