@@ -6,6 +6,8 @@ import calendar from './components/calendar/calendar.vue';
 import MFA from "./components/mfa/mfa.vue"
 import MfaQrCode from "./components/mfa/MfaQrCode.vue"
 import chatWindow from './components/intern-chat/chatWindow.vue';
+import { useDebugStore } from '~/stores/debugStore'; // Ajuste o caminho conforme necessário
+
 function install(Vue) {
     Vue.component('primarySelect', primarySelect)
     Vue.component('simpleModal', simpleModal)
@@ -15,6 +17,12 @@ function install(Vue) {
     Vue.component('MFA', MFA)
     Vue.component('MfaQrCode', MfaQrCode)
     Vue.component('chatWindow', chatWindow)
+}
+
+export function setupLibrary(piniaInstance) {
+    // Use a instância do Pinia para inicializar a store e logar a mensagem
+    const debugStore = useDebugStore(piniaInstance);
+    debugStore.logMessage(); // Isso vai logar "Debug store initialized"
 }
 
 export default {
