@@ -84,8 +84,6 @@ const moveToPrev = (index, event) => {
 
 // Função chamada quando o último número é preenchido
 const onComplete = () => {
-  console.log(codeAuth.value);
-
   const sendAuth = codeAuth.value.join("");
   emit("filled", sendAuth);
 };
