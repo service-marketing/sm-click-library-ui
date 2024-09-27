@@ -19,11 +19,11 @@ const toggleModal = () => {
       <div
         class="flex min-h-full items-center justify-center text-center sm:p-0"
       >
-        <div class="modal_size_lib lg:w-2/6">
+        <div class="modal_size_lib lg:w-2/6 bg-base-100">
           <!-- Modal content -->
           <div class="modal_background_lib">
             <!-- Modal header -->
-            <div class="modal_tittle_lib text-current">
+            <div class="modal_tittle_lib text-current bg-base-200">
               <slot name="header" />
 
               <button
@@ -47,7 +47,7 @@ const toggleModal = () => {
             </div>
             <!-- Modal body -->
             <div class="p-4">
-              <div class="w-full">
+              <div class="w-full flex justify-center">
                 <label class="block">
                   <slot name="body" />
                 </label>
@@ -92,7 +92,7 @@ const toggleModal = () => {
 }
 
 .modal_tittle_lib {
-  @apply flex text-current uppercase justify-between  items-center p-3 py-3 rounded-t-2xl ;
+  @apply flex text-current uppercase justify-between  items-center p-3 py-3 rounded-t-2xl;
 }
 
 .modal_end_button_lib {

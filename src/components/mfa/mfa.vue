@@ -6,7 +6,13 @@
           v-for="(input, index) in codeAuth"
           :key="index"
           v-model="codeAuth[index]"
-          :class="eventHandling === 'check' ? 'checked_mfa' : 'err_mfa'"
+          :class="
+            eventHandling === 'check'
+              ? 'checked_mfa'
+              : eventHandling === 'err'
+              ? 'err_mfa'
+              : 'reset_input'
+          "
           class="inline-block w-10 h-10 rounded-md text-center"
           type="text"
           maxlength="1"
@@ -31,10 +37,10 @@ onMounted(() => {
 const props = defineProps({
   eventHandling: {
     type: String,
-    default: "check",
+    default: null,
   },
 });
-const emit = defineEmits(["filled"]);
+const emit = defineEmits(["filled", "reset"]);
 const codeAuth = ref(Array(6).fill(""));
 const inputs = ref([]);
 const controlClassInput = ref(false);
@@ -42,6 +48,11 @@ const controlClassInput = ref(false);
 // Função para lidar com a entrada e permitir apenas números
 const handleInput = (index) => {
   const value = codeAuth.value[index];
+
+  if (codeAuth.value[0] < 1) {
+    emit("reset");
+  }
+
   if (!/^\d$/.test(value)) {
     codeAuth.value[index] = ""; // Limpa o input se não for um dígito
   } else {
