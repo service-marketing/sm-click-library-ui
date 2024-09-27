@@ -6,7 +6,10 @@ import calendar from './components/calendar/calendar.vue';
 import MFA from "./components/mfa/mfa.vue"
 import MfaQrCode from "./components/mfa/MfaQrCode.vue"
 import chatWindow from './components/intern-chat/chatWindow.vue';
-import { useDebugStore } from '~/stores/debugStore'; // Ajuste o caminho conforme necessário
+import { useDebugStore } from '~/stores/debugStore';
+import { useAuthStore } from '~/stores/authStore';
+import { useAttendantStore } from './stores/attendantStore';
+import api from '~/utils/api'; // Importa a instância personalizada do Axios
 
 function install(Vue) {
     Vue.component('primarySelect', primarySelect)
@@ -19,8 +22,14 @@ function install(Vue) {
     Vue.component('chatWindow', chatWindow)
 }
 
-export function setupLibrary(piniaInstance) {
+export function setupLibrary(piniaInstance, jwtToken, rootUrl) {
     // Use a instância do Pinia para inicializar a store e logar a mensagem
+    const authStore = useAuthStore(piniaInstance);
+    authStore.setToken(jwtToken); // Armazena o token no Pinia
+    if (rootUrl) {
+        api.defaults.baseURL = rootUrl; // Define o rootUrl dinamicamente
+    }
+    const attendantStore = useAttendantStore(piniaInstance)
     const debugStore = useDebugStore(piniaInstance);
     debugStore.logMessage(); // Isso vai logar "Debug store initialized"
 }

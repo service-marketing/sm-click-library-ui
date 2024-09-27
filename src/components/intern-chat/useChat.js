@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue';
-import axios from 'axios';
+import api from '~/utils/api';
 import { v4 as uuidv4 } from 'uuid';
 
 export function useChat() {
@@ -10,9 +10,7 @@ export function useChat() {
   const fetchAtendentes = async (token, getAttendantsUrl) => {
     try {
       loadingAttendants.value = true
-      const response = await axios.get(getAttendantsUrl, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await api.get(getAttendantsUrl);
       // Inicializa atendentes com mensagens vazias e paginação
       attendants.value = response.data.map(att => ({
         ...att,
@@ -32,9 +30,7 @@ export function useChat() {
   const fetchMessagesForAtendente = async (atendenteId, token, getInternalChatUrl) => {
     try {
       loadingMessages.value = true;
-      const response = await axios.get(`${getInternalChatUrl}?attendant=${atendenteId}&page=1`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await api.get(`${getInternalChatUrl}?attendant=${atendenteId}&page=1`);
       const atendente = attendants.value.find(att => att.id === atendenteId);
       if (atendente) {
         atendente.messages = response.data.results.reverse(); // Vincula as mensagens
@@ -54,9 +50,7 @@ export function useChat() {
       const atendente = attendants.value.find(att => att.id === atendenteId);
       if (!atendente || !atendente.hasNextPage) return;
 
-      const response = await axios.get(`${getInternalChatUrl}?attendant=${atendenteId}&page=${atendente.currentPage}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await api.get(`${getInternalChatUrl}?attendant=${atendenteId}&page=${atendente.currentPage}`);
 
       // Atualiza mensagens e canal
       atendente.messages = [...response.data.results.reverse(), ...atendente.messages];
@@ -120,11 +114,9 @@ export function useChat() {
 
     try {
       // Envia a mensagem para o backend
-      await axios.post(`${getInternalChatUrl}${atendente.channel_id}/message/`, {
+      await api.post(`${getInternalChatUrl}${atendente.channel_id}/message/`, {
         id: newMessage.id,
         content: newMessage.content,
-      }, {
-        headers: { Authorization: `Bearer ${token}` },
       });
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);
