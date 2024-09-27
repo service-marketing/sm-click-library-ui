@@ -37,7 +37,7 @@ onMounted(() => {
 const props = defineProps({
   eventHandling: {
     type: String,
-    default: "",
+    default: null,
   },
 });
 const emit = defineEmits(["filled"]);

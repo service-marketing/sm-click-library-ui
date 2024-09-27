@@ -36,7 +36,7 @@ const mockBase64 = ref(
         @generateQR="test"
         :loading="loader"
       /> -->
-      <MFA eventHandling="check" @filled="test" />
+      <MFA :eventHandling="null" @filled="test" />
     </div>
     
   </main>
