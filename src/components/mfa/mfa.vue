@@ -40,7 +40,7 @@ const props = defineProps({
     default: null,
   },
 });
-const emit = defineEmits(["filled"]);
+const emit = defineEmits(["filled", "reset"]);
 const codeAuth = ref(Array(6).fill(""));
 const inputs = ref([]);
 const controlClassInput = ref(false);
@@ -48,6 +48,11 @@ const controlClassInput = ref(false);
 // Função para lidar com a entrada e permitir apenas números
 const handleInput = (index) => {
   const value = codeAuth.value[index];
+
+  if (codeAuth.value[0] < 1) {
+    emit("reset");
+  }
+
   if (!/^\d$/.test(value)) {
     codeAuth.value[index] = ""; // Limpa o input se não for um dígito
   } else {
@@ -79,6 +84,8 @@ const moveToPrev = (index, event) => {
 
 // Função chamada quando o último número é preenchido
 const onComplete = () => {
+  console.log(codeAuth.value);
+
   const sendAuth = codeAuth.value.join("");
   emit("filled", sendAuth);
 };
