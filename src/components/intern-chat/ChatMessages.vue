@@ -1,5 +1,5 @@
 <template>
-    <div class="container bg-base-300">
+    <div class="container-messages bg-base-300">
         <!-- Cabeçalho -->
         <div class="header-intern bg-base-300">
             <button @click="$emit('voltar')" class="back-button">
@@ -9,7 +9,7 @@
                         d="M14.502 7.046h-2.5v-.928a2.122 2.122 0 0 0-1.199-1.954 1.827 1.827 0 0 0-1.984.311L3.71 8.965a2.2 2.2 0 0 0 0 3.24L8.82 16.7a1.829 1.829 0 0 0 1.985.31 2.121 2.121 0 0 0 1.199-1.959v-.928h1a2.025 2.025 0 0 1 1.999 2.047V19a1 1 0 0 0 1.275.961 6.59 6.59 0 0 0 4.662-7.22 6.593 6.593 0 0 0-6.437-5.695Z" />
                 </svg>
             </button>
-            <Avatar :src="selectedAtendente.photo"/>
+            <Avatar :url="selectedAtendente.photo"/>
             <h3 class="atendente-name">{{ selectedAtendente.name }}</h3>
         </div>
 
@@ -77,7 +77,6 @@ import Avatar from './Avatar.vue';
 
 const props = defineProps({
     selectedAtendente: { type: Object, required: true },
-    token: { required: true },
     getInternalChat: { required: true },
     attendant: { required: true },
     loadMessagesForAtendente: { type: Function, required: true }, // Recebe do pai
@@ -152,7 +151,7 @@ const loadMoreMessages = async ($state) => {
         const previousScrollTop = chatArea.value.scrollTop;
 
         // Carrega mais mensagens
-        await props.loadMessagesForAtendente(props.selectedAtendente.id, props.token, props.getInternalChat);
+        await props.loadMessagesForAtendente(props.selectedAtendente.id);
 
         // Aguarda a renderização das novas mensagens
         await nextTick();
@@ -172,7 +171,7 @@ const enviarMensagem = async () => {
         try {
             const newMessage = JSON.parse(JSON.stringify(novaMensagem.value))
             novaMensagem.value = '';
-            await props.sendMessageToAtendente(props.selectedAtendente.id, newMessage, props.token, props.getInternalChat, props.attendant);
+            await props.sendMessageToAtendente(props.selectedAtendente.id, newMessage, props.attendant);
             await nextTick();
             scrollToBottom();
         } catch (error) {
@@ -217,8 +216,8 @@ function checkIsNearBottom() {
 </script>
 
 <style scoped>
-/* Estilos para o container principal */
-.container {
+/* Estilos para o container-messages principal */
+.container-messages {
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -267,14 +266,14 @@ function checkIsNearBottom() {
 
 .atendente-name {
     font-size: 0.875rem;
-}
+}  
 
 /* Área de mensagens */
 .message-area {
     display: flex;
     flex-direction: column;
     height: 100%;
-    background: linear-gradient(to top right, rgba(48, 107, 201, 0.9), rgba(40, 46, 138, 0.8));
+    background: linear-gradient(to top right, rgba(59, 107, 184, 0.2), rgba(55, 61, 150, 0.4));
     padding: 0.25rem;
     overflow-y: auto;
     position: relative;

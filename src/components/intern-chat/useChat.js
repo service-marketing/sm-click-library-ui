@@ -1,16 +1,16 @@
 import { ref, computed } from 'vue';
 import api from '~/utils/api';
 import { v4 as uuidv4 } from 'uuid';
-
+import { internalChatUrl, allAttendances } from '~/utils/systemUrls';
 export function useChat() {
   const attendants = ref([]); // Lista de atendentes com suas mensagens e canais
   const loadingMessages = ref(false);
   const loadingAttendants = ref(false)
 
-  const fetchAtendentes = async (token, getAttendantsUrl) => {
+  const fetchAtendentes = async () => {
     try {
       loadingAttendants.value = true
-      const response = await api.get(getAttendantsUrl);
+      const response = await api.get(allAttendances);
       // Inicializa atendentes com mensagens vazias e paginação
       attendants.value = response.data.map(att => ({
         ...att,
@@ -27,10 +27,10 @@ export function useChat() {
     }
   };
 
-  const fetchMessagesForAtendente = async (atendenteId, token, getInternalChatUrl) => {
+  const fetchMessagesForAtendente = async (atendenteId) => {
     try {
       loadingMessages.value = true;
-      const response = await api.get(`${getInternalChatUrl}?attendant=${atendenteId}&page=1`);
+      const response = await api.get(`${internalChatUrl}?attendant=${atendenteId}&page=1`);
       const atendente = attendants.value.find(att => att.id === atendenteId);
       if (atendente) {
         atendente.messages = response.data.results.reverse(); // Vincula as mensagens
@@ -45,12 +45,12 @@ export function useChat() {
     }
   };
 
-  const loadMessagesForAtendente = async (atendenteId, token, getInternalChatUrl) => {
+  const loadMessagesForAtendente = async (atendenteId) => {
     try {
       const atendente = attendants.value.find(att => att.id === atendenteId);
       if (!atendente || !atendente.hasNextPage) return;
 
-      const response = await api.get(`${getInternalChatUrl}?attendant=${atendenteId}&page=${atendente.currentPage}`);
+      const response = await api.get(`${internalChatUrl}?attendant=${atendenteId}&page=${atendente.currentPage}`);
 
       // Atualiza mensagens e canal
       atendente.messages = [...response.data.results.reverse(), ...atendente.messages];
@@ -98,7 +98,7 @@ export function useChat() {
     }
   };
 
-  const sendMessageToAtendente = async (atendenteId, messageContent, token, getInternalChatUrl, att) => {
+  const sendMessageToAtendente = async (atendenteId, messageContent, att) => {
     const atendente = attendants.value.find(att => att.id === atendenteId);
 
     if (!atendente || !atendente.channel_id) return;
@@ -114,7 +114,7 @@ export function useChat() {
 
     try {
       // Envia a mensagem para o backend
-      await api.post(`${getInternalChatUrl}${atendente.channel_id}/message/`, {
+      await api.post(`${internalChatUrl}${atendente.channel_id}/message/`, {
         id: newMessage.id,
         content: newMessage.content,
       });

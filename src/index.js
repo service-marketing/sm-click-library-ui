@@ -29,9 +29,9 @@ export function setupLibrary(piniaInstance, jwtToken, rootUrl) {
     if (rootUrl) {
         api.defaults.baseURL = rootUrl; // Define o rootUrl dinamicamente
     }
-    const attendantStore = useAttendantStore(piniaInstance)
-    const debugStore = useDebugStore(piniaInstance);
-    debugStore.logMessage(); // Isso vai logar "Debug store initialized"
+    // const attendantStore = useAttendantStore(piniaInstance)
+    // const debugStore = useDebugStore(piniaInstance);
+    // debugStore.logMessage(); // Isso vai logar "Debug store initialized"
 }
 
 export default {

@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container-chats">
     <!-- Campo de busca -->
     <input v-model="searchQuery" class="search-input bg-base-300 border-b border-base-200" placeholder="Pesquise entre os atendentes..." />
 
@@ -95,7 +95,7 @@ const filteredAtendentes = computed(() => {
   }
 }
 
-.container {
+.container-chats {
   display: flex;
   flex-direction: column;
   height: 100%;
