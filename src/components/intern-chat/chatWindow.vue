@@ -95,6 +95,7 @@ const unreadMessagesCount = computed(() => {
 
 onMounted(async () => {
   await fetchAtendentes();  // Carrega os atendentes
+  console.log('a')
 });
 
 const toggleChat = () => {

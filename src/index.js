@@ -25,6 +25,7 @@ function install(Vue) {
 export function setupLibrary(piniaInstance, jwtToken, rootUrl) {
     // Use a instância do Pinia para inicializar a store e logar a mensagem
     const authStore = useAuthStore(piniaInstance);
+    console.log(jwtToken, rootUrl)
     authStore.setToken(jwtToken); // Armazena o token no Pinia
     if (rootUrl) {
         api.defaults.baseURL = rootUrl; // Define o rootUrl dinamicamente
@@ -42,5 +43,5 @@ export default {
     instanceSelect,
     calendar,
     MFA,
-    chatWindow
+    chatWindow,
 }
