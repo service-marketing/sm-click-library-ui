@@ -1,5 +1,5 @@
 <template>
-    <div class="container-messages bg-base-300">
+    <div class="messages-container bg-base-300">
         <!-- Cabeçalho -->
         <div class="header-intern bg-base-300">
             <button @click="$emit('voltar')" class="back-button">
@@ -46,7 +46,7 @@
                     <div
                         :class="['message', { 'me': msg.sender.id === attendant.id, 'not-me': msg.sender.id !== attendant.id, 'new-message': index === mensagens.length - 1 }]">
                         <div :class="msg.sender.id === attendant.id ? 'text-right' : 'text-left'">
-                            <div
+                            <div class="shadow shadow-gray-900 dark:shadow-gray-500"
                                 :class="['message-content', { 'me': msg.sender.id === attendant.id, 'not-me': msg.sender.id !== attendant.id }]">
                                 {{ msg.content.content }}
                                 <div class="message-time">
@@ -216,8 +216,8 @@ function checkIsNearBottom() {
 </script>
 
 <style scoped>
-/* Estilos para o container-messages principal */
-.container-messages {
+/* Estilos para o messages-container principal */
+.messages-container {
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -273,7 +273,7 @@ function checkIsNearBottom() {
     display: flex;
     flex-direction: column;
     height: 100%;
-    background: linear-gradient(to top right, rgba(59, 107, 184, 0.2), rgba(55, 61, 150, 0.4));
+    background: linear-gradient(to top right, rgba(59, 107, 184, 0.3), rgba(55, 61, 150, 0.5));
     padding: 0.25rem;
     overflow-y: auto;
     position: relative;
