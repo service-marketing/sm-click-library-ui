@@ -1,4 +1,5 @@
 <template>
+  dsadsadas
   <div class="chat-container">
     <div @click="handleChatClick" :class="isChatOpen ? 'chat-box open bg-base-200' : 'chat-box closed'"
       :style="isChatOpen ? { height: (attendants.length <= 5 ? '500px' : '65vh') } : {}">
@@ -9,7 +10,7 @@
         <span v-if="unreadMessagesCount > 0" class="unread-count">{{ unreadMessagesCount }}</span>
       </span>
 
-      <transition name="fade" v-if="isChatOpen">
+      <!-- <transition name="fade" v-if="isChatOpen">
         <div v-if="showContent" class="chat-content">
           <button @click.stop="toggleChat" class="close-button">
             <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
@@ -29,8 +30,7 @@
           <ChatList v-if="!selectedAtendente && !loadingAttendants" :attendant="attendant" :atendentes="attendants"
             @atendenteSelecionado="selecionarAtendente" />
         </div>
-      </transition>
-      
+      </transition> -->
     </div>
   </div>
 </template>
