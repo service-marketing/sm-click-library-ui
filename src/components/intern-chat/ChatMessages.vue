@@ -77,7 +77,6 @@ import Avatar from './Avatar.vue';
 
 const props = defineProps({
     selectedAtendente: { type: Object, required: true },
-    getInternalChat: { required: true },
     attendant: { required: true },
     loadMessagesForAtendente: { type: Function, required: true }, // Recebe do pai
     sendMessageToAtendente: { type: Function, required: true },  // Recebe do pai
