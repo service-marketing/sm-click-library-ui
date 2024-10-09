@@ -18,8 +18,6 @@
                 d="M6 18L17.94 6M18 18L6.06 6" />
             </svg>
           </button>
-          <button @click="addMessageToAtendente(test_message,true, 'c2ff9343-9e60-432e-955f-521042dece3d')">add</button>
-
           <loading v-if="loadingMessages || loadingAttendants" />
           <div v-else-if="selectedAtendente && !loadingMessages" class="h-full">
             <ChatMessages :attendant="attendant" :selectedAtendente="selectedAtendente" @voltar="selectedAtendente = null"
@@ -78,8 +76,6 @@ const {
   resetUnreadMessages,
   loadingAttendants
 } = useChat();
-
-const test_message = ref({message: props.socketMessage})
 
 const isChatOpen = ref(false);
 const showContent = ref(false);
