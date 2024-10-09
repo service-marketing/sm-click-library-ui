@@ -280,7 +280,6 @@ function checkIsNearBottom() {
     padding: 0.25rem;
     overflow-y: auto;
     position: relative;
-    scroll-behavior: smooth;
 }
 
 /* Carregando */
