@@ -18,11 +18,11 @@
                 d="M6 18L17.94 6M18 18L6.06 6" />
             </svg>
           </button>
+          <button @click="addMessageToAtendente(test_message,true, 'c2ff9343-9e60-432e-955f-521042dece3d')">add</button>
 
           <loading v-if="loadingMessages || loadingAttendants" />
           <div v-else-if="selectedAtendente && !loadingMessages" class="h-full">
-            <ChatMessages :attendant="attendant" :selectedAtendente="selectedAtendente"
-              :getInternalChat="get_internal_chat" @voltar="selectedAtendente = null"
+            <ChatMessages :attendant="attendant" :selectedAtendente="selectedAtendente" @voltar="selectedAtendente = null"
               :loadMessagesForAtendente="loadMessagesForAtendente" :sendMessageToAtendente="sendMessageToAtendente"
               :hasNextPageForAtendente="hasNextPageForAtendente" />
           </div>
@@ -51,7 +51,7 @@ const props = defineProps({
   socketMessage: {
     default: {
       id: "6170e5cd-a06f-4184-83a4-debd4bfaab35",
-      channel_id: "16068e36-ec53-4a94-81f9-e3b53678280d",
+      channel_id: "e10b7177-3400-4457-bb43-b6c9d4a6faa1",
       sender: {
         id: "dea5c13f-4464-4cc6-8653-8c8524acdd3b",
         name: "Joao Pedro Souto Santos",
@@ -78,6 +78,8 @@ const {
   resetUnreadMessages,
   loadingAttendants
 } = useChat();
+
+const test_message = ref({message: props.socketMessage})
 
 const isChatOpen = ref(false);
 const showContent = ref(false);

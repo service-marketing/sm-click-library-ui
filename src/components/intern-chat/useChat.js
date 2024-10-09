@@ -61,34 +61,60 @@ export function useChat() {
   };
 
   const addMessageToAtendente = (event, isChatOpen, selectedAtendenteId) => {
-    const message = event.message;
-    const atendenteIndex = attendants.value.findIndex(att => att.internal_chat.channel_id === message.channel_id);
-  
-    if (atendenteIndex !== -1) {
-      const atendente = attendants.value[atendenteIndex];
-  
-      const existingMessageIndex = atendente.messages.findIndex(msg => msg.id === message.id);
-  
-      if (existingMessageIndex !== -1) {
-        atendente.messages[existingMessageIndex] = message;
-      } else {
-        atendente.messages.push(message);
-  
-        if (!isChatOpen || atendente.id !== selectedAtendenteId) {
-          atendente.internal_chat.unread += 1;
-        }
-  
-        // Move o atendente para o topo
-        attendants.value.splice(atendenteIndex, 1);
-        attendants.value.unshift(atendente);
-  
-        // Adiciona a classe 'moved' para animar
-        atendente.isMoved = true;
-        setTimeout(() => atendente.isMoved = false, 1000);  // Remove após 1 segundo
+    try {
+      // Verifica se o evento e a mensagem existem
+      if (!event || !event.message) {
+        console.error("Evento ou mensagem inválida");
+        return;
       }
+
+      const message = event.message;
+
+      // Verifica se o array de atendentes existe
+      if (!attendants.value || attendants.value.length === 0) {
+        console.error("Nenhum atendente encontrado");
+        return;
+      }
+
+      const atendenteIndex = attendants.value.findIndex(att => att.internal_chat.channel_id === message.channel_id);
+
+      if (atendenteIndex !== -1) {
+        const atendente = attendants.value[atendenteIndex];
+
+        // Inicializa o array de mensagens se for null ou undefined
+        atendente.messages = atendente.messages || [];
+
+        const existingMessageIndex = atendente.messages.findIndex(msg => msg.id === message.id);
+
+        if (existingMessageIndex !== -1) {
+          // Substitui a mensagem existente
+          atendente.messages[existingMessageIndex] = message;
+        } else {
+          // Adiciona nova mensagem
+          atendente.messages.push(message);
+
+          // Incrementa contagem de não lidas se o chat não está aberto ou o atendente não está selecionado
+          if (!isChatOpen || atendente.id !== selectedAtendenteId) {
+            atendente.internal_chat.unread = (atendente.internal_chat.unread || 0) + 1;
+          }
+
+          // Move o atendente para o topo da lista
+          attendants.value.splice(atendenteIndex, 1);
+          attendants.value.unshift(atendente);
+
+          // Adiciona a classe 'moved' para animar
+          atendente.isMoved = true;
+          setTimeout(() => atendente.isMoved = false, 1000); // Remove a classe após 1 segundo
+        }
+      } else {
+        console.error("Nenhum atendente encontrado para o channel_id fornecido.");
+      }
+    } catch (error) {
+      console.error("Erro ao adicionar mensagem ao atendente:", error);
     }
   };
-  
+
+
   const resetUnreadMessages = (atendenteId) => {
     const atendente = attendants.value.find(att => att.id === atendenteId);
     if (atendente) {

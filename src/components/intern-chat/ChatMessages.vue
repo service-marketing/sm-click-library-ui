@@ -135,7 +135,10 @@ const handleKeydown = (event) => {
 
 const scrollToBottom = () => {
     if (chatArea.value) {
-        chatArea.value.scrollTop = chatArea.value.scrollHeight;
+        chatArea.value.scrollTo({
+            top: chatArea.value.scrollHeight,
+            behavior: 'instant'
+        });
     }
 };
 
