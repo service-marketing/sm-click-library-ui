@@ -15,10 +15,8 @@ export function useChat() {
       attendants.value = response.data.map(att => ({
         ...att,
         messages: null,
-        channel_id: null,
         currentPage: 1,
         hasNextPage: null,
-        unreadMessages: 0,
       }));
     } catch (error) {
       console.error(error);
@@ -34,8 +32,8 @@ export function useChat() {
       const atendente = attendants.value.find(att => att.id === atendenteId);
       if (atendente) {
         atendente.messages = response.data.results.reverse(); // Vincula as mensagens
-        atendente.channel_id = response.data.channel_id; // Vincula o canal
         atendente.hasNextPage = response.data.next !== null;
+        atendente.internal_chat.channel_id = response.data.channel_id
         atendente.currentPage++;
       }
     } catch (error) {
@@ -54,8 +52,8 @@ export function useChat() {
 
       // Atualiza mensagens e canal
       atendente.messages = [...response.data.results.reverse(), ...atendente.messages];
-      atendente.channel_id = response.data.channel_id;
       atendente.hasNextPage = response.data.next !== null;
+      atendente.internal_chat.channel_id = response.data.channel_id
       atendente.currentPage++;
     } catch (error) {
       console.error(error);
@@ -64,7 +62,7 @@ export function useChat() {
 
   const addMessageToAtendente = (event, isChatOpen, selectedAtendenteId) => {
     const message = event.message;
-    const atendenteIndex = attendants.value.findIndex(att => att.channel_id === message.channel_id);
+    const atendenteIndex = attendants.value.findIndex(att => att.internal_chat.channel_id === message.channel_id);
   
     if (atendenteIndex !== -1) {
       const atendente = attendants.value[atendenteIndex];
@@ -77,7 +75,7 @@ export function useChat() {
         atendente.messages.push(message);
   
         if (!isChatOpen || atendente.id !== selectedAtendenteId) {
-          atendente.unreadMessages += 1;
+          atendente.internal_chat.unread += 1;
         }
   
         // Move o atendente para o topo
@@ -94,14 +92,14 @@ export function useChat() {
   const resetUnreadMessages = (atendenteId) => {
     const atendente = attendants.value.find(att => att.id === atendenteId);
     if (atendente) {
-      atendente.unreadMessages = 0;
+      atendente.internal_chat.unread = 0;
     }
   };
 
   const sendMessageToAtendente = async (atendenteId, messageContent, att) => {
     const atendente = attendants.value.find(att => att.id === atendenteId);
 
-    if (!atendente || !atendente.channel_id) return;
+    if (!atendente || !atendente.internal_chat.channel_id) return;
     const newMessage = {
       id: uuidv4(), // ID temporário até ser salvo no servidor
       content: { type: 'text', content: messageContent },
@@ -114,7 +112,7 @@ export function useChat() {
 
     try {
       // Envia a mensagem para o backend
-      await api.post(`${internalChatUrl}${atendente.channel_id}/message/`, {
+      await api.post(`${internalChatUrl}${atendente.internal_chat.channel_id}/message/`, {
         id: newMessage.id,
         content: newMessage.content,
       });

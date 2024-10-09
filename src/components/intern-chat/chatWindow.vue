@@ -87,7 +87,7 @@ const selectedAtendente = ref(null);
 const unreadMessagesCount = computed(() => {
   if (selectedAtendente.value) {
     const atendente = attendants.value.find(att => att.id === selectedAtendente.value.id);
-    return atendente ? atendente.unreadMessages : 0;
+    return atendente ? atendente.internal_chat.unread : 0;
   }
   return 0;
 });

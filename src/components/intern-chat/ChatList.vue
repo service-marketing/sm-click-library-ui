@@ -22,7 +22,7 @@
 
         <!-- Indicador de status -->
         <footer class="flex items-center gap-4">
-          <span v-if="att.unreadMessages > 0" class="message-indicator">{{ att.unreadMessages }}</span>
+          <span v-if="att.internal_chat.unread > 0" class="message-indicator">{{ att.internal_chat.unread }}</span>
           <div :class="['status-indicator', getStatusClass(att.login_status)]"></div>
         </footer>
 
