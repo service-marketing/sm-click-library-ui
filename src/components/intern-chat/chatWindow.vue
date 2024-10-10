@@ -206,14 +206,14 @@ watch(isChatOpen, (newVal) => {
 .chat-box.open {
   width: 400px;
   height: 65vh;
-  border-width: 2px;
+  border-width: 1px;
   max-height: 65vh;
   min-height: 350px;
   border-radius: 8px;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.7);
   position: absolute;
   bottom: -5rem;
-  transform: translate(3.1rem, 0);
+  transform: translate(3.3rem, 0);
   /* Move o chat para a direita */
 }
 
