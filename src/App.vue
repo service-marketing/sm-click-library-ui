@@ -25,13 +25,14 @@ const mockBase64 = ref(
 </script>
 
 <template>
-  <main class="h-screen bg-gray-200 text-white justify-center flex">
-    <button class="relative">
-      <chatWindow />
-    </button>
+  <main class="h-screen bg-gray-200 text-white justify-center items-center flex">
+   
 
     <!-- <calendar v-if="false" /> -->
     <div class="flex justify-center items-center">
+      <button class="relative">
+      <chatWindow />
+    </button>
       <!-- <MfaQrCode
         :base64="mockBase64"
         :dimensions="[64, 64]"
