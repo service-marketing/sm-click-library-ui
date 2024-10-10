@@ -119,7 +119,7 @@ const chatBoxStyle = computed(() => {
       width: '42px',
       height: '42px',
       transition: 'width 0.2s ease-in, height 0.2s ease-out',
-      transform: 'translate(3.1rem, 0)', // Preserva o translate
+      transform: 'translate(3.4rem, 0)', // Preserva o translate
     };
   } else if (isAnimating.value || isChatOpen.value) {
     // Durante a abertura, mantém o tamanho grande
@@ -128,7 +128,7 @@ const chatBoxStyle = computed(() => {
       width: '400px',
       height: '65vh',
       transition: 'width 0.2s ease-in, height 0.2s ease-out',
-      transform: 'translate(3.1rem, 0)', // Preserva o translate
+      transform: 'translate(3.4rem, 0)', // Preserva o translate
     };
   } else {
     // Quando estiver fechado, volta ao tamanho pequeno e relative
