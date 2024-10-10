@@ -1,16 +1,16 @@
 <template>
   <div class="chat-container">
-    <div v-if="isChatOpen"
-      style="width: 48px;height: 48px;border-radius: 50%;background-color: #3b82f6;display: flex;justify-content: center;">
+    <div @click.stop="toggleChat" v-if="isChatOpen"
+      style="width: 42px;height: 42px;border-radius: 50%;background-color: #3b82f6;display: flex;justify-content: center;">
       <button style="margin-top: auto;
-    margin-bottom: auto;" @click.stop="toggleChat" class="chat-icon my-auto">
+    margin-bottom: auto;" class="chat-icon my-auto">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
           <path fill="currentColor"
             d="M208 352c114.9 0 208-78.8 208-176S322.9 0 208 0S0 78.8 0 176c0 38.6 14.7 74.3 39.6 103.4c-3.5 9.4-8.7 17.7-14.2 24.7c-4.8 6.2-9.7 11-13.3 14.3c-1.8 1.6-3.3 2.9-4.3 3.7c-.5 .4-.9 .7-1.1 .8l-.2 .2s0 0 0 0s0 0 0 0C1 327.2-1.4 334.4 .8 340.9S9.1 352 16 352c21.8 0 43.8-5.6 62.1-12.5c9.2-3.5 17.8-7.4 25.2-11.4C134.1 343.3 169.8 352 208 352zM448 176c0 112.3-99.1 196.9-216.5 207C255.8 457.4 336.4 512 432 512c38.2 0 73.9-8.7 104.7-23.9c7.5 4 16 7.9 25.2 11.4c18.3 6.9 40.3 12.5 62.1 12.5c6.9 0 13.1-4.5 15.2-11.1c2.1-6.6-.2-13.8-5.8-17.9c0 0 0 0 0 0s0 0 0 0l-.2-.2c-.2-.2-.6-.4-1.1-.8c-1-.8-2.5-2-4.3-3.7c-3.6-3.3-8.5-8.1-13.3-14.3c-5.5-7-10.7-15.4-14.2-24.7c24.9-29 39.6-64.7 39.6-103.4c0-92.8-84.9-168.9-192.6-175.5c.4 5.1 .6 10.3 .6 15.5z" />
         </svg>
       </button>
     </div>
-    <div @click="handleChatClick" :class="isChatOpen ? 'chat-box open bg-base-200' : 'chat-box closed'"
+    <div @click="handleChatClick" :class="isChatOpen ? 'chat-box  border-base-300 open bg-base-200' : 'chat-box closed'"
       :style="isChatOpen ? { height: (attendants.length <= 5 ? '500px' : '65vh') } : {}">
       <!-- Ícone de chat com contador de mensagens não lidas -->
       <span v-if="!isChatOpen" class="chat-icon">
@@ -153,11 +153,12 @@ watch(isChatOpen, (newVal) => {
 /* Animação de transição ao abrir e fechar o chat */
 .chat-box {
   display: flex;
+  border-width: 2px;
   align-items: center;
   justify-content: center;
   /* box-shadow: 0 0 15px rgba(0, 0, 0, 0.7); */
   cursor: pointer;
-  transition: all 0.4s ease-in-out;
+  transition: all 0.2s ease-in;
 }
 
 .chat-box.open {
@@ -169,17 +170,17 @@ watch(isChatOpen, (newVal) => {
   /* Limita a altura máxima a 65% da tela */
   min-height: 350px;
   /* Define a altura mínima como 350px */
-  border-radius: 20px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+  border-radius: 8px;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.7);
   cursor: default;
-  translate: 3.3rem;
+  translate: 3.1rem;
   bottom: -5rem
 }
 
 
 .chat-box.closed {
-  width: 48px;
-  height: 48px;
+  width: 42px;
+  height: 42px;
   /* background-color: #3b82f6; */
   border-radius: 50%;
   position: relative;
@@ -192,8 +193,8 @@ watch(isChatOpen, (newVal) => {
 /* Ícone de mensagem */
 .chat-icon {
   font-size: 2rem;
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
 }
 
 /* Contador de mensagens não lidas */
@@ -212,6 +213,7 @@ watch(isChatOpen, (newVal) => {
 .chat-content {
   position: relative;
   width: 100%;
+  border-radius: 10px;
   height: 100%;
   /* Para manter o conteúdo dentro da caixa */
 }

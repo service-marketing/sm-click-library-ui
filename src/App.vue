@@ -25,14 +25,12 @@ const mockBase64 = ref(
 </script>
 
 <template>
-  <main class="h-screen bg-gray-200 text-white justify-center items-center flex">
+  <main class="h-screen bg-gray-200 text-white  flex">
    
 
     <!-- <calendar v-if="false" /> -->
-    <div class="flex justify-center items-center">
-      <button class="relative">
-      <chatWindow />
-    </button>
+    <div class="flex ">
+
       <!-- <MfaQrCode
         :base64="mockBase64"
         :dimensions="[64, 64]"
@@ -41,9 +39,13 @@ const mockBase64 = ref(
         :loading="loader"
       /> -->
       <MFA :eventHandling="null" @filled="test" />
-    </div>
 
+    </div>
+    <button class="relative mt-auto mb-32">
+      <chatWindow />
+    </button>
   </main>
+  
 </template>
 
 <style scoped></style>

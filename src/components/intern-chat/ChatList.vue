@@ -34,7 +34,7 @@
 
     </ul>
     <!-- Footer fixo -->
-    <footer class="chat-footer bg-base-200 rounded-b-xl">
+    <footer class="chat-footer bg-base-200">
     </footer>
   </div>
 </template>
@@ -105,7 +105,7 @@ const filteredAtendentes = computed(() => {
 .search-input {
   width: 100%;
   padding: 0.75rem;
-  border-radius: 16px 16px 0 0;
+  border-radius: 7px 7px 0 0;
   outline: none;
 }
 
@@ -155,7 +155,7 @@ const filteredAtendentes = computed(() => {
   background-color: #3b82f6;
   color: white;
   padding: 0.5rem 1rem;
-  border-radius: 8px;
+  border-radius: 7px;
   font-size: 0.9rem;
   font-weight: 600;
   transition: right 0.3s ease;
@@ -218,6 +218,8 @@ const filteredAtendentes = computed(() => {
   padding: 0.6rem;
   text-align: center;
   color: white;
+  border-bottom-right-radius: 7px /* 12px */;
+  border-bottom-left-radius: 7px /* 12px */
   /* Fixo na parte inferior */
 }
 
@@ -233,6 +235,6 @@ const filteredAtendentes = computed(() => {
 
 .nav-button:hover {
   background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
+  border-radius: 7px;
 }
 </style>

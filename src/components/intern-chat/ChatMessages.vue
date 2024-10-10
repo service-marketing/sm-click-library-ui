@@ -36,7 +36,7 @@
             <div>
                 <div v-for="(msg, index) in mensagens" :key="index">
                     <!-- Exibir separador de datas -->
-                    <div v-if="shouldShowDateSeparator(index)" class="date-separator">
+                    <div v-if="shouldShowDateSeparator(index)" class="date-separator bg-base-100/50">
                         <div class="date-separator-line"></div>
                         <div class="date-separator-text">{{ formatDateSeparator(msg.created_at) }}</div>
                         <div class="date-separator-line"></div>
@@ -224,7 +224,7 @@ function checkIsNearBottom() {
     flex-direction: column;
     height: 100%;
     /* background-color: white; */
-    border-radius: 16px 16px 16px 16px;
+    border-radius: 7px;
     /* color: black; */
 }
 
@@ -235,7 +235,7 @@ function checkIsNearBottom() {
     gap: 0.5rem;
     height: 52px;
     /* background-color: white; */
-    border-radius: 16px 16px 0 0;
+    border-radius: 7px 7px 0 0;
     padding: 0.5rem;
     flex-shrink: 0;
 }
@@ -353,7 +353,10 @@ function checkIsNearBottom() {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.5rem 0;
+    padding: 0.4rem 0;
+    border-radius: 4px;
+    margin-top: 0.5rem /* 7px */;
+    margin-bottom: 0.5rem /* 7px */;
 }
 
 .date-separator-line {
@@ -366,7 +369,6 @@ function checkIsNearBottom() {
 .date-separator-text {
     font-size: 1rem;
     font-weight: 600;
-    color: #f3f4f6;
     white-space: nowrap;
 }
 
@@ -391,7 +393,7 @@ function checkIsNearBottom() {
     padding-right: 80px;
     max-height: 56px;
     min-height: 56px;
-    border-radius: 0 0 16px 16px;
+    border-radius: 0 0 7px 7px;
     outline: 2px solid transparent;
     outline-offset: 2px;
     border-style: none;
