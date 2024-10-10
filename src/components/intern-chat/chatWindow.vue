@@ -118,7 +118,7 @@ const chatBoxStyle = computed(() => {
       position: 'absolute',
       width: '42px',
       height: '42px',
-      transition: 'width 0.3s ease-in, height 0.3s ease-out',
+      transition: 'width 0.2s ease-in, height 0.2s ease-out',
       transform: 'translate(3.1rem, 0)', // Preserva o translate
     };
   } else if (isAnimating.value || isChatOpen.value) {
@@ -127,7 +127,7 @@ const chatBoxStyle = computed(() => {
       position: 'absolute',
       width: '400px',
       height: '65vh',
-      transition: 'width 0.3s ease-in, height 0.3s ease-out',
+      transition: 'width 0.2s ease-in, height 0.2s ease-out',
       transform: 'translate(3.1rem, 0)', // Preserva o translate
     };
   } else {
@@ -148,17 +148,16 @@ const toggleChat = () => {
     setTimeout(() => {
       isChatOpen.value = false;
       isClosing.value = false; // Remove o estado de fechamento
-    }, 300); // Espera a animação de 200ms antes de realmente fechar
+    }, 200); // Espera a animação de 200ms antes de realmente fechar
   } else {
     // Abre o chat imediatamente
     isChatOpen.value = true;
     isAnimating.value = true;
     setTimeout(() => {
       isAnimating.value = false;
-    }, 300); // Duração da animação de abertura
+    }, 200); // Duração da animação de abertura
   }
 };
-
 
 const handleChatClick = () => {
   if (!isChatOpen.value) toggleChat();
@@ -173,7 +172,6 @@ const selecionarAtendente = async (atendente) => {
     await fetchMessagesForAtendente(atendente.id);
   }
 };
-
 
 watch(() => props.socketMessage, (newVal, oldVal) => {
   if (newVal !== oldVal) {
@@ -208,13 +206,15 @@ watch(isChatOpen, (newVal) => {
 .chat-box.open {
   width: 400px;
   height: 65vh;
+  border-width: 2px;
   max-height: 65vh;
   min-height: 350px;
   border-radius: 8px;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.7);
   position: absolute;
   bottom: -5rem;
-  transform: translate(3.1rem, 0); /* Move o chat para a direita */
+  transform: translate(3.1rem, 0);
+  /* Move o chat para a direita */
 }
 
 .chat-box.closed {
@@ -270,11 +270,13 @@ watch(isChatOpen, (newVal) => {
   color: #ef4444;
 }
 
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.3s ease;
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
 }
 
-.fade-enter-from, .fade-leave-to {
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
 }
 </style>
