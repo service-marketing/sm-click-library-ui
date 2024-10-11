@@ -316,7 +316,7 @@ watch(isChatOpen, (newVal) => {
   top: 0;
   left: 3.5rem; /* Left position from the icon */
   border-radius: 0.375rem; /* Equivalente a rounded-md */
-  background-color: #00799e;
+  background-color: #02a9db;
   opacity: 0; /* Hidden by default */
   display: flex;
   justify-content: center;
