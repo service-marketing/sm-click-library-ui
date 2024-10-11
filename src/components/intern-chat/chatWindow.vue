@@ -1,7 +1,7 @@
 <template>
   <div class="chat-container" ref="chatContainer">
     <div @click.stop="toggleChat" v-if="isChatOpen"
-      style="width: 42px;height: 42px;border-radius: 50%;background-color: #3b82f6;display: flex;justify-content: center;">
+      style="width: 42px;height: 42px;border-radius: 50%;background-color: #02a9db;display: flex;justify-content: center;">
       <span style="margin-top: auto; margin-bottom: auto;" class="chat-icon my-auto">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
           <path fill="currentColor"
@@ -9,8 +9,8 @@
         </svg>
       </span>
     </div>
-    <div @click.stop="handleChatClick" :class="isChatOpen ? 'chat-box border-base-200 open bg-base-200' : 'chat-box closed'"
-      :style="chatBoxStyle">
+    <div @click.stop="handleChatClick" class=" group relative"
+      :class="isChatOpen ? 'chat-box border-base-200 open bg-base-200' : 'chat-box closed'" :style="chatBoxStyle">
       <!-- Ícone de chat com contador de mensagens não lidas -->
       <span v-if="!isChatOpen" class="chat-icon">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
@@ -19,7 +19,11 @@
         </svg>
         <!-- Exibe o número de mensagens não lidas -->
         <span v-if="unreadMessagesCount > 0" class="unread-count">{{ unreadMessagesCount }}</span>
+        <div class="chat-tooltip">
+          <div class="text-sm my-auto text-center">Chat interno</div>
+        </div>
       </span>
+
 
       <transition name="fade">
         <div v-if="isChatOpen && !isClosing" class="chat-content">
@@ -45,7 +49,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch,  nextTick, onBeforeUnmount } from 'vue';
+import { ref, onMounted, computed, watch, nextTick, onBeforeUnmount } from 'vue';
 import { useChat } from './useChat'; // Importe o composable
 import ChatList from './ChatList.vue';
 import ChatMessages from './ChatMessages.vue';
@@ -128,30 +132,25 @@ const isClosing = ref(false); // Controla o estado de fechamento
 
 const chatBoxStyle = computed(() => {
   if (isClosing.value) {
-    // Durante o fechamento, mantém a posição absoluta e aplica o estilo da animação
     return {
       position: 'absolute',
       width: '42px',
       height: '42px',
       transition: 'width 0.2s ease-in, height 0.2s ease-out',
-      transform: 'translate(3.4rem, 0)', // Preserva o translate
     };
   } else if (isAnimating.value || isChatOpen.value) {
-    // Durante a abertura, mantém o tamanho grande
     return {
       position: 'absolute',
       width: '400px',
       height: '65vh',
       transition: 'width 0.2s ease-in, height 0.2s ease-out',
-      transform: 'translate(3.4rem, 0)', // Preserva o translate
     };
   } else {
-    // Quando estiver fechado, volta ao tamanho pequeno e relative
     return {
       position: 'relative',
       width: '42px',
       height: '42px',
-      transition: 'none', // Remove a animação ao retornar ao estado fechado
+      transition: 'none',
     };
   }
 });
@@ -228,7 +227,6 @@ watch(isChatOpen, (newVal) => {
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.7);
   position: absolute;
   bottom: -5rem;
-  transform: translate(3.3rem, 0);
   /* Move o chat para a direita */
 }
 
@@ -240,9 +238,18 @@ watch(isChatOpen, (newVal) => {
 }
 
 .chat-box.closed:hover {
-  background-color: #235097;
+  background-color: #00799e;
 }
 
+.chat-box.open {
+  transform: translate(2.85rem, 0);
+}
+
+@media (min-width: 864px) {
+  .chat-box.open {
+    transform: translate(3.4rem, 0);
+  }
+}
 
 /* Ícone de mensagem */
 .chat-icon {
@@ -293,5 +300,36 @@ watch(isChatOpen, (newVal) => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.chat-icon {
+  position: relative;
+}
+
+.chat-tooltip {
+  position: absolute;
+  color: white;
+  pointer-events: none;
+  transition: opacity 300ms ease;
+  width: 150px;
+  padding: 4px 8px;
+  top: 0;
+  left: 3.5rem; /* Left position from the icon */
+  border-radius: 0.375rem; /* Equivalente a rounded-md */
+  background-color: #00799e;
+  opacity: 0; /* Hidden by default */
+  display: flex;
+  justify-content: center;
+}
+
+.group:hover .chat-tooltip {
+  opacity: 1; /* Show tooltip on hover */
+}
+
+.chat-tooltip .text-sm {
+  font-size: 0.875rem;
+  margin-top: auto;
+  margin-bottom: auto;
+  text-align: center;
 }
 </style>
