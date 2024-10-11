@@ -245,9 +245,9 @@ watch(isChatOpen, (newVal) => {
   transform: translate(2.85rem, 0);
 }
 
-@media (min-width: 864px) {
+@media (min-width: 1280px) {
   .chat-box.open {
-    transform: translate(3.4rem, 0);
+    transform: translate(3.45rem, 0);
   }
 }
 
