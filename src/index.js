@@ -36,6 +36,7 @@ export function setupLibrary(piniaInstance, jwtToken, rootUrl) {
     const debugStore = useDebugStore(piniaInstance);
     const departStore = useDepartmentStore(piniaInstance);
     departStore.fetchDepartments();
+    console.log('setup realizado com sucesso!')
     // debugStore.logMessage(); // Isso vai logar "Debug store initialized"
 }
 

@@ -23,6 +23,7 @@ export const useDepartmentStore = defineStore('department', {
         }
 
         this.count = this.departments.length;
+        console.log(this.departments)
       } catch (error) {
         console.log("Erro ao buscar departamentos:", error);
       }
