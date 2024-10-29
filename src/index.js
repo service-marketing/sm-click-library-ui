@@ -6,10 +6,11 @@ import calendar from './components/calendar/calendar.vue';
 import MFA from "./components/mfa/mfa.vue"
 import MfaQrCode from "./components/mfa/MfaQrCode.vue"
 import chatWindow from './components/intern-chat/chatWindow.vue';
-import departSelect from  "./components/selects/departmentSelect/index.vue"
+import departSelect from "./components/selects/departmentSelect/index.vue"
 import { useDebugStore } from '~/stores/debugStore';
 import { useAuthStore } from '~/stores/authStore';
 import { useAttendantStore } from './stores/attendantStore';
+import { useDepartmentStore } from './stores/departmentStore';
 import api from '~/utils/api'; // Importa a instância personalizada do Axios
 
 function install(Vue) {
@@ -31,8 +32,10 @@ export function setupLibrary(piniaInstance, jwtToken, rootUrl) {
     if (rootUrl) {
         api.defaults.baseURL = rootUrl; // Define o rootUrl dinamicamente
     }
-    const attendantStore = useAttendantStore(piniaInstance)
+    const attendantStore = useAttendantStore(piniaInstance);
     const debugStore = useDebugStore(piniaInstance);
+    const departStore = useDepartmentStore(piniaInstance);
+    departStore.fetchDepartments();
     // debugStore.logMessage(); // Isso vai logar "Debug store initialized"
 }
 
