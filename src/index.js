@@ -6,6 +6,7 @@ import calendar from './components/calendar/calendar.vue';
 import MFA from "./components/mfa/mfa.vue"
 import MfaQrCode from "./components/mfa/MfaQrCode.vue"
 import chatWindow from './components/intern-chat/chatWindow.vue';
+import departSelect from  "./components/selects/departmentSelect/index.vue"
 import { useDebugStore } from '~/stores/debugStore';
 import { useAuthStore } from '~/stores/authStore';
 import { useAttendantStore } from './stores/attendantStore';
@@ -20,6 +21,7 @@ function install(Vue) {
     Vue.component('MFA', MFA)
     Vue.component('MfaQrCode', MfaQrCode)
     Vue.component('chatWindow', chatWindow)
+    Vue.component('departSelect', departSelect)
 }
 
 export function setupLibrary(piniaInstance, jwtToken, rootUrl) {
@@ -43,4 +45,5 @@ export default {
     calendar,
     MFA,
     chatWindow,
+    departSelect,
 }
