@@ -22,7 +22,7 @@ function install(Vue) {
     Vue.component('MFA', MFA)
     Vue.component('MfaQrCode', MfaQrCode)
     Vue.component('chatWindow', chatWindow)
-    Vue.component('sm-departSelect', departSelect);
+    Vue.component('departSelect', departSelect);
 }
 
 export function setupLibrary(piniaInstance, jwtToken, rootUrl) {
@@ -35,13 +35,14 @@ export function setupLibrary(piniaInstance, jwtToken, rootUrl) {
             api.defaults.baseURL = rootUrl; // Define o rootUrl dinamicamente
         }
         // const attendantStore = useAttendantStore(piniaInstance);
-        // const debugStore = useDebugStore(piniaInstance);
+        const debugStore = useDebugStore(piniaInstance);
+        debugStore.logMessage(); // Isso vai logar "Debug store initialized"
         const departStore = useDepartmentStore(piniaInstance);
         departStore.fetchDepartments();
         console.log('setup realizado com sucesso!')
     }
     catch (err) { console.log(err) }
-    // debugStore.logMessage(); // Isso vai logar "Debug store initialized"
+    
 }
 
 export default {
