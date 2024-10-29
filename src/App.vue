@@ -9,7 +9,7 @@ import calendar from "./components/calendar/calendar.vue";
 import MFA from "./components/mfa/mfa.vue";
 import MfaQrCode from "./components/mfa/mfaQrCode.vue";
 import chatWindow from "./components/intern-chat/chatWindow.vue";
-import departmentSelect from "./components/selects/departmentSelect/index.vue"
+import departSelect from "./components/selects/departmentSelect/index.vue"
 
 const loader = ref(false);
 const qrGenerated = ref(false);
@@ -31,7 +31,7 @@ const mockBase64 = ref(
 
     <!-- <calendar v-if="false" /> -->
     <div class="flex ">
-      <departmentSelect/>
+      <departSelect/>
       <!-- <MfaQrCode
         :base64="mockBase64"
         :dimensions="[64, 64]"
