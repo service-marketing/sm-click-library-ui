@@ -4,7 +4,7 @@
   "files": [
     "dist"
   ],
-  "version": "0.0.144",
+  "version": "0.0.145",
   "main": "dist/sm-click-library-ui.es.js",
   "module": "dist/sm-click-library-ui.umd.js",
   "private": false,
