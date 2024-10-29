@@ -27,16 +27,20 @@ function install(Vue) {
 
 export function setupLibrary(piniaInstance, jwtToken, rootUrl) {
     // Use a instância do Pinia para inicializar a store e logar a mensagem
-    const authStore = useAuthStore(piniaInstance);
-    authStore.setToken(jwtToken); // Armazena o token no Pinia
-    if (rootUrl) {
-        api.defaults.baseURL = rootUrl; // Define o rootUrl dinamicamente
+    console.log("Iniciando setupLibrary"); // Log para verificar se é chamado
+    try {
+        const authStore = useAuthStore(piniaInstance);
+        authStore.setToken(jwtToken); // Armazena o token no Pinia
+        if (rootUrl) {
+            api.defaults.baseURL = rootUrl; // Define o rootUrl dinamicamente
+        }
+        // const attendantStore = useAttendantStore(piniaInstance);
+        // const debugStore = useDebugStore(piniaInstance);
+        const departStore = useDepartmentStore(piniaInstance);
+        departStore.fetchDepartments();
+        console.log('setup realizado com sucesso!')
     }
-    const attendantStore = useAttendantStore(piniaInstance);
-    const debugStore = useDebugStore(piniaInstance);
-    const departStore = useDepartmentStore(piniaInstance);
-    departStore.fetchDepartments();
-    console.log('setup realizado com sucesso!')
+    catch (err) { console.log(err) }
     // debugStore.logMessage(); // Isso vai logar "Debug store initialized"
 }
 
