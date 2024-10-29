@@ -22,7 +22,7 @@ function install(Vue) {
     Vue.component('MFA', MFA)
     Vue.component('MfaQrCode', MfaQrCode)
     Vue.component('chatWindow', chatWindow)
-    Vue.component('departSelect', departSelect)
+    Vue.component('sm-departSelect', departSelect);
 }
 
 export function setupLibrary(piniaInstance, jwtToken, rootUrl) {
