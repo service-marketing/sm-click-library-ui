@@ -6,7 +6,7 @@ const props = defineProps({
     department: { type: Array, default: null },
     modal_filter: { type: String, default: null },
     multiSelect: { type: Boolean, default: true },
-    permissions: { type: Boolean, default: true }
+    permissions: { type: Boolean, default: false }
 });
 
 const emit = defineEmits(['depart']);
@@ -101,7 +101,7 @@ function eraseDepartment(department, index) {
                     ? (multiSelect
                         ? `Selecionados: ${departmentSelected.length}`
                         : `Selecionado: ${departmentSelected[0].name}`)
-                    : 'Pesquise por nome.'" class="search-input " />
+                    : 'Pesquise por nome.'" class="select-depart-input" />
                 <div class="icon-container">
                     <svg v-if="!get_loading" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                         stroke-width="1.5" stroke="currentColor" class="search-icon">
@@ -135,8 +135,7 @@ function eraseDepartment(department, index) {
                             <span @click="selectDepartment(department)" class="department-name w-full">{{
                                 department.name }}</span>
                             <div v-if="multiSelect && permissions" style="width: 150px;">
-                                <select v-model="department.permission"
-                                    class="select-dropdown bg-base-300">
+                                <select v-model="department.permission" class="select-dropdown bg-base-300">
                                     <option selected>normal</option>
                                     <option>supervisor</option>
                                     <!-- <option value="master">mestre</option> -->
@@ -181,12 +180,17 @@ function eraseDepartment(department, index) {
     position: relative;
 }
 
-.search-input {
+.select-depart-input {
     width: 100%;
     border: none;
     outline: none;
     background: transparent;
     color: currentColor;
+}
+
+.select-depart-input:focus {
+    border: none;
+    outline: none;
 }
 
 .icon-container {
@@ -237,8 +241,6 @@ function eraseDepartment(department, index) {
 }
 
 .dropdown {
-    position: absolute;
-    top: 45px;
     width: 100%;
     max-height: 150px;
     overflow-y: auto;
@@ -323,7 +325,11 @@ function eraseDepartment(department, index) {
     padding-left: 0.20rem;
     padding: 0.20rem;
     width: 100%;
-    font-size: 0.875rem /* 14px */;
-    line-height: 1.25rem /* 20px */;
+    font-size: 0.875rem
+        /* 14px */
+    ;
+    line-height: 1.25rem
+        /* 20px */
+    ;
 }
 </style>

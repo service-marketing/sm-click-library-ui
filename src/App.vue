@@ -30,8 +30,9 @@ const mockBase64 = ref(
    
 
     <!-- <calendar v-if="false" /> -->
-    <div class="flex ">
+    <div class="flex flex-col">
       <departSelect/>
+      dada
       <!-- <MfaQrCode
         :base64="mockBase64"
         :dimensions="[64, 64]"
