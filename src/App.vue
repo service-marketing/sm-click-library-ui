@@ -9,7 +9,7 @@ import calendar from "./components/calendar/calendar.vue";
 import MFA from "./components/mfa/mfa.vue";
 import MfaQrCode from "./components/mfa/mfaQrCode.vue";
 import chatWindow from "./components/intern-chat/chatWindow.vue";
-import departSelect from "./components/selects/departmentSelect/index.vue"
+import departSelect from "./components/selects/departmentSelect/departSelect.vue"
 
 const loader = ref(false);
 const qrGenerated = ref(false);

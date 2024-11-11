@@ -15,6 +15,7 @@ import api from '~/utils/api'; // Importa a instância personalizada do Axios
 
 function install(Vue) {
     Vue.component('primarySelect', primarySelect)
+    Vue.component('departSelect', departSelect)
     Vue.component('simpleModal', simpleModal)
     Vue.component('simpleCard', simpleCard)
     Vue.component('instanceSelect', instanceSelect)
@@ -22,31 +23,35 @@ function install(Vue) {
     Vue.component('MFA', MFA)
     Vue.component('MfaQrCode', MfaQrCode)
     Vue.component('chatWindow', chatWindow)
-    Vue.component('departSelect', departSelect);
 }
 
 export function setupLibrary(piniaInstance, jwtToken, rootUrl) {
-    // Use a instância do Pinia para inicializar a store e logar a mensagem
-    console.log("Iniciando setupLibrary"); // Log para verificar se é chamado
+    console.log("setupLibrary chamada com:", piniaInstance, jwtToken, rootUrl);
     try {
         const authStore = useAuthStore(piniaInstance);
-        authStore.setToken(jwtToken); // Armazena o token no Pinia
+        authStore.setToken(jwtToken);
+        
         if (rootUrl) {
-            api.defaults.baseURL = rootUrl; // Define o rootUrl dinamicamente
+            api.defaults.baseURL = rootUrl;
+            console.log("URL base configurada para:", rootUrl);
         }
-        // const attendantStore = useAttendantStore(piniaInstance);
+        
         const debugStore = useDebugStore(piniaInstance);
-        debugStore.logMessage(); // Isso vai logar "Debug store initialized"
+        debugStore.logMessage();
+        
         const departStore = useDepartmentStore(piniaInstance);
         departStore.fetchDepartments();
-        console.log('setup realizado com sucesso!')
+        
+        console.log("setupLibrary finalizado com sucesso");
+    } catch (err) {
+        console.error("Erro no setupLibrary:", err);
     }
-    catch (err) { console.log(err) }
-    
 }
+
 
 export default {
     install,
+    setupLibrary,
     primarySelect,
     simpleModal,
     simpleCard,
@@ -54,6 +59,5 @@ export default {
     calendar,
     MFA,
     chatWindow,
-    departSelect, 
-    setupLibrary
+    departSelect,
 }
