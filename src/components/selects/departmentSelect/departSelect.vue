@@ -84,19 +84,28 @@ function updateSelectedDepartments() {
 // Seleção de departamentos
 function selectDepartment(department) {
     const index = departmentSelected.value.findIndex(dep => dep.id === department.id);
+
     if (index !== -1) {
+        // Se o departamento já está selecionado, desmarque-o
         department.selected = false;
         departmentSelected.value.splice(index, 1);
     } else {
-        if (!props.multiSelect && departmentSelected.value.length > 0) {
-            departmentSelected.value[0].selected = false;
-            departmentSelected.value = [];
+        // Caso multiSelect esteja desativado ou haja departamentos pré-selecionados nas props
+        if (!props.multiSelect || (props.department && props.department.length > 0)) {
+            // Desmarcar todos os departamentos previamente selecionados
+            departmentSelected.value.forEach(dep => {
+                dep.selected = false;
+            });
+            departmentSelected.value = []; // Limpar os selecionados
         }
+        
+        // Adicionar o novo departamento como selecionado
         department.selected = true;
         departmentSelected.value.push(department);
     }
     emit('depart', departmentSelected.value);
 }
+
 
 // Remoção de departamentos selecionados
 function eraseDepartment(department, index) {
@@ -108,7 +117,7 @@ function eraseDepartment(department, index) {
 
 <template>
     <div class="depart-select-container ">
-        <div class="search-container relative shadow shadow-gray-900 dark:shadow-gray-400">
+        <div class="search-container relative shadow shadow-gray-900 dark:shadow-gray-500">
             <div class="input-wrapper bg-base-300 border-b border-base-200" @click="open_select = !open_select"
                 :class="{ 'expanded': open_select || departmentSelected.length > 0 }">
                 <input v-model="searchInput" :placeholder="departmentSelected.length > 0

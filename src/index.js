@@ -26,23 +26,23 @@ function install(Vue) {
 }
 
 export function setupLibrary(piniaInstance, jwtToken, rootUrl) {
-    console.log("setupLibrary chamada com:", piniaInstance, jwtToken, rootUrl);
+    // console.log("setupLibrary chamada com:", piniaInstance, jwtToken, rootUrl);
     try {
         const authStore = useAuthStore(piniaInstance);
         authStore.setToken(jwtToken);
         
         if (rootUrl) {
             api.defaults.baseURL = rootUrl;
-            console.log("URL base configurada para:", rootUrl);
+            // console.log("URL base configurada para:", rootUrl);
         }
         
-        const debugStore = useDebugStore(piniaInstance);
-        debugStore.logMessage();
+        // const debugStore = useDebugStore(piniaInstance);
+        // debugStore.logMessage();
         
         const departStore = useDepartmentStore(piniaInstance);
         departStore.fetchDepartments();
         
-        console.log("setupLibrary finalizado com sucesso");
+        // console.log("setupLibrary finalizado com sucesso");
     } catch (err) {
         console.error("Erro no setupLibrary:", err);
     }
