@@ -20,12 +20,14 @@ const attendanceSelected = ref([]);
 const get_loading = ref(false);
 
 const filteredAttendants = computed(() => {
+    // Filtro por nome e por departamento
     const filtered = searchInput.value
         ? attendantStore.attendants.filter(attendant =>
             attendant.name.toLowerCase().includes(searchInput.value.toLowerCase())
         )
         : attendantStore.attendants;
-    return filterByMethod(filtered);
+
+    return filterByDepartment(filterByMethod(filtered));
 });
 
 function filterByMethod(attendants) {
@@ -36,6 +38,15 @@ function filterByMethod(attendants) {
     } else {
         return attendants.filter(attendant => attendant.id !== props.attDel.id);
     }
+}
+
+function filterByDepartment(attendants) {
+    if (props.department.length > 0) {
+        return attendants.filter(attendant =>
+            attendant.department.some(dept => props.department.some(d => d.id === dept.id))
+        );
+    }
+    return attendants;
 }
 
 onMounted(() => {
@@ -160,6 +171,7 @@ function eraseAttendant(attendant, index) {
     </div>
 </template>
 
+
 <style scoped>
 /* Adiciona as classes de estilo conforme especificado no terceiro componente */
 .shadow {
@@ -197,6 +209,17 @@ function eraseAttendant(attendant, index) {
     outline: none;
     background: transparent;
     color: currentColor;
+}
+.select-depart-input:focus {
+    border: none;
+    outline: none;
+    @apply ring-0;
+}
+
+.ring-0 {
+    --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+    --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+    box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
 }
 
 .icon-container {
