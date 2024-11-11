@@ -107,9 +107,9 @@ function eraseDepartment(department, index) {
 </script>
 
 <template>
-    <div class="depart-select-container">
-        <div class="search-container relative">
-            <div class="input-wrapper bg-base-100 border-b border-base-200" @click="open_select = !open_select"
+    <div class="depart-select-container ">
+        <div class="search-container relative shadow shadow-gray-900 dark:shadow-gray-400">
+            <div class="input-wrapper bg-base-300 border-b border-base-200" @click="open_select = !open_select"
                 :class="{ 'expanded': open_select || departmentSelected.length > 0 }">
                 <input v-model="searchInput" :placeholder="departmentSelected.length > 0
                     ? (multiSelect
@@ -170,6 +170,12 @@ function eraseDepartment(department, index) {
 </template>
 
 <style scoped>
+.shadow {
+    --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);
+    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
 .depart-select-container {
     width: 100%;
     display: flex;
@@ -179,12 +185,14 @@ function eraseDepartment(department, index) {
 
 .search-container {
     width: 100%;
+    border-bottom-right-radius: 0.375rem /* 6px */;
+    border-bottom-left-radius: 0.375rem /* 6px */;
 }
 
 .input-wrapper {
     padding: 10px;
     padding-left: 40px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+    /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); */
     /* shadow-gray-900 */
     width: 100%;
     display: flex;
@@ -270,7 +278,7 @@ function eraseDepartment(department, index) {
     max-height: 150px;
     overflow-y: auto;
     border-radius: 0 0 4px 4px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); */
     padding-bottom: 3px;
 }
 
