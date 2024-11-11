@@ -27,6 +27,7 @@ const filteredDepartments = computed(() => {
 });
 
 onMounted(() => {
+    clearSelectedDepartments()
     fetchDepartments();
 });
 
@@ -53,6 +54,15 @@ async function fetchDepartments() {
 
     get_loading.value = false;
 }
+
+// Função para limpar a seleção de todos os departamentos
+function clearSelectedDepartments() {
+    departmentStore.departments.forEach(department => {
+        department.selected = false;
+    });
+    departmentSelected.value = []; // Limpa o array de selecionados
+}
+
 
 // Atualiza departamentos selecionados
 function updateSelectedDepartments() {
@@ -97,7 +107,7 @@ function eraseDepartment(department, index) {
 </script>
 
 <template>
-    <div class="container">
+    <div class="depart-select-container">
         <div class="search-container relative">
             <div class="input-wrapper bg-base-100 border-b border-base-200" @click="open_select = !open_select"
                 :class="{ 'expanded': open_select || departmentSelected.length > 0 }">
@@ -130,13 +140,13 @@ function eraseDepartment(department, index) {
             </main>
 
             <div :class="departmentSelected.length > 0 && multiSelect ? 'dropdown-expanded' : 'dropdown'"
-                class="dropdown">
+                class="dropdown bg-base-300">
                 <div class="department-list">
                     <div :class="{ 'two-columns': filteredDepartments.length > 4 }" class="grid-container">
                         <div v-for="department in filteredDepartments" :key="department.id"
                             :class="{ 'selected': department.selected }"
                             class="department-item line-clamp-1 bg-slate-500/20 hover:bg-teal-600">
-                            <span @click="selectDepartment(department)" class="department-name w-full">{{
+                            <span @click="selectDepartment(department)" class="department-name h-full w-full">{{
                                 department.name }}</span>
                             <div v-if="multiSelect && permissions" style="width: 150px;">
                                 <select v-model="department.permission" class="select-dropdown bg-base-300">
@@ -160,7 +170,7 @@ function eraseDepartment(department, index) {
 </template>
 
 <style scoped>
-.container {
+.depart-select-container {
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -261,6 +271,7 @@ function eraseDepartment(department, index) {
     overflow-y: auto;
     border-radius: 0 0 4px 4px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    padding-bottom: 3px;
 }
 
 .dropdown-expanded {
@@ -284,11 +295,15 @@ function eraseDepartment(department, index) {
 }
 
 .department-item {
-    padding: 8px;
+    /* padding: 8px; */
     cursor: pointer;
     width: 100%;
     align-items: center;
     display: flex;
+}
+
+.department-name {
+    padding: 8px;
 }
 
 .selected {
