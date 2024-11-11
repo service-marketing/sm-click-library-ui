@@ -54,5 +54,6 @@ export default {
     calendar,
     MFA,
     chatWindow,
-    departSelect,
+    departSelect, 
+    setupLibrary
 }
