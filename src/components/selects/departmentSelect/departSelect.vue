@@ -56,11 +56,15 @@ async function fetchDepartments() {
 
 // Atualiza departamentos selecionados
 function updateSelectedDepartments() {
-    if (props.department) {
+    if (props.department && props.department.length > 0) {
         props.department.forEach((dep) => {
-            const exists = departmentSelected.value.some(selected => selected.id === dep.id);
-            if (!exists) {
-                departmentSelected.value.push({ ...dep, selected: true });
+            const departmentInStore = departmentStore.departments.find(d => d.id === dep.id);
+            if (departmentInStore) {
+                departmentInStore.selected = true;
+                const exists = departmentSelected.value.some(selected => selected.id === dep.id);
+                if (!exists) {
+                    departmentSelected.value.push({ ...departmentInStore });
+                }
             }
         });
     }
@@ -127,7 +131,7 @@ function eraseDepartment(department, index) {
 
             <div :class="departmentSelected.length > 0 && multiSelect ? 'dropdown-expanded' : 'dropdown'"
                 class="dropdown">
-                <div class="department-list bg-base-300">
+                <div class="department-list">
                     <div :class="{ 'two-columns': filteredDepartments.length > 4 }" class="grid-container">
                         <div v-for="department in filteredDepartments" :key="department.id"
                             :class="{ 'selected': department.selected }"
@@ -186,11 +190,22 @@ function eraseDepartment(department, index) {
     outline: none;
     background: transparent;
     color: currentColor;
+    padding-top: 0px;
+    padding-left: 0px;
+    padding-right: 0px;
+    padding-bottom: 0px;
 }
 
 .select-depart-input:focus {
     border: none;
     outline: none;
+    @apply ring-0;
+}
+
+.ring-0 {
+    --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+    --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+    box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
 }
 
 .icon-container {
@@ -244,7 +259,6 @@ function eraseDepartment(department, index) {
     width: 100%;
     max-height: 150px;
     overflow-y: auto;
-    background-color: #e5e7eb;
     border-radius: 0 0 4px 4px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
