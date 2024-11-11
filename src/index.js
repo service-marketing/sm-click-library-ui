@@ -7,6 +7,7 @@ import MFA from "./components/mfa/mfa.vue"
 import MfaQrCode from "./components/mfa/MfaQrCode.vue"
 import chatWindow from './components/intern-chat/chatWindow.vue';
 import departSelect from "./components/selects/departmentSelect/departSelect.vue"
+import attendantSelect from './components/selects/attendantSelect/attendantSelect.vue';
 import { useDebugStore } from '~/stores/debugStore';
 import { useAuthStore } from '~/stores/authStore';
 import { useAttendantStore } from './stores/attendantStore';
@@ -16,6 +17,7 @@ import api from '~/utils/api'; // Importa a instância personalizada do Axios
 function install(Vue) {
     Vue.component('primarySelect', primarySelect)
     Vue.component('departSelect', departSelect)
+    Vue.component('attendantSelect', attendantSelect)
     Vue.component('simpleModal', simpleModal)
     Vue.component('simpleCard', simpleCard)
     Vue.component('instanceSelect', instanceSelect)
@@ -30,18 +32,21 @@ export function setupLibrary(piniaInstance, jwtToken, rootUrl) {
     try {
         const authStore = useAuthStore(piniaInstance);
         authStore.setToken(jwtToken);
-        
+
         if (rootUrl) {
             api.defaults.baseURL = rootUrl;
             // console.log("URL base configurada para:", rootUrl);
         }
-        
+
         // const debugStore = useDebugStore(piniaInstance);
         // debugStore.logMessage();
-        
+
         const departStore = useDepartmentStore(piniaInstance);
         departStore.fetchDepartments();
-        
+
+        const attendantStore = useAttendantStore(piniaInstance);
+        attendantStore.fetchAttendants();
+
         // console.log("setupLibrary finalizado com sucesso");
     } catch (err) {
         console.error("Erro no setupLibrary:", err);
@@ -60,4 +65,5 @@ export default {
     MFA,
     chatWindow,
     departSelect,
+    attendantSelect,
 }

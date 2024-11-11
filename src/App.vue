@@ -10,6 +10,7 @@ import MFA from "./components/mfa/mfa.vue";
 import MfaQrCode from "./components/mfa/mfaQrCode.vue";
 import chatWindow from "./components/intern-chat/chatWindow.vue";
 import departSelect from "./components/selects/departmentSelect/departSelect.vue"
+import attendantSelect from "./components/selects/attendantSelect/attendantSelect.vue";
 
 const loader = ref(false);
 const qrGenerated = ref(false);
@@ -32,6 +33,7 @@ const mockBase64 = ref(
     <!-- <calendar v-if="false" /> -->
     <div class="flex flex-col">
       <departSelect/>
+      <attendantSelect/>
       dada
       <!-- <MfaQrCode
         :base64="mockBase64"
