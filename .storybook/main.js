@@ -7,8 +7,8 @@ const config = {
     "@storybook/addon-essentials",
     "@chromatic-com/storybook",
     "@storybook/addon-interactions",
-    'storybook-dark-mode',
-    "@storybook/addon-themes"
+    "storybook-dark-mode",
+    "@storybook/addon-themes",
   ],
   framework: {
     name: "@storybook/vue3-vite",

@@ -10,8 +10,8 @@
             eventHandling === 'check'
               ? 'checked_mfa'
               : eventHandling === 'err'
-              ? 'err_mfa'
-              : 'reset_input'
+                ? 'err_mfa'
+                : 'reset_input'
           "
           class="inline-block w-10 h-10 rounded-md text-center"
           type="text"

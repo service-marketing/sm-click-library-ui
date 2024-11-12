@@ -1,8 +1,8 @@
-import { defineStore } from 'pinia';
-import api from '~/utils/api';
-import { attendantUrl } from '~/utils/systemUrls';
+import { defineStore } from "pinia";
+import api from "~/utils/api";
+import { attendantUrl } from "~/utils/systemUrls";
 
-export const useAttendantStore = defineStore('attendant', {
+export const useAttendantStore = defineStore("attendant", {
   state: () => ({
     attendants: [],
     count: null,

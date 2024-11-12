@@ -1,83 +1,98 @@
 .checked_mfa {
-    --border-opacity_mfa: 1;
-    border-color: rgb(34 197 94 / var(--border-opacity_mfa));
-    border-width: 2px;
-    border-style: solid;
+  --border-opacity_mfa: 1;
+  border-color: rgb(34 197 94 / var(--border-opacity_mfa));
+  border-width: 2px;
+  border-style: solid;
 }
 
 .err_mfa {
-    --border-opacity_mfa: 1;
-    border-color: rgb(239 68 68 / var(--border-opacity_mfa));
-    border-width: 2px;
-    border-style: solid;
+  --border-opacity_mfa: 1;
+  border-color: rgb(239 68 68 / var(--border-opacity_mfa));
+  border-width: 2px;
+  border-style: solid;
 }
 .reset_input {
-    --border-opacity_mfa: 1;
-    border-color: rgb(48, 48, 48);
-    border-width: 2px;
-    border-style: solid;
+  --border-opacity_mfa: 1;
+  border-color: rgb(48, 48, 48);
+  border-width: 2px;
+  border-style: solid;
 }
 
 input.checked_mfa:focus {
-    --border-opacity_mfa: 1;
-    border-color: rgb(34 197 94 / var(--border-opacity_mfa));
-    border-width: 2px;
-    border-style: solid;
+  --border-opacity_mfa: 1;
+  border-color: rgb(34 197 94 / var(--border-opacity_mfa));
+  border-width: 2px;
+  border-style: solid;
 }
 
 input.err_mfa:focus {
-    --border-opacity_mfa: 1;
-    border-color: rgb(239 68 68 / var(--border-opacity_mfa));
-    border-width: 2px;
-    border-style: solid;
+  --border-opacity_mfa: 1;
+  border-color: rgb(239 68 68 / var(--border-opacity_mfa));
+  border-width: 2px;
+  border-style: solid;
 }
 
 .btnQrCode {
-    position: absolute;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.875rem;
-    opacity: 0.9;
-    z-index: 20;
-    transition: all 0.2s ease-in;
-    @apply bg-base-300
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  opacity: 0.9;
+  z-index: 20;
+  transition: all 0.2s ease-in;
+  @apply bg-base-300;
 }
 
 .btnQrCode:hover {
-    opacity: 0.95;
-    border: 1px solid white;
+  opacity: 0.95;
+  border: 1px solid white;
 }
 
 .loaderMFA {
-    width: 55px;
-    aspect-ratio: 1;
-    --g1: conic-gradient(from 90deg at 3px 3px, #0000 90deg, #fff 0);
-    --g2: conic-gradient(from -90deg at 22px 22px, #0000 90deg, #fff 0);
-    background: var(--g1), var(--g1), var(--g1), var(--g2), var(--g2), var(--g2);
-    background-size: 25px 25px;
-    background-repeat: no-repeat;
-    animation: l7 1.5s infinite;
+  width: 55px;
+  aspect-ratio: 1;
+  --g1: conic-gradient(from 90deg at 3px 3px, #0000 90deg, #fff 0);
+  --g2: conic-gradient(from -90deg at 22px 22px, #0000 90deg, #fff 0);
+  background: var(--g1), var(--g1), var(--g1), var(--g2), var(--g2), var(--g2);
+  background-size: 25px 25px;
+  background-repeat: no-repeat;
+  animation: l7 1.5s infinite;
 }
 
 @keyframes l7 {
-    0% {
-        background-position: 0 0, 0 100%, 100% 100%
-    }
+  0% {
+    background-position:
+      0 0,
+      0 100%,
+      100% 100%;
+  }
 
-    25% {
-        background-position: 100% 0, 0 100%, 100% 100%
-    }
+  25% {
+    background-position:
+      100% 0,
+      0 100%,
+      100% 100%;
+  }
 
-    50% {
-        background-position: 100% 0, 0 0, 100% 100%
-    }
+  50% {
+    background-position:
+      100% 0,
+      0 0,
+      100% 100%;
+  }
 
-    75% {
-        background-position: 100% 0, 0 0, 0 100%
-    }
+  75% {
+    background-position:
+      100% 0,
+      0 0,
+      0 100%;
+  }
 
-    100% {
-        background-position: 100% 100%, 0 0, 0 100%
-    }
+  100% {
+    background-position:
+      100% 100%,
+      0 0,
+      0 100%;
+  }
 }

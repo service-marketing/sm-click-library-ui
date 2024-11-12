@@ -1,19 +1,34 @@
 <template>
   <div class="attendants-container">
     <!-- Campo de busca -->
-    <input v-model="searchQuery" class="search-input bg-base-300 border-b border-base-200" placeholder="Pesquise entre os atendentes..." />
+    <input
+      v-model="searchQuery"
+      class="search-input bg-base-300 border-b border-base-200"
+      placeholder="Pesquise entre os atendentes..."
+    />
 
     <!-- Lista de atendentes -->
     <ul class="atendentes-list bg-base-300">
       <!-- Mensagem de ausência de atendentes -->
-      <li v-if="filteredAtendentes.length === 0" class="empty-message bg-base-200">
-        {{ atendentes.length === 0 ? 'Não há atendentes disponíveis' : 'Não há atendentes com esse nome' }}
+      <li
+        v-if="filteredAtendentes.length === 0"
+        class="empty-message bg-base-200"
+      >
+        {{
+          atendentes.length === 0
+            ? "Não há atendentes disponíveis"
+            : "Não há atendentes com esse nome"
+        }}
       </li>
 
       <!-- Itens da lista de atendentes -->
-      <li v-for="att in filteredAtendentes" :key="att.id" @click="selectAtendente(att)"
+      <li
+        v-for="att in filteredAtendentes"
+        :key="att.id"
+        @click="selectAtendente(att)"
         :class="['atendente-item', att.isMoved ? 'moved' : '']"
-        class="border-b even:bg-base-300 bg-blue-400/10 border-base-200 hover:bg-base-200 relative">
+        class="border-b even:bg-base-300 bg-blue-400/10 border-base-200 hover:bg-base-200 relative"
+      >
         <!-- Informações principais do atendente -->
         <main class="atendente-main">
           <Avatar :url="att.photo" />
@@ -22,63 +37,72 @@
 
         <!-- Indicador de status -->
         <footer class="flex items-center gap-4">
-          <span v-if="att.internal_chat.unread > 0" class="message-indicator">{{ att.internal_chat.unread }}</span>
-          <div :class="['status-indicator', getStatusClass(att.login_status)]"></div>
+          <span v-if="att.internal_chat.unread > 0" class="message-indicator">{{
+            att.internal_chat.unread
+          }}</span>
+          <div
+            :class="['status-indicator', getStatusClass(att.login_status)]"
+          ></div>
         </footer>
 
         <!-- Indicador de "conversar" no hover -->
-        <div class="hover-action">
-          Conversar
-        </div>
+        <div class="hover-action">Conversar</div>
       </li>
-
     </ul>
     <!-- Footer fixo -->
-    <footer class="chat-footer bg-base-200">
-    </footer>
+    <footer class="chat-footer bg-base-200"></footer>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import Avatar from './Avatar.vue'
+import { ref, computed } from "vue";
+import Avatar from "./Avatar.vue";
 const props = defineProps({
   atendentes: { type: Array, required: true },
-  attendant: { required: true }
+  attendant: { required: true },
 });
 
-const emit = defineEmits(['atendenteSelecionado']);
+const emit = defineEmits(["atendenteSelecionado"]);
 
-const searchQuery = ref('');
+const searchQuery = ref("");
 
 const selectAtendente = (atendente) => {
-  emit('atendenteSelecionado', atendente);
+  emit("atendenteSelecionado", atendente);
 };
 
 const getStatusClass = (status) => {
   switch (status) {
-    case 'Busy': return 'bg-red-500';
-    case 'Online': return 'bg-green-500';
-    case 'Away': return 'bg-yellow-500';
-    case 'Offline': return 'bg-gray-500';
-    default: return 'bg-purple-500';
+    case "Busy":
+      return "bg-red-500";
+    case "Online":
+      return "bg-green-500";
+    case "Away":
+      return "bg-yellow-500";
+    case "Offline":
+      return "bg-gray-500";
+    default:
+      return "bg-purple-500";
   }
 };
 
 // Computed property para filtrar os atendentes
 const filteredAtendentes = computed(() => {
   if (!searchQuery.value) {
-    return props.atendentes.filter(att => att.id !== props.attendant.id);
+    return props.atendentes.filter((att) => att.id !== props.attendant.id);
   }
-  return props.atendentes.filter(att =>
-    att.name.toLowerCase().includes(searchQuery.value.toLowerCase()) && att.id !== props.attendant.id
+  return props.atendentes.filter(
+    (att) =>
+      att.name.toLowerCase().includes(searchQuery.value.toLowerCase()) &&
+      att.id !== props.attendant.id,
   );
 });
 </script>
 
 <style scoped>
 .atendente-item {
-  transition: transform 0.3s ease, background-color 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    background-color 0.3s ease;
 }
 
 .atendente-item.moved {
@@ -219,7 +243,7 @@ const filteredAtendentes = computed(() => {
   text-align: center;
   color: white;
   border-bottom-right-radius: 7px /* 12px */;
-  border-bottom-left-radius: 7px /* 12px */
+  border-bottom-left-radius: 7px; /* 12px */
   /* Fixo na parte inferior */
 }
 

@@ -1,18 +1,15 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import axios from 'axios';
-
+import { useInstanceStore } from '../../../stores/instanceStore';
+const instanceStore = useInstanceStore();
 const open = ref(false);
 const selectedInstance = ref(null);
-const getLoading = ref(true)
+const getLoading = ref(false)
 const props = defineProps({
     modelValue: {
         type: Object,
         default: null,
-    },
-    token: {
-        type: String,
-        default: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI0MjQwNDUwLCJpYXQiOjE3MjQxNTQwNTAsImp0aSI6IjFiMWY5YjU4NDFmYzQ4YjZhZTQxNzIxOTFlMDMxMDUzIiwidXNlcl9pZCI6IjYyNGRmZTIzLTkyZDAtNDNmMS04MDYxLWEyMzIxZjJiNWViYiJ9.-ETm-64tLM1HokxXNMSiQt9uCJyprugg95rVUJQa-vU',
     },
     type: {
         type: String,
@@ -22,63 +19,11 @@ const props = defineProps({
         type: Boolean,
         default: undefined
     },
-    url: {
-        type: String,
-        default: 'http://localhost:8000/v1/api/instances/instance/',
-    },
-    status_url: {
-        type: String,
-        default: 'http://localhost:8000/v1/api/instances/status_instance/',
-    },
 });
 
 const emit = defineEmits(['update:modelValue', 'function']);
 
-const instances = ref(null);
-
-async function getInstances() {
-    getLoading.value = true;
-    try {
-        let url = props.url;
-        let status_url = props.status_url;
-        let params = ``;
-
-        const response = await axios.get(`${url}${params}`, {
-            headers: {
-                Authorization: `Bearer ${props.token}`,
-            },
-        });
-
-        instances.value = response.data;
-
-        instances.value.forEach(async (key) => {
-            key.isLoading = true;
-            try {
-                const statusResponse = await axios.get(
-                    `${status_url}?instance=${key.id}`,
-                    { headers: { Authorization: `Bearer ${props.token}` } }
-                );
-                if (statusResponse.data.instance_status !== 'Disconnected') {
-                    key.status = true;
-                } else {
-                    key.status = false;
-                }
-            } catch (err) {
-                key.status = 'Offline';
-            }
-            key.isLoading = false;
-
-            // Sincronize o status da instância selecionada
-            if (selectedInstance.value && selectedInstance.value.id === key.id) {
-                selectedInstance.value.status = key.status;
-            }
-        });
-    } catch (err) {
-        console.log(err);
-    }
-    getLoading.value = false;
-}
-
+const instances = computed(()=>instanceStore.instances);
 
 function functionEmit(value) {
     selectedInstance.value = value
@@ -98,9 +43,7 @@ watch(selectedInstance, (newValue) => {
 });
 
 onMounted(async () => {
-    await getInstances();
-
-    // Caso haja uma instância já selecionada, atualize o status dela
+    clearSelectedInstance();
     if (selectedInstance.value) {
         const selected = instances.value.find(inst => inst.id === selectedInstance.value.id);
         if (selected) {
@@ -108,26 +51,13 @@ onMounted(async () => {
         }
     }
 });
-function formatTelephone(number) {
-    // Remove caracteres não numéricos
-    number = number.replace(/\D/g, '');
 
-    // Verifica se o número já tem o código do país
-    if (number.length >= 12 && number.startsWith('55')) {
-        // Número no formato internacional, começa com +55
-        return '+' + number.slice(0, 2) + ' ' + number.slice(2, 4) + ' ' + number.slice(4, 9) + '-' + number.slice(9);
-    } else if (number.length === 11) {
-        // Número no formato nacional com DDD
-        return '+55 ' + number.slice(0, 2) + ' ' + number.slice(2, 7) + '-' + number.slice(7);
-    } else if (number.length === 10) {
-        // Número no formato nacional sem DDD
-        const ddd = number.slice(0, 2);
-        const rest = number.slice(2);
-        return '+55 ' + ddd + ' ' + rest.slice(0, 5) + '-' + rest.slice(5);
-    } else {
-        // Número inválido ou não suportado
-        return number;
-    }
+// Função para limpar a seleção de todos os departamentos
+function clearSelectedInstance() {
+  instanceStore.instances.forEach((instance) => {
+    instance.selected = false;
+  });
+  selectedInstance.value = []; // Limpa o array de selecionados
 }
 </script>
 <template>

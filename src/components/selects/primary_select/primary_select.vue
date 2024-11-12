@@ -17,7 +17,7 @@ const isOpen = ref(false);
 const target = ref(null);
 
 const hasFreeSlot = computed(() =>
-  props.selectConfig.some((item) => item.freeSlot)
+  props.selectConfig.some((item) => item.freeSlot),
 );
 
 const toggleSelect = () => {
@@ -75,6 +75,6 @@ onClickOutside(target, closeSelectOutside);
 <style scoped>
 /* primary_select CSS  */
 .select_widget_lib {
-  @apply text-white rounded-md absolute w-full mt-2 z-30 p-1.5 shadow-md ;
+  @apply text-white rounded-md absolute w-full mt-2 z-30 p-1.5 shadow-md;
 }
 </style>
