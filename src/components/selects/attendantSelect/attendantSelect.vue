@@ -9,12 +9,6 @@ const props = defineProps({
     modal_filter: { type: String, default: null },
     attDel: { type: Object, default: { id: null } },
     method: { type: String, default: null },
-    isVisible: { type: Boolean, default: true } // Adiciona uma prop para controlar a visibilidade
-});
-
-// Observa a prop isVisible para limpar a seleção quando o componente ficar invisível
-watch(() => props.isVisible, () => {
-    clearSelectedAttendance(); // Limpa os itens selecionados sempre que `isVisible` muda
 });
 
 const emit = defineEmits(['attend']);
