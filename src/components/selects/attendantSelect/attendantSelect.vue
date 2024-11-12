@@ -8,7 +8,15 @@ const props = defineProps({
     department: { type: Array, default: [] },
     modal_filter: { type: String, default: null },
     attDel: { type: Object, default: { id: null } },
-    method: { type: String, default: null }
+    method: { type: String, default: null },
+    isVisible: { type: Boolean, default: true } // Adiciona uma prop para controlar a visibilidade
+});
+
+// Observa a prop isVisible para limpar a seleção quando o componente ficar invisível
+watch(() => props.isVisible, (newVal) => {
+    if (!newVal) {
+        clearSelectedAttendance(); // Limpa os itens selecionados quando o componente deixa de estar visível
+    }
 });
 
 const emit = defineEmits(['attend']);
@@ -70,7 +78,10 @@ function clearSelectedAttendance() {
 }
 
 function updateSelectedAttendance() {
-    if (props.attendance && props.attendance.length > 0) {
+    if (props.method === 'remove' && props.attendance) {
+
+    } else if (props.attendance && props.attendance.length > 0) {
+        // Adiciona normalmente os atendentes de props.attendance, caso o método não seja "remove"
         props.attendance.forEach(att => {
             const storedAttendant = attendantStore.attendants.find(a => a.id === att.id);
             if (storedAttendant && !attendanceSelected.value.some(a => a.id === att.id)) {
@@ -79,7 +90,7 @@ function updateSelectedAttendance() {
             }
         });
     }
-    emit('attend', attendanceSelected.value);
+    emit('attend', attendanceSelected.value); // Emite a seleção atualizada
 }
 
 function selectAttendant(attendant) {
@@ -172,8 +183,6 @@ function eraseAttendant(attendant, index) {
         </div>
     </div>
 </template>
-
-
 <style scoped>
 /* Adiciona as classes de estilo conforme especificado no terceiro componente */
 .shadow {
@@ -212,6 +221,7 @@ function eraseAttendant(attendant, index) {
     background: transparent;
     color: currentColor;
 }
+
 .select-depart-input:focus {
     border: none;
     outline: none;

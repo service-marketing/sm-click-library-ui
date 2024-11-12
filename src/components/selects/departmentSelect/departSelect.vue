@@ -6,7 +6,15 @@ const props = defineProps({
     department: { type: Array, default: null },
     modal_filter: { type: String, default: null },
     multiSelect: { type: Boolean, default: true },
-    permissions: { type: Boolean, default: false }
+    permissions: { type: Boolean, default: false },
+    isVisible: { type: Boolean, default: true } 
+});
+
+// Observa a prop isVisible para limpar a seleção quando o componente ficar invisível
+watch(() => props.isVisible, (newVal) => {
+    if (!newVal) {
+        clearSelectedAttendance(); // Limpa os itens selecionados quando o componente deixa de estar visível
+    }
 });
 
 const emit = defineEmits(['depart']);
