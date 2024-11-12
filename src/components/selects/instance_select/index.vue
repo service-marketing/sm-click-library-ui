@@ -43,7 +43,7 @@ watch(selectedInstance, (newValue) => {
 });
 
 onMounted(async () => {
-    clearSelectedInstance();
+    // clearSelectedInstance();
     if (selectedInstance.value) {
         const selected = instances.value.find(inst => inst.id === selectedInstance.value.id);
         if (selected) {
