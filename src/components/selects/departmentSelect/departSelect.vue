@@ -81,7 +81,6 @@ function updateSelectedDepartments() {
     emit('depart', departmentSelected.value);
 }
 
-// Seleção de departamentos
 function selectDepartment(department) {
     const index = departmentSelected.value.findIndex(dep => dep.id === department.id);
 
@@ -90,21 +89,20 @@ function selectDepartment(department) {
         department.selected = false;
         departmentSelected.value.splice(index, 1);
     } else {
-        // Caso multiSelect esteja desativado ou haja departamentos pré-selecionados nas props
-        if (!props.multiSelect || (props.department && props.department.length > 0)) {
-            // Desmarcar todos os departamentos previamente selecionados
-            departmentSelected.value.forEach(dep => {
-                dep.selected = false;
-            });
-            departmentSelected.value = []; // Limpar os selecionados
+        // Se multiSelect está desativado, desmarque todos os departamentos na store
+        if (!props.multiSelect) {
+            // Desmarca todos os departamentos na store, removendo qualquer seleção anterior
+            clearSelectedDepartments()
         }
-        
-        // Adicionar o novo departamento como selecionado
+
+        // Marca e adiciona o novo departamento como selecionado
         department.selected = true;
         departmentSelected.value.push(department);
     }
+
     emit('depart', departmentSelected.value);
 }
+
 
 
 // Remoção de departamentos selecionados
@@ -194,8 +192,12 @@ function eraseDepartment(department, index) {
 
 .search-container {
     width: 100%;
-    border-bottom-right-radius: 0.375rem /* 6px */;
-    border-bottom-left-radius: 0.375rem /* 6px */;
+    border-bottom-right-radius: 0.375rem
+        /* 6px */
+    ;
+    border-bottom-left-radius: 0.375rem
+        /* 6px */
+    ;
 }
 
 .input-wrapper {
