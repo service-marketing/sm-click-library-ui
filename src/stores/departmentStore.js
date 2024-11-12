@@ -13,15 +13,10 @@ export const useDepartmentStore = defineStore('department', {
       try {
         this.departments = []; // Resetar a lista de departamentos
         let nextPageUrl = `${departmentUrl}`;
-        
-        // Loop para buscar todas as páginas, caso a API ainda retorne paginado
-        while (nextPageUrl) {
-          const response = await api.get(nextPageUrl);
-          const { results, next } = response.data;
-          this.departments.push(...results);
-          nextPageUrl = next;
-        }
 
+        // Loop para buscar todas as páginas, caso a API ainda retorne paginado
+        const response = await api.get(nextPageUrl);
+        this.departments = response.data
         this.count = this.departments.length;
       } catch (error) {
         console.log("Erro ao buscar departamentos:", error);
