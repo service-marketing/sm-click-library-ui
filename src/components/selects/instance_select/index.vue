@@ -57,7 +57,7 @@ function clearSelectedInstance() {
   instanceStore.instances.forEach((instance) => {
     instance.selected = false;
   });
-  selectedInstance.value = []; // Limpa o array de selecionados
+  selectedInstance.value = null; // Limpa o array de selecionados
 }
 </script>
 <template>
