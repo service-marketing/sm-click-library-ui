@@ -13,10 +13,8 @@ const props = defineProps({
 });
 
 // Observa a prop isVisible para limpar a seleção quando o componente ficar invisível
-watch(() => props.isVisible, (newVal) => {
-    if (!newVal) {
-        clearSelectedAttendance(); // Limpa os itens selecionados quando o componente deixa de estar visível
-    }
+watch(() => props.isVisible, () => {
+    clearSelectedAttendance(); // Limpa os itens selecionados sempre que `isVisible` muda
 });
 
 const emit = defineEmits(['attend']);
