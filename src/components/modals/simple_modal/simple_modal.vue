@@ -20,7 +20,7 @@ const toggleModal = () => {
 };
 </script>
 <template>
-  <div class="modal_head">
+  <div v-if="isOpen" class="modal_head">
     <div class="modal-overlay absolute h-full w-full bg-gray-600 opacity-50" />
     <div class="modal_responsive">
       <div
@@ -29,7 +29,7 @@ const toggleModal = () => {
         <div class="modal_size lg:w-1/4">
           <!-- Modal content -->
           <div class="modal_tittle text-current">
-            <h3 class="text-xl font-semibold flex gap-1">
+            <h3 class="text-xl font-semibold flex">
               <div v-html="header?.svg"></div>
 
               <div>
@@ -37,7 +37,7 @@ const toggleModal = () => {
               </div>
             </h3>
 
-            <button @click="" class="modal_close_button">
+            <button @click="toggleModal()" class="modal_close_button">
               <svg
                 class="h-5 w-5"
                 fill="currentColor"

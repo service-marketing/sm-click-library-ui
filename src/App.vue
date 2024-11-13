@@ -11,11 +11,15 @@ import MfaQrCode from "./components/mfa/mfaQrCode.vue";
 import chatWindow from "./components/intern-chat/chatWindow.vue";
 import departSelect from "./components/selects/departmentSelect/departSelect.vue";
 import attendantSelect from "./components/selects/attendantSelect/attendantSelect.vue";
+
+const showModal = ref(false);
 </script>
 
 <template>
   <main class="h-screen bg-gray-200 text-white flex">
-    <simpleModal :isOpen="true">
+    <button @click="showModal = true" class="bg-red-200">Abrir modal</button>
+
+    <simpleModal :isOpen="showModal" @update:isOpen="showModal = $event">
       <template v-slot:body>
         <div class="flex justify-between w-full">
           <div>IHUUUUUUUUUUUUUUUUUUUUUUUUUUUU</div>
