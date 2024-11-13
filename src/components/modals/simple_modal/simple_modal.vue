@@ -30,7 +30,7 @@ const toggleModal = () => {
         <div class="modal_size lg:w-1/4">
           <!-- Modal content -->
           <div class="modal_tittle text-current">
-            <h3 class="text-xl font-semibold flex">
+            <h3 class="text-xl font-semibold flex items-center gap-2">
               <div v-html="header?.svg"></div>
 
               <div>
