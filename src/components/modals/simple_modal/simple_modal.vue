@@ -60,7 +60,7 @@ const toggleModal = () => {
             </div>
             <!-- Modal footer -->
           </div>
-          <div style="justify-content: space-between" class="modal_end_button">
+          <div class="modal_end_button">
             <slot name="footer" />
           </div>
         </div>
@@ -101,7 +101,7 @@ const toggleModal = () => {
 }
 
 .modal_end_button {
-  @apply flex justify-end p-2 space-x-2 rounded-b-2xl border-base-100 bg-base-300;
+  @apply flex p-2 space-x-2 rounded-b-2xl border-base-100 bg-base-300;
 }
 
 .modal_close_button {

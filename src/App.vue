@@ -26,7 +26,7 @@ const showModal = ref(false);
         </div>
       </template>
       <template v-slot:footer>
-        <div class="flex justify-between w-full">
+        <div class="flex">
           <div>Bobão</div>
           <div>Bobão</div>
         </div>
