@@ -19,7 +19,7 @@ function install(Vue) {
   Vue.component("primarySelect", primarySelect);
   Vue.component("departSelect", departSelect);
   Vue.component("attendantSelect", attendantSelect);
-  Vue.component("simpleModal", simpleModal);
+  Vue.component("simpleModal", SimpleModal);
   Vue.component("simpleCard", simpleCard);
   Vue.component("instanceSelect", instanceSelect);
   Vue.component("calendar", calendar);
