@@ -34,13 +34,19 @@ const toggleModal = () => {
         <div class="z-50 w-full shadow rounded-2xl shadow-black" :class="size">
           <!-- Modal content -->
           <div class="modal_tittle text-current">
-            <h3 class="text-xl font-semibold flex items-center gap-2">
+            <section class="flex items-center gap-3">
               <div v-html="header?.svg"></div>
 
               <div>
-                {{ header?.title }}
+                <h3 class="text-xl font-semibold flex items-center gap-2">
+                  <p>{{ header?.title }}</p>
+                </h3>
+
+                <div>
+                  <slot name="header" />
+                </div>
               </div>
-            </h3>
+            </section>
 
             <button @click="toggleModal()" class="modal_close_button">
               <svg

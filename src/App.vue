@@ -30,6 +30,11 @@ const test = ref({
       :isOpen="showModal"
       @update:isOpen="showModal = $event"
     >
+      <template v-slot:header>
+        <div class="flex justify-between w-full">
+          <div>app aqui</div>
+        </div>
+      </template>
       <template v-slot:body>
         <div class="flex justify-between w-full">
           <div>Body</div>
