@@ -59,7 +59,7 @@ const toggleModal = () => {
           </div>
           <div class="bg-base-200">
             <!-- Modal body -->
-            <div class="p-4 text-center">
+            <div class="text-center">
               <slot name="body" />
             </div>
             <!-- Modal footer -->
