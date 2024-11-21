@@ -21,13 +21,20 @@ const test = ref({
 
 <template>
   <main class="h-screen bg-gray-200 text-white flex">
+    <instanceSelect />
     <button @click="showModal = true" class="bg-red-200">Abrir modal</button>
 
     <simpleModal
+      size="md:w-1/2 xl:w-3/6"
       :header="test"
       :isOpen="showModal"
       @update:isOpen="showModal = $event"
     >
+      <template v-slot:header>
+        <div class="flex justify-between w-full">
+          <div>app aqui</div>
+        </div>
+      </template>
       <template v-slot:body>
         <div class="flex justify-between w-full">
           <div>Body</div>
