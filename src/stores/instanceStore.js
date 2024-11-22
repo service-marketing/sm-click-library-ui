@@ -18,9 +18,8 @@ export const useInstanceStore = defineStore("instance", {
         this.instances.forEach(async (key) => {
           key.isLoading = true;
           try {
-            const statusPromises = await api.get(stateInstance(key.id));
-            const statusResult =
-            statusPromises.data.instance.last_instance_status;
+            // const statusPromises = await api.get(stateInstance(key.id));
+            const statusResult = key.last_instance_status;
 
             if (
               statusResult === "DISCONNECTED" ||

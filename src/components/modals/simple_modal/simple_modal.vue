@@ -31,7 +31,7 @@ const toggleModal = () => {
       <div
         class="flex min-h-full items-center justify-center text-center sm:p-0"
       >
-        <div class="z-50 w-full shadow rounded-2xl shadow-black" :class="size">
+        <div class="z-50 w-full shadow rounded-2xl shadow-black " :class="size">
           <!-- Modal content -->
           <div class="modal_tittle text-current">
             <section class="flex items-center gap-3">
