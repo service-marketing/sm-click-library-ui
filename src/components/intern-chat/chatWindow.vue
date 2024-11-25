@@ -82,6 +82,7 @@
               :hasNextPageForAtendente="hasNextPageForAtendente"
             />
           </div>
+    
           <ChatList
             v-if="!selectedAtendente && !loadingAttendants"
             :attendant="attendant"
@@ -139,7 +140,6 @@ const props = defineProps({
 const {
   attendants,
   loadingMessages,
-  fetchAtendentes,
   fetchMessagesForAtendente,
   addMessageToAtendente,
   hasNextPageForAtendente,
@@ -163,10 +163,6 @@ const unreadMessagesCount = computed(() => {
     return atendente ? atendente.internal_chat.unread : 0;
   }
   return 0;
-});
-
-onMounted(async () => {
-  await fetchAtendentes(); // Carrega os atendentes
 });
 
 const handleClickOutside = (event) => {

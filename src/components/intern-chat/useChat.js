@@ -1,162 +1,98 @@
-import { ref, computed } from "vue";
-import api from "~/utils/api";
+import { computed } from "vue";
+import { useAttendantStore } from "~/stores/attendantStore";
 import { v4 as uuidv4 } from "uuid";
-import { internalChatUrl, allAttendances } from "~/utils/systemUrls";
-export function useChat() {
-  const attendants = ref([]); // Lista de atendentes com suas mensagens e canais
-  const loadingMessages = ref(false);
-  const loadingAttendants = ref(false);
+import api from "~/utils/api";
+import { internalChatUrl } from "~/utils/systemUrls";
 
-  const fetchAtendentes = async () => {
-    try {
-      loadingAttendants.value = true;
-      const response = await api.get(allAttendances);
-      // Inicializa atendentes com mensagens vazias e paginação
-      attendants.value = response.data.map((att) => ({
-        ...att,
-        messages: null,
-        currentPage: 1,
-        hasNextPage: null,
-      }));
-    } catch (error) {
-      console.error(error);
-    } finally {
-      loadingAttendants.value = false;
-    }
-  };
+export function useChat() {
+  const attendantStore = useAttendantStore();
 
   const fetchMessagesForAtendente = async (atendenteId) => {
+    const attendant = attendantStore.attendants.find((att) => att.id === atendenteId);
+    if (!attendant) return;
+
     try {
-      loadingMessages.value = true;
-      const response = await api.get(
-        `${internalChatUrl}?attendant=${atendenteId}&page=1`,
-      );
-      const atendente = attendants.value.find((att) => att.id === atendenteId);
-      if (atendente) {
-        atendente.messages = response.data.results.reverse(); // Vincula as mensagens
-        atendente.hasNextPage = response.data.next !== null;
-        atendente.internal_chat.channel_id = response.data.channel_id;
-        atendente.currentPage++;
-      }
+      const response = await api.get(`${internalChatUrl}?attendant=${atendenteId}&page=1`);
+      attendant.messages = response.data.results.reverse(); // Adiciona mensagens ao atendente
+      attendant.hasNextPage = response.data.next !== null;
+      attendant.currentPage = 2; // Próxima página para carregamento incremental
+      attendant.internal_chat = {
+        channel_id: response.data.channel_id,
+        unread: 0,
+      };
     } catch (error) {
-      console.error(error);
-    } finally {
-      loadingMessages.value = false;
+      console.error("Erro ao buscar mensagens:", error);
     }
   };
 
   const loadMessagesForAtendente = async (atendenteId) => {
+    const attendant = attendantStore.attendants.find((att) => att.id === atendenteId);
+    if (!attendant || !attendant.hasNextPage) return;
+
     try {
-      const atendente = attendants.value.find((att) => att.id === atendenteId);
-      if (!atendente || !atendente.hasNextPage) return;
-
       const response = await api.get(
-        `${internalChatUrl}?attendant=${atendenteId}&page=${atendente.currentPage}`,
+        `${internalChatUrl}?attendant=${atendenteId}&page=${attendant.currentPage}`
       );
-
-      // Atualiza mensagens e canal
-      atendente.messages = [
-        ...response.data.results.reverse(),
-        ...atendente.messages,
-      ];
-      atendente.hasNextPage = response.data.next !== null;
-      atendente.internal_chat.channel_id = response.data.channel_id;
-      atendente.currentPage++;
+      attendant.messages = [...response.data.results.reverse(), ...attendant.messages];
+      attendant.hasNextPage = response.data.next !== null;
+      attendant.currentPage++;
     } catch (error) {
-      console.error(error);
+      console.error("Erro ao carregar mais mensagens:", error);
     }
   };
 
   const addMessageToAtendente = (event, isChatOpen, selectedAtendenteId) => {
-    try {
-      // Verifica se o evento e a mensagem existem
-      if (!event || !event.message) {
-        console.error("Evento ou mensagem inválida");
-        return;
-      }
+    const message = event?.message;
+    if (!message) return;
 
-      const message = event.message;
+    const attendant = attendantStore.attendants.find(
+      (att) => att.internal_chat?.channel_id === message.channel_id
+    );
 
-      // Verifica se o array de atendentes existe
-      if (!attendants.value || attendants.value.length === 0) {
-        console.error("Nenhum atendente encontrado");
-        return;
-      }
+    if (attendant) {
+      attendant.messages = attendant.messages || [];
+      const existingMessage = attendant.messages.find((msg) => msg.id === message.id);
 
-      const atendenteIndex = attendants.value.findIndex(
-        (att) => att.internal_chat.channel_id === message.channel_id,
-      );
+      if (!existingMessage) {
+        attendant.messages.push(message);
 
-      if (atendenteIndex !== -1) {
-        const atendente = attendants.value[atendenteIndex];
-
-        // Inicializa o array de mensagens se for null ou undefined
-        atendente.messages = atendente.messages || [];
-
-        const existingMessageIndex = atendente.messages.findIndex(
-          (msg) => msg.id === message.id,
-        );
-
-        if (existingMessageIndex !== -1) {
-          // Substitui a mensagem existente
-          atendente.messages[existingMessageIndex] = message;
-        } else {
-          // Adiciona nova mensagem
-          atendente.messages.push(message);
-
-          // Incrementa contagem de não lidas se o chat não está aberto ou o atendente não está selecionado
-          if (!isChatOpen || atendente.id !== selectedAtendenteId) {
-            atendente.internal_chat.unread =
-              (atendente.internal_chat.unread || 0) + 1;
-          }
-
-          // Move o atendente para o topo da lista
-          attendants.value.splice(atendenteIndex, 1);
-          attendants.value.unshift(atendente);
-
-          // Adiciona a classe 'moved' para animar
-          atendente.isMoved = true;
-          setTimeout(() => (atendente.isMoved = false), 1000); // Remove a classe após 1 segundo
+        if (!isChatOpen || attendant.id !== selectedAtendenteId) {
+          attendant.internal_chat.unread = (attendant.internal_chat.unread || 0) + 1;
         }
-      } else {
-        console.error(
-          "Nenhum atendente encontrado para o channel_id fornecido.",
-        );
       }
-    } catch (error) {
-      console.error("Erro ao adicionar mensagem ao atendente:", error);
+    } else {
+      console.error("Atendente não encontrado para o canal especificado.");
     }
   };
 
   const resetUnreadMessages = (atendenteId) => {
-    const atendente = attendants.value.find((att) => att.id === atendenteId);
-    if (atendente) {
-      atendente.internal_chat.unread = 0;
+    const attendant = attendantStore.attendants.find((att) => att.id === atendenteId);
+    if (attendant) {
+      attendant.internal_chat.unread = 0;
     }
   };
 
-  const sendMessageToAtendente = async (atendenteId, messageContent, att) => {
-    const atendente = attendants.value.find((att) => att.id === atendenteId);
+  const sendMessageToAtendente = async (atendenteId, messageContent, sender) => {
+    const attendant = attendantStore.attendants.find((att) => att.id === atendenteId);
+    if (!attendant || !attendant.internal_chat?.channel_id) return;
 
-    if (!atendente || !atendente.internal_chat.channel_id) return;
     const newMessage = {
-      id: uuidv4(), // ID temporário até ser salvo no servidor
+      id: uuidv4(),
       content: { type: "text", content: messageContent },
       created_at: new Date().toISOString(),
-      sender: att, // Ajuste de acordo com o backend
+      sender,
     };
 
-    // Adiciona a nova mensagem localmente
-    atendente.messages.push(newMessage);
+    // Adiciona mensagem localmente
+    attendant.messages.push(newMessage);
 
     try {
-      // Envia a mensagem para o backend
       await api.post(
-        `${internalChatUrl}${atendente.internal_chat.channel_id}/message/`,
+        `${internalChatUrl}${attendant.internal_chat.channel_id}/message/`,
         {
           id: newMessage.id,
           content: newMessage.content,
-        },
+        }
       );
     } catch (error) {
       console.error("Erro ao enviar mensagem:", error);
@@ -164,15 +100,13 @@ export function useChat() {
   };
 
   const hasNextPageForAtendente = (atendenteId) => {
-    const atendente = attendants.value.find((att) => att.id === atendenteId);
-    return atendente ? atendente.hasNextPage : false;
+    const attendant = attendantStore.attendants.find((att) => att.id === atendenteId);
+    return attendant ? attendant.hasNextPage : false;
   };
 
   return {
-    attendants: computed(() => attendants.value),
-    loadingMessages: computed(() => loadingMessages.value),
-    loadingAttendants: computed(() => loadingAttendants.value),
-    fetchAtendentes,
+    attendants: computed(() => attendantStore.attendants),
+    count: computed(() => attendantStore.count),
     fetchMessagesForAtendente,
     loadMessagesForAtendente,
     addMessageToAtendente,

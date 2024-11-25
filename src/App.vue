@@ -8,10 +8,9 @@ import instanceSelect from "~/components/selects/instance_select/index.vue";
 import calendar from "./components/calendar/calendar.vue";
 import MFA from "./components/mfa/mfa.vue";
 import MfaQrCode from "./components/mfa/mfaQrCode.vue";
-import chatWindow from "./components/intern-chat/chatWindow.vue";
 import departSelect from "./components/selects/departmentSelect/departSelect.vue";
 import attendantSelect from "./components/selects/attendantSelect/attendantSelect.vue";
-
+import chatWindow from "./components/intern-chat/chatWindow.vue";
 const showModal = ref(false);
 const test = ref({
   title: "testModal",
@@ -20,8 +19,10 @@ const test = ref({
 </script>
 
 <template>
-  <main class="h-screen bg-gray-200 text-white flex">
+  <main class="h-screen flex-col bg-gray-200 text-white flex">
+    
     <instanceSelect />
+
     <button @click="showModal = true" class="bg-red-200">Abrir modal</button>
 
     <simpleModal
@@ -47,6 +48,8 @@ const test = ref({
         </div>
       </template>
     </simpleModal>
+    <div class="mt-[500px]">    <chatWindow/></div>
+
   </main>
 </template>
 
