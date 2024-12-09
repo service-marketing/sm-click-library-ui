@@ -61,32 +61,39 @@ async function fetchDepartments() {
 
 // Função para limpar a seleção de todos os departamentos
 function clearSelectedDepartments() {
-  departmentStore.departments.forEach((department) => {
+  const departments = props.externalDepartments || departmentStore.departments;
+
+  departments.forEach((department) => {
     department.selected = false;
   });
-  departmentSelected.value = []; // Limpa o array de selecionados
-}
 
+  departmentSelected.value = [];
+}
 // Atualiza departamentos selecionados
 function updateSelectedDepartments() {
+  const departments = props.externalDepartments || departmentStore.departments;
+
   if (props.department && props.department.length > 0) {
     props.department.forEach((dep) => {
-      const departmentInStore = departmentStore.departments.find(
-        (d) => d.id === dep.id,
-      );
+      const departmentInStore = departments.find((d) => d.id === dep.id);
+
       if (departmentInStore) {
         departmentInStore.selected = true;
+
         const exists = departmentSelected.value.some(
-          (selected) => selected.id === dep.id,
+          (selected) => selected.id === dep.id
         );
+
         if (!exists) {
           departmentSelected.value.push({ ...departmentInStore });
         }
       }
     });
   }
+
   emit("depart", departmentSelected.value);
 }
+
 
 function selectDepartment(department) {
   const index = departmentSelected.value.findIndex(
