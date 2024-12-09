@@ -106,7 +106,7 @@ watch(
   () => props.modal,
   (newVal) => {
     showModal.value = newVal;
-  }
+  },
 );
 
 watch(showModal, (newVal) => {

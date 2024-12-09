@@ -82,7 +82,7 @@
               :hasNextPageForAtendente="hasNextPageForAtendente"
             />
           </div>
-    
+
           <ChatList
             v-if="!selectedAtendente && !loadingAttendants"
             :attendant="attendant"

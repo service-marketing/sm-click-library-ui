@@ -20,7 +20,6 @@ const test = ref({
 
 <template>
   <main class="h-screen flex-col bg-gray-200 text-white flex">
-    
     <instanceSelect />
 
     <button @click="showModal = true" class="bg-red-200">Abrir modal</button>
@@ -48,8 +47,7 @@ const test = ref({
         </div>
       </template>
     </simpleModal>
-    <div class="mt-[500px]">    <chatWindow/></div>
-
+    <div class="mt-[500px]"><chatWindow /></div>
   </main>
 </template>
 

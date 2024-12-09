@@ -8,11 +8,15 @@ export function useChat() {
   const attendantStore = useAttendantStore();
 
   const fetchMessagesForAtendente = async (atendenteId) => {
-    const attendant = attendantStore.attendants.find((att) => att.id === atendenteId);
+    const attendant = attendantStore.attendants.find(
+      (att) => att.id === atendenteId,
+    );
     if (!attendant) return;
 
     try {
-      const response = await api.get(`${internalChatUrl}?attendant=${atendenteId}&page=1`);
+      const response = await api.get(
+        `${internalChatUrl}?attendant=${atendenteId}&page=1`,
+      );
       attendant.messages = response.data.results.reverse(); // Adiciona mensagens ao atendente
       attendant.hasNextPage = response.data.next !== null;
       attendant.currentPage = 2; // Próxima página para carregamento incremental
@@ -26,14 +30,19 @@ export function useChat() {
   };
 
   const loadMessagesForAtendente = async (atendenteId) => {
-    const attendant = attendantStore.attendants.find((att) => att.id === atendenteId);
+    const attendant = attendantStore.attendants.find(
+      (att) => att.id === atendenteId,
+    );
     if (!attendant || !attendant.hasNextPage) return;
 
     try {
       const response = await api.get(
-        `${internalChatUrl}?attendant=${atendenteId}&page=${attendant.currentPage}`
+        `${internalChatUrl}?attendant=${atendenteId}&page=${attendant.currentPage}`,
       );
-      attendant.messages = [...response.data.results.reverse(), ...attendant.messages];
+      attendant.messages = [
+        ...response.data.results.reverse(),
+        ...attendant.messages,
+      ];
       attendant.hasNextPage = response.data.next !== null;
       attendant.currentPage++;
     } catch (error) {
@@ -46,18 +55,21 @@ export function useChat() {
     if (!message) return;
 
     const attendant = attendantStore.attendants.find(
-      (att) => att.internal_chat?.channel_id === message.channel_id
+      (att) => att.internal_chat?.channel_id === message.channel_id,
     );
 
     if (attendant) {
       attendant.messages = attendant.messages || [];
-      const existingMessage = attendant.messages.find((msg) => msg.id === message.id);
+      const existingMessage = attendant.messages.find(
+        (msg) => msg.id === message.id,
+      );
 
       if (!existingMessage) {
         attendant.messages.push(message);
 
         if (!isChatOpen || attendant.id !== selectedAtendenteId) {
-          attendant.internal_chat.unread = (attendant.internal_chat.unread || 0) + 1;
+          attendant.internal_chat.unread =
+            (attendant.internal_chat.unread || 0) + 1;
         }
       }
     } else {
@@ -66,14 +78,22 @@ export function useChat() {
   };
 
   const resetUnreadMessages = (atendenteId) => {
-    const attendant = attendantStore.attendants.find((att) => att.id === atendenteId);
+    const attendant = attendantStore.attendants.find(
+      (att) => att.id === atendenteId,
+    );
     if (attendant) {
       attendant.internal_chat.unread = 0;
     }
   };
 
-  const sendMessageToAtendente = async (atendenteId, messageContent, sender) => {
-    const attendant = attendantStore.attendants.find((att) => att.id === atendenteId);
+  const sendMessageToAtendente = async (
+    atendenteId,
+    messageContent,
+    sender,
+  ) => {
+    const attendant = attendantStore.attendants.find(
+      (att) => att.id === atendenteId,
+    );
     if (!attendant || !attendant.internal_chat?.channel_id) return;
 
     const newMessage = {
@@ -92,7 +112,7 @@ export function useChat() {
         {
           id: newMessage.id,
           content: newMessage.content,
-        }
+        },
       );
     } catch (error) {
       console.error("Erro ao enviar mensagem:", error);
@@ -100,7 +120,9 @@ export function useChat() {
   };
 
   const hasNextPageForAtendente = (atendenteId) => {
-    const attendant = attendantStore.attendants.find((att) => att.id === atendenteId);
+    const attendant = attendantStore.attendants.find(
+      (att) => att.id === atendenteId,
+    );
     return attendant ? attendant.hasNextPage : false;
   };
 

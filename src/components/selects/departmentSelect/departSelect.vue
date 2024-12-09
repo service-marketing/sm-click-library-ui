@@ -7,6 +7,7 @@ const props = defineProps({
   modal_filter: { type: String, default: null },
   multiSelect: { type: Boolean, default: true },
   permissions: { type: Boolean, default: false },
+  externalDepartments: { type: Array, default: null }, // Nova prop
 });
 
 const emit = defineEmits(["depart"]);
@@ -20,8 +21,11 @@ const get_loading = ref(false);
 
 // Computed property para filtrar departamentos pelo termo de busca
 const filteredDepartments = computed(() => {
-  if (!searchInput.value) return departmentStore.departments;
-  return departmentStore.departments.filter((department) =>
+  const departments = props.externalDepartments || departmentStore.departments;
+
+  if (!searchInput.value) return departments;
+
+  return departments.filter((department) =>
     department.name.toLowerCase().includes(searchInput.value.toLowerCase()),
   );
 });
