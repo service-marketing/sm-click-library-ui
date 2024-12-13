@@ -1,5 +1,8 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+import typography from "@tailwindcss/typography";
+import scrollbar from "tailwind-scrollbar";
+
+export default {
   content: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
   darkMode: ["class", '[data-mode="dark"]'],
   theme: {
@@ -89,8 +92,7 @@ module.exports = {
     },
   },
   plugins: [
-    // require("@tailwindcss/line-clamp"),
-    require("@tailwindcss/typography"),
-    require("tailwind-scrollbar"),
+    typography,
+    scrollbar,
   ],
 };
