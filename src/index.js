@@ -29,34 +29,35 @@ function install(Vue) {
 }
 
 export function setupLibrary(piniaInstance, jwtToken, rootUrl, attendances) {
-  // console.log("setupLibrary chamada com:", piniaInstance, jwtToken, rootUrl);
   try {
     const authStore = useAuthStore(piniaInstance);
     authStore.setToken(jwtToken);
 
     if (rootUrl) {
       api.defaults.baseURL = rootUrl;
-      // console.log("URL base configurada para:", rootUrl);
     }
-
-    // const debugStore = useDebugStore(piniaInstance);
-    // debugStore.logMessage();
 
     const departStore = useDepartmentStore(piniaInstance);
     departStore.fetchDepartments();
 
     const attendantStore = useAttendantStore(piniaInstance);
-    attendantStore.attendants = attendances;
-    attendantStore.count = attendances.lenght;
-    // attendantStore.fetchAttendants();
+
+    // Verifica se 'attendances' foi passado e se não está vazio
+    if (attendances) {
+      attendantStore.attendants = attendances;
+      attendantStore.count = attendances.length;
+    } else {
+      // Caso contrário, busca os atendentes via fetchAttendants
+      attendantStore.fetchAttendants();
+    }
+
     const instanceStore = useInstanceStore(piniaInstance);
     instanceStore.fetchInstances();
-
-    // console.log("setupLibrary finalizado com sucesso");
   } catch (err) {
     console.error("Erro no setupLibrary:", err);
   }
 }
+
 
 export default {
   install,
