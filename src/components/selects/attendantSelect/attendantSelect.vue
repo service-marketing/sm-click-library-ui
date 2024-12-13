@@ -70,6 +70,14 @@ watch(
   { immediate: true },
 );
 
+watch(
+  () => props.department,
+  () => {
+    clearSelectedAttendance(); // Limpa os atendentes selecionados ao alterar department
+  },
+  { deep: true }, // Necessário para observar alterações profundas no array
+);
+
 function clearSelectedAttendance() {
   filteredAttendants.value.forEach((attendant) => {
     attendant.selected = false;
