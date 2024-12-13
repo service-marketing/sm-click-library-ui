@@ -28,7 +28,7 @@ function install(Vue) {
   Vue.component("chatWindow", chatWindow);
 }
 
-export function setupLibrary(piniaInstance, jwtToken, rootUrl) {
+export function setupLibrary(piniaInstance, jwtToken, rootUrl, attendances) {
   // console.log("setupLibrary chamada com:", piniaInstance, jwtToken, rootUrl);
   try {
     const authStore = useAuthStore(piniaInstance);
@@ -46,8 +46,9 @@ export function setupLibrary(piniaInstance, jwtToken, rootUrl) {
     departStore.fetchDepartments();
 
     const attendantStore = useAttendantStore(piniaInstance);
-    attendantStore.fetchAttendants();
-
+    attendantStore.attendants = attendances;
+    attendantStore.count = attendances.lenght;
+    // attendantStore.fetchAttendants();
     const instanceStore = useInstanceStore(piniaInstance);
     instanceStore.fetchInstances();
 
