@@ -34,8 +34,9 @@ const filteredDepartments = computed(() => {
 onMounted(() => {
   clearSelectedDepartments();
   fetchDepartments();
-
+  console.log(attDel);
   if (props.attDel) {
+    console.log(attDel);
     deleteDepartmentById(props.attDel);
   }
 });
@@ -59,6 +60,7 @@ watch(
   () => props.attDel,
   (newId) => {
     if (newId) {
+      console.log("new ID", newId);
       deleteDepartmentById(newId);
     }
   }
@@ -69,6 +71,7 @@ function deleteDepartmentById(departmentId) {
 
   // Encontra o departamento pelo ID
   const departmentToDelete = departments.find((dep) => dep.id === departmentId);
+  console.log("delete", departmentToDelete);
 
   if (departmentToDelete) {
     // Remove o departamento da lista selecionada
