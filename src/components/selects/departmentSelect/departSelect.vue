@@ -8,6 +8,7 @@ const props = defineProps({
   multiSelect: { type: Boolean, default: true },
   permissions: { type: Boolean, default: false },
   externalDepartments: { type: Array, default: null }, // Nova prop
+  attDel: { type: String, default: null }, // ID do departamento a ser deletado
 });
 
 const emit = defineEmits(["depart"]);
@@ -26,13 +27,17 @@ const filteredDepartments = computed(() => {
   if (!searchInput.value) return departments;
 
   return departments.filter((department) =>
-    department.name.toLowerCase().includes(searchInput.value.toLowerCase()),
+    department.name.toLowerCase().includes(searchInput.value.toLowerCase())
   );
 });
 
 onMounted(() => {
   clearSelectedDepartments();
   fetchDepartments();
+
+  if (props.attDel) {
+    deleteDepartmentById(props.attDel);
+  }
 });
 
 // Watch para modal_filter e multiSelect
@@ -46,8 +51,38 @@ watch(
       departmentSelected.value = [];
     }
   },
-  { immediate: true },
+  { immediate: true }
 );
+
+// Watch para monitorar mudanças no ID do departamento a ser deletado
+watch(
+  () => props.attDel,
+  (newId) => {
+    if (newId) {
+      deleteDepartmentById(newId);
+    }
+  }
+);
+
+function deleteDepartmentById(departmentId) {
+  const departments = props.externalDepartments || departmentStore.departments;
+
+  // Encontra o departamento pelo ID
+  const departmentToDelete = departments.find((dep) => dep.id === departmentId);
+
+  if (departmentToDelete) {
+    // Remove o departamento da lista selecionada
+    departmentSelected.value = departmentSelected.value.filter(
+      (dep) => dep.id !== departmentId
+    );
+
+    // Marca o departamento como não selecionado
+    departmentToDelete.selected = false;
+
+    // Emite a lista atualizada
+    emit("depart", departmentSelected.value);
+  }
+}
 
 // Função para buscar departamentos
 async function fetchDepartments() {
@@ -94,10 +129,9 @@ function updateSelectedDepartments() {
   emit("depart", departmentSelected.value);
 }
 
-
 function selectDepartment(department) {
   const index = departmentSelected.value.findIndex(
-    (dep) => dep.id === department.id,
+    (dep) => dep.id === department.id
   );
 
   if (index !== -1) {
