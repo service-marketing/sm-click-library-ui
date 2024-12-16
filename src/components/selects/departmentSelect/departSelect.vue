@@ -7,59 +7,75 @@ const props = defineProps({
   modal_filter: { type: String, default: null },
   multiSelect: { type: Boolean, default: true },
   permissions: { type: Boolean, default: false },
+  externalDepartments: { type: Array, default: null }, // Nova prop
   attDel: { type: Object, default: { id: null } },
-  externalDepartments: { type: Array, default: null },
-  method: { type: String, default: null }, // Adicionado
 });
 
 const emit = defineEmits(["depart"]);
 const departmentStore = useDepartmentStore();
 
 const searchInput = ref(""); // Campo para o input de pesquisa
+
 const departmentSelected = ref([]);
 const open_select = ref(false);
 const get_loading = ref(false);
+
 // Computed property para filtrar departamentos pelo termo de busca
 const filteredDepartments = computed(() => {
   const departments = props.externalDepartments || departmentStore.departments;
 
-  let filtered = searchInput.value
-    ? departments.filter((department) =>
-        department.name.toLowerCase().includes(searchInput.value.toLowerCase())
-      )
-    : departments;
+  if (!searchInput.value) return departments;
 
-  return filterByMethod(filtered);
+  return departments.filter((department) =>
+    department.name.toLowerCase().includes(searchInput.value.toLowerCase())
+  );
 });
-
-// Função para filtrar os departamentos de acordo com o método
-function filterByMethod(departments) {
-  if (props.method === "remove") {
-    // Remove o departamento especificado na prop attDel
-    return props.department
-      ? props.department.filter((dep) => dep.id !== props.attDel.id)
-      : [];
-  } else if (props.method === "transfer") {
-    return departments;
-  } else {
-    return departments;
-  }
-}
 
 onMounted(() => {
   clearSelectedDepartments();
   fetchDepartments();
 });
+
 // Watch para modal_filter e multiSelect
 watch(
   () => props.modal_filter,
   () => {
     if (!props.modal_filter && props.multiSelect) {
-      clearSelectedDepartments();
+      departmentStore.departments.forEach((department) => {
+        department.selected = false;
+      });
+      departmentSelected.value = [];
+    }
+  },
+  () => props.attDel,
+  (newId) => {
+    if (newId) {
+      deleteDepartmentById(newId);
     }
   },
   { immediate: true }
 );
+
+// Função para deletar um departamento pelo ID
+function deleteDepartmentById(departmentId) {
+  const departments = props.externalDepartments || departmentStore.departments;
+
+  // Remove o departamento da lista geral
+  const index = departments.findIndex((dep) => dep.id === departmentId);
+  if (index !== -1) {
+    departments.splice(index, 1);
+  }
+
+  // Remove o departamento da lista de selecionados, se estiver lá
+  const selectedIndex = departmentSelected.value.findIndex(
+    (dep) => dep.id === departmentId
+  );
+  if (selectedIndex !== -1) {
+    departmentSelected.value.splice(selectedIndex, 1);
+    emit("depart", departmentSelected.value); // Atualiza a lista de selecionados
+  }
+}
+
 // Função para buscar departamentos
 async function fetchDepartments() {
   get_loading.value = true;
@@ -69,6 +85,7 @@ async function fetchDepartments() {
 
   get_loading.value = false;
 }
+
 // Função para limpar a seleção de todos os departamentos
 function clearSelectedDepartments() {
   const departments = props.externalDepartments || departmentStore.departments;
@@ -114,11 +131,13 @@ function selectDepartment(department) {
     department.selected = false;
     departmentSelected.value.splice(index, 1);
   } else {
-    // Marca e adiciona o novo departamento como selecionado
+    // Se multiSelect está desativado, desmarque todos os departamentos na store
     if (!props.multiSelect) {
+      // Desmarca todos os departamentos na store, removendo qualquer seleção anterior
       clearSelectedDepartments();
     }
-    // Remoção de departamentos selecionados
+
+    // Marca e adiciona o novo departamento como selecionado
     department.selected = true;
     departmentSelected.value.push(department);
   }
