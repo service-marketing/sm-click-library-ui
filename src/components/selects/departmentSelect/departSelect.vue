@@ -47,6 +47,10 @@ watch(
       departmentSelected.value = [];
     }
   },
+  { immediate: true }
+);
+
+watch(
   () => props.attDel,
   (newId) => {
     if (newId) {
