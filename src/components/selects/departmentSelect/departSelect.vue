@@ -8,7 +8,6 @@ const props = defineProps({
   multiSelect: { type: Boolean, default: true },
   permissions: { type: Boolean, default: false },
   externalDepartments: { type: Array, default: null }, // Nova prop
-  attDel: { type: Object, default: { id: null } },
 });
 
 const emit = defineEmits(["depart"]);
@@ -27,7 +26,7 @@ const filteredDepartments = computed(() => {
   if (!searchInput.value) return departments;
 
   return departments.filter((department) =>
-    department.name.toLowerCase().includes(searchInput.value.toLowerCase())
+    department.name.toLowerCase().includes(searchInput.value.toLowerCase()),
   );
 });
 
@@ -47,38 +46,8 @@ watch(
       departmentSelected.value = [];
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
-
-watch(
-  () => props.attDel,
-  (newId) => {
-    if (newId) {
-      deleteDepartmentById(newId);
-    }
-  },
-  { immediate: true }
-);
-
-// Função para deletar um departamento pelo ID
-function deleteDepartmentById(departmentId) {
-  const departments = props.externalDepartments || departmentStore.departments;
-
-  // Remove o departamento da lista geral
-  const index = departments.findIndex((dep) => dep.id === departmentId);
-  if (index !== -1) {
-    departments.splice(index, 1);
-  }
-
-  // Remove o departamento da lista de selecionados, se estiver lá
-  const selectedIndex = departmentSelected.value.findIndex(
-    (dep) => dep.id === departmentId
-  );
-  if (selectedIndex !== -1) {
-    departmentSelected.value.splice(selectedIndex, 1);
-    emit("depart", departmentSelected.value); // Atualiza a lista de selecionados
-  }
-}
 
 // Função para buscar departamentos
 async function fetchDepartments() {
@@ -125,9 +94,10 @@ function updateSelectedDepartments() {
   emit("depart", departmentSelected.value);
 }
 
+
 function selectDepartment(department) {
   const index = departmentSelected.value.findIndex(
-    (dep) => dep.id === department.id
+    (dep) => dep.id === department.id,
   );
 
   if (index !== -1) {
