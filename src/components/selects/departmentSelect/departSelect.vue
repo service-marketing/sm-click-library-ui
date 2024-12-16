@@ -36,7 +36,7 @@ onMounted(() => {
   fetchDepartments();
   console.log(attDel);
   if (props.attDel) {
-    console.log(attDel);
+    console.log(props.attDel);
     deleteDepartmentById(props.attDel);
   }
 });
