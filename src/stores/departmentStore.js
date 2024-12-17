@@ -24,9 +24,15 @@ export const useDepartmentStore = defineStore("department", {
       );
     },
     addDepartments(department) {
-      console.log(this.departments);
-      this.departments.push(department);
-      console.log(this.departments);
+      const departmentIndex = this.departments.findIndex(
+        (dep) => dep.id === department.id
+      );
+
+      if (departmentIndex !== -1) {
+        this.departments[departmentIndex] = department;
+      } else {
+        this.departments.push(department);
+      }
     },
   },
 });
