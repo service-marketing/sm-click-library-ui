@@ -31,7 +31,7 @@ export const useDepartmentStore = defineStore("department", {
           if (
             !this.departments.some((existingDep) => existingDep.id === dep.id)
           ) {
-            this.departments.push(dep);
+            this.departments.push({ ...dep });
           }
         });
       } else {
@@ -41,7 +41,7 @@ export const useDepartmentStore = defineStore("department", {
             (existingDep) => existingDep.id === department.id
           )
         ) {
-          this.departments.push(department);
+          this.departments.push({ ...dep });
         }
       }
     },
