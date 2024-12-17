@@ -41,7 +41,7 @@ export const useDepartmentStore = defineStore("department", {
             (existingDep) => existingDep.id === department.id
           )
         ) {
-          this.departments.push({ ...dep });
+          this.departments.push({ ...department });
         }
       }
     },
