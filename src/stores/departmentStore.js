@@ -25,25 +25,30 @@ export const useDepartmentStore = defineStore("department", {
       );
     },
     addDepartments(department) {
-      if (Array.isArray(department)) {
-        // Para múltiplos departamentos, verifica e adiciona apenas os únicos pelo id
-        department.forEach((dep) => {
-          if (
-            !this.departments.some((existingDep) => existingDep.id === dep.id)
-          ) {
-            this.departments.push({ ...dep });
-          }
-        });
-      } else {
-        // Para um único departamento, verifica e adiciona apenas se o id for único
-        if (
-          !this.departments.some(
-            (existingDep) => existingDep.id === department.id
-          )
-        ) {
-          this.departments.push({ ...department });
-        }
-      }
+      console.log(
+        "recebido do front:" + department,
+        "departs lib:" + this.departments
+      );
+
+      // if (Array.isArray(department)) {
+      //   // Para múltiplos departamentos, verifica e adiciona apenas os únicos pelo id
+      //   department.forEach((dep) => {
+      //     if (
+      //       !this.departments.some((existingDep) => existingDep.id === dep.id)
+      //     ) {
+      //       this.departments.push({ ...dep });
+      //     }
+      //   });
+      // } else {
+      //   // Para um único departamento, verifica e adiciona apenas se o id for único
+      //   if (
+      //     !this.departments.some(
+      //       (existingDep) => existingDep.id === department.id
+      //     )
+      //   ) {
+      //     this.departments.push({ ...department });
+      //   }
+      // }
     },
   },
 });
