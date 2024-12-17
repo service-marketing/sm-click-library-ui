@@ -203,10 +203,10 @@ function eraseAttendant(attendant, index) {
       <div
         :class="
           attendanceSelected.length > 0 && multiSelect
-            ? 'dropdown-expanded'
-            : 'dropdown'
+            ? 'dropdown-attendance-expanded'
+            : 'dropdown-attendance'
         "
-        class="dropdown bg-base-300"
+        class="dropdown-attendance bg-base-300"
       >
         <div class="department-list">
           <div
@@ -377,7 +377,7 @@ function eraseAttendant(attendant, index) {
   height: 16px;
 }
 
-.dropdown {
+.dropdown-attendance {
   width: 100%;
   max-height: 150px;
   overflow-y: auto;
@@ -385,7 +385,7 @@ function eraseAttendant(attendant, index) {
   padding-bottom: 3px;
 }
 
-.dropdown-expanded {
+.dropdown-attendance-expanded {
   top: 93px;
 }
 
