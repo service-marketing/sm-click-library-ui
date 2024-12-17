@@ -21,8 +21,6 @@ const emits = defineEmits(["update:isOpen", "close"]);
 
 const toggleModal = () => {
   emits("update:isOpen", !props.isOpen);
-  console.log(props.isOpen);
-
   if (props.isOpen) {
     emits("close");
   }

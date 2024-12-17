@@ -71,7 +71,7 @@ function addOneMinute() {
 function isValidTime() {
   const currentTime = new Date();
   const selectedTime = new Date(config.value.schedule.time);
-  console.log(config.value.schedule.time);
+  // console.log(config.value.schedule.time);
   return selectedTime >= currentTime;
 }
 
@@ -125,7 +125,7 @@ async function programMessage() {
     //     notify({ group: "error", title: 'Erro', text: 'O horário selecionado deve ser maior do que o horário atual.' }, 2000);
     //     return;
     // }
-    console.log(props.date);
+    // console.log(props.date);
     const sendConfig = JSON.parse(JSON.stringify(config.value));
     sendConfig.schedule.time = mergeDateAndTime(
       props.date,
@@ -153,7 +153,7 @@ async function programMessage() {
       { group: "error", title: "Erro", text: e.response.data.message },
       2000,
     );
-    console.log(e);
+    // console.log(e);
   } finally {
     saveLoading.value = false;
   }
