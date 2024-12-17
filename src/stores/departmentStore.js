@@ -10,7 +10,6 @@ export const useDepartmentStore = defineStore("department", {
   actions: {
     async fetchDepartments(query = "") {
       try {
-        this.departments = []; // Resetar a lista de departamentos
         let nextPageUrl = `${departmentUrl}`;
         const response = await api.get(nextPageUrl);
         this.departments = response.data;
@@ -25,8 +24,9 @@ export const useDepartmentStore = defineStore("department", {
       );
     },
     addDepartments(department) {
-      console.log(department);
-      // this.departments.push(department);
+      console.log(this.departments);
+      this.departments.push(department);
+      console.log(this.departments);
     },
   },
 });
