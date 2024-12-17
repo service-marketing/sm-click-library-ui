@@ -34,9 +34,8 @@ const filteredDepartments = computed(() => {
 onMounted(() => {
   clearSelectedDepartments();
   fetchDepartments();
-  console.log(props.attDel);
+  
   if (props.attDel) {
-    console.log(props.attDel);
     deleteDepartmentById(props.attDel);
   }
 });
@@ -60,10 +59,10 @@ watch(
   () => props.attDel,
   (newId) => {
     if (newId) {
-      console.log("new ID", newId);
       deleteDepartmentById(newId);
     }
-  }
+  },
+  { immediate: true }
 );
 
 function deleteDepartmentById(departmentId) {
@@ -84,6 +83,7 @@ function deleteDepartmentById(departmentId) {
 
     // Emite a lista atualizada
     emit("depart", departmentSelected.value);
+    console.log(departmentSelected.value);
   }
 }
 
