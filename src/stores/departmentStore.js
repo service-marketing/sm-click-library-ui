@@ -24,5 +24,8 @@ export const useDepartmentStore = defineStore("department", {
         (dep) => dep.id !== departmentId
       );
     },
+    addDepartments(department) {
+      this.departments.push(department);
+    },
   },
 });

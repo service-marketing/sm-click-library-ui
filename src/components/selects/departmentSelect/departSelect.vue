@@ -9,6 +9,7 @@ const props = defineProps({
   permissions: { type: Boolean, default: false },
   externalDepartments: { type: Array, default: null }, // Nova prop
   attDel: { type: String, default: null }, // ID do departamento a ser deletado
+  attAdd: { type: Object, default: null }, // ID do departamento a ser deletado
 });
 
 const emit = defineEmits(["depart"]);
@@ -34,10 +35,6 @@ const filteredDepartments = computed(() => {
 onMounted(() => {
   clearSelectedDepartments();
   fetchDepartments();
-
-  if (props.attDel) {
-    deleteDepartmentById(props.attDel);
-  }
 });
 
 // Watch para modal_filter e multiSelect
@@ -57,9 +54,20 @@ watch(
 // Watch para monitorar mudanças no ID do departamento a ser deletado
 watch(
   () => props.attDel,
-  (newId) => {
-    if (newId) {
-      deleteDepartmentById(newId);
+  (Id) => {
+    if (Id) {
+      deleteDepartmentById(Id);
+    }
+  },
+  { immediate: true }
+);
+
+// Watch para monitorar adições de departamentos
+watch(
+  () => props.attAdd,
+  (newDepart) => {
+    if (newDepart) {
+      addDepartment(newDepart);
     }
   },
   { immediate: true }
@@ -85,6 +93,34 @@ function deleteDepartmentById(departmentId) {
     } else {
       departmentStore.removeDepartments(departmentId);
     }
+    emit("depart", departmentSelected.value);
+  }
+}
+
+function addDepartment(department) {
+  const departments = props.externalDepartments || departmentStore.departments;
+
+  // Verifica se o departamento já existe na lista principal
+  const existingDepartment = departments.find(
+    (dep) => dep.id === department.id
+  );
+
+  if (!existingDepartment) {
+    // Adiciona o departamento na lista principal
+    if (props.externalDepartments) {
+      props.externalDepartments.push(department);
+    } else {
+      departmentStore.addDepartments(department);
+    }
+  }
+
+  // Adiciona o departamento à lista selecionada
+  const isSelected = departmentSelected.value.some(
+    (dep) => dep.id === department.id
+  );
+
+  if (!isSelected) {
+    departmentSelected.value.push({ ...department, selected: true });
     emit("depart", departmentSelected.value);
   }
 }
