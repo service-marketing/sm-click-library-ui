@@ -28,6 +28,11 @@ function install(Vue) {
   Vue.component("chatWindow", chatWindow);
 }
 
+export function attLibDeparts(piniaInstance, department) {
+  const departStore = useDepartmentStore(piniaInstance);
+  departStore.addDepartments(department);
+}
+
 export function setupLibrary(piniaInstance, jwtToken, rootUrl, attendances) {
   try {
     const authStore = useAuthStore(piniaInstance);
@@ -57,7 +62,6 @@ export function setupLibrary(piniaInstance, jwtToken, rootUrl, attendances) {
     console.error("Erro no setupLibrary:", err);
   }
 }
-
 
 export default {
   install,
