@@ -83,7 +83,7 @@ function deleteDepartmentById(departmentId) {
     if (props.externalDepartments) {
       props.externalDepartments.splice(departmentIndex, 1);
     } else {
-      departmentStore.removeDepartment(departmentId);
+      departmentStore.removeDepartments(departmentId);
     }
     emit("depart", departmentSelected.value);
   }
