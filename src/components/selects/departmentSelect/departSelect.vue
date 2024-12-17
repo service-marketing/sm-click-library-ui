@@ -34,7 +34,7 @@ const filteredDepartments = computed(() => {
 onMounted(() => {
   clearSelectedDepartments();
   fetchDepartments();
-  
+
   if (props.attDel) {
     deleteDepartmentById(props.attDel);
   }
@@ -69,21 +69,23 @@ function deleteDepartmentById(departmentId) {
   const departments = props.externalDepartments || departmentStore.departments;
 
   // Encontra o departamento pelo ID
-  const departmentToDelete = departments.find((dep) => dep.id === departmentId);
-  console.log("delete", departmentToDelete);
+  const departmentIndex = departments.findIndex(
+    (dep) => dep.id === departmentId
+  );
 
-  if (departmentToDelete) {
+  if (departmentIndex !== -1) {
     // Remove o departamento da lista selecionada
     departmentSelected.value = departmentSelected.value.filter(
       (dep) => dep.id !== departmentId
     );
 
-    // Marca o departamento como não selecionado
-    departmentToDelete.selected = false;
-
-    // Emite a lista atualizada
+    // Remove o departamento da store (ou de externalDepartments)
+    if (props.externalDepartments) {
+      props.externalDepartments.splice(departmentIndex, 1);
+    } else {
+      departmentStore.removeDepartment(departmentId);
+    }
     emit("depart", departmentSelected.value);
-    console.log(departmentSelected.value);
   }
 }
 

@@ -19,5 +19,10 @@ export const useDepartmentStore = defineStore("department", {
         console.log("Erro ao buscar departamentos:", error);
       }
     },
+    removeDepartments(departmentId) {
+      this.departments = this.departments.filter(
+        (dep) => dep.id !== departmentId
+      );
+    },
   },
 });
