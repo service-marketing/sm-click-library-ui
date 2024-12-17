@@ -28,8 +28,8 @@ function install(Vue) {
   Vue.component("chatWindow", chatWindow);
 }
 
-export function attLibDeparts(piniaInstance, department) {
-  const departStore = useDepartmentStore(piniaInstance);
+export function attLibDeparts(department) {
+  const departStore = useDepartmentStore();
   departStore.addDepartments(department);
 }
 
