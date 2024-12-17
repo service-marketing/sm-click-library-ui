@@ -235,10 +235,10 @@ function eraseDepartment(department, index) {
       <div
         :class="
           departmentSelected.length > 0 && multiSelect
-            ? 'dropdown-expanded'
-            : 'dropdown'
+            ? 'dropdown-depart-expanded'
+            : 'dropdown-depart'
         "
-        class="dropdown bg-base-300"
+        class="dropdown-depart bg-base-300"
       >
         <div class="department-list">
           <div
@@ -259,7 +259,7 @@ function eraseDepartment(department, index) {
               <div v-if="multiSelect && permissions" style="width: 150px">
                 <select
                   v-model="department.permission"
-                  class="select-dropdown bg-base-300"
+                  class="select-dropdown-depart bg-base-300"
                 >
                   <option selected>normal</option>
                   <option>supervisor</option>
@@ -392,7 +392,7 @@ function eraseDepartment(department, index) {
   height: 16px;
 }
 
-.dropdown {
+.dropdown-depart {
   width: 100%;
   max-height: 150px;
   overflow-y: auto;
@@ -401,7 +401,7 @@ function eraseDepartment(department, index) {
   padding-bottom: 3px;
 }
 
-.dropdown-expanded {
+.dropdown-depart-expanded {
   top: 93px;
 }
 
@@ -472,7 +472,7 @@ function eraseDepartment(department, index) {
   animation: loader-rotate 1s linear infinite;
 }
 
-.select-dropdown {
+.select-dropdown-depart {
   cursor: pointer;
   text-transform: capitalize;
   appearance: none;
