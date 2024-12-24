@@ -30,7 +30,7 @@ const filteredDepartments = computed(() => {
   return departments.filter((department) => {
     // Exclui o departamento com o ID correspondente a `hiddenDepartmentId`
     return !(
-      props.hiddenDepartmentId && department.id === props.hiddenDepartmentId
+      props.hiddenDepartment && department.id === props.hiddenDepartment
     );
   });
 });
