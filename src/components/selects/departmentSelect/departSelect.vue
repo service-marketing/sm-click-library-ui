@@ -374,6 +374,7 @@ function eraseDepartment(department, index) {
 
 .selection-container {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   padding: 6px;
   width: 100%;
