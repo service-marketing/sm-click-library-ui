@@ -9,6 +9,7 @@ const props = defineProps({
   permissions: { type: Boolean, default: false },
   externalDepartments: { type: Array, default: null }, // Nova prop
   attDel: { type: String, default: null }, // ID do departamento a ser deletado
+  hiddenDepartment: { type: String, default: null },
 });
 
 const emit = defineEmits(["depart"]);
@@ -24,11 +25,20 @@ const get_loading = ref(false);
 const filteredDepartments = computed(() => {
   const departments = props.externalDepartments || departmentStore.departments;
 
-  if (!searchInput.value) return departments;
-
-  return departments.filter((department) =>
-    department.name.toLowerCase().includes(searchInput.value.toLowerCase())
-  );
+  return departments
+    .filter((department) => {
+      // Exclui o departamento com o ID correspondente a `hiddenDepartment`
+      return !(
+        props.hiddenDepartment && department.id === props.hiddenDepartment
+      );
+    })
+    .filter((department) => {
+      // Filtra pelo termo de busca (se existir)
+      return (
+        !searchInput.value ||
+        department.name.toLowerCase().includes(searchInput.value.toLowerCase())
+      );
+    });
 });
 
 onMounted(() => {
