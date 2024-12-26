@@ -20,15 +20,21 @@ const attendanceSelected = ref([]);
 const get_loading = ref(false);
 
 const filteredAttendants = computed(() => {
+  // Filtro por status
+  const activeAttendants = attendantStore.attendants.filter(
+    (attendant) => attendant.status === true
+  );
+
   // Filtro por nome e por departamento
   const filtered = searchInput.value
-    ? attendantStore.attendants.filter((attendant) =>
+    ? activeAttendants.filter((attendant) =>
         attendant.name.toLowerCase().includes(searchInput.value.toLowerCase()),
       )
-    : attendantStore.attendants;
+    : activeAttendants;
 
   return filterByDepartment(filterByMethod(filtered));
 });
+
 
 function filterByMethod(attendants) {
   if (props.method === "remove") {
@@ -349,6 +355,7 @@ function eraseAttendant(attendant, index) {
 
 .selection-container {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   padding: 6px;
   width: 100%;
