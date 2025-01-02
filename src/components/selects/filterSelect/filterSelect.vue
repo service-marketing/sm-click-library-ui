@@ -1,5 +1,9 @@
 <template>
-  <Popper placement="bottom" :arrow="false" class="dark:popper-light popper-dark">
+  <Popper
+    placement="bottom"
+    :arrow="false"
+    class="dark:popper-light popper-dark"
+  >
     <!-- :show="control_popper" -->
     <template #content="{ close }">
       <section class="">
@@ -10,7 +14,6 @@
             </p>
 
             <svg
-             :class=""
               class="w-4 h-4 text-white"
               aria-hidden="true"
               xmlns="http://www.w3.org/2000/svg"
