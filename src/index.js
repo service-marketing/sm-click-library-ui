@@ -27,6 +27,7 @@ function install(Vue) {
   Vue.component("MFA", MFA);
   Vue.component("MfaQrCode", MfaQrCode);
   Vue.component("chatWindow", chatWindow);
+  Vue.component("FilterSelectLib", FilterSelectLib);
 }
 
 export function attLibDeparts(department) {
