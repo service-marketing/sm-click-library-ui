@@ -8,6 +8,7 @@ import MfaQrCode from "./components/mfa/MfaQrCode.vue";
 import chatWindow from "./components/intern-chat/chatWindow.vue";
 import departSelect from "./components/selects/departmentSelect/departSelect.vue";
 import attendantSelect from "./components/selects/attendantSelect/attendantSelect.vue";
+import FilterSelectLib from "./components/selects/filterSelect/filterSelect.vue";
 import { useDebugStore } from "~/stores/debugStore";
 import { useAuthStore } from "~/stores/authStore";
 import { useAttendantStore } from "./stores/attendantStore";
@@ -75,4 +76,5 @@ export default {
   chatWindow,
   departSelect,
   attendantSelect,
+  FilterSelectLib,
 };
