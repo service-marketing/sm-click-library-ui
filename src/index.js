@@ -64,14 +64,14 @@ export function attLibInstances(instances, action = "add") {
 }
 
 // Função de configuração geral
-export function setupLibrary({
+export function setupLibrary(
   piniaInstance,
   jwtToken,
   rootUrl,
   attendances = [],
   departments = [],
-  instances = [],
-}) {
+  instances = []
+) {
   try {
     // Configuração do AuthStore
     const authStore = useAuthStore(piniaInstance);
