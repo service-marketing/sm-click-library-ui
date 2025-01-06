@@ -68,8 +68,8 @@ export function setupLibrary({
   piniaInstance,
   jwtToken,
   rootUrl,
-  departments = [],
   attendances = [],
+  departments = [],
   instances = [],
 }) {
   try {
