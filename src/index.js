@@ -106,11 +106,11 @@ export function setupLibrary({
 
     // Configuração do InstanceStore
     const instanceStore = useInstanceStore(piniaInstance);
-    if (instances.length) {
-      instanceStore.setInstances(instances);
-    } else {
-      instanceStore.fetchInstances();
-    }
+    // if (instances.length) {
+    //   instanceStore.setInstances(instances);
+    // } else {
+    instanceStore.fetchInstances();
+    // }
   } catch (err) {
     console.error("Erro no setupLibrary:", err);
   }
