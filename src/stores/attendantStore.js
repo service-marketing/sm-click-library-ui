@@ -20,5 +20,19 @@ export const useAttendantStore = defineStore("attendant", {
         console.log("Erro ao buscar atendentes:", error);
       }
     },
+    removeAttendants(attendantId) {
+      this.attendants = this.attendants.filter((att) => att.id !== attendantId);
+    },
+    addAttendants(attendant) {
+      const attendantIndex = this.attendants.findIndex(
+        (att) => att.id === attendant.id
+      );
+
+      if (attendantIndex !== -1) {
+        this.attendants[attendantIndex] = department;
+      } else {
+        this.attendants.push(attendant);
+      }
+    },
   },
 });
