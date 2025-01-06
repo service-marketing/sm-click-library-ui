@@ -86,7 +86,7 @@ export function setupLibrary({
 
     // Configuração do DepartmentStore
     const departStore = useDepartmentStore(piniaInstance);
-    if (departments.length) {
+    if (departments.length > 0) {
       departStore.departments = departments;
       departStore.count = departments.length;
     }
@@ -96,7 +96,7 @@ export function setupLibrary({
 
     // Configuração do AttendantStore
     const attendantStore = useAttendantStore(piniaInstance);
-    if (attendances.length) {
+    if (attendances.length > 0) {
       attendantStore.attendants = attendances;
       attendantStore.count = attendances.length;
     }
@@ -106,10 +106,10 @@ export function setupLibrary({
 
     // Configuração do InstanceStore
     const instanceStore = useInstanceStore(piniaInstance);
+    instanceStore.fetchInstances();
     // if (instances.length) {
     //   instanceStore.setInstances(instances);
     // } else {
-    instanceStore.fetchInstances();
     // }
   } catch (err) {
     console.error("Erro no setupLibrary:", err);
