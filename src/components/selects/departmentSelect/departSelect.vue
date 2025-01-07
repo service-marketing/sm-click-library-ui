@@ -12,7 +12,7 @@ const props = defineProps({
   hiddenDepartment: { type: String, default: null },
 });
 
-const emit = defineEmits(["depart"]);
+const emit = defineEmits(["depart", "component-mounted"]);
 const departmentStore = useDepartmentStore();
 
 const searchInput = ref(""); // Campo para o input de pesquisa
@@ -44,6 +44,7 @@ const filteredDepartments = computed(() => {
 onMounted(() => {
   clearSelectedDepartments();
   fetchDepartments();
+  emit("component-mounted");
 });
 
 // Watch para modal_filter e multiSelect

@@ -11,7 +11,7 @@ const props = defineProps({
   method: { type: String, default: null },
 });
 
-const emit = defineEmits(["attend"]);
+const emit = defineEmits(["attend", "component-mounted"]);
 const attendantStore = useAttendantStore();
 
 const searchInput = ref("");
@@ -64,6 +64,7 @@ function filterByDepartment(attendants) {
 onMounted(() => {
   clearSelectedAttendance();
   updateSelectedAttendance();
+  emit("component-mounted");
 });
 
 watch(
