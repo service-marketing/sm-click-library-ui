@@ -30,7 +30,7 @@ export const useAttendantStore = defineStore("attendant", {
       );
 
       if (attendantIndex !== -1) {
-        this.attendants[attendantIndex] = department;
+        this.attendants[attendantIndex] = attendant;
       } else {
         this.attendants.push(attendant);
       }
