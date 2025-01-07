@@ -6,6 +6,7 @@ export const useAttendantStore = defineStore("attendant", {
   state: () => ({
     attendants: [],
     count: null,
+    loaded: false,
   }),
   actions: {
     async fetchAttendants() {

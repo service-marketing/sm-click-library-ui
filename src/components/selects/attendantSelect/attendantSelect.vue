@@ -193,7 +193,7 @@ function eraseAttendant(attendant, index) {
       </div>
 
       <main
-        v-if="attendanceSelected.length > 0 && multiSelect"
+        v-if="attendanceSelected.length > 0 && multiSelect && attendantStore.loaded"
         class="selection-container bg-base-300 border-b border-base-200"
       >
         <div
@@ -234,7 +234,7 @@ function eraseAttendant(attendant, index) {
             :class="{ 'two-columns': filteredAttendants.length > 4 }"
             class="grid-container"
           >
-            <div
+            <div v-if="attendantStore.loaded"
               v-for="attendant in filteredAttendants"
               :key="attendant.id"
               :class="{ selected: attendant.selected }"
@@ -283,12 +283,13 @@ function eraseAttendant(attendant, index) {
           </div>
         </div>
         <div
-          v-if="!get_loading && filteredAttendants.length === 0"
+          v-if="attendantStore.loaded && filteredAttendants.length === 0"
           class="no-departments bg-base-300"
         >
           Nenhum atendente disponível.
         </div>
-        <div v-if="get_loading" class="loading-spinner">
+        <div v-if="!attendantStore.loaded" class="loading-spinner">
+          Inicializando atendentes
           <div class="loader"></div>
         </div>
       </div>
@@ -455,7 +456,8 @@ function eraseAttendant(attendant, index) {
 .loading-spinner {
   display: flex;
   justify-content: center;
-  padding: 12px;
+  padding: 26px;
+  gap: 12px;
 }
 
 @keyframes loader-rotate {

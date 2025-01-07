@@ -19,7 +19,9 @@ import FilterSelect from "./components/selects/filterSelect/filterSelect.vue";
     class="h-screen flex-col bg-gray-200 text-white flex items-center justify-center"
   >
     <div class="bg-red-200 flex justify-center items-center w-full h-full">
-      <FilterSelect> teste </FilterSelect>
+      <!-- <FilterSelect> teste </FilterSelect> -->
+       <departSelect/>
+       <attendantSelect />
     </div>
   </main>
 </template>

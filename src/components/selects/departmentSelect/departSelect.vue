@@ -218,7 +218,7 @@ function eraseDepartment(department, index) {
         />
         <div class="icon-container">
           <svg
-            v-if="!get_loading"
+            v-if="!departmentStore.loaded"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -237,7 +237,9 @@ function eraseDepartment(department, index) {
       </div>
 
       <main
-        v-if="departmentSelected.length > 0 && multiSelect"
+        v-if="
+          departmentSelected.length > 0 && multiSelect && departmentStore.loaded
+        "
         class="selection-container bg-base-300 border-b border-base-200"
       >
         <div
@@ -279,6 +281,7 @@ function eraseDepartment(department, index) {
             class="grid-container"
           >
             <div
+              v-if="departmentStore.loaded"
               v-for="department in filteredDepartments"
               :key="department.id"
               :class="{ selected: department.selected }"
@@ -303,12 +306,13 @@ function eraseDepartment(department, index) {
           </div>
         </div>
         <div
-          v-if="!get_loading && filteredDepartments.length === 0"
+          v-if="departmentStore.loaded && filteredDepartments.length === 0"
           class="no-departments bg-base-300"
         >
           Nenhum departamento disponível.
         </div>
-        <div v-if="get_loading" class="loading-spinner">
+        <div v-if="!departmentStore.loaded" class="loading-spinner">
+          Inicializando departamentos
           <div class="loader"></div>
         </div>
       </div>
@@ -484,7 +488,8 @@ function eraseDepartment(department, index) {
 .loading-spinner {
   display: flex;
   justify-content: center;
-  padding: 12px;
+  padding: 26px;
+  gap: 12px;
 }
 
 @keyframes loader-rotate {
