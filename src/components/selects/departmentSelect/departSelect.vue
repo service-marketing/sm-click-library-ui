@@ -61,14 +61,19 @@ watch(
   { immediate: true }
 );
 
+import { nextTick } from "vue";
+
 watch(
   () => departmentStore.departments,
-  (dp) => {
+  async (dp) => {
+    console.log("Watch disparado, departamentos atualizados:", dp);
+    await nextTick();
     clearSelectedDepartments();
     fetchDepartments();
   },
   { immediate: true, deep: true }
 );
+
 
 // Watch para monitorar mudanças no ID do departamento a ser deletado
 watch(

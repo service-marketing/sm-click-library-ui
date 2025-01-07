@@ -76,9 +76,12 @@ watch(
   { immediate: true }
 );
 
+import { nextTick } from "vue";
+
 watch(
   () => attendantStore.attendants,
   (dp) => {
+    await nextTick();
     clearSelectedAttendance();
     updateSelectedAttendance();
   },
