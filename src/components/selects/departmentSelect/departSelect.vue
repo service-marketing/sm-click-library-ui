@@ -61,6 +61,8 @@ watch(
   { immediate: true }
 );
 
+import { nextTick } from "vue";
+
 let isUpdating = false;
 
 watch(
@@ -77,6 +79,7 @@ watch(
   },
   { immediate: true, deep: true }
 );
+
 
 // Watch para monitorar mudanças no ID do departamento a ser deletado
 watch(
