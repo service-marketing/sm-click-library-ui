@@ -63,23 +63,18 @@ watch(
 
 import { nextTick } from "vue";
 
-let isUpdating = false;
-
 watch(
-  () => departmentStore.departments,
-  async (dp) => {
-    if (isUpdating) return;
-
-    console.log("Watch disparado, departamentos atualizados:", dp);
-    isUpdating = true; // Evita ciclos
+  () => departmentStore.departments.length, // Observa apenas o tamanho do array
+  async (newLength, oldLength) => {
+    console.log(
+      `Watch disparado, tamanho do array mudou: ${oldLength} -> ${newLength}`
+    );
     await nextTick();
     clearSelectedDepartments();
     fetchDepartments();
-    isUpdating = false;
   },
-  { immediate: true, deep: true }
+  { immediate: true }
 );
-
 
 // Watch para monitorar mudanças no ID do departamento a ser deletado
 watch(

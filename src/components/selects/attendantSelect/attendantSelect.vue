@@ -66,6 +66,21 @@ onMounted(() => {
   emit("component-mounted");
 });
 
+import { nextTick } from "vue";
+
+watch(
+  () => attendantStore.attendants.length, // Observa apenas o tamanho do array
+  async (newLength, oldLength) => {
+    console.log(
+      `Watch disparado, tamanho do array mudou: ${oldLength} -> ${newLength}`
+    );
+    await nextTick();
+    clearSelectedAttendance();
+    updateSelectedAttendance();
+  },
+  { immediate: true }
+);
+
 watch(
   () => props.modal_filter,
   () => {
@@ -74,18 +89,6 @@ watch(
     }
   },
   { immediate: true }
-);
-
-import { nextTick } from "vue";
-
-watch(
-  () => attendantStore.attendants,
-  async (dp) => {
-    await nextTick();
-    clearSelectedAttendance();
-    updateSelectedAttendance();
-  },
-  { immediate: true, deep: true }
 );
 
 watch(
