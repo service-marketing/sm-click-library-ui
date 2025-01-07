@@ -174,7 +174,6 @@ function eraseAttendant(attendant, index) {
         />
         <div class="icon-container">
           <svg
-            v-if="!get_loading"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -188,7 +187,6 @@ function eraseAttendant(attendant, index) {
               d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
             />
           </svg>
-          <div v-else class="loader"></div>
         </div>
       </div>
 
@@ -288,9 +286,9 @@ function eraseAttendant(attendant, index) {
         >
           Nenhum atendente disponível.
         </div>
-        <div v-if="!attendantStore.loaded" class="loading-spinner">
+        <div v-if="!attendantStore.loaded" class="library-loading-spinner">
           Inicializando atendentes
-          <div class="loader"></div>
+          <div class="library-loader"></div>
         </div>
       </div>
     </div>
@@ -453,14 +451,14 @@ function eraseAttendant(attendant, index) {
   padding: 12px;
 }
 
-.loading-spinner {
+.library-loading-spinner {
   display: flex;
   justify-content: center;
   padding: 26px;
   gap: 12px;
 }
 
-@keyframes loader-rotate {
+@keyframes library-loader-rotate {
   0% {
     transform: rotate(0);
   }
@@ -470,12 +468,12 @@ function eraseAttendant(attendant, index) {
   }
 }
 
-.loader {
+.library-loader {
   width: 24px;
   height: 24px;
   border: 4px solid #14b8a6;
   border-right-color: transparent;
   border-radius: 50%;
-  animation: loader-rotate 1s linear infinite;
+  animation: library-loader-rotate 1s linear infinite;
 }
 </style>
