@@ -61,19 +61,22 @@ watch(
   { immediate: true }
 );
 
-import { nextTick } from "vue";
+let isUpdating = false;
 
 watch(
   () => departmentStore.departments,
   async (dp) => {
+    if (isUpdating) return;
+
     console.log("Watch disparado, departamentos atualizados:", dp);
+    isUpdating = true; // Evita ciclos
     await nextTick();
     clearSelectedDepartments();
     fetchDepartments();
+    isUpdating = false;
   },
   { immediate: true, deep: true }
 );
-
 
 // Watch para monitorar mudanças no ID do departamento a ser deletado
 watch(
