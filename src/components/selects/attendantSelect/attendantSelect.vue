@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, computed, watch, onMounted, nextTick } from "vue";
 import { useAttendantStore } from "~/stores/attendantStore";
 
 const props = defineProps({
@@ -20,12 +20,10 @@ const attendanceSelected = ref([]);
 const get_loading = ref(false);
 
 const filteredAttendants = computed(() => {
-  // Filtro por status
   const activeAttendants = attendantStore.attendants.filter(
     (attendant) => attendant.status === true
   );
 
-  // Filtro por nome e por departamento
   const filtered = searchInput.value
     ? activeAttendants.filter((attendant) =>
         attendant.name.toLowerCase().includes(searchInput.value.toLowerCase())
@@ -40,13 +38,10 @@ function filterByMethod(attendants) {
     return props.attendance.filter(
       (attendant) => attendant.id !== props.attDel.id
     );
-  } else if (props.method === "transfer") {
-    return attendants;
-  } else if (props.method === "addParticipant") {
+  } else if (props.method === "transfer" || props.method === "addParticipant") {
     return attendants.filter((attendant) => attendant.id !== props.attDel.id);
-  } else {
-    return attendants;
   }
+  return attendants;
 }
 
 function filterByDepartment(attendants) {
@@ -61,22 +56,17 @@ function filterByDepartment(attendants) {
 }
 
 onMounted(() => {
-  clearSelectedAttendance();
-  updateSelectedAttendance();
+  initializeComponent();
   emit("component-mounted");
 });
-
-import { nextTick } from "vue";
 
 watch(
   () => attendantStore.attendants.length, // Observa apenas o tamanho do array
   async (newLength, oldLength) => {
-    console.log(
-      `Watch disparado, tamanho do array mudou: ${oldLength} -> ${newLength}`
-    );
-    await nextTick();
-    clearSelectedAttendance();
-    updateSelectedAttendance();
+    if (newLength !== oldLength) { // Verifica se o tamanho realmente mudou
+      await nextTick();
+      initializeComponent();
+    }
   },
   { immediate: true }
 );
@@ -94,26 +84,35 @@ watch(
 watch(
   () => props.department,
   () => {
-    clearSelectedAttendance(); // Limpa os atendentes selecionados ao alterar department
+    initializeComponent();
   },
-  { deep: true } // Necessário para observar alterações profundas no array
+  { deep: true }
 );
 
+function initializeComponent() {
+  clearSelectedAttendance();
+  updateSelectedAttendance();
+}
+
 function clearSelectedAttendance() {
-  filteredAttendants.value.forEach((attendant) => {
+  const attendants = filteredAttendants.value;
+  attendants.forEach((attendant) => {
     attendant.selected = false;
   });
   attendanceSelected.value = [];
 }
 
 function updateSelectedAttendance() {
-  if (props.method === "remove" && props.attendance) {
-  } else if (props.attendance && props.attendance.length > 0) {
-    // Adiciona normalmente os atendentes de props.attendance, caso o método não seja "remove"
+  const attendants = attendantStore.attendants;
+
+  if (!attendants || attendants.length === 0) {
+    console.warn("Nenhum atendente disponível para atualização.");
+    return;
+  }
+
+  if (props.attendance && props.attendance.length > 0) {
     props.attendance.forEach((att) => {
-      const storedAttendant = attendantStore.attendants.find(
-        (a) => a.id === att.id
-      );
+      const storedAttendant = attendants.find((a) => a.id === att.id);
       if (
         storedAttendant &&
         !attendanceSelected.value.some((a) => a.id === att.id)
@@ -123,13 +122,14 @@ function updateSelectedAttendance() {
       }
     });
   }
-  emit("attend", attendanceSelected.value); // Emite a seleção atualizada
+  emit("attend", attendanceSelected.value);
 }
 
 function selectAttendant(attendant) {
   const index = attendanceSelected.value.findIndex(
     (a) => a.id === attendant.id
   );
+
   if (index !== -1) {
     attendant.selected = false;
     attendanceSelected.value.splice(index, 1);

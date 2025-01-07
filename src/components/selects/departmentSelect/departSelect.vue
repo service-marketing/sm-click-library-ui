@@ -64,21 +64,18 @@ watch(
 import { nextTick } from "vue";
 
 watch(
-  () => departmentStore.departments.length,
+  () => attendantStore.attendants.length, // Observa apenas o tamanho do array
   async (newLength, oldLength) => {
     if (Number.isInteger(oldLength) && Number.isInteger(newLength)) {
-      console.log(
-        `Watch disparado, tamanho do array mudou: ${oldLength} -> ${newLength}`
-      );
-
       // Encadeamento explícito para garantir a ordem
-      await clearSelectedDepartments(); // Se for assíncrona
+      await clearSelectedAttendance(); // Limpa a seleção de atendentes
       await nextTick();
-      await fetchDepartments();
+      await updateSelectedAttendance(); // Atualiza a seleção de atendentes
     }
   },
   { immediate: true }
 );
+
 
 // Watch para monitorar mudanças no ID do departamento a ser deletado
 watch(
@@ -139,7 +136,7 @@ async function updateSelectedDepartments() {
   const departments = props.externalDepartments || departmentStore.departments;
 
   if (!departments || departments.length === 0) {
-    console.warn("Nenhum departamento disponível para atualização.");
+    // console.warn("Nenhum departamento disponível para atualização.");
     return;
   }
 
