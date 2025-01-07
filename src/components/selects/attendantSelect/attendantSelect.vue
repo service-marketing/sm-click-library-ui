@@ -80,7 +80,7 @@ import { nextTick } from "vue";
 
 watch(
   () => attendantStore.attendants,
-  (dp) => {
+  async (dp) => {
     await nextTick();
     clearSelectedAttendance();
     updateSelectedAttendance();
