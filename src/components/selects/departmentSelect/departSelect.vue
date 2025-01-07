@@ -137,8 +137,13 @@ async function clearSelectedDepartments() {
 // Atualiza departamentos selecionados
 async function updateSelectedDepartments() {
   const departments = props.externalDepartments || departmentStore.departments;
+
+  if (!departments || departments.length === 0) {
+    console.warn("Nenhum departamento disponível para atualização.");
+    return;
+  }
+
   if (props.department && props.department.length > 0) {
-    console.log(props.department);
     props.department.forEach((dep) => {
       const departmentInStore = departments.find((d) => d.id === dep.id);
 
@@ -155,7 +160,6 @@ async function updateSelectedDepartments() {
       }
     });
   }
-  console.log(departmentSelected.value);
   emit("depart", departmentSelected.value);
 }
 
