@@ -64,14 +64,18 @@ watch(
 import { nextTick } from "vue";
 
 watch(
-  () => departmentStore.departments.length, // Observa apenas o tamanho do array
+  () => departmentStore.departments.length,
   async (newLength, oldLength) => {
-    console.log(
-      `Watch disparado, tamanho do array mudou: ${oldLength} -> ${newLength}`
-    );
-    await nextTick();
-    await clearSelectedDepartments();
-    await fetchDepartments();
+    if (Number.isInteger(oldLength) && Number.isInteger(newLength)) {
+      console.log(
+        `Watch disparado, tamanho do array mudou: ${oldLength} -> ${newLength}`
+      );
+
+      // Encadeamento explícito para garantir a ordem
+      await clearSelectedDepartments(); // Se for assíncrona
+      await nextTick();
+      await fetchDepartments();
+    }
   },
   { immediate: true }
 );
