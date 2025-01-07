@@ -120,7 +120,7 @@ async function fetchDepartments() {
   get_loading.value = true;
 
   // await departmentStore.fetchDepartments();
-  updateSelectedDepartments();
+  await updateSelectedDepartments();
 
   get_loading.value = false;
 }
@@ -128,19 +128,17 @@ async function fetchDepartments() {
 // Função para limpar a seleção de todos os departamentos
 async function clearSelectedDepartments() {
   const departments = props.externalDepartments || departmentStore.departments;
-  console.log(departments)
   departments.forEach((department) => {
     department.selected = false;
   });
 
   departmentSelected.value = [];
-  console.log('depois do clear', departments)
 }
 // Atualiza departamentos selecionados
-function updateSelectedDepartments() {
+async function updateSelectedDepartments() {
   const departments = props.externalDepartments || departmentStore.departments;
-  console.log(departments)
   if (props.department && props.department.length > 0) {
+    console.log(props.department);
     props.department.forEach((dep) => {
       const departmentInStore = departments.find((d) => d.id === dep.id);
 
@@ -157,7 +155,7 @@ function updateSelectedDepartments() {
       }
     });
   }
-  console.log('depois do update' ,departments)
+  console.log(departmentSelected.value);
   emit("depart", departmentSelected.value);
 }
 
