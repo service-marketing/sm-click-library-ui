@@ -28,18 +28,17 @@ const filteredAttendants = computed(() => {
   // Filtro por nome e por departamento
   const filtered = searchInput.value
     ? activeAttendants.filter((attendant) =>
-        attendant.name.toLowerCase().includes(searchInput.value.toLowerCase()),
+        attendant.name.toLowerCase().includes(searchInput.value.toLowerCase())
       )
     : activeAttendants;
 
   return filterByDepartment(filterByMethod(filtered));
 });
 
-
 function filterByMethod(attendants) {
   if (props.method === "remove") {
     return props.attendance.filter(
-      (attendant) => attendant.id !== props.attDel.id,
+      (attendant) => attendant.id !== props.attDel.id
     );
   } else if (props.method === "transfer") {
     return attendants;
@@ -54,8 +53,8 @@ function filterByDepartment(attendants) {
   if (props.department.length > 0) {
     return attendants.filter((attendant) =>
       attendant.department.some((dept) =>
-        props.department.some((d) => d.id === dept.id),
-      ),
+        props.department.some((d) => d.id === dept.id)
+      )
     );
   }
   return attendants;
@@ -74,7 +73,16 @@ watch(
       clearSelectedAttendance();
     }
   },
-  { immediate: true },
+  { immediate: true }
+);
+
+watch(
+  () => attendantStore.attendants,
+  (dp) => {
+    clearSelectedAttendance();
+    updateSelectedAttendance();
+  },
+  { immediate: true, deep: true }
 );
 
 watch(
@@ -82,7 +90,7 @@ watch(
   () => {
     clearSelectedAttendance(); // Limpa os atendentes selecionados ao alterar department
   },
-  { deep: true }, // Necessário para observar alterações profundas no array
+  { deep: true } // Necessário para observar alterações profundas no array
 );
 
 function clearSelectedAttendance() {
@@ -98,7 +106,7 @@ function updateSelectedAttendance() {
     // Adiciona normalmente os atendentes de props.attendance, caso o método não seja "remove"
     props.attendance.forEach((att) => {
       const storedAttendant = attendantStore.attendants.find(
-        (a) => a.id === att.id,
+        (a) => a.id === att.id
       );
       if (
         storedAttendant &&
@@ -114,7 +122,7 @@ function updateSelectedAttendance() {
 
 function selectAttendant(attendant) {
   const index = attendanceSelected.value.findIndex(
-    (a) => a.id === attendant.id,
+    (a) => a.id === attendant.id
   );
   if (index !== -1) {
     attendant.selected = false;
