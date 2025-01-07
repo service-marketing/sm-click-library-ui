@@ -70,8 +70,8 @@ watch(
       `Watch disparado, tamanho do array mudou: ${oldLength} -> ${newLength}`
     );
     await nextTick();
-    clearSelectedDepartments();
-    fetchDepartments();
+    await clearSelectedDepartments();
+    await fetchDepartments();
   },
   { immediate: true }
 );
@@ -122,7 +122,7 @@ async function fetchDepartments() {
 }
 
 // Função para limpar a seleção de todos os departamentos
-function clearSelectedDepartments() {
+async function clearSelectedDepartments() {
   const departments = props.externalDepartments || departmentStore.departments;
   console.log(departments)
   departments.forEach((department) => {
@@ -152,9 +152,8 @@ function updateSelectedDepartments() {
         }
       }
     });
-    console.log('depois do update' ,departments)
   }
-
+  console.log('depois do update' ,departments)
   emit("depart", departmentSelected.value);
 }
 
