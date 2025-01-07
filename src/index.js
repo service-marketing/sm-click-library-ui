@@ -36,6 +36,8 @@ export function attLibDeparts(department, action = "add") {
     departStore.addDepartments(department);
   } else if (action === "delete") {
     departStore.removeDepartments(department);
+  } else if (action === "update") {
+    departStore.departments = department;
   } else {
     console.error(`Ação "${action}" não suportada em attLibDeparts.`);
   }
@@ -47,6 +49,8 @@ export function attLibAttendants(attendant, action = "add") {
     attendantStore.addAttendants(attendant);
   } else if (action === "delete") {
     attendantStore.removeAttendants(attendant);
+  } else if (action === "update") {
+    attendantStore.attendants = attendant;
   } else {
     console.error(`Ação "${action}" não suportada em attLibAttendants.`);
   }
