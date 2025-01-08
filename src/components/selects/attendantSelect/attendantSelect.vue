@@ -206,7 +206,7 @@ function eraseAttendant(attendant, index) {
       >
         <div
           v-for="(attendant, index) in attendanceSelected"
-          :key="attendant.id"
+          :key="attendant"
           class="selection-item"
         >
           {{ attendant.name }}

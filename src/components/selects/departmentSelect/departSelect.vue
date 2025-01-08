@@ -242,7 +242,7 @@ function eraseDepartment(department, index) {
       >
         <div
           v-for="(depart, index) in departmentSelected"
-          :key="depart.id"
+          :key="depart"
           class="selection-item"
         >
           {{ depart.name }}
