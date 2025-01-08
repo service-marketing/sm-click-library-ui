@@ -34,10 +34,12 @@ const filteredAttendants = computed(() => {
 });
 
 function filterByMethod(attendants) {
-  if (props.method === "remove") {
-    return props.attendance.filter(
-      (attendant) => attendant.id !== props.attDel.id
-    );
+  if (props.method === "remove" && props.attDel && props.attDel.id) {
+    if (Array.isArray(props.attendance)) {
+      return props.attendance.filter(
+        (attendant) => attendant.id !== props.attDel.id
+      );
+    }
   } else if (props.method === "transfer" || props.method === "addParticipant") {
     return attendants.filter((attendant) => attendant.id !== props.attDel.id);
   }
@@ -45,7 +47,7 @@ function filterByMethod(attendants) {
 }
 
 function filterByDepartment(attendants) {
-  if (props.department.length > 0) {
+  if (Array.isArray(props.department) && props.department.length > 0) {
     return attendants.filter((attendant) =>
       attendant.department.some((dept) =>
         props.department.some((d) => d.id === dept.id)
@@ -63,7 +65,8 @@ onMounted(() => {
 watch(
   () => attendantStore.attendants.length, // Observa apenas o tamanho do array
   async (newLength, oldLength) => {
-    if (newLength !== oldLength) { // Verifica se o tamanho realmente mudou
+    if (newLength !== oldLength) {
+      // Verifica se o tamanho realmente mudou
       await nextTick();
       initializeComponent();
     }
@@ -96,7 +99,7 @@ function initializeComponent() {
 
 function clearSelectedAttendance() {
   const attendants = filteredAttendants.value;
-  attendants.forEach((attendant) => {
+  (filteredAttendants.value || []).forEach((attendant) => {
     attendant.selected = false;
   });
   attendanceSelected.value = [];
@@ -191,7 +194,9 @@ function eraseAttendant(attendant, index) {
       </div>
 
       <main
-        v-if="attendanceSelected.length > 0 && multiSelect && attendantStore.loaded"
+        v-if="
+          attendanceSelected.length > 0 && multiSelect && attendantStore.loaded
+        "
         class="selection-container bg-base-300 border-b border-base-200"
       >
         <div
@@ -232,7 +237,8 @@ function eraseAttendant(attendant, index) {
             :class="{ 'two-columns': filteredAttendants.length > 4 }"
             class="grid-container"
           >
-            <div v-if="attendantStore.loaded"
+            <div
+              v-if="attendantStore.loaded"
               v-for="attendant in filteredAttendants"
               :key="attendant.id"
               :class="{ selected: attendant.selected }"
