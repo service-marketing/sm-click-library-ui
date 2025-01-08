@@ -281,7 +281,7 @@ function eraseDepartment(department, index) {
             <div
               v-if="departmentStore.loaded"
               v-for="department in filteredDepartments"
-              :key="department.id"
+              :key="department"
               :class="{ selected: department.selected }"
               class="department-item line-clamp-1 bg-slate-500/20 hover:bg-teal-600"
             >

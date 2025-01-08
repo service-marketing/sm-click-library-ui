@@ -245,7 +245,7 @@ function eraseAttendant(attendant, index) {
             <div
               v-if="attendantStore.loaded"
               v-for="attendant in filteredAttendants"
-              :key="attendant.id"
+              :key="attendant"
               :class="{ selected: attendant.selected }"
               class="department-item line-clamp-1 bg-slate-500/20 hover:bg-teal-600"
             >
