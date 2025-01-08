@@ -30,36 +30,93 @@ function install(Vue) {
   Vue.component("FilterSelectLib", FilterSelectLib);
 }
 
-export function attLibDeparts(department) {
+export function attLibDeparts(department, action = "add") {
   const departStore = useDepartmentStore();
-  departStore.addDepartments(department);
+  if (action === "add") {
+    departStore.addDepartments(department);
+  } else if (action === "delete") {
+    departStore.removeDepartments(department);
+  } else if (action === "update") {
+    departStore.departments = department;
+    departStore.loaded = true;
+  } else {
+    console.error(`Ação "${action}" não suportada em attLibDeparts.`);
+  }
 }
 
-export function setupLibrary(piniaInstance, jwtToken, rootUrl, attendances) {
-  try {
-    const authStore = useAuthStore(piniaInstance);
-    authStore.setToken(jwtToken);
+export function attLibAttendants(attendant, action = "add") {
+  const attendantStore = useAttendantStore();
+  if (action === "add") {
+    attendantStore.addAttendants(attendant);
+  } else if (action === "delete") {
+    attendantStore.removeAttendants(attendant);
+  } else if (action === "update") {
+    attendantStore.attendants = attendant;
+    attendantStore.loaded = true;
+  } else {
+    console.error(`Ação "${action}" não suportada em attLibAttendants.`);
+  }
+}
 
+export function attLibInstances(instances, action = "add") {
+  const instanceStore = useInstanceStore();
+  if (action === "add") {
+    instanceStore.addInstances(instances);
+  } else if (action === "delete") {
+    instanceStore.removeInstances(instances);
+  } else {
+    console.error(`Ação "${action}" não suportada em attLibInstances.`);
+  }
+}
+
+// Função de configuração geral
+export function setupLibrary(
+  piniaInstance,
+  jwtToken,
+  rootUrl,
+  attendances = [],
+  departments = [],
+  instances = []
+) {
+  try {
+    // Configuração do AuthStore
+    const authStore = useAuthStore(piniaInstance);
+    if (jwtToken) {
+      authStore.setToken(jwtToken);
+    }
+
+    // Configuração da baseURL para API
     if (rootUrl) {
       api.defaults.baseURL = rootUrl;
     }
 
+    // Configuração do DepartmentStore
     const departStore = useDepartmentStore(piniaInstance);
-    departStore.fetchDepartments();
+    if (departments.length > 0) {
+      departStore.departments = departments;
+      departStore.count = departments.length;
+    }
+    //  else {
+    //   departStore.fetchDepartments();
+    // }
 
+    // Configuração do AttendantStore
     const attendantStore = useAttendantStore(piniaInstance);
-
-    // Verifica se 'attendances' foi passado e se não está vazio
-    if (attendances) {
+    if (attendances.length > 0) {
       attendantStore.attendants = attendances;
       attendantStore.count = attendances.length;
-    } else {
-      // Caso contrário, busca os atendentes via fetchAttendants
-      attendantStore.fetchAttendants();
     }
+    //  else {
+    //   attendantStore.fetchAttendants();
+    // }
 
+    // Configuração do InstanceStore
     const instanceStore = useInstanceStore(piniaInstance);
     instanceStore.fetchInstances();
+    // if (instances.length) {
+    //   instanceStore.setInstances(instances);
+    // } else {
+    // }
   } catch (err) {
     console.error("Erro no setupLibrary:", err);
   }
@@ -68,6 +125,9 @@ export function setupLibrary(piniaInstance, jwtToken, rootUrl, attendances) {
 export default {
   install,
   setupLibrary,
+  attLibDeparts,
+  attLibAttendants,
+  attLibInstances,
   primarySelect,
   simpleModal,
   simpleCard,

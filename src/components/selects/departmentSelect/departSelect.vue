@@ -12,7 +12,7 @@ const props = defineProps({
   hiddenDepartment: { type: String, default: null },
 });
 
-const emit = defineEmits(["depart"]);
+const emit = defineEmits(["depart", "component-mounted"]);
 const departmentStore = useDepartmentStore();
 
 const searchInput = ref(""); // Campo para o input de pesquisa
@@ -44,6 +44,7 @@ const filteredDepartments = computed(() => {
 onMounted(() => {
   clearSelectedDepartments();
   fetchDepartments();
+  emit("component-mounted");
 });
 
 // Watch para modal_filter e multiSelect
@@ -55,6 +56,25 @@ watch(
         department.selected = false;
       });
       departmentSelected.value = [];
+    }
+  },
+  { immediate: true }
+);
+
+import { nextTick } from "vue";
+
+watch(
+  () => departmentStore.departments.length,
+  async (newLength, oldLength) => {
+    if (Number.isInteger(oldLength) && Number.isInteger(newLength)) {
+      // console.log(
+      //   `Watch disparado, tamanho do array mudou: ${oldLength} -> ${newLength}`
+      // );
+
+      // Encadeamento explícito para garantir a ordem
+      await clearSelectedDepartments(); // Se for assíncrona
+      await nextTick();
+      await fetchDepartments();
     }
   },
   { immediate: true }
@@ -100,15 +120,14 @@ async function fetchDepartments() {
   get_loading.value = true;
 
   // await departmentStore.fetchDepartments();
-  updateSelectedDepartments();
+  await updateSelectedDepartments();
 
   get_loading.value = false;
 }
 
 // Função para limpar a seleção de todos os departamentos
-function clearSelectedDepartments() {
+async function clearSelectedDepartments() {
   const departments = props.externalDepartments || departmentStore.departments;
-
   departments.forEach((department) => {
     department.selected = false;
   });
@@ -116,8 +135,13 @@ function clearSelectedDepartments() {
   departmentSelected.value = [];
 }
 // Atualiza departamentos selecionados
-function updateSelectedDepartments() {
+async function updateSelectedDepartments() {
   const departments = props.externalDepartments || departmentStore.departments;
+
+  if (!departments || departments.length === 0) {
+    console.warn("Nenhum departamento disponível para atualização.");
+    return;
+  }
 
   if (props.department && props.department.length > 0) {
     props.department.forEach((dep) => {
@@ -136,7 +160,6 @@ function updateSelectedDepartments() {
       }
     });
   }
-
   emit("depart", departmentSelected.value);
 }
 
@@ -195,7 +218,6 @@ function eraseDepartment(department, index) {
         />
         <div class="icon-container">
           <svg
-            v-if="!get_loading"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -209,12 +231,13 @@ function eraseDepartment(department, index) {
               d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
             />
           </svg>
-          <div v-else class="loader"></div>
         </div>
       </div>
 
       <main
-        v-if="departmentSelected.length > 0 && multiSelect"
+        v-if="
+          departmentSelected.length > 0 && multiSelect && departmentStore.loaded
+        "
         class="selection-container bg-base-300 border-b border-base-200"
       >
         <div
@@ -256,6 +279,7 @@ function eraseDepartment(department, index) {
             class="grid-container"
           >
             <div
+              v-if="departmentStore.loaded"
               v-for="department in filteredDepartments"
               :key="department.id"
               :class="{ selected: department.selected }"
@@ -280,13 +304,14 @@ function eraseDepartment(department, index) {
           </div>
         </div>
         <div
-          v-if="!get_loading && filteredDepartments.length === 0"
+          v-if="departmentStore.loaded && filteredDepartments.length === 0"
           class="no-departments bg-base-300"
         >
           Nenhum departamento disponível.
         </div>
-        <div v-if="get_loading" class="loading-spinner">
-          <div class="loader"></div>
+        <div v-if="!departmentStore.loaded" class="library-loading-spinner">
+          Inicializando departamentos
+          <div class="library-loader"></div>
         </div>
       </div>
     </div>
@@ -458,13 +483,14 @@ function eraseDepartment(department, index) {
   padding: 12px;
 }
 
-.loading-spinner {
+.library-loading-spinner {
   display: flex;
   justify-content: center;
-  padding: 12px;
+  padding: 26px;
+  gap: 12px;
 }
 
-@keyframes loader-rotate {
+@keyframes library-loader-rotate {
   0% {
     transform: rotate(0);
   }
@@ -474,13 +500,13 @@ function eraseDepartment(department, index) {
   }
 }
 
-.loader {
+.library-loader {
   width: 24px;
   height: 24px;
   border: 4px solid #14b8a6;
   border-right-color: transparent;
   border-radius: 50%;
-  animation: loader-rotate 1s linear infinite;
+  animation: library-loader-rotate 1s linear infinite;
 }
 
 .select-dropdown-depart {

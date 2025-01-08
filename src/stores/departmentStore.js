@@ -6,6 +6,7 @@ export const useDepartmentStore = defineStore("department", {
   state: () => ({
     departments: [],
     count: null,
+    loaded: false,
   }),
   actions: {
     async fetchDepartments(query = "") {
