@@ -37,11 +37,16 @@ function filterByMethod(attendants) {
   if (props.method === "remove" && props.attDel && props.attDel.id) {
     if (Array.isArray(props.attendance)) {
       return props.attendance.filter(
-        (attendant) => attendant.id !== props.attDel.id
+        (attendant) => attendant?.id !== props?.attDel.id
       );
     }
-  } else if (props.method === "transfer" || props.method === "addParticipant") {
-    return attendants.filter((attendant) => attendant.id !== props.attDel.id);
+  } else if (
+    props.method === "transfer" ||
+    (props.method === "addParticipant" && props.attDel && props.attDel.id)
+  ) {
+    if (Array.isArray(props.attendance)) {
+      return attendants.filter((attendant) => attendant.id !== props.attDel.id);
+    }
   }
   return attendants;
 }
