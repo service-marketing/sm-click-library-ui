@@ -128,6 +128,7 @@ async function fetchDepartments() {
         department.permission = "normal";
       }
     });
+    console.log(departments)
   }
 
   await updateSelectedDepartments();
@@ -161,10 +162,6 @@ async function updateSelectedDepartments() {
       if (departmentInStore) {
         departmentInStore.selected = true;
 
-        if (props.permissions && !departmentInStore.permission) {
-          departmentInStore.permission = "normal"; // Valor padrão
-        }
-
         const exists = departmentSelected.value.some(
           (selected) => selected.id === dep.id
         );
@@ -196,11 +193,6 @@ function selectDepartment(department) {
 
     // Marca e adiciona o novo departamento como selecionado
     department.selected = true;
-
-    if (props.permissions && !department.permission) {
-      department.permission = "normal"; // Valor padrão
-    }
-
     departmentSelected.value.push(department);
   }
 
@@ -209,10 +201,6 @@ function selectDepartment(department) {
 
 // Função para monitorar alterações de permissão
 function changePermission(department) {
-  if (!department.permission) {
-    department.permission = "normal"; // Garante valor padrão
-  }
-
   emit("depart", departmentSelected.value);
 }
 
