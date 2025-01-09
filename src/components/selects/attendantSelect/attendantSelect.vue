@@ -35,12 +35,12 @@ const filteredAttendants = computed(() => {
 function filterByMethod(attendants) {
   if (props.method === "remove") {
     return props.attendance.filter(
-      (attendant) => attendant.id !== props.attDel.id
+      (attendant) => attendant?.id !== props?.attDel?.id
     );
   } else if (props.method === "transfer") {
     return attendants;
   } else if (props.method === "addParticipant") {
-    return attendants.filter((attendant) => attendant.id !== props.attDel.id);
+    return attendants.filter((attendant) => attendant?.id !== props?.attDel?.id);
   } else {
     return attendants;
   }
