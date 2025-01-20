@@ -24,6 +24,12 @@
         </svg>
       </span>
     </div>
+    <section
+      v-if="!isChatOpen && countMessages > 0"
+      class="bg-[#1090b8] px-2.5 py-0.5 rounded-full items-center justify-center flex absolute z-10 left-5 bottom-6"
+    >
+      {{ countMessages }}
+    </section>
     <div
       @click.stop="handleChatClick"
       class="group relative"
@@ -135,6 +141,10 @@ const props = defineProps({
       created_at: "2024-09-17T09:45:19.286087Z",
     },
   },
+  countMessages: {
+    type: Number,
+    default: null,
+  },
 });
 
 const {
@@ -158,7 +168,7 @@ const chatContainer = ref(null); // Ref para o contêiner do chat
 const unreadMessagesCount = computed(() => {
   if (selectedAtendente.value) {
     const atendente = attendants.value.find(
-      (att) => att.id === selectedAtendente.value.id,
+      (att) => att.id === selectedAtendente.value.id
     );
     return atendente ? atendente.internal_chat.unread : 0;
   }
@@ -247,10 +257,10 @@ watch(
       addMessageToAtendente(
         newVal,
         isChatOpen.value,
-        selectedAtendente.value?.id,
+        selectedAtendente.value?.id
       );
     }
-  },
+  }
 );
 
 watch(isChatOpen, (newVal) => {
