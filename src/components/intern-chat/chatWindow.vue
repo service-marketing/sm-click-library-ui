@@ -24,10 +24,7 @@
         </svg>
       </span>
     </div>
-    <section
-      v-if="!isChatOpen && countMessages > 0"
-      class="bg-[#1090b8] px-2.5 py-0.5 rounded-full items-center justify-center flex absolute z-10 left-5 bottom-6"
-    >
+    <section v-if="!isChatOpen && countMessages > 0" class="chat-count">
       {{ countMessages }}
     </section>
     <div
@@ -400,5 +397,18 @@ watch(isChatOpen, (newVal) => {
   margin-top: auto;
   margin-bottom: auto;
   text-align: center;
+}
+
+.chat-count {
+  background-color: #1090b8;
+  padding: 0.3rem 0.525rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  z-index: 10;
+  left: 1.25rem;
+  bottom: 1.5rem;
 }
 </style>

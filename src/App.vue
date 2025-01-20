@@ -76,7 +76,7 @@ const socketMessage = ref(null);
     class="h-screen flex-col bg-gray-200 text-white flex items-center justify-center mt-12"
   >
     <div class="bg-red-200 flex justify-center items-center w-full h-full ">
-      <chatWindow :countMessages="10000" :attendant="payload" :socket-message="socketMessage" />
+      <chatWindow :countMessages="10" :attendant="payload" :socket-message="socketMessage" />
     </div>
   </main>
 </template>
