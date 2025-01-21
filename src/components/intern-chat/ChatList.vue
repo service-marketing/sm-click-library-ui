@@ -67,7 +67,6 @@ const emit = defineEmits(["atendenteSelecionado"]);
 const searchQuery = ref("");
 
 const selectAtendente = (atendente) => {
-  console.log(atendente);
   emit("atendenteSelecionado", atendente);
 };
 

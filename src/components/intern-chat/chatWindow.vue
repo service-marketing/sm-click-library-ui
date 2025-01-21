@@ -160,6 +160,7 @@ const isChatOpen = ref(false);
 const showContent = ref(false);
 const selectedAtendente = ref(null);
 const chatContainer = ref(null); // Ref para o contêiner do chat
+const emit = defineEmits(["unreadMessagesValue"]);
 
 // Computed property para obter o número de mensagens não lidas
 const unreadMessagesCount = computed(() => {
@@ -167,7 +168,9 @@ const unreadMessagesCount = computed(() => {
     const atendente = attendants.value.find(
       (att) => att.id === selectedAtendente.value.id
     );
-    return atendente ? atendente.internal_chat.unread : 0;
+    const attendantUnread = atendente ? atendente.internal_chat.unread : 0;
+    emit("unreadMessagesValue", attendantUnread);
+    return attendantUnread;
   }
   return 0;
 });
