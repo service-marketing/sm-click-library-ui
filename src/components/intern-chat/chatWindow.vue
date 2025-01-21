@@ -239,9 +239,7 @@ const handleChatClick = () => {
 };
 
 const selecionarAtendente = async (atendente) => {
-  const atendent = attendants.value.find(
-    (att) => att.id === selectedAtendente.value.id
-  );
+  const atendent = attendants.value.find((att) => att.id === atendente.id);
   const attendantCount = atendent ? atendent.internal_chat.unread : 0;
   emit("unreadMessageEmit", attendantCount);
 
