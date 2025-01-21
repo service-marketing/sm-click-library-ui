@@ -28,8 +28,8 @@
       v-if="!isChatOpen && countMessages > 0"
       :style="
         countMessages > 10
-          ? 'padding: 0.3rem 0.525rem;'
-          : 'padding: 0.3rem 0.825rem;'
+          ? 'padding: 0.2rem 0.500rem;'
+          : 'padding: 0.2rem 0.625rem;'
       "
       class="chat-count"
     >
@@ -422,5 +422,6 @@ watch(isChatOpen, (newVal) => {
   z-index: 10;
   left: 1.25rem;
   bottom: 1.5rem;
+  font-size: 0.9rem;
 }
 </style>

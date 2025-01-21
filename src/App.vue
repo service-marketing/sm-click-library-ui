@@ -19,12 +19,12 @@ import FilterSelect from "./components/selects/filterSelect/filterSelect.vue";
     class="h-screen flex-col bg-gray-200 text-white flex items-center justify-center mt-12"
   >
     <div class="bg-red-200 flex justify-center items-center w-full h-full">
-      <!-- <chatWindow
+      <chatWindow
         @unreadMessageEmit="(att) => console.log(att)"
-        :countMessages="0"
+        :countMessages="3"
         :attendant="payload"
         :socket-message="socketMessage"
-      /> -->
+      />
     </div>
   </main>
 </template>
