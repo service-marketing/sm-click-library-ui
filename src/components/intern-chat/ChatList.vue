@@ -67,6 +67,7 @@ const emit = defineEmits(["atendenteSelecionado"]);
 const searchQuery = ref("");
 
 const selectAtendente = (atendente) => {
+  console.log(atendente);
   emit("atendenteSelecionado", atendente);
 };
 
@@ -93,16 +94,14 @@ const filteredAtendentes = computed(() => {
   return props.atendentes.filter(
     (att) =>
       att.name.toLowerCase().includes(searchQuery.value.toLowerCase()) &&
-      att.id !== props.attendant.id,
+      att.id !== props.attendant.id
   );
 });
 </script>
 
 <style scoped>
 .atendente-item {
-  transition:
-    transform 0.3s ease,
-    background-color 0.3s ease;
+  transition: transform 0.3s ease, background-color 0.3s ease;
 }
 
 .atendente-item.moved {
