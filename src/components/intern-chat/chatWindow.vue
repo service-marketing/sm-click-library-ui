@@ -24,7 +24,15 @@
         </svg>
       </span>
     </div>
-    <section v-if="!isChatOpen && countMessages > 0" class="chat-count">
+    <section
+      v-if="!isChatOpen && countMessages > 0"
+      :style="
+        countMessages > 10
+          ? 'padding: 0.3rem 0.525rem;'
+          : 'padding: 0.3rem 0.825rem;'
+      "
+      class="chat-count"
+    >
       {{ countMessages }}
     </section>
     <div
@@ -160,7 +168,7 @@ const isChatOpen = ref(false);
 const showContent = ref(false);
 const selectedAtendente = ref(null);
 const chatContainer = ref(null); // Ref para o contêiner do chat
-const emit = defineEmits("unreadMessagesEmit");
+const emit = defineEmits(["unreadMessagesEmit"]);
 
 // Computed property para obter o número de mensagens não lidas
 const unreadMessagesCount = computed(() => {
@@ -406,7 +414,6 @@ watch(isChatOpen, (newVal) => {
 
 .chat-count {
   background-color: #1090b8;
-  padding: 0.3rem 0.525rem;
   border-radius: 9999px;
   display: flex;
   align-items: center;
