@@ -239,10 +239,7 @@ const handleChatClick = () => {
 
 const selecionarAtendente = async (atendente) => {
   selectedAtendente.value = atendente;
-  console.log(attendants.internal_chat.unread);
-
   resetUnreadMessages(atendente.id); // Reseta as mensagens não lidas ao selecionar o atendente
-
   // Verifica se o 'messages' é null, undefined ou um array vazio antes de buscar mensagens
   if (!atendente.hasNextPage) {
     await fetchMessagesForAtendente(atendente.id);
