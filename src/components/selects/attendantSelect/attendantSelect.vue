@@ -41,7 +41,9 @@ function filterByMethod(attendants) {
   } else if (props.method === "transfer") {
     return attendants;
   } else if (props.method === "addParticipant") {
-    return attendants.filter((attendant) => attendant?.id !== props?.attDel?.id);
+    return attendants.filter(
+      (attendant) => attendant?.id !== props?.attDel?.id
+    );
   } else {
     return attendants;
   }
@@ -122,7 +124,7 @@ function updateSelectedAttendance() {
         !attendanceSelected.value.some((a) => a.id === att.id)
       ) {
         storedAttendant.selected = true;
-        attendanceSelected.value.push({ ...storedAttendant });
+        attendanceSelected.value.push(storedAttendant);
       }
     });
   }

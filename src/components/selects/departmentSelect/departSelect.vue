@@ -128,7 +128,6 @@ async function fetchDepartments() {
         department.permission = "normal";
       }
     });
-    console.log(departments)
   }
 
   await updateSelectedDepartments();
@@ -167,7 +166,7 @@ async function updateSelectedDepartments() {
         );
 
         if (!exists) {
-          departmentSelected.value.push({ ...departmentInStore });
+          departmentSelected.value.push(departmentInStore);
         }
       }
     });
