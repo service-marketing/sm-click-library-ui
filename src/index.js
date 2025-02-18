@@ -6,6 +6,7 @@ import calendar from "./components/calendar/calendar.vue";
 import MFA from "./components/mfa/mfa.vue";
 import MfaQrCode from "./components/mfa/MfaQrCode.vue";
 import chatWindow from "./components/intern-chat/chatWindow.vue";
+import MobileInternalChat from "./components/intern-chat/mobileChatWindow.vue";
 import departSelect from "./components/selects/departmentSelect/departSelect.vue";
 import attendantSelect from "./components/selects/attendantSelect/attendantSelect.vue";
 import FilterSelectLib from "./components/selects/filterSelect/filterSelect.vue";
@@ -28,6 +29,7 @@ function install(Vue) {
   Vue.component("MfaQrCode", MfaQrCode);
   Vue.component("chatWindow", chatWindow);
   Vue.component("FilterSelectLib", FilterSelectLib);
+  Vue.component("MobileInternalChat", MobileInternalChat);
 }
 
 export function attLibDeparts(department, action = "add") {
@@ -138,4 +140,5 @@ export default {
   departSelect,
   attendantSelect,
   FilterSelectLib,
+  MobileInternalChat,
 };
