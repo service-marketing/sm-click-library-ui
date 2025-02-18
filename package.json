@@ -7,7 +7,7 @@
   "private": false,
   "scripts": {
     "dev": "vite",
-    "build": "vite build && pnpm run build:style && pnpm run copy:test-utils",
+    "build": "pnpm run build:lib && pnpm run build:style",
     "copy:test-utils": "cp src/test-utils/setup.js dist/test-utils/setup.js",
     "build:lib": "vite build",
     "build:style": "postcss src/styles/tailwind.css -o dist/tailwind.css",
