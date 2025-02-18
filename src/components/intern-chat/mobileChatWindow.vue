@@ -1,6 +1,6 @@
 <template>
     <loading v-if="loadingMessages || loadingAttendants" />
-    <div v-else-if="selectedAtendente && !loadingMessages" class="h-full">
+    <div v-else-if="selectedAtendente && !loadingMessages">
         <ChatMessages :attendant="attendant" :selectedAtendente="selectedAtendente" @voltar="selectedAtendente = null"
             :loadMessagesForAtendente="loadMessagesForAtendente" :sendMessageToAtendente="sendMessageToAtendente"
             :hasNextPageForAtendente="hasNextPageForAtendente" />
@@ -16,7 +16,6 @@ import {
     onMounted,
     computed,
     watch,
-    nextTick,
     onBeforeUnmount,
 } from "vue";
 import { useChat } from "./useChat"; // Importe o composable
@@ -102,31 +101,6 @@ onBeforeUnmount(() => {
 
 const isAnimating = ref(false); // Controla a animação de abertura/fechamento
 const isClosing = ref(false); // Controla o estado de fechamento
-
-const chatBoxStyle = computed(() => {
-    if (isClosing.value) {
-        return {
-            position: "absolute",
-            width: "42px",
-            height: "42px",
-            transition: "width 0.2s ease-in, height 0.2s ease-out",
-        };
-    } else if (isAnimating.value || isChatOpen.value) {
-        return {
-            position: "absolute",
-            width: "400px",
-            height: "65vh",
-            transition: "width 0.2s ease-in, height 0.2s ease-out",
-        };
-    } else {
-        return {
-            position: "relative",
-            width: "42px",
-            height: "42px",
-            transition: "none",
-        };
-    }
-});
 
 const toggleChat = () => {
     if (isChatOpen.value) {
