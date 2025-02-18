@@ -1,13 +1,15 @@
 <template>
-    <loading v-if="loadingMessages || loadingAttendants" />
-    <div v-else-if="selectedAtendente && !loadingMessages">
-        <ChatMessages :attendant="attendant" :selectedAtendente="selectedAtendente" @voltar="selectedAtendente = null"
-            :loadMessagesForAtendente="loadMessagesForAtendente" :sendMessageToAtendente="sendMessageToAtendente"
-            :hasNextPageForAtendente="hasNextPageForAtendente" />
-    </div>
+    <div class="chat-content">
+        <loading v-if="loadingMessages || loadingAttendants" />
+        <div v-else-if="selectedAtendente && !loadingMessages" class="h-full">
+            <ChatMessages :attendant="attendant" :selectedAtendente="selectedAtendente"
+                @voltar="selectedAtendente = null" :loadMessagesForAtendente="loadMessagesForAtendente"
+                :sendMessageToAtendente="sendMessageToAtendente" :hasNextPageForAtendente="hasNextPageForAtendente" />
+        </div>
 
-    <ChatList v-if="!selectedAtendente && !loadingAttendants" :attendant="attendant" :atendentes="attendants"
-        @atendenteSelecionado="selecionarAtendente" />
+        <ChatList v-if="!selectedAtendente && !loadingAttendants" :attendant="attendant" :atendentes="attendants"
+            @atendenteSelecionado="selecionarAtendente" />
+    </div>
 </template>
 
 <script setup>
@@ -16,6 +18,7 @@ import {
     onMounted,
     computed,
     watch,
+    nextTick,
     onBeforeUnmount,
 } from "vue";
 import { useChat } from "./useChat"; // Importe o composable
