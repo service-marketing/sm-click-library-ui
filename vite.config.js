@@ -31,4 +31,9 @@ export default defineConfig({
       filename: "custom-name.css", // Specify the desired filename
     },
   },
+  test: {
+    environment: "jsdom",
+    globals: true,
+    setupFiles: "./src/test-utils/setup.js",
+  }
 });
