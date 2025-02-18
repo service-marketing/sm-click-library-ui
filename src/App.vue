@@ -11,20 +11,15 @@ import MfaQrCode from "./components/mfa/mfaQrCode.vue";
 import departSelect from "./components/selects/departmentSelect/departSelect.vue";
 import attendantSelect from "./components/selects/attendantSelect/attendantSelect.vue";
 import chatWindow from "./components/intern-chat/chatWindow.vue";
+import mobileChatWindow from "./components/intern-chat/mobileChatWindow.vue";
 import FilterSelect from "./components/selects/filterSelect/filterSelect.vue";
 </script>
 
 <template>
-  <main
-    class="h-screen flex-col bg-gray-200 text-white flex items-center justify-center mt-12"
-  >
+  <main class="h-screen flex-col bg-gray-200 text-white flex items-center justify-center mt-12">
     <div class="bg-red-200 flex justify-center items-center w-full h-full">
-      <chatWindow
-        @unreadMessageEmit="(att) => console.log(att)"
-        :countMessages="3"
-        :attendant="payload"
-        :socket-message="socketMessage"
-      />
+      <mobileChatWindow @unreadMessageEmit="(att) => console.log(att)" :countMessages="3" :attendant="payload"
+        :socket-message="socketMessage" />
     </div>
   </main>
 </template>
