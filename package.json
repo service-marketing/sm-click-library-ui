@@ -1,9 +1,6 @@
 {
   "name": "sm-click-library-ui",
   "type": "module",
-  "files": [
-    "dist"
-  ],
   "version": "0.0.293",
   "main": "dist/sm-click-library-ui.es.js",
   "module": "dist/sm-click-library-ui.umd.js",
@@ -18,9 +15,13 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
+  "files": [
+    "dist",
+    "src/test-utils"
+  ],
   "exports": {
     ".": "./dist/sm-click-library-ui.es.js",
-    "./test-utils/setup": "./dist/test-utils/setup.js"
+    "./test-utils/setup": "./src/test-utils/setup.js"
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.13",
