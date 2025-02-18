@@ -7,8 +7,8 @@
                 :sendMessageToAtendente="sendMessageToAtendente" :hasNextPageForAtendente="hasNextPageForAtendente" />
         </div>
 
-        <ChatList v-if="!selectedAtendente && !loadingAttendants" :attendant="attendant" :atendentes="attendants"
-            @atendenteSelecionado="selecionarAtendente" />
+        <ChatList :mobile="true" v-if="!selectedAtendente && !loadingAttendants" :attendant="attendant"
+            :atendentes="attendants" @atendenteSelecionado="selecionarAtendente" />
     </div>
 </template>
 
