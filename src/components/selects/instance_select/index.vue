@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, watch, computed } from "vue";
-import { useInstanceStore } from "../../../stores/instanceStore";
+import { useInstanceStore } from "~/stores/instanceStore";
 
 const instanceStore = useInstanceStore();
 const open = ref(false);
@@ -21,12 +21,6 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["update:modelValue", "function", "component-mounted"]);
-
-// Computed para acessar as instâncias da store
-const instances = computed(() => instanceStore.instances);
-
-// Computed para verificar o estado de loading
-const loading = computed(() => !instanceStore.loaded);
 
 // Emite a função quando uma instância é selecionada
 function functionEmit(value) {
@@ -50,7 +44,7 @@ watch(selectedInstance, (newValue) => {
 // No onMounted, se houver uma instância selecionada, atualiza o status
 onMounted(async () => {
   if (selectedInstance.value) {
-    const selected = instances.value.find(
+    const selected = instanceStore.instances.find(
       (inst) => inst.id === selectedInstance.value.id
     );
     if (selected) {
@@ -74,8 +68,8 @@ function clearSelectedInstance() {
             class="rounded-lg shadow dark:shadow-gray-400 shadow-gray-900 dark:bg-base-100 bg-base-100 text-center">
             <div class="flex cursor-pointer justify-between items-center">
                 <p @click="open = !open" class="w-full p-3 px-4 select-none">
-                <div v-if="!loading">
-                    <span v-if="!selectedInstance">{{ instances ? instances.length : 'Sem' }} Instâncias
+                <div v-if="instanceStore.loaded">
+                    <span v-if="!selectedInstance">{{ instanceStore.instances ? instanceStore.instances.length : 'Sem' }} Instâncias
                         disponíveis</span>
                     <span class="flex items-center  gap-2" v-else>
                         <header class="flex gap-3 items-center flex-shrink-0">
@@ -155,7 +149,7 @@ function clearSelectedInstance() {
         <nav v-if="open"
             class="absolute top-[48px] w-full z-20 text-sm ">
             <ul class="gap-2 rounded-b-lg flex overflow-y-auto p-2 shadow shadow-black dark:shadow-gray-400 bg-base-300  max-h-[200px] flex-col">
-                <li v-if="instances.length > 0" v-for="inst, index in instances"
+                <li v-if="instanceStore.instances.length > 0" v-for="inst, index in instanceStore.instances"
                     class="select-none cursor-pointer w-full">
                     <button
                         :class="selectedInstance && selectedInstance.id === inst.id ? 'bg-base-100' : 'bg-base-200 hover:bg-base-100'"
