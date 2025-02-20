@@ -66,7 +66,11 @@ export function attLibInstances(instances, action = "add") {
     instanceStore.addInstance(instances);
   } else if (action === "delete") {
     instanceStore.removeInstance(instances);
-  } else {
+  } else if (action === "update") {
+    instanceStore.instances = instances;
+    instanceStore.loaded = true;
+  }
+  else {
     console.error(`Ação "${action}" não suportada em attLibInstances.`);
   }
 }
@@ -113,7 +117,7 @@ export async function setupLibrary(
     // }
 
     // Configuração do InstanceStore
-    const instanceStore = useInstanceStore(piniaInstance);
+    const instanceStore = await useInstanceStore(piniaInstance);
     await instanceStore.fetchInstances();
     // if (instances.length) {
     //   instanceStore.setInstances(instances);

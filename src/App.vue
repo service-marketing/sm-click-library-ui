@@ -17,6 +17,7 @@ import FilterSelect from "./components/selects/filterSelect/filterSelect.vue";
 
 <template>
   <main class="h-screen flex-col bg-gray-200 text-white flex items-center justify-center mt-12">
+    <instanceSelect/>
     <div class="bg-red-200 flex justify-center items-center w-full h-full">
       <mobileChatWindow @unreadMessageEmit="(att) => console.log(att)" :countMessages="3" :attendant="payload"
         :socket-message="socketMessage" />

@@ -14,6 +14,7 @@ export const useInstanceStore = defineStore("instance", {
         let nextPageUrl = `${getInstances}`;
         const response = await api.get(nextPageUrl);
         this.instances = response.data;
+        console.log(this.instances, response.data)
 
         // Atualizar status das instâncias
         await Promise.all(
