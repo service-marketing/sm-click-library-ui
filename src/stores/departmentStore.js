@@ -21,12 +21,12 @@ export const useDepartmentStore = defineStore("department", {
     },
     removeDepartments(departmentId) {
       this.departments = this.departments.filter(
-        (dep) => dep.id !== departmentId
+        (dep) => dep.id !== departmentId,
       );
     },
     addDepartments(department) {
       const departmentIndex = this.departments.findIndex(
-        (dep) => dep.id === department.id
+        (dep) => dep.id === department.id,
       );
 
       if (departmentIndex !== -1) {

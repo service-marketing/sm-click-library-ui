@@ -63,28 +63,28 @@ export function attLibAttendants(attendant, action = "add") {
 export function attLibInstances(instances, action = "add") {
   const instanceStore = useInstanceStore();
   if (action === "add") {
-    instanceStore.addInstances(instances);
+    instanceStore.addInstance(instances);
   } else if (action === "delete") {
-    instanceStore.removeInstances(instances);
+    instanceStore.removeInstance(instances);
   } else {
     console.error(`Ação "${action}" não suportada em attLibInstances.`);
   }
 }
 
 // Função de configuração geral
-export function setupLibrary(
+export async function setupLibrary(
   piniaInstance,
   jwtToken,
   rootUrl,
   attendances = [],
   departments = [],
-  instances = []
+  instances = [],
 ) {
   try {
     // Configuração do AuthStore
-    const authStore = useAuthStore(piniaInstance);
+    const authStore = await useAuthStore(piniaInstance);
     if (jwtToken) {
-      authStore.setToken(jwtToken);
+      await authStore.setToken(jwtToken);
     }
 
     // Configuração da baseURL para API
@@ -93,7 +93,7 @@ export function setupLibrary(
     }
 
     // Configuração do DepartmentStore
-    const departStore = useDepartmentStore(piniaInstance);
+    const departStore = await useDepartmentStore(piniaInstance);
     if (departments.length > 0) {
       departStore.departments = departments;
       departStore.count = departments.length;
@@ -103,7 +103,7 @@ export function setupLibrary(
     // }
 
     // Configuração do AttendantStore
-    const attendantStore = useAttendantStore(piniaInstance);
+    const attendantStore = await useAttendantStore(piniaInstance);
     if (attendances.length > 0) {
       attendantStore.attendants = attendances;
       attendantStore.count = attendances.length;
@@ -114,7 +114,7 @@ export function setupLibrary(
 
     // Configuração do InstanceStore
     const instanceStore = useInstanceStore(piniaInstance);
-    instanceStore.fetchInstances();
+    await instanceStore.fetchInstances();
     // if (instances.length) {
     //   instanceStore.setInstances(instances);
     // } else {

@@ -58,7 +58,7 @@ watch(
       departmentSelected.value = [];
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 import { nextTick } from "vue";
@@ -77,7 +77,7 @@ watch(
       await fetchDepartments();
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 // Watch para monitorar mudanças no ID do departamento a ser deletado
@@ -88,7 +88,7 @@ watch(
       deleteDepartmentById(Id);
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 function deleteDepartmentById(departmentId) {
@@ -96,13 +96,13 @@ function deleteDepartmentById(departmentId) {
 
   // Encontra o departamento pelo ID
   const departmentIndex = departments.findIndex(
-    (dep) => dep.id === departmentId
+    (dep) => dep.id === departmentId,
   );
 
   if (departmentIndex !== -1) {
     // Remove o departamento da lista selecionada
     departmentSelected.value = departmentSelected.value.filter(
-      (dep) => dep.id !== departmentId
+      (dep) => dep.id !== departmentId,
     );
 
     // Remove o departamento da store (ou de externalDepartments)
@@ -150,7 +150,6 @@ async function updateSelectedDepartments() {
   const departments = props.externalDepartments || departmentStore.departments;
 
   if (!departments || departments.length === 0) {
-    console.warn("Nenhum departamento disponível para atualização.");
     return;
   }
 
@@ -162,7 +161,7 @@ async function updateSelectedDepartments() {
         departmentInStore.selected = true;
 
         const exists = departmentSelected.value.some(
-          (selected) => selected.id === dep.id
+          (selected) => selected.id === dep.id,
         );
 
         if (!exists) {
@@ -177,7 +176,7 @@ async function updateSelectedDepartments() {
 // Função para selecionar departamento e definir permissão padrão
 function selectDepartment(department) {
   const index = departmentSelected.value.findIndex(
-    (dep) => dep.id === department.id
+    (dep) => dep.id === department.id,
   );
 
   if (index !== -1) {

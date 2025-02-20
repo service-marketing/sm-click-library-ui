@@ -20,12 +20,12 @@ const attendanceSelected = ref([]);
 
 const filteredAttendants = computed(() => {
   const activeAttendants = attendantStore.attendants.filter(
-    (attendant) => attendant.status === true
+    (attendant) => attendant.status === true,
   );
 
   const filtered = searchInput.value
     ? activeAttendants.filter((attendant) =>
-        attendant.name.toLowerCase().includes(searchInput.value.toLowerCase())
+        attendant.name.toLowerCase().includes(searchInput.value.toLowerCase()),
       )
     : activeAttendants;
 
@@ -36,13 +36,13 @@ function filterByMethod(attendants) {
   if (props.method === "remove") {
     const attendanceList = props.attendance || attendants;
     return attendanceList.filter(
-      (attendant) => attendant?.id !== props?.attDel?.id
+      (attendant) => attendant?.id !== props?.attDel?.id,
     );
   } else if (props.method === "transfer") {
     return attendants;
   } else if (props.method === "addParticipant") {
     return attendants.filter(
-      (attendant) => attendant?.id !== props?.attDel?.id
+      (attendant) => attendant?.id !== props?.attDel?.id,
     );
   } else {
     return attendants;
@@ -53,8 +53,8 @@ function filterByDepartment(attendants) {
   if (Array.isArray(props.department) && props.department.length > 0) {
     return attendants.filter((attendant) =>
       attendant.department.some((dept) =>
-        props.department.some((d) => d.id === dept.id)
-      )
+        props.department.some((d) => d.id === dept.id),
+      ),
     );
   }
   return attendants;
@@ -74,7 +74,7 @@ watch(
       initializeComponent();
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 watch(
@@ -84,7 +84,7 @@ watch(
       clearSelectedAttendance();
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 watch(
@@ -92,7 +92,7 @@ watch(
   () => {
     initializeComponent();
   },
-  { deep: true }
+  { deep: true },
 );
 
 function initializeComponent() {
@@ -112,7 +112,6 @@ function updateSelectedAttendance() {
   const attendants = attendantStore.attendants;
 
   if (!attendants || attendants.length === 0) {
-    console.warn("Nenhum atendente disponível para atualização.");
     return;
   }
 
@@ -133,7 +132,7 @@ function updateSelectedAttendance() {
 
 function selectAttendant(attendant) {
   const index = attendanceSelected.value.findIndex(
-    (a) => a.id === attendant.id
+    (a) => a.id === attendant.id,
   );
 
   if (index !== -1) {

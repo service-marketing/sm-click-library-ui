@@ -91,8 +91,5 @@ export default {
       104: "50rem",
     },
   },
-  plugins: [
-    typography,
-    scrollbar,
-  ],
+  plugins: [typography, scrollbar],
 };

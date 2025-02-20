@@ -1,14 +1,23 @@
 <template>
   <div class="attendants-container">
     <!-- Campo de busca -->
-    <input v-model="searchQuery"
-      :class="mobile ? 'search-input-mobile bg-base-300 border-b border-base-200' : 'search-input bg-base-300 border-b border-base-200'"
-      placeholder="Pesquise entre os atendentes..." />
+    <input
+      v-model="searchQuery"
+      :class="
+        mobile
+          ? 'search-input-mobile bg-base-300 border-b border-base-200'
+          : 'search-input bg-base-300 border-b border-base-200'
+      "
+      placeholder="Pesquise entre os atendentes..."
+    />
 
     <!-- Lista de atendentes -->
     <ul class="atendentes-list bg-base-300">
       <!-- Mensagem de ausência de atendentes -->
-      <li v-if="filteredAtendentes.length === 0" class="empty-message bg-base-200">
+      <li
+        v-if="filteredAtendentes.length === 0"
+        class="empty-message bg-base-200"
+      >
         {{
           atendentes.length === 0
             ? "Não há atendentes disponíveis"
@@ -17,9 +26,13 @@
       </li>
 
       <!-- Itens da lista de atendentes -->
-      <li v-for="att in filteredAtendentes" :key="att.id" @click="selectAtendente(att)"
+      <li
+        v-for="att in filteredAtendentes"
+        :key="att.id"
+        @click="selectAtendente(att)"
         :class="['atendente-item', att.isMoved ? 'moved' : '']"
-        class="border-b even:bg-base-300 bg-blue-400/10 border-base-200 hover:bg-base-200 relative">
+        class="border-b even:bg-base-300 bg-blue-400/10 border-base-200 hover:bg-base-200 relative"
+      >
         <!-- Informações principais do atendente -->
         <main class="atendente-main">
           <Avatar :url="att.photo" />
@@ -31,7 +44,9 @@
           <span v-if="att.internal_chat.unread > 0" class="message-indicator">{{
             att.internal_chat.unread
           }}</span>
-          <div :class="['status-indicator', getStatusClass(att.login_status)]"></div>
+          <div
+            :class="['status-indicator', getStatusClass(att.login_status)]"
+          ></div>
         </footer>
 
         <!-- Indicador de "conversar" no hover -->
@@ -49,7 +64,7 @@ import Avatar from "./Avatar.vue";
 const props = defineProps({
   atendentes: { type: Array, required: true },
   attendant: { required: true },
-  mobile: { type: Boolean, default: false }
+  mobile: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(["atendenteSelecionado"]);
@@ -83,14 +98,16 @@ const filteredAtendentes = computed(() => {
   return props.atendentes.filter(
     (att) =>
       att.name.toLowerCase().includes(searchQuery.value.toLowerCase()) &&
-      att.id !== props.attendant.id
+      att.id !== props.attendant.id,
   );
 });
 </script>
 
 <style scoped>
 .atendente-item {
-  transition: transform 0.3s ease, background-color 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    background-color 0.3s ease;
 }
 
 .atendente-item.moved {
@@ -236,9 +253,7 @@ const filteredAtendentes = computed(() => {
   padding: 0.6rem;
   text-align: center;
   color: white;
-  border-bottom-right-radius: 7px
-    /* 12px */
-  ;
+  border-bottom-right-radius: 7px /* 12px */;
   border-bottom-left-radius: 7px;
   /* 12px */
   /* Fixo na parte inferior */

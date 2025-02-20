@@ -35,5 +35,5 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: "./src/test-utils/setup.js",
-  }
+  },
 });

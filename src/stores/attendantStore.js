@@ -26,7 +26,7 @@ export const useAttendantStore = defineStore("attendant", {
     },
     addAttendants(attendant) {
       const attendantIndex = this.attendants.findIndex(
-        (att) => att.id === attendant.id
+        (att) => att.id === attendant.id,
       );
 
       if (attendantIndex !== -1) {
