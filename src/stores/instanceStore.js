@@ -14,15 +14,13 @@ export const useInstanceStore = defineStore("instance", {
         let nextPageUrl = `${getInstances}`;
         const response = await api.get(nextPageUrl);
         this.instances = response.data;
-        console.log(this.instances, response.data)
-
         // Atualizar status das instâncias
         await Promise.all(
           this.instances.map(async (key) => {
             key.isLoading = true;
             try {
               const statusResult = key.last_instance_status;
-
+              console.log(statusResult)
               if (
                 statusResult === "DISCONNECTED" ||
                 statusResult === "UNDEFINED"
@@ -32,14 +30,17 @@ export const useInstanceStore = defineStore("instance", {
                 key.status = true;
               }
             } catch (err) {
+              console.log(err)
               key.status = "Offline";
             }
+            console.log('carregou a ', key)
             key.isLoading = false;
           }),
         );
-
+        console.log('passou')
         this.count = this.instances.length;
         this.loaded = true; // Marcar como carregado após a requisição ser concluída
+        console.log(this.loaded)
       } catch (error) {
         console.log("Erro ao buscar instâncias:", error);
         this.loaded = true; // Mesmo em caso de erro, marcar como carregado para evitar loops de carregamento
