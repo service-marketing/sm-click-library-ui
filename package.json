@@ -23,7 +23,8 @@
   ],
   "exports": {
     ".": "./dist/sm-click-library-ui.es.js",
-    "./dist/style.css": "./dist/style.css"
+    "./dist/style.css": "./dist/style.css",
+    "./test-utils/setup": "./dist/test-utils/setup.js"
   },
   "dependencies": {
     "@pinia/testing": "^1.0.0",

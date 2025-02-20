@@ -20,7 +20,6 @@ export const useInstanceStore = defineStore("instance", {
             key.isLoading = true;
             try {
               const statusResult = key.last_instance_status;
-              console.log(statusResult)
               if (
                 statusResult === "DISCONNECTED" ||
                 statusResult === "UNDEFINED"
@@ -33,14 +32,11 @@ export const useInstanceStore = defineStore("instance", {
               console.log(err)
               key.status = "Offline";
             }
-            console.log('carregou a ', key)
             key.isLoading = false;
           }),
         );
-        console.log('passou')
         this.count = this.instances.length;
         this.loaded = true; // Marcar como carregado após a requisição ser concluída
-        console.log(this.loaded)
       } catch (error) {
         console.log("Erro ao buscar instâncias:", error);
         this.loaded = true; // Mesmo em caso de erro, marcar como carregado para evitar loops de carregamento
