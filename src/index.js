@@ -97,7 +97,7 @@ export async function setupLibrary(
     }
 
     // Configuração do DepartmentStore
-    const departStore = await useDepartmentStore(piniaInstance);
+    const departStore = useDepartmentStore(piniaInstance);
     if (departments.length > 0) {
       departStore.departments = departments;
       departStore.count = departments.length;
@@ -107,7 +107,7 @@ export async function setupLibrary(
     // }
 
     // Configuração do AttendantStore
-    const attendantStore = await useAttendantStore(piniaInstance);
+    const attendantStore = useAttendantStore(piniaInstance);
     if (attendances.length > 0) {
       attendantStore.attendants = attendances;
       attendantStore.count = attendances.length;
@@ -117,7 +117,7 @@ export async function setupLibrary(
     // }
 
     // Configuração do InstanceStore
-    const instanceStore = await useInstanceStore(piniaInstance);
+    const instanceStore = useInstanceStore(piniaInstance);
     await instanceStore.fetchInstances();
     // if (instances.length) {
     //   instanceStore.setInstances(instances);

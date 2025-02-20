@@ -21,11 +21,6 @@
     "dist",
     "src/test-utils"
   ],
-  "exports": {
-    ".": "./dist/sm-click-library-ui.es.js",
-    "./test-utils/setup": "./src/test-utils/setup.js",
-    "./dist/style.css": "./dist/style.css"
-  },
   "dependencies": {
     "@pinia/testing": "^1.0.0",
     "@tailwindcss/typography": "^0.5.13",
