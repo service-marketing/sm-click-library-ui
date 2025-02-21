@@ -160,6 +160,11 @@ async function updateSelectedDepartments() {
       if (departmentInStore) {
         departmentInStore.selected = true;
 
+        // Atualiza a permissão se o departamento recebido possuir essa propriedade
+        if (dep.permission) {
+          departmentInStore.permission = dep.permission;
+        }
+
         const exists = departmentSelected.value.some(
           (selected) => selected.id === dep.id,
         );
