@@ -122,11 +122,8 @@ async function fetchDepartments() {
   const departments = props.externalDepartments || departmentStore.departments;
 
   if (props.permissions) {
-    // Garante que todos os departamentos tenham a permissão padrão "normal"
     departments.forEach((department) => {
-      if (!department.permission) {
-        department.permission = "normal";
-      }
+      department.permission = "normal";
     });
   }
 
