@@ -16,12 +16,17 @@ import FilterSelect from "./components/selects/filterSelect/filterSelect.vue";
 </script>
 
 <template>
-  <main class="h-screen flex-col bg-gray-200 text-white flex items-center justify-center mt-12">
-    <instanceSelect/>
-    <div class="bg-red-200 flex justify-center items-center w-full h-full">
-      <mobileChatWindow @unreadMessageEmit="(att) => console.log(att)" :countMessages="3" :attendant="payload"
-        :socket-message="socketMessage" />
-    </div>
+  <main
+    class="h-screen flex-col bg-gray-200 text-white flex items-center justify-center mt-12 p-8"
+  >
+    <simpleCard
+      typeCard="success"
+      :content="{
+        title: 'Compra gerada',
+        description:
+          'Sua cobraça foi gerada e está disponivel no seu painel financeiro, realize o pagamento para liberação dos tokens nessa API Key!',
+      }"
+    />
   </main>
 </template>
 

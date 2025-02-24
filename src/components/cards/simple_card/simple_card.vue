@@ -99,7 +99,7 @@ const detectClass = computed(() => {
 <style>
 .card {
   background-color: #111b21;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   padding: 8px;
   border: 1.5px solid;
 }
