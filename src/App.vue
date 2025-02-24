@@ -20,7 +20,7 @@ import FilterSelect from "./components/selects/filterSelect/filterSelect.vue";
     class="h-screen flex-col bg-gray-200 text-white flex items-center justify-center mt-12 p-8"
   >
     <simpleCard
-      typeCard="success"
+      typeCard="alert"
       :content="{
         title: 'Compra gerada',
         description:

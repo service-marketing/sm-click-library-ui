@@ -1,9 +1,9 @@
 <template>
-  <div :class="detectClass" class="card">
-    <div class="card-header">
+  <div :class="detectClass" class="simple_card">
+    <div class="simple_card_header">
       <svg
         v-if="typeCard === 'success'"
-        class="card-icon"
+        class="simple_card_icon"
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 22 22"
         fill="none"
@@ -18,7 +18,7 @@
 
       <svg
         v-if="typeCard === 'info'"
-        class="card-icon"
+        class="simple_card_icon"
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 22 22"
         fill="none"
@@ -33,7 +33,7 @@
 
       <svg
         v-if="typeCard === 'alert'"
-        class="card-icon"
+        class="simple_card_icon"
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 22 22"
         fill="none"
@@ -48,7 +48,7 @@
 
       <svg
         v-if="typeCard === 'error'"
-        class="card-icon"
+        class="simple_card_icon"
         aria-hidden="true"
         xmlns="http://www.w3.org/2000/svg"
         fill="currentColor"
@@ -61,10 +61,10 @@
         />
       </svg>
 
-      <p class="card_title">{{ content.title }}</p>
+      <p class="simple_card_title">{{ content.title }}</p>
     </div>
 
-    <section class="card_descripiton">
+    <section class="simple_card_descripiton">
       <p>{{ content.description }}</p>
     </section>
   </div>
@@ -88,62 +88,62 @@ const props = defineProps({
 
 const detectClass = computed(() => {
   return {
-    success: props.typeCard === "success",
-    info: props.typeCard === "info",
-    alert: props.typeCard === "alert",
-    error: props.typeCard === "error",
+    simple_card_success: props.typeCard === "success",
+    simple_card_info: props.typeCard === "info",
+    simple_card_alert: props.typeCard === "alert",
+    simple_card_error: props.typeCard === "error",
   };
 });
 </script>
 
 <style>
-.card {
+.simple_card {
   background-color: #111b21;
   border-radius: 0.5rem;
   padding: 8px;
   border: 1.5px solid;
 }
 
-.card-header {
+.simple_card_header {
   display: flex;
   align-items: center;
   gap: 3px;
 }
 
-.card-icon {
+.simple_card_icon {
   width: 18px;
   height: 18px;
 }
 
-.success {
+.simple_card_success {
   border-color: #22c55e;
   color: #22c55e;
   box-shadow: 0 0 5px #22c55e;
 }
 
-.info {
+.simple_card_info {
   border-color: #60a5fa;
   color: #60a5fa;
   box-shadow: 0 0 5px #60a5fa;
 }
 
-.alert {
+.simple_card_alert {
   border-color: #facc15;
   color: #facc15;
   box-shadow: 0 0 5px #facc15;
 }
 
-.error {
+.simple_card_error {
   border-color: #ef4444;
   color: #ef4444;
   box-shadow: 0 0 5px #ef4444;
 }
 
-.card_title {
+.simple_card_title {
   font-weight: 500;
 }
 
-.card_descripiton {
+.simple_card_descripiton {
   font-weight: 200;
   color: #ffffff;
 }
