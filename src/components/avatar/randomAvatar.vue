@@ -28,7 +28,6 @@ c<template>
 import { Avatar, Factory } from "vue3-avataaars";
 import { ref, nextTick, onMounted } from "vue";
 import { defaultAvatar } from "./assets/content";
-import SelectValue from "./components/selectValue.vue";
 
 const avatarBuildProps = ref(defaultAvatar);
 const facialHair = ref(false);
