@@ -10,6 +10,7 @@ import MobileInternalChat from "./components/intern-chat/mobileChatWindow.vue";
 import departSelect from "./components/selects/departmentSelect/departSelect.vue";
 import attendantSelect from "./components/selects/attendantSelect/attendantSelect.vue";
 import FilterSelectLib from "./components/selects/filterSelect/filterSelect.vue";
+import RandomAvatar from "./components/avatar/randomAvatar.vue";
 import { useDebugStore } from "~/stores/debugStore";
 import { useAuthStore } from "~/stores/authStore";
 import { useAttendantStore } from "./stores/attendantStore";
@@ -30,6 +31,7 @@ function install(Vue) {
   Vue.component("chatWindow", chatWindow);
   Vue.component("FilterSelectLib", FilterSelectLib);
   Vue.component("MobileInternalChat", MobileInternalChat);
+  Vue.component("RandomAvatar", RandomAvatar);
 }
 
 export function attLibDeparts(department, action = "add") {
@@ -69,8 +71,7 @@ export function attLibInstances(instances, action = "add") {
   } else if (action === "update") {
     instanceStore.instances = instances;
     instanceStore.loaded = true;
-  }
-  else {
+  } else {
     console.error(`Ação "${action}" não suportada em attLibInstances.`);
   }
 }
@@ -82,7 +83,7 @@ export async function setupLibrary(
   rootUrl,
   attendances = [],
   departments = [],
-  instances = [],
+  instances = []
 ) {
   try {
     // Configuração do AuthStore
@@ -145,4 +146,5 @@ export default {
   attendantSelect,
   FilterSelectLib,
   MobileInternalChat,
+  RandomAvatar,
 };
