@@ -1,23 +1,20 @@
-c<template>
-  <main class="flex flex-col gap-2 w-full">
+<template>
+  <main class="main-container">
     <img v-if="props.content" :src="props.content" alt="" />
 
-    <section class="flex items-center gap-3 justify-center" v-else>
-      <div id="avatar-container" class="w-[50%]">
+    <section class="avatar-section" v-else>
+      <div id="avatar-container" class="avatar-container">
         <Avatar v-bind="avatarBuildProps" />
       </div>
     </section>
 
-    <div class="flex flex-col gap-2 justify-center mx-auto">
-      <label for="">
+    <div class="controls">
+      <label class="checkbox-label" for="avatarLabel">
+        <input id="avatarLabel" v-model="facialHair" type="checkbox" />
         Remover barba
-        <input v-model="facialHair" type="checkbox" />
       </label>
-      <!-- {{ facialHair }} -->
-      <button
-        @click="createRandom"
-        class="bg-blue-200 p-1 rounded-md max-w-1/2"
-      >
+
+      <button @click="createRandom" class="generate-button">
         Gerar Avatar
       </button>
     </div>
@@ -48,6 +45,7 @@ const createRandom = async () => {
     circleColor: "#22c55e",
     facialHair: facialHair.value ? "Blank" : null,
   }); // Usa a função factory da lib para criar as props
+
   await nextTick(); // Aguarda o DOM ser atualizado
   getAvatar();
 };
@@ -71,3 +69,53 @@ const getAvatar = () => {
   emit("base64", dataUrl);
 };
 </script>
+
+<style>
+.main-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.avatar-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+}
+
+.avatar-container {
+  width: 50%;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.generate-button {
+  background-color: #22c55e;
+  padding: 5px;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.3s;
+}
+
+.generate-button:hover {
+  background-color: #16a34a;
+}
+</style>
