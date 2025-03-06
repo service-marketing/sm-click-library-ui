@@ -26,7 +26,7 @@ const base64test =
 
 <template>
   <main class="h-screen w-screen justify-center items-center flex">
-    <RandomAvatar :content="base64test" @base64="getBase64" />
+    <RandomAvatar @base64="getBase64" />
 
     <!-- <div class="w-[900px]">
       <simpleCard

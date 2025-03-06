@@ -17,6 +17,7 @@
             id="avatarLabel"
             v-model="facialHair"
             type="checkbox"
+            @input="removeFacialHair"
             class="sc-gJwTLC ikxBAC"
           />
           Remover barba
@@ -36,6 +37,7 @@ import { ref, nextTick, onMounted } from "vue";
 import { defaultAvatar } from "./assets/content";
 
 const avatarBuildProps = ref(defaultAvatar);
+const lastAvatar = ref(defaultAvatar);
 const facialHair = ref(false);
 
 const emit = defineEmits(["base64", "random"]);
@@ -47,6 +49,20 @@ const props = defineProps({
   },
 });
 
+const removeFacialHair = async () => {
+  if (!facialHair.value) {
+    // Criar uma cópia temporária do avatar sem barba
+    const modifiedAvatar = { ...lastAvatar.value, facialHair: "Blank" };
+    avatarBuildProps.value = Factory(modifiedAvatar);
+  } else {
+    avatarBuildProps.value = Factory(lastAvatar.value);
+  }
+
+  // Atualiza e emite o novo svg
+  await nextTick();
+  getAvatar();
+};
+
 // Função para criar o avatar random
 const createRandom = async () => {
   avatarBuildProps.value = Factory({
@@ -54,7 +70,8 @@ const createRandom = async () => {
     circleColor: "#22c55e",
     facialHair: facialHair.value ? "Blank" : null,
   }); // Usa a função factory da lib para criar as props
-
+  const newAvatar = avatarBuildProps.value;
+  lastAvatar.value = newAvatar;
   await nextTick(); // Aguarda o DOM ser atualizado
   getAvatar();
 };
