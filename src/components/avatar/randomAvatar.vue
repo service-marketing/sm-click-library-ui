@@ -9,8 +9,13 @@
     </section>
 
     <div class="controls">
-      <label class="checkbox-label" for="avatarLabel">
-        <input id="avatarLabel" v-model="facialHair" type="checkbox" />
+      <label class="checkbox-label checkbox-wrapper-2" for="avatarLabel">
+        <input
+          id="avatarLabel"
+          v-model="facialHair"
+          type="checkbox"
+          class="sc-gJwTLC ikxBAC"
+        />
         Remover barba
       </label>
 
@@ -70,7 +75,7 @@ const getAvatar = () => {
 };
 </script>
 
-<style>
+<style scoped>
 .main-container {
   display: flex;
   flex-direction: column;
@@ -118,4 +123,69 @@ const getAvatar = () => {
 .generate-button:hover {
   background-color: #16a34a;
 }
+
+.checkbox-wrapper-2 .ikxBAC {
+  appearance: none;
+  background-color: #dfe1e4;
+  border-radius: 72px;
+  border-style: none;
+  flex-shrink: 0;
+  height: 20px;
+  margin: 0;
+  position: relative;
+  width: 30px;
+}
+
+.checkbox-wrapper-2 .ikxBAC::before {
+  bottom: -6px;
+  content: "";
+  left: -6px;
+  position: absolute;
+  right: -6px;
+  top: -6px;
+}
+
+.checkbox-wrapper-2 .ikxBAC,
+.checkbox-wrapper-2 .ikxBAC::after {
+  transition: all 100ms ease-out;
+}
+
+.checkbox-wrapper-2 .ikxBAC::after {
+  background-color: #fff;
+  border-radius: 50%;
+  content: "";
+  height: 14px;
+  left: 3px;
+  position: absolute;
+  top: 3px;
+  width: 14px;
+}
+
+.checkbox-wrapper-2 input[type="checkbox"] {
+  cursor: default;
+}
+
+.checkbox-wrapper-2 .ikxBAC:hover {
+  background-color: #c9cbcd;
+  transition-duration: 0s;
+}
+
+.checkbox-wrapper-2 .ikxBAC:checked {
+  background-color: #22c55e;
+}
+
+.checkbox-wrapper-2 .ikxBAC:checked::after {
+  background-color: #fff;
+  left: 13px;
+}
+
+.checkbox-wrapper-2 :focus:not(.focus-visible) {
+  outline: 0;
+}
+
+.checkbox-wrapper-2 .ikxBAC:checked:hover {
+  background-color: #22c55e;
+}
 </style>
+
+
