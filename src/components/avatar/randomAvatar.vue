@@ -2,27 +2,30 @@
   <main class="main-container">
     <img v-if="props.content" :src="props.content" alt="" />
 
-    <section class="avatar-section" v-else>
+    <section
+      class="avatar-section flex flex-col max-w-[40%] min-h-[40%]"
+      v-else
+    >
       <div id="avatar-container" class="avatar-container">
         <Avatar v-bind="avatarBuildProps" />
       </div>
+
+      <div class="controls">
+        <label class="checkbox-label checkbox-wrapper-2" for="avatarLabel">
+          <input
+            id="avatarLabel"
+            v-model="facialHair"
+            type="checkbox"
+            class="sc-gJwTLC ikxBAC"
+          />
+          Remover barba
+        </label>
+
+        <button @click="createRandom" class="generate-button">
+          Gerar Avatar
+        </button>
+      </div>
     </section>
-
-    <div class="controls">
-      <label class="checkbox-label checkbox-wrapper-2" for="avatarLabel">
-        <input
-          id="avatarLabel"
-          v-model="facialHair"
-          type="checkbox"
-          class="sc-gJwTLC ikxBAC"
-        />
-        Remover barba
-      </label>
-
-      <button @click="createRandom" class="generate-button">
-        Gerar Avatar
-      </button>
-    </div>
   </main>
 </template>
 
