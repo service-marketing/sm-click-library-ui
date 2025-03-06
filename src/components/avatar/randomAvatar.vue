@@ -1,11 +1,12 @@
 <template>
   <main class="main-container">
-    <img v-if="props.content" :src="props.content" alt="" />
+    <img
+      class="max-w-[45%] max-h-[45%] flex items-center justify-center mx-auto"
+      :src="props.content"
+      v-if="props.content"
+    />
 
-    <section
-      class="avatar-section flex flex-col max-w-[40%] min-h-[40%]"
-      v-else
-    >
+    <section v-else class="avatar-section flex flex-col">
       <div id="avatar-container" class="avatar-container">
         <Avatar v-bind="avatarBuildProps" />
       </div>
