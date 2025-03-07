@@ -40,6 +40,12 @@ const avatarBuildProps = ref(defaultAvatar);
 const lastAvatar = ref(defaultAvatar);
 const facialHair = ref(false);
 
+onMounted(async () => {
+  avatarBuildProps.value = Factory(avatarBuildProps.value);
+  await nextTick();
+  getAvatar();
+});
+
 const emit = defineEmits(["base64", "random"]);
 
 const props = defineProps({
