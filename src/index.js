@@ -11,6 +11,7 @@ import departSelect from "./components/selects/departmentSelect/departSelect.vue
 import attendantSelect from "./components/selects/attendantSelect/attendantSelect.vue";
 import FilterSelectLib from "./components/selects/filterSelect/filterSelect.vue";
 import RandomAvatar from "./components/avatar/randomAvatar.vue";
+import MinModal from "./components/modals/min_modal/min_modal.vue";
 import { useDebugStore } from "~/stores/debugStore";
 import { useAuthStore } from "~/stores/authStore";
 import { useAttendantStore } from "./stores/attendantStore";
@@ -32,6 +33,7 @@ function install(Vue) {
   Vue.component("FilterSelectLib", FilterSelectLib);
   Vue.component("MobileInternalChat", MobileInternalChat);
   Vue.component("RandomAvatar", RandomAvatar);
+  Vue.component("MinModal", MinModal);
 }
 
 export function attLibDeparts(department, action = "add") {
@@ -147,4 +149,5 @@ export default {
   FilterSelectLib,
   MobileInternalChat,
   RandomAvatar,
+  MinModal,
 };
