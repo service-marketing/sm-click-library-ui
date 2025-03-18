@@ -14,7 +14,7 @@ const closeModal = () => {
 
 <template>
   <div
-    class="backdrop-blur-[2px] z-50 fixed w-full h-full top-0 left-0 flex items-center justify-center"
+    class="my_modal backdrop-blur-[2px] z-50 fixed w-full h-full top-0 left-0 flex items-center justify-center"
   >
     <div class="absolute h-full w-full bg-black opacity-[0.2]" />
   </div>
