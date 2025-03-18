@@ -14,7 +14,7 @@ const closeModal = () => {
 
 <template>
   <div
-    class="my_modal backdrop-blur-[2px] z-50 fixed w-full h-full top-0 left-0 flex items-center justify-center"
+    class="backdrop-blur-[2px] z-50 fixed w-full h-full top-0 left-0 flex items-center justify-center"
   >
     <div class="absolute h-full w-full bg-black opacity-[0.2]" />
   </div>
@@ -29,7 +29,7 @@ const closeModal = () => {
         <div
           class="flex items-center justify-between p-4 md:p-5 border- rounded-t dark:border-gray-600 border-gray-200"
         >
-          <h3 class="font-bold">Receber Comissões</h3>
+          <slot name="header" />
           <button
             class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm h-8 w-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
             @click="closeModal()"
@@ -49,7 +49,6 @@ const closeModal = () => {
                 d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
               />
             </svg>
-            <span class="sr-only">Close modal</span>
           </button>
         </div>
         <!-- Modal body -->
