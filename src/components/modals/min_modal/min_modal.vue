@@ -3,7 +3,7 @@ const emit = defineEmits(["close"]);
 defineProps({
   defineWidth: {
     type: String,
-    default: "max-w-md",
+    default: "max-width-md",
   },
 });
 
@@ -13,29 +13,18 @@ const closeModal = () => {
 </script>
 
 <template>
-  <div
-    class="min_modal backdrop-blur-[2px] z-50 fixed w-full h-full top-0 left-0 flex items-center justify-center"
-  >
-    <div class="absolute h-full w-full bg-black opacity-20" />
+  <div class="min_modal">
+    <div class="modal_overlay" @click="closeModal"></div>
   </div>
 
-  <div
-    class="overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full flex"
-  >
-    <div :class="[defineWidth, 'relative p-4 w-full max-h-full']">
-      <!-- Modal content -->
-      <div class="relative bg-base-300 rounded-lg shadow-sm dark:bg-gray-700">
-        <!-- Modal header -->
-        <div
-          class="flex items-center justify-between p-4 md:p-5 border- rounded-t dark:border-gray-600 border-gray-200"
-        >
+  <div class="modal_container">
+    <div :class="['modal_content ', defineWidth]">
+      <div class="modal_box">
+        <div class="modal_header">
           <slot name="header" />
-          <button
-            class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm h-8 w-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-            @click="closeModal()"
-          >
+          <button class="modal_close" @click="closeModal()">
             <svg
-              class="w-3 h-3"
+              class="modal_close_icon"
               aria-hidden="true"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -51,8 +40,7 @@ const closeModal = () => {
             </svg>
           </button>
         </div>
-        <!-- Modal body -->
-        <div class="p-2 md:p-3">
+        <div class="modal_body">
           <slot name="body" />
         </div>
       </div>
@@ -62,7 +50,92 @@ const closeModal = () => {
 
 <style scoped>
 .min_modal {
-  animation: 0.1s ease-out 0s 1 modalani;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  animation: modalani 0.1s ease-out;
   transition: opacity 0.2s ease-in-out;
+}
+
+.modal_overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(2px);
+}
+
+.modal_container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: calc(100% - 1rem);
+  max-height: 100%;
+  z-index: 50;
+}
+
+.modal_content {
+  position: relative;
+  padding: 16px;
+}
+
+.modal_box {
+  position: relative;
+  background: #111b21;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal_header {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px;
+}
+
+.modal_close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal_close_icon {
+  width: 12px;
+  height: 12px;
+  color: #9ca3af;
+}
+
+.modal_close:hover {
+  background: #e5e7eb;
+  border-radius: 8px;
+}
+
+.modal_body {
+  padding: 16px;
+}
+
+@keyframes modalani {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 </style>
