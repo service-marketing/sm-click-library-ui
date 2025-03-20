@@ -40,7 +40,7 @@ const closeModal = () => {
             </svg>
           </button>
         </div>
-        <div class="modal_body">
+        <div>
           <slot name="body" />
         </div>
       </div>
@@ -101,7 +101,7 @@ const closeModal = () => {
 .modal_header {
   display: flex;
   justify-content: space-between;
-  padding: 16px;
+  padding: 10px;
 }
 
 .modal_close {
@@ -124,10 +124,6 @@ const closeModal = () => {
 .modal_close:hover {
   background: #e5e7eb;
   border-radius: 8px;
-}
-
-.modal_body {
-  padding: 16px;
 }
 
 @keyframes modalani {
