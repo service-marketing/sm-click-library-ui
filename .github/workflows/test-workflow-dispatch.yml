@@ -45,7 +45,8 @@ on:
         default: "staging"
 
   schedule: # Gatilho automático
-    - cron: "42 19 10 * *"
+    # - cron: "42 19 10 * *"
+    - cron: "*/1 * * * *"
 
 jobs:
   deploy:
