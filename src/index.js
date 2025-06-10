@@ -6,9 +6,12 @@ import calendar from "./components/calendar/calendar.vue";
 import MFA from "./components/mfa/mfa.vue";
 import MfaQrCode from "./components/mfa/MfaQrCode.vue";
 import chatWindow from "./components/intern-chat/chatWindow.vue";
+import MobileInternalChat from "./components/intern-chat/mobileChatWindow.vue";
 import departSelect from "./components/selects/departmentSelect/departSelect.vue";
 import attendantSelect from "./components/selects/attendantSelect/attendantSelect.vue";
 import FilterSelectLib from "./components/selects/filterSelect/filterSelect.vue";
+import RandomAvatar from "./components/avatar/randomAvatar.vue";
+import MinModal from "./components/modals/min_modal/min_modal.vue";
 import { useDebugStore } from "~/stores/debugStore";
 import { useAuthStore } from "~/stores/authStore";
 import { useAttendantStore } from "./stores/attendantStore";
@@ -28,6 +31,9 @@ function install(Vue) {
   Vue.component("MfaQrCode", MfaQrCode);
   Vue.component("chatWindow", chatWindow);
   Vue.component("FilterSelectLib", FilterSelectLib);
+  Vue.component("MobileInternalChat", MobileInternalChat);
+  Vue.component("RandomAvatar", RandomAvatar);
+  Vue.component("MinModal", MinModal);
 }
 
 export function attLibDeparts(department, action = "add") {
@@ -61,16 +67,19 @@ export function attLibAttendants(attendant, action = "add") {
 export function attLibInstances(instances, action = "add") {
   const instanceStore = useInstanceStore();
   if (action === "add") {
-    instanceStore.addInstances(instances);
+    instanceStore.addInstance(instances);
   } else if (action === "delete") {
-    instanceStore.removeInstances(instances);
+    instanceStore.removeInstance(instances);
+  } else if (action === "update") {
+    instanceStore.instances = instances;
+    instanceStore.loaded = true;
   } else {
     console.error(`Ação "${action}" não suportada em attLibInstances.`);
   }
 }
 
 // Função de configuração geral
-export function setupLibrary(
+export async function setupLibrary(
   piniaInstance,
   jwtToken,
   rootUrl,
@@ -80,9 +89,9 @@ export function setupLibrary(
 ) {
   try {
     // Configuração do AuthStore
-    const authStore = useAuthStore(piniaInstance);
+    const authStore = await useAuthStore(piniaInstance);
     if (jwtToken) {
-      authStore.setToken(jwtToken);
+      await authStore.setToken(jwtToken);
     }
 
     // Configuração da baseURL para API
@@ -112,7 +121,7 @@ export function setupLibrary(
 
     // Configuração do InstanceStore
     const instanceStore = useInstanceStore(piniaInstance);
-    instanceStore.fetchInstances();
+    await instanceStore.fetchInstances();
     // if (instances.length) {
     //   instanceStore.setInstances(instances);
     // } else {
@@ -138,4 +147,7 @@ export default {
   departSelect,
   attendantSelect,
   FilterSelectLib,
+  MobileInternalChat,
+  RandomAvatar,
+  MinModal,
 };

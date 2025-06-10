@@ -1,108 +1,24 @@
 <template>
-  <div class="chat-container" ref="chatContainer">
-    <div
-      @click.stop="toggleChat"
-      v-if="isChatOpen"
-      style="
-        width: 42px;
-        height: 42px;
-        border-radius: 50%;
-        background-color: #02a9db;
-        display: flex;
-        justify-content: center;
-      "
-    >
-      <span
-        style="margin-top: auto; margin-bottom: auto"
-        class="chat-icon my-auto"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
-          <path
-            fill="currentColor"
-            d="M208 352c114.9 0 208-78.8 208-176S322.9 0 208 0S0 78.8 0 176c0 38.6 14.7 74.3 39.6 103.4c-3.5 9.4-8.7 17.7-14.2 24.7c-4.8 6.2-9.7 11-13.3 14.3c-1.8 1.6-3.3 2.9-4.3 3.7c-.5 .4-.9 .7-1.1 .8l-.2 .2s0 0 0 0s0 0 0 0C1 327.2-1.4 334.4 .8 340.9S9.1 352 16 352c21.8 0 43.8-5.6 62.1-12.5c9.2-3.5 17.8-7.4 25.2-11.4C134.1 343.3 169.8 352 208 352zM448 176c0 112.3-99.1 196.9-216.5 207C255.8 457.4 336.4 512 432 512c38.2 0 73.9-8.7 104.7-23.9c7.5 4 16 7.9 25.2 11.4c18.3 6.9 40.3 12.5 62.1 12.5c6.9 0 13.1-4.5 15.2-11.1c2.1-6.6-.2-13.8-5.8-17.9c0 0 0 0 0 0s0 0 0 0l-.2-.2c-.2-.2-.6-.4-1.1-.8c-1-.8-2.5-2-4.3-3.7c-3.6-3.3-8.5-8.1-13.3-14.3c-5.5-7-10.7-15.4-14.2-24.7c24.9-29 39.6-64.7 39.6-103.4c0-92.8-84.9-168.9-192.6-175.5c.4 5.1 .6 10.3 .6 15.5z"
-          />
-        </svg>
-      </span>
+  <div class="chat-content">
+    <loading v-if="loadingMessages || loadingAttendants" />
+    <div v-else-if="selectedAtendente && !loadingMessages" class="h-full">
+      <ChatMessages
+        :attendant="attendant"
+        :selectedAtendente="selectedAtendente"
+        @voltar="selectedAtendente = null"
+        :loadMessagesForAtendente="loadMessagesForAtendente"
+        :sendMessageToAtendente="sendMessageToAtendente"
+        :hasNextPageForAtendente="hasNextPageForAtendente"
+      />
     </div>
-    <section
-      v-if="!isChatOpen && countMessages > 0"
-      :style="
-        countMessages > 10
-          ? 'padding: 0.2rem 0.500rem;'
-          : 'padding: 0.2rem 0.625rem;'
-      "
-      class="chat-count"
-    >
-      {{ countMessages }}
-    </section>
-    <div
-      @click.stop="handleChatClick"
-      class="group relative"
-      :class="
-        isChatOpen
-          ? 'chat-box border-base-200 open bg-base-200'
-          : 'chat-box closed'
-      "
-      :style="chatBoxStyle"
-    >
-      <!-- Ícone de chat com contador de mensagens não lidas -->
-      <span v-if="!isChatOpen" class="chat-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
-          <path
-            fill="currentColor"
-            d="M208 352c114.9 0 208-78.8 208-176S322.9 0 208 0S0 78.8 0 176c0 38.6 14.7 74.3 39.6 103.4c-3.5 9.4-8.7 17.7-14.2 24.7c-4.8 6.2-9.7 11-13.3 14.3c-1.8 1.6-3.3 2.9-4.3 3.7c-.5 .4-.9 .7-1.1 .8l-.2 .2s0 0 0 0s0 0 0 0C1 327.2-1.4 334.4 .8 340.9S9.1 352 16 352c21.8 0 43.8-5.6 62.1-12.5c9.2-3.5 17.8-7.4 25.2-11.4C134.1 343.3 169.8 352 208 352zM448 176c0 112.3-99.1 196.9-216.5 207C255.8 457.4 336.4 512 432 512c38.2 0 73.9-8.7 104.7-23.9c7.5 4 16 7.9 25.2 11.4c18.3 6.9 40.3 12.5 62.1 12.5c6.9 0 13.1-4.5 15.2-11.1c2.1-6.6-.2-13.8-5.8-17.9c0 0 0 0 0 0s0 0 0 0l-.2-.2c-.2-.2-.6-.4-1.1-.8c-1-.8-2.5-2-4.3-3.7c-3.6-3.3-8.5-8.1-13.3-14.3c-5.5-7-10.7-15.4-14.2-24.7c24.9-29 39.6-64.7 39.6-103.4c0-92.8-84.9-168.9-192.6-175.5c.4 5.1 .6 10.3 .6 15.5z"
-          />
-        </svg>
-        <!-- Exibe o número de mensagens não lidas -->
-        <span v-if="unreadMessagesCount > 0" class="unread-count">{{
-          unreadMessagesCount
-        }}</span>
-        <div class="chat-tooltip">
-          <div class="text-sm my-auto text-center">Chat interno</div>
-        </div>
-      </span>
 
-      <transition name="fade">
-        <div v-if="isChatOpen && !isClosing" class="chat-content">
-          <button @click.stop="toggleChat" class="close-button">
-            <svg
-              class="w-5 h-5"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L17.94 6M18 18L6.06 6"
-              />
-            </svg>
-          </button>
-          <loading v-if="loadingMessages || loadingAttendants" />
-          <div v-else-if="selectedAtendente && !loadingMessages" class="h-full">
-            <ChatMessages
-              :attendant="attendant"
-              :selectedAtendente="selectedAtendente"
-              @voltar="selectedAtendente = null"
-              :loadMessagesForAtendente="loadMessagesForAtendente"
-              :sendMessageToAtendente="sendMessageToAtendente"
-              :hasNextPageForAtendente="hasNextPageForAtendente"
-            />
-          </div>
-
-          <ChatList
-            v-if="!selectedAtendente && !loadingAttendants"
-            :attendant="attendant"
-            :atendentes="attendants"
-            @atendenteSelecionado="selecionarAtendente"
-          />
-        </div>
-      </transition>
-    </div>
+    <ChatList
+      :mobile="true"
+      v-if="!selectedAtendente && !loadingAttendants"
+      :attendant="attendant"
+      :atendentes="attendants"
+      @atendenteSelecionado="selecionarAtendente"
+    />
   </div>
 </template>
 
@@ -198,31 +114,6 @@ onBeforeUnmount(() => {
 
 const isAnimating = ref(false); // Controla a animação de abertura/fechamento
 const isClosing = ref(false); // Controla o estado de fechamento
-
-const chatBoxStyle = computed(() => {
-  if (isClosing.value) {
-    return {
-      position: "absolute",
-      width: "42px",
-      height: "42px",
-      transition: "width 0.2s ease-in, height 0.2s ease-out",
-    };
-  } else if (isAnimating.value || isChatOpen.value) {
-    return {
-      position: "absolute",
-      width: "400px",
-      height: "65vh",
-      transition: "width 0.2s ease-in, height 0.2s ease-out",
-    };
-  } else {
-    return {
-      position: "relative",
-      width: "42px",
-      height: "42px",
-      transition: "none",
-    };
-  }
-});
 
 const toggleChat = () => {
   if (isChatOpen.value) {
@@ -393,16 +284,20 @@ watch(isChatOpen, (newVal) => {
   width: 150px;
   padding: 4px 8px;
   top: 0;
-  left: 3.5rem; /* Left position from the icon */
-  border-radius: 0.375rem; /* Equivalente a rounded-md */
+  left: 3.5rem;
+  /* Left position from the icon */
+  border-radius: 0.375rem;
+  /* Equivalente a rounded-md */
   background-color: #02a9db;
-  opacity: 0; /* Hidden by default */
+  opacity: 0;
+  /* Hidden by default */
   display: flex;
   justify-content: center;
 }
 
 .group:hover .chat-tooltip {
-  opacity: 1; /* Show tooltip on hover */
+  opacity: 1;
+  /* Show tooltip on hover */
 }
 
 .chat-tooltip .text-sm {

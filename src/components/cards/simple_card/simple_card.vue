@@ -1,16 +1,11 @@
 <template>
-  <div
-    :class="detectClass"
-    class="bg-base-300 border-2 p-2 rounded-lg flex-col justify-left items-center"
-  >
-    <div class="flex justify-left gap-3">
+  <div :class="detectClass" class="simple_card">
+    <div class="simple_card_header">
       <svg
         v-if="typeCard === 'success'"
-        class="text-green-500"
+        class="simple_card_icon"
         xmlns="http://www.w3.org/2000/svg"
-        width="20"
-        height="20"
-        viewBox="0 0 20 20"
+        viewBox="0 0 22 22"
         fill="none"
       >
         <path
@@ -23,11 +18,9 @@
 
       <svg
         v-if="typeCard === 'info'"
-        class="text-blue-400"
+        class="simple_card_icon"
         xmlns="http://www.w3.org/2000/svg"
-        width="20"
-        height="20"
-        viewBox="0 0 20 20"
+        viewBox="0 0 22 22"
         fill="none"
       >
         <path
@@ -40,11 +33,9 @@
 
       <svg
         v-if="typeCard === 'alert'"
-        class="text-yellow-400"
+        class="simple_card_icon"
         xmlns="http://www.w3.org/2000/svg"
-        width="22"
-        height="20"
-        viewBox="0 0 22 20"
+        viewBox="0 0 22 22"
         fill="none"
       >
         <path
@@ -57,13 +48,11 @@
 
       <svg
         v-if="typeCard === 'error'"
-        class="w-6 h-6 text-red-500"
+        class="simple_card_icon"
         aria-hidden="true"
         xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
         fill="currentColor"
-        viewBox="0 0 24 24"
+        viewBox="0 0 23 23"
       >
         <path
           fill-rule="evenodd"
@@ -71,11 +60,11 @@
           clip-rule="evenodd"
         />
       </svg>
-      <span>
-        <p class="font-bold">{{ content.title }}</p>
-      </span>
+
+      <p class="simple_card_title">{{ content.title }}</p>
     </div>
-    <section class="text-white flex">
+
+    <section class="simple_card_descripiton">
       <p>{{ content.description }}</p>
     </section>
   </div>
@@ -98,16 +87,64 @@ const props = defineProps({
 });
 
 const detectClass = computed(() => {
-  if (props.typeCard === "success") {
-    return "border-green-500 text-green-500 shadow-md shadow-green-700";
-  } else if (props.typeCard === "info") {
-    return "border-blue-400 text-blue-400 shadow-md shadow-blue-700";
-  } else if (props.typeCard === "alert") {
-    return "border-yellow-400 text-yellow-400 shadow-md shadow-yellow-700";
-  } else if (props.typeCard === "error") {
-    return "border-red-500 text-red-500 shadow-md shadow-red-700";
-  } else {
-    return "border-white text-white";
-  }
+  return {
+    simple_card_success: props.typeCard === "success",
+    simple_card_info: props.typeCard === "info",
+    simple_card_alert: props.typeCard === "alert",
+    simple_card_error: props.typeCard === "error",
+  };
 });
 </script>
+
+<style>
+.simple_card {
+  background-color: #111b21;
+  border-radius: 0.5rem;
+  padding: 8px;
+  border: 1.5px solid;
+}
+
+.simple_card_header {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.simple_card_icon {
+  width: 18px;
+  height: 18px;
+}
+
+.simple_card_success {
+  border-color: #22c55e;
+  color: #22c55e;
+  box-shadow: 0 0 5px #22c55e;
+}
+
+.simple_card_info {
+  border-color: #60a5fa;
+  color: #60a5fa;
+  box-shadow: 0 0 5px #60a5fa;
+}
+
+.simple_card_alert {
+  border-color: #facc15;
+  color: #facc15;
+  box-shadow: 0 0 5px #facc15;
+}
+
+.simple_card_error {
+  border-color: #ef4444;
+  color: #ef4444;
+  box-shadow: 0 0 5px #ef4444;
+}
+
+.simple_card_title {
+  font-weight: 500;
+}
+
+.simple_card_descripiton {
+  font-weight: 200;
+  color: #ffffff;
+}
+</style>

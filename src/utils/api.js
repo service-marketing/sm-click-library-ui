@@ -3,7 +3,7 @@ import { useAuthStore } from "~/stores/authStore"; // Ajuste o caminho conforme 
 
 // Crie uma instância personalizada do Axios
 const api = axios.create({
-  baseURL: "http://localhost:8000/", // O `rootUrl` será definido dinamicamente via setupLibrary
+  baseURL: "https://back.dev-smclick.com.br/", // O `rootUrl` será definido dinamicamente via setupLibrary
 });
 
 // Adiciona um interceptor para incluir automaticamente o token JWT

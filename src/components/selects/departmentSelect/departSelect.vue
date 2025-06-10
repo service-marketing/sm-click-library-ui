@@ -58,7 +58,7 @@ watch(
       departmentSelected.value = [];
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 import { nextTick } from "vue";
@@ -77,7 +77,7 @@ watch(
       await fetchDepartments();
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 // Watch para monitorar mudanças no ID do departamento a ser deletado
@@ -88,7 +88,7 @@ watch(
       deleteDepartmentById(Id);
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 function deleteDepartmentById(departmentId) {
@@ -96,13 +96,13 @@ function deleteDepartmentById(departmentId) {
 
   // Encontra o departamento pelo ID
   const departmentIndex = departments.findIndex(
-    (dep) => dep.id === departmentId
+    (dep) => dep.id === departmentId,
   );
 
   if (departmentIndex !== -1) {
     // Remove o departamento da lista selecionada
     departmentSelected.value = departmentSelected.value.filter(
-      (dep) => dep.id !== departmentId
+      (dep) => dep.id !== departmentId,
     );
 
     // Remove o departamento da store (ou de externalDepartments)
@@ -119,7 +119,14 @@ function deleteDepartmentById(departmentId) {
 async function fetchDepartments() {
   get_loading.value = true;
 
-  // await departmentStore.fetchDepartments();
+  const departments = props.externalDepartments || departmentStore.departments;
+
+  if (props.permissions) {
+    departments.forEach((department) => {
+      department.permission = "normal";
+    });
+  }
+
   await updateSelectedDepartments();
 
   get_loading.value = false;
@@ -134,12 +141,12 @@ async function clearSelectedDepartments() {
 
   departmentSelected.value = [];
 }
+
 // Atualiza departamentos selecionados
 async function updateSelectedDepartments() {
   const departments = props.externalDepartments || departmentStore.departments;
 
   if (!departments || departments.length === 0) {
-    console.warn("Nenhum departamento disponível para atualização.");
     return;
   }
 
@@ -150,12 +157,17 @@ async function updateSelectedDepartments() {
       if (departmentInStore) {
         departmentInStore.selected = true;
 
+        // Atualiza a permissão se o departamento recebido possuir essa propriedade
+        if (dep.permission) {
+          departmentInStore.permission = dep.permission;
+        }
+
         const exists = departmentSelected.value.some(
-          (selected) => selected.id === dep.id
+          (selected) => selected.id === dep.id,
         );
 
         if (!exists) {
-          departmentSelected.value.push({ ...departmentInStore });
+          departmentSelected.value.push(departmentInStore);
         }
       }
     });
@@ -163,9 +175,10 @@ async function updateSelectedDepartments() {
   emit("depart", departmentSelected.value);
 }
 
+// Função para selecionar departamento e definir permissão padrão
 function selectDepartment(department) {
   const index = departmentSelected.value.findIndex(
-    (dep) => dep.id === department.id
+    (dep) => dep.id === department.id,
   );
 
   if (index !== -1) {
@@ -175,7 +188,6 @@ function selectDepartment(department) {
   } else {
     // Se multiSelect está desativado, desmarque todos os departamentos na store
     if (!props.multiSelect) {
-      // Desmarca todos os departamentos na store, removendo qualquer seleção anterior
       clearSelectedDepartments();
     }
 
@@ -184,6 +196,11 @@ function selectDepartment(department) {
     departmentSelected.value.push(department);
   }
 
+  emit("depart", departmentSelected.value);
+}
+
+// Função para monitorar alterações de permissão
+function changePermission(department) {
   emit("depart", departmentSelected.value);
 }
 
@@ -293,11 +310,11 @@ function eraseDepartment(department, index) {
               <div v-if="multiSelect && permissions" style="width: 150px">
                 <select
                   v-model="department.permission"
+                  @change="changePermission(department)"
                   class="select-dropdown-depart bg-base-300"
                 >
-                  <option selected>normal</option>
-                  <option>supervisor</option>
-                  <!-- <option value="master">mestre</option> -->
+                  <option value="normal">normal</option>
+                  <option value="supervisor">supervisor</option>
                 </select>
               </div>
             </div>

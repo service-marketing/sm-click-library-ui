@@ -3,7 +3,7 @@ import { defineStore } from "pinia";
 export const useAuthStore = defineStore("auth", {
   state: () => ({
     jwtToken:
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzM2MzM5NzIwLCJpYXQiOjE3MzYxNjY4NzksImp0aSI6IjIxNGVlYTlmNjk1YzQ4Y2I4YzAwY2U4Njk1ZTZiYzk0IiwidXNlcl9pZCI6IjYyZTBmZWRmLWFiMGItNDIyYi1iOTFmLWNlZjAyYjQ1YzdlMSJ9.kvBwDWq5MmJBMf93sa5fLmyKY0hTMxMDVKcdpEGGQho", // Inicialmente vazio
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQwMDY5MzIyLCJpYXQiOjE3Mzk5ODI5MjIsImp0aSI6IjcyZjcxYjgzY2I5YTQ1MWFhMmYyODQ0OTlmZGFkZWIxIiwidXNlcl9pZCI6ImU4YTAwNWZhLTk0YjUtNDRiOC05ZDkwLWZjNzJmYzI0NjRhOSJ9.IOzqjqDpRRfqsvqhzEsGDLhQOKWapjzFycNG3Qv8k0U", // Inicialmente vazio
   }),
   actions: {
     setToken(token) {

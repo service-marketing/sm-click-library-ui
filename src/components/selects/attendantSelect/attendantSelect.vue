@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, computed, watch, onMounted, nextTick } from "vue";
 import { useAttendantStore } from "~/stores/attendantStore";
 
 const props = defineProps({
@@ -11,24 +11,21 @@ const props = defineProps({
   method: { type: String, default: null },
 });
 
-const emit = defineEmits(["attend"]);
+const emit = defineEmits(["attend", "component-mounted"]);
 const attendantStore = useAttendantStore();
 
 const searchInput = ref("");
 const open_select = ref(false);
 const attendanceSelected = ref([]);
-const get_loading = ref(false);
 
 const filteredAttendants = computed(() => {
-  // Filtro por status
   const activeAttendants = attendantStore.attendants.filter(
-    (attendant) => attendant.status === true
+    (attendant) => attendant.status === true,
   );
 
-  // Filtro por nome e por departamento
   const filtered = searchInput.value
     ? activeAttendants.filter((attendant) =>
-        attendant.name.toLowerCase().includes(searchInput.value.toLowerCase())
+        attendant.name.toLowerCase().includes(searchInput.value.toLowerCase()),
       )
     : activeAttendants;
 
@@ -37,14 +34,15 @@ const filteredAttendants = computed(() => {
 
 function filterByMethod(attendants) {
   if (props.method === "remove") {
-    return props.attendance.filter(
-      (attendant) => attendant.id !== props.attDel.id
+    const attendanceList = props.attendance || attendants;
+    return attendanceList.filter(
+      (attendant) => attendant?.id !== props?.attDel?.id,
     );
   } else if (props.method === "transfer") {
     return attendants;
   } else if (props.method === "addParticipant") {
     return attendants.filter(
-      (attendant) => attendant?.id !== props?.attDel?.id
+      (attendant) => attendant?.id !== props?.attDel?.id,
     );
   } else {
     return attendants;
@@ -52,20 +50,32 @@ function filterByMethod(attendants) {
 }
 
 function filterByDepartment(attendants) {
-  if (props.department.length > 0) {
+  if (Array.isArray(props.department) && props.department.length > 0) {
     return attendants.filter((attendant) =>
       attendant.department.some((dept) =>
-        props.department.some((d) => d.id === dept.id)
-      )
+        props.department.some((d) => d.id === dept.id),
+      ),
     );
   }
   return attendants;
 }
 
 onMounted(() => {
-  clearSelectedAttendance();
-  updateSelectedAttendance();
+  initializeComponent();
+  emit("component-mounted");
 });
+
+watch(
+  () => attendantStore.attendants.length, // Observa apenas o tamanho do array
+  async (newLength, oldLength) => {
+    if (Number.isInteger(oldLength) && Number.isInteger(newLength)) {
+      // Verifica se o tamanho realmente mudou
+      await nextTick();
+      initializeComponent();
+    }
+  },
+  { immediate: true },
+);
 
 watch(
   () => props.modal_filter,
@@ -74,48 +84,57 @@ watch(
       clearSelectedAttendance();
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 watch(
   () => props.department,
   () => {
-    clearSelectedAttendance(); // Limpa os atendentes selecionados ao alterar department
+    initializeComponent();
   },
-  { deep: true } // Necessário para observar alterações profundas no array
+  { deep: true },
 );
 
+function initializeComponent() {
+  clearSelectedAttendance();
+  updateSelectedAttendance();
+}
+
 function clearSelectedAttendance() {
-  filteredAttendants.value.forEach((attendant) => {
+  const attendants = filteredAttendants.value || [];
+  attendants.forEach((attendant) => {
     attendant.selected = false;
   });
   attendanceSelected.value = [];
 }
 
 function updateSelectedAttendance() {
-  if (props.method === "remove" && props.attendance) {
-  } else if (props.attendance && props.attendance.length > 0) {
-    // Adiciona normalmente os atendentes de props.attendance, caso o método não seja "remove"
+  const attendants = attendantStore.attendants;
+
+  if (!attendants || attendants.length === 0) {
+    return;
+  }
+
+  if (props.attendance && props.attendance.length > 0) {
     props.attendance.forEach((att) => {
-      const storedAttendant = attendantStore.attendants.find(
-        (a) => a.id === att.id
-      );
+      const storedAttendant = attendants.find((a) => a.id === att.id);
       if (
         storedAttendant &&
         !attendanceSelected.value.some((a) => a.id === att.id)
       ) {
         storedAttendant.selected = true;
-        attendanceSelected.value.push({ ...storedAttendant });
+        attendanceSelected.value.push(storedAttendant);
       }
     });
   }
-  emit("attend", attendanceSelected.value); // Emite a seleção atualizada
+  emit("attend", attendanceSelected.value);
 }
 
 function selectAttendant(attendant) {
   const index = attendanceSelected.value.findIndex(
-    (a) => a.id === attendant.id
+    (a) => a.id === attendant.id,
   );
+
   if (index !== -1) {
     attendant.selected = false;
     attendanceSelected.value.splice(index, 1);
@@ -160,7 +179,6 @@ function eraseAttendant(attendant, index) {
         />
         <div class="icon-container">
           <svg
-            v-if="!get_loading"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -174,17 +192,18 @@ function eraseAttendant(attendant, index) {
               d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
             />
           </svg>
-          <div v-else class="loader"></div>
         </div>
       </div>
 
       <main
-        v-if="attendanceSelected.length > 0 && multiSelect"
+        v-if="
+          attendanceSelected.length > 0 && multiSelect && attendantStore.loaded
+        "
         class="selection-container bg-base-300 border-b border-base-200"
       >
         <div
           v-for="(attendant, index) in attendanceSelected"
-          :key="attendant.id"
+          :key="attendant"
           class="selection-item"
         >
           {{ attendant.name }}
@@ -221,8 +240,9 @@ function eraseAttendant(attendant, index) {
             class="grid-container"
           >
             <div
+              v-if="attendantStore.loaded"
               v-for="attendant in filteredAttendants"
-              :key="attendant.id"
+              :key="attendant"
               :class="{ selected: attendant.selected }"
               class="department-item line-clamp-1 bg-slate-500/20 hover:bg-teal-600"
             >
@@ -269,13 +289,14 @@ function eraseAttendant(attendant, index) {
           </div>
         </div>
         <div
-          v-if="!get_loading && filteredAttendants.length === 0"
+          v-if="attendantStore.loaded && filteredAttendants.length === 0"
           class="no-departments bg-base-300"
         >
           Nenhum atendente disponível.
         </div>
-        <div v-if="get_loading" class="loading-spinner">
-          <div class="loader"></div>
+        <div v-if="!attendantStore.loaded" class="library-loading-spinner">
+          Inicializando atendentes
+          <div class="library-loader"></div>
         </div>
       </div>
     </div>
@@ -438,13 +459,14 @@ function eraseAttendant(attendant, index) {
   padding: 12px;
 }
 
-.loading-spinner {
+.library-loading-spinner {
   display: flex;
   justify-content: center;
-  padding: 12px;
+  padding: 26px;
+  gap: 12px;
 }
 
-@keyframes loader-rotate {
+@keyframes library-loader-rotate {
   0% {
     transform: rotate(0);
   }
@@ -454,12 +476,12 @@ function eraseAttendant(attendant, index) {
   }
 }
 
-.loader {
+.library-loader {
   width: 24px;
   height: 24px;
   border: 4px solid #14b8a6;
   border-right-color: transparent;
   border-radius: 50%;
-  animation: loader-rotate 1s linear infinite;
+  animation: library-loader-rotate 1s linear infinite;
 }
 </style>

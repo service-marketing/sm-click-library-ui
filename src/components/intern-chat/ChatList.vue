@@ -3,7 +3,11 @@
     <!-- Campo de busca -->
     <input
       v-model="searchQuery"
-      class="search-input bg-base-300 border-b border-base-200"
+      :class="
+        mobile
+          ? 'search-input-mobile bg-base-300 border-b border-base-200'
+          : 'search-input bg-base-300 border-b border-base-200'
+      "
       placeholder="Pesquise entre os atendentes..."
     />
 
@@ -50,7 +54,7 @@
       </li>
     </ul>
     <!-- Footer fixo -->
-    <footer class="chat-footer bg-base-200"></footer>
+    <footer v-if="!mobile" class="chat-footer bg-base-200"></footer>
   </div>
 </template>
 
@@ -60,6 +64,7 @@ import Avatar from "./Avatar.vue";
 const props = defineProps({
   atendentes: { type: Array, required: true },
   attendant: { required: true },
+  mobile: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(["atendenteSelecionado"]);
@@ -130,6 +135,12 @@ const filteredAtendentes = computed(() => {
   width: 100%;
   padding: 0.75rem;
   border-radius: 7px 7px 0 0;
+  outline: none;
+}
+
+.search-input-mobile {
+  width: 100%;
+  padding: 0.75rem;
   outline: none;
 }
 
@@ -243,7 +254,8 @@ const filteredAtendentes = computed(() => {
   text-align: center;
   color: white;
   border-bottom-right-radius: 7px /* 12px */;
-  border-bottom-left-radius: 7px; /* 12px */
+  border-bottom-left-radius: 7px;
+  /* 12px */
   /* Fixo na parte inferior */
 }
 
