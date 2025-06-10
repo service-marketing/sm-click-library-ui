@@ -12,27 +12,19 @@
 name: Teste Cron Estável
 
 on:
+  # variaveis após o input: podem ser resgatadas depois pela pipe
+  # type boolean = checkbox
+  # type choice = select
+
   workflow_dispatch: # Gatilho manual
     inputs:
       environment:
-        description: "Escolha o ambiente"
-        required: true
-        default: "develop"
-      # release_version:
-      #   description: "Versão a ser deployada"
-      #   required: true
-      deploy_type:
-        description: "Tipo de deploy"
+        description: "Escolha o Ambiente"
         required: true
         type: choice
         options:
-          - manual
-          - automatic
-      force_deploy:
-        description: "Forçar deploy?"
-        required: false
-        type: boolean
-        default: false
+          - testFlight
+          - prod
 
   schedule: # Gatilho automático
     # - cron: "42 19 10 * *"
