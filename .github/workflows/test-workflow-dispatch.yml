@@ -1,16 +1,35 @@
-name: Testing workflow dispatch
+name: Deploy Manual
 
 on:
   workflow_dispatch:
     inputs:
       environment:
-        description: "Sete aqui o ambiente de deploy"
+        description: "Escolha o ambiente"
         required: true
-        default: "development"
+        default: "staging"
+      release_version:
+        description: "Versão a ser deployada"
+        required: true
+      deploy_type:
+        description: "Tipo de deploy"
+        required: true
+        type: choice
+        options:
+          - manual
+          - automatic
+      force_deploy:
+        description: "Forçar deploy?"
+        required: false
+        type: boolean
+        default: false
 
 jobs:
-  first-test:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Exibir mensagem
-        run: echo "quem vai encarar o campeão"
+      - name: Exibir configuração escolhida
+        run: |
+          echo "Ambiente: ${{ github.event.inputs.environment }}"
+          echo "Versão: ${{ github.event.inputs.release_version }}"
+          echo "Tipo: ${{ github.event.inputs.deploy_type }}"
+          echo "Forçar deploy: ${{ github.event.inputs.force_deploy }}"
