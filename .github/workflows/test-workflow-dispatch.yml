@@ -38,15 +38,14 @@ name: Teste Cron Estável
 
 on:
   workflow_dispatch: # Gatilho manual
-    inputs:
-      environment:
-        description: "Escolha o ambiente"
-        required: true
-        default: "staging"
-
   schedule: # Gatilho automático
     # - cron: "42 19 10 * *"
     - cron: "*/2 * * * *"
+    # inputs:
+    #   environment:
+    #     description: "Escolha o ambiente"
+    #     required: true
+    #     default: "staging"
 
 jobs:
   deploy:
