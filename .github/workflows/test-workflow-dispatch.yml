@@ -1,0 +1,16 @@
+name: Testing workflow dispatch
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Sete aqui o ambiente de deploy"
+        required: true
+        default: "development"
+
+jobs:
+  first-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Exibir mensagem
+        run: echo "quem vai encarar o campeão"

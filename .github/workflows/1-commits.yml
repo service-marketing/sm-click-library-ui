@@ -1,0 +1,17 @@
+name: Test & PR - Library UI
+
+on:
+  push:
+    branches:
+      - feature/*
+
+jobs:
+  infra-validation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Set up Terraform
+        run: echo "Hello pipeline"
