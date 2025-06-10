@@ -34,7 +34,7 @@
 #           echo "Tipo: ${{ github.event.inputs.deploy_type }}"
 #           echo "Forçar deploy: ${{ github.event.inputs.force_deploy }}"
 
-name: Deploy Manual e Agendado
+name: Teste Cron Estável
 
 on:
   workflow_dispatch: # Gatilho manual
@@ -46,7 +46,7 @@ on:
 
   schedule: # Gatilho automático
     # - cron: "42 19 10 * *"
-    - cron: "*/1 * * * *"
+    - cron: "*/2 * * * *"
 
 jobs:
   deploy:
