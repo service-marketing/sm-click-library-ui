@@ -1,22 +1,7 @@
-# jobs:
-#   deploy:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Exibir configuração escolhida
-#         run: |
-#           echo "Ambiente: ${{ github.event.inputs.environment }}"
-#           echo "Versão: ${{ github.event.inputs.release_version }}"
-#           echo "Tipo: ${{ github.event.inputs.deploy_type }}"
-#           echo "Forçar deploy: ${{ github.event.inputs.force_deploy }}"
-
 name: Teste Cron Estável
 
 on:
-  # variaveis após o input: podem ser resgatadas depois pela pipe
-  # type boolean = checkbox
-  # type choice = select
-
-  workflow_dispatch: # Gatilho manual
+  workflow_dispatch:
     inputs:
       environment:
         description: "Escolha o Ambiente"
@@ -26,12 +11,11 @@ on:
           - testFlight
           - prod
 
-  schedule: # Gatilho automático
-    # - cron: "42 19 10 * *"
-    - cron: "*/2 * * * *"
+  # schedule:
+  #   - cron: "*/2 * * * *"
 
 jobs:
-  deploy:
+  exibir-origem:
     runs-on: ubuntu-latest
     steps:
       - name: Exibir origem da execução
@@ -41,4 +25,24 @@ jobs:
             echo "Ambiente selecionado: ${{ github.event.inputs.environment }}"
           else
             echo "Execução automática mensal."
-          fi
+
+  deploy-prod:
+    if: ${{ github.event.inputs.environment == 'prod' && github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy no ambiente de Produção
+        run: echo "Executando deploy para PRODUÇÃO 🚀"
+
+  deploy-testflight:
+    if: ${{ github.event.inputs.environment == 'testFlight' && github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy no ambiente de TestFlight
+        run: echo "Executando deploy para TESTFLIGHT 🧪"
+
+  deploy-cron:
+    if: ${{ github.event_name == 'schedule' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy automático via Cron
+        run: echo "irá fazer o deploy automatico para prod"
