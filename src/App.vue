@@ -30,7 +30,7 @@ import MinModal from "./components/modals/min_modal/min_modal.vue";
         <template v-slot:body>
           <thead>
             <tr
-              class="bg-sky-800 text-current uppercase text-sm leading-normal"
+              class="bg-sky-800  text-current uppercase text-sm leading-normal"
             >
               <th class="py-2 px-6 text-center">ID</th>
               <th class="py-2 px-6 text-center">Valor</th>
