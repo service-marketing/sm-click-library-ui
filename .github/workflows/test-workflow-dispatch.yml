@@ -8,8 +8,12 @@ on:
         required: true
         type: choice
         options:
-          - testFlight
-          - prod
+          - Produção
+          - testFlight (Desenvolvimento)
+      version:
+        description: "Notas da versão (Apenas Produção)"
+        required: true
+        type: string
 
   # schedule:
   #   - cron: "*/2 * * * *"
@@ -45,4 +49,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Deploy automático via Cron
-        run: echo "irá fazer o deploy automatico para prod"
+        run: echo "irá fazer o deploy automatico para PRODUÇÃO 🚀"
