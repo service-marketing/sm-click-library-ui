@@ -12,7 +12,7 @@ on:
           - testFlight (Desenvolvimento)
       version:
         description: "Notas da versão (Apenas Produção)"
-        required: true
+        required: false
         type: string
 
   # schedule:
@@ -39,7 +39,7 @@ jobs:
         run: echo "Executando deploy para PRODUÇÃO 🚀"
 
   deploy-testflight:
-    if: ${{ github.event.inputs.environment == 'testFlight' && github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event.inputs.environment == 'testFlight (Desenvolvimento)' && github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     steps:
       - name: Deploy no ambiente de TestFlight
