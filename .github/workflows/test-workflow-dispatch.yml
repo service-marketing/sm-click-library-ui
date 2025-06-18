@@ -1,4 +1,4 @@
-name: Teste Cron Estável
+name: Build and Deploy IOS APP
 
 on:
   workflow_dispatch:
@@ -22,13 +22,14 @@ jobs:
   exibir-origem:
     runs-on: ubuntu-latest
     steps:
-      - name: Exibir origem da execução
+      - name: 
         run: |
           echo "Workflow acionado via: ${{ github.event_name }}"
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             echo "Ambiente selecionado: ${{ github.event.inputs.environment }}"
           else
             echo "Execução automática mensal."
+          fi
 
   deploy-prod:
     if: ${{ github.event.inputs.environment == 'prod' && github.event_name == 'workflow_dispatch' }}
@@ -43,6 +44,75 @@ jobs:
     steps:
       - name: Deploy no ambiente de TestFlight
         run: echo "Executando deploy para TESTFLIGHT 🧪"
+
+      - name: Select Xcode version
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: "16.2"
+
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Node and pnpm
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install pnpm
+        run: npm install -g pnpm@^7
+
+      - name: Install dependencies
+        run: |
+          cd app
+          pnpm install --no-frozen-lockfile
+
+      - name: Set environment variables
+        run: |
+          echo "VITE_URL_BACKEND_INTERN_ROOT=https://backend.dev-smclick.com.br/" >> app/.env
+          echo "VITE_URL_SOCKET=https://socket.dev-smclick.com.br/" >> app/.env
+          echo "URL_ANDROID_SOCKET=chat.dev-smclick.com.br" >> app/.env
+
+      - name: Build Web Assets
+        run: |
+          cd app
+          pnpm run build
+
+      - name: Sync Capacitor
+        run: |
+          cd app
+          pnpm cap sync ios
+
+      - name: Install CocoaPods
+        run: |
+          cd app/ios/App
+          pod install
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.2
+          bundler-cache: true
+
+      - name: Install dependencies
+        run: |
+          cd app/ios/App
+          bundle install
+
+      - name: Install Fastlane
+        run: sudo gem install fastlane
+
+      - name: Build and Upload using Fastlane
+        env:
+          GITHUB_PAT: ${{ secrets.IOS_CERTS_PAT }}
+          MATCH_PASSWORD: ${{ secrets.FASTLANE_MATCH_PASSWORD }}
+          APP_STORE_DESCRIPT: "test"
+          FASTLANE_API_KEY_PATH: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+        run: |
+          cd app/ios/App
+          bundle exec fastlane release --verbose
 
   deploy-cron:
     if: ${{ github.event_name == 'schedule' }}
