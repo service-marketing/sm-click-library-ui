@@ -43,6 +43,8 @@ const test = ref(false);
         @open-new-updates="test ? (test = false) : (test = true)"
       />
 
+      <chatWindow class="mt-24"/>
+
       <PatchNotes @close="test = false" v-if="test" />
     </div>
   </main>

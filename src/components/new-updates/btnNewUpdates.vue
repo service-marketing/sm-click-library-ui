@@ -59,13 +59,13 @@ const openNewUpdates = () => {
 }
 
 .update-button:hover {
-  background-color: #60a5fa; /* azul claro */
+  background-color: #03b5eb;
 }
 
 .update-icon {
-  width: 20px;
-  height: 20px;
-  color: #1d4ed8; /* azul escuro */
+  width: 22px;
+  height: 22px;
+  color: #03b5eb;
   transition: color 0.3s ease-in;
 }
 
@@ -80,7 +80,7 @@ const openNewUpdates = () => {
   text-align: center;
   width: 168px;
   border-radius: 6px;
-  background-color: #2563eb; /* azul */
+  background-color: #03b5eb;
   color: white;
   padding: 4px 8px;
 }

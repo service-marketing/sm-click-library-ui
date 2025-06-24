@@ -174,7 +174,7 @@ const emit = defineEmits(["unreadMessagesEmit"]);
 const unreadMessagesCount = computed(() => {
   if (selectedAtendente.value) {
     const atendente = attendants.value.find(
-      (att) => att.id === selectedAtendente.value.id,
+      (att) => att.id === selectedAtendente.value.id
     );
     return atendente ? atendente.internal_chat.unread : 0;
   }
@@ -267,10 +267,10 @@ watch(
       addMessageToAtendente(
         newVal,
         isChatOpen.value,
-        selectedAtendente.value?.id,
+        selectedAtendente.value?.id
       );
     }
-  },
+  }
 );
 
 watch(isChatOpen, (newVal) => {
@@ -317,7 +317,7 @@ watch(isChatOpen, (newVal) => {
 }
 
 .chat-box.closed:hover {
-  background-color: #00799e;
+  background-color: #03b5eb;
 }
 
 .chat-box.open {
@@ -333,8 +333,9 @@ watch(isChatOpen, (newVal) => {
 /* Ícone de mensagem */
 .chat-icon {
   font-size: 2rem;
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
+  color: white;
 }
 
 /* Contador de mensagens não lidas */
