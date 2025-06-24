@@ -2,9 +2,10 @@
   "name": "sm-click-library-ui",
   "type": "module",
   "files": [
-    "dist"
+    "dist",
+    "src/test-utils"
   ],
-  "version": "0.0.325",
+  "version": "0.0.326",
   "main": "dist/sm-click-library-ui.es.js",
   "module": "dist/sm-click-library-ui.umd.js",
   "private": false,
@@ -20,10 +21,6 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
-  "files": [
-    "dist",
-    "src/test-utils"
-  ],
   "exports": {
     ".": "./dist/sm-click-library-ui.es.js",
     "./dist/style.css": "./dist/style.css",
