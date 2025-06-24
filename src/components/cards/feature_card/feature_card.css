@@ -1,17 +1,7 @@
-/* .scroll_area_new_features {
- 
-} */
-
-.header_new_features {
-  @apply text-white text-start bg-[#3666F0] p-2 text-xs rounded-md select-none;
-}
-
-.header_new_features_send_suggestion {
-  @apply text-white text-start bg-gray-800 p-2 text-xs rounded-md select-none;
-}
-
-.header_new_features_future_update {
-  @apply text-white text-start bg-[#21B458] p-2 text-xs rounded-md select-none;
+.feature_style {
+  --cor-primaria-teste: #3498db;
+  --cor-secundaria: #2ecc71;
+  --cor-destaque: #e74c3c;
 }
 
 .scroll_area_new_features::-webkit-scrollbar {

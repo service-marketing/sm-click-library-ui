@@ -1,7 +1,21 @@
 <script setup>
+import { ref, onMounted } from "vue";
 import SendSuggestion from "./sendSuggestion.vue";
 import FeatureCard from "../../components/cards/feature_card/feature_card.vue";
 import "../../components/cards/feature_card/feature_card.css";
+import axios from "axios";
+
+const patchNotes = ref(null);
+const getPatchNotes = async () => {
+  const res = await axios.get(
+    "https://8c921c4e-8185-44ed-aa7d-71c64f6174ee.mock.pstmn.io/v1/api/patch-notes/attendance"
+  );
+  patchNotes.value = res.data;
+};
+
+onMounted(() => {
+  getPatchNotes();
+});
 
 const emit = defineEmits(["close"]);
 const close = () => {
@@ -15,7 +29,7 @@ const close = () => {
       <div class="modal-backdrop-patch-notes"></div>
     </div>
 
-    <div class="modal-container-patch-notes">
+    <div class="modal-container-patch-notes scroll_area_new_features">
       <div class="modal-content-patch-notes">
         <div class="modal-header-patch-notes">
           <button @click="close()" class="modal-close-btn-patch-notes">
@@ -39,12 +53,14 @@ const close = () => {
 
         <div class="modal-body-patch-notes">
           <div class="modal-section-patch-notes updates-section-patch-notes">
-            <div class="scrollable-section">
-              <h1 class="header_new_features">Ultimas Atualizações</h1>
+            <div class="">
+              <h1 class="header_latest_update">Ultimas Atualizações</h1>
 
-              <div class="features-list">
-                <!-- <FeatureCard
-                  v-for="mock in patchNotes.latest_update"
+              <div
+                class="features-list scrollable-section scroll_area_new_features"
+              >
+                <FeatureCard
+                  v-for="mock in patchNotes?.latest_update"
                   :key="mock"
                   state="updated"
                   :title="mock.title_feature"
@@ -52,20 +68,18 @@ const close = () => {
                   :date="mock.date"
                   :tutorial="mock.tutorial"
                   :flag="mock.flag"
-                /> -->
+                />
               </div>
             </div>
           </div>
 
           <div class="modal-section-patch-notes future-section-patch-notes">
-            <div class="scrollable-section">
-              <h1 class="header_new_features_future_update">
-                Futuras Atualizações
-              </h1>
+            <div class="scrollable-section scroll_area_new_features">
+              <h1 class="header_future_updates">Futuras Atualizações</h1>
 
               <div class="features-list">
-                <!-- <FeatureCard
-                  v-for="mock in patchNotes.future_updates"
+                <FeatureCard
+                  v-for="mock in patchNotes?.future_updates"
                   :key="mock"
                   state="future-update"
                   :title="mock.title_feature"
@@ -73,7 +87,7 @@ const close = () => {
                   :date="mock.date"
                   :tutorial="mock.tutorial"
                   :flag="mock.flag"
-                /> -->
+                />
               </div>
             </div>
           </div>
@@ -134,7 +148,7 @@ const close = () => {
   padding: 0.25rem;
   width: 100%;
   max-width: 90rem;
-  background-color: var(--base-300, #0F172A);
+  background-color: var(--base-300, #0f172a);
   border-radius: 0.5rem;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
 }
@@ -218,5 +232,19 @@ const close = () => {
   flex-direction: column;
   gap: 0.5rem;
   margin-top: 0.5rem;
+}
+
+.header_latest_update {
+  background: #3666f0;
+  padding: 8px;
+  border-radius: 0.375rem;
+  color: white;
+}
+
+.header_future_updates {
+  background: #21b458;
+  padding: 8px;
+  border-radius: 0.375rem;
+  color: white;
 }
 </style>

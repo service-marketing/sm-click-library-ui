@@ -18,19 +18,6 @@ import MinModal from "./components/modals/min_modal/min_modal.vue";
 
 import BtnNewUpdates from "./components/new-updates/btnNewUpdates.vue";
 import PatchNotes from "./components/new-updates/patchNotes.vue";
-import axios from "axios";
-
-const patchNotes = ref(null);
-const getPatchNotes = async () => {
-  const res = await axios.get(
-    "https://8c921c4e-8185-44ed-aa7d-71c64f6174ee.mock.pstmn.io/v1/api/patch-notes/attendance"
-  );
-  patchNotes.value = res.data;
-};
-
-onMounted(() => {
-  getPatchNotes();
-});
 
 const test = ref(false);
 </script>
@@ -43,7 +30,7 @@ const test = ref(false);
         @open-new-updates="test ? (test = false) : (test = true)"
       />
 
-      <chatWindow class="mt-24"/>
+      <chatWindow class="mt-24" />
 
       <PatchNotes @close="test = false" v-if="test" />
     </div>

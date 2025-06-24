@@ -2,13 +2,6 @@
 import { ref } from "vue";
 
 const emit = defineEmits(["open-new-updates"]);
-// const props = defineProps({
-//   type: {
-//     type: String,
-//     default: "",
-//     required: true,
-//   },
-// });
 
 const openNewUpdates = () => {
   emit("open-new-updates");
@@ -16,55 +9,132 @@ const openNewUpdates = () => {
 </script>
 
 <template>
-  <main class="bg-gray-700 p-2 rounded-md flex flex-col gap-1.5">
-    <h1 class="header_new_features_send_suggestion">
-      Envie sua sugestão para nós
-    </h1>
+  <main class="container-send-suggestion">
+    <h1 class="header_send_suggestion">Envie sua sugestão para nós</h1>
 
-    <section class="grid grid-rows-8 gap-1.5">
+    <section class="form-grid-send-suggestion">
+      <input class="input_send_suggestion" placeholder="Seu nome" type="text" />
       <input
-        class="input_send_suggestion row-span-1"
-        placeholder="Seu nome"
-        type="text"
-      />
-      <input
-        class="input_send_suggestion row-span-1"
+        class="input_send_suggestion"
         placeholder="Segmento da sua empresa"
         type="text"
       />
-      <div class="row-span-6 relative">
+      <div class="textarea-container-send-suggestion">
         <textarea
-          class="input_send_suggestion resize-none overflow-hidden h-full"
+          class="input_send_suggestion textarea-send-suggestion"
           placeholder="gostaria que vocês adicionassem..."
           type="text"
-        />
+        ></textarea>
 
-        <span class="absolute right-2 bottom-2 text-gray-700 text-[10px]">
-          0/100
-        </span>
+        <span class="char-count-send-suggestion"> 0/100 </span>
       </div>
     </section>
 
-    <label
-      class="text-[10px] flex gap-1 items-center cursor-pointer"
-      for="termsId"
-    >
+    <label class="terms-send-suggestion" for="termsId">
       <input id="termsId" type="checkbox" />
-      <p class="text-white select-none">
-        Eu aceito os termos e condiçoes da <a class="text-blue-500">SM Click</a>
+      <p class="terms-text-send-suggestion">
+        Eu aceito os termos e condições da
+        <a class="link-send-suggestion">SM Click</a>
       </p>
     </label>
 
-    <button
-      class="bg-blue-600 w-full p-2 text-white rounded-md text-sm hover:bg-blue-800"
-    >
-      Enviar
-    </button>
+    <button class="submit-button-send-suggestion">Enviar</button>
   </main>
 </template>
 
-<style  scoped>
+<style scoped>
+.container-send-suggestion {
+  background-color: #374151;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.form-grid-send-suggestion {
+  display: grid;
+  grid-template-rows: repeat(8, 1fr);
+  gap: 0.375rem;
+}
+
 .input_send_suggestion {
-  @apply w-full bg-gray-900 text-sm rounded-md block  p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500 text-white text-[10px] focus:ring-gray-900 outline-none;
+  width: 100%;
+  background-color: #1f2937;
+  color: white;
+  font-size: 16px;
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+  border: none;
+  outline: none;
+}
+
+.input_send_suggestion::placeholder {
+  color: #9ca3af;
+}
+
+.input_send_suggestion:focus {
+  border: 1px solid #111827;
+}
+
+.textarea-container-send-suggestion {
+  grid-row: span 6;
+  position: relative;
+}
+
+.textarea-send-suggestion {
+  resize: none;
+  overflow: hidden;
+  height: 100%;
+  min-height: 20rem;
+}
+
+.char-count-send-suggestion {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  color: #d7d9dd;
+  font-size: 10px;
+}
+
+.terms-send-suggestion {
+  font-size: 10px;
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+  cursor: pointer;
+}
+
+.terms-text-send-suggestion {
+  color: white;
+  user-select: none;
+}
+
+.link-send-suggestion {
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.submit-button-send-suggestion {
+  background-color: #2563eb;
+  width: 100%;
+  padding: 0.5rem;
+  color: white;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.submit-button-send-suggestion:hover {
+  background-color: #1e40af;
+}
+
+.header_send_suggestion {
+  background: #83878b1a;
+  padding: 8px;
+  border-radius: 0.375rem;
+  color: white;
 }
 </style>
