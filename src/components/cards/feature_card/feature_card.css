@@ -1,0 +1,28 @@
+/* .scroll_area_new_features {
+ 
+} */
+
+.header_new_features {
+  @apply text-white text-start bg-[#3666F0] p-2 text-xs rounded-md select-none;
+}
+
+.header_new_features_send_suggestion {
+  @apply text-white text-start bg-gray-800 p-2 text-xs rounded-md select-none;
+}
+
+.header_new_features_future_update {
+  @apply text-white text-start bg-[#21B458] p-2 text-xs rounded-md select-none;
+}
+
+.scroll_area_new_features::-webkit-scrollbar {
+  width: 6px; /* Largura da scrollbar */
+}
+
+.scroll_area_new_features::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 100, 100, 0.3); /* Cor da "barra" */
+  border-radius: 4px; /* Bordas arredondadas */
+}
+
+.scroll_area_new_features::-webkit-scrollbar-track {
+  background: transparent; /* Cor de fundo da track (pode deixar transparente) */
+}

@@ -12,6 +12,8 @@ import attendantSelect from "./components/selects/attendantSelect/attendantSelec
 import FilterSelectLib from "./components/selects/filterSelect/filterSelect.vue";
 import RandomAvatar from "./components/avatar/randomAvatar.vue";
 import MinModal from "./components/modals/min_modal/min_modal.vue";
+import patchNotes from "./components/new-updates/patchNotes.vue";
+import btnNewUpdates from "./components/new-updates/btnNewUpdates.vue";
 import { useDebugStore } from "~/stores/debugStore";
 import { useAuthStore } from "~/stores/authStore";
 import { useAttendantStore } from "./stores/attendantStore";
@@ -34,6 +36,8 @@ function install(Vue) {
   Vue.component("MobileInternalChat", MobileInternalChat);
   Vue.component("RandomAvatar", RandomAvatar);
   Vue.component("MinModal", MinModal);
+  Vue.component("PatchNotes", patchNotes);
+  Vue.component("BtnNewUpdates", btnNewUpdates);
 }
 
 export function attLibDeparts(department, action = "add") {
@@ -150,4 +154,6 @@ export default {
   MobileInternalChat,
   RandomAvatar,
   MinModal,
+  patchNotes,
+  btnNewUpdates,
 };

@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import primarySelect from "~/components/selects/primary_select/primary_select.vue";
 import chartsSelect from "~/components/selects/chart_direction_select/chart_direction_select.vue";
 import simpleModal from "~/components/modals/simple_modal/simple_modal.vue";
@@ -15,55 +15,35 @@ import mobileChatWindow from "./components/intern-chat/mobileChatWindow.vue";
 import FilterSelect from "./components/selects/filterSelect/filterSelect.vue";
 import RandomAvatar from "./components/avatar/randomAvatar.vue";
 import MinModal from "./components/modals/min_modal/min_modal.vue";
+
+import BtnNewUpdates from "./components/new-updates/btnNewUpdates.vue";
+import PatchNotes from "./components/new-updates/patchNotes.vue";
+import axios from "axios";
+
+const patchNotes = ref(null);
+const getPatchNotes = async () => {
+  const res = await axios.get(
+    "https://8c921c4e-8185-44ed-aa7d-71c64f6174ee.mock.pstmn.io/v1/api/patch-notes/attendance"
+  );
+  patchNotes.value = res.data;
+};
+
+onMounted(() => {
+  getPatchNotes();
+});
+
+const test = ref(false);
 </script>
 
 <template>
   <main class="h-screen w-screen justify-center items-center flex">
     <div class="w-full justify-center flex">
-      <MinModal>
-        <template v-slot:header>
-          <div class="text-white flex justify-between w-full px-3 items-center">
-            <h3 class="font-semibold text-white">Receber Comissões</h3>
-          </div>
-        </template>
+      <BtnNewUpdates
+        type="attendance"
+        @open-new-updates="test ? (test = false) : (test = true)"
+      />
 
-        <template v-slot:body>
-          <thead>
-            <tr
-              class="bg-sky-800 text-current uppercase text-sm leading-normal"
-            >
-              <th class="py-2 px-6 text-center">ID</th>
-              <th class="py-2 px-6 text-center">Valor</th>
-              <th class="py-2 px-6 text-center">Nota fiscal</th>
-              <th class="py-2 px-6 text-center">Chave PIX</th>
-              <th class="py-2 px-6 text-center">status</th>
-              <th class="py-2 px-6 text-center">Data de solicitação</th>
-              <th class="py-2 px-6 text-center">Comprovante</th>
-              <!-- <th class="py-2 px-6 text-center">
-                            <div class="flex gap-2 justify-center items-center">
-                                <p>Status da Compra</p>
-
-                                <Popper hover :arrow="true" placement="top">
-                                    <button>
-                                        <Svg :svgContent="infoSvg('size-3 text-white mr-2')" />
-                                    </button>
-                                    <template #content>
-                                        <p>Pendente: Aguardando pagamento do plano do cliente;</p>
-                                        <p>
-                                            Expirado: Cliente dentro do prazo de 7 dias não efetuou a compra do plano;
-                                        </p>
-                                        <p>Cancelada: Cliente assinou e cancelou o plano;</p>
-                                        <p>Ativo: Cliente está com plano ativo.</p>
-                                    </template>
-                                </Popper>
-                            </div>
-                        </th> -->
-
-              <th class="py-2 px-6 text-center">Data de processamento</th>
-            </tr>
-          </thead>
-        </template>
-      </MinModal>
+      <PatchNotes @close="test = false" v-if="test" />
     </div>
   </main>
 </template>
