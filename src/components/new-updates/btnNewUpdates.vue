@@ -16,13 +16,10 @@ const openNewUpdates = () => {
 </script>
 
 <template>
-  <main v-if="type === 'attendance'" class="relative group flex items-center">
-    <button
-      @click="openNewUpdates()"
-      class="flex items-center p-1.5 rounded-full hover:bg-blue-400 transition-all ease-in"
-    >
+  <main v-if="type === 'attendance'" class="main-container">
+    <button @click="openNewUpdates()" class="update-button">
       <svg
-        class="size-7 text-blue-700 group-hover:text-white"
+        class="update-icon"
         fill="currentColor"
         viewBox="0 0 420.827 420.827"
       >
@@ -39,10 +36,57 @@ const openNewUpdates = () => {
       </svg>
     </button>
 
-    <p
-      class="hidden group-hover:flex justify-center absolute left-12 text-center w-42 rounded-md text-white bg-blue-600"
-    >
-      Novas atualizações
-    </p>
+    <p class="tooltip">Novas atualizações</p>
   </main>
 </template>
+
+<style>
+.main-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.update-button {
+  display: flex;
+  align-items: center;
+  padding: 6px;
+  border-radius: 50%;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in;
+}
+
+.update-button:hover {
+  background-color: #60a5fa; /* azul claro */
+}
+
+.update-icon {
+  width: 20px;
+  height: 20px;
+  color: #1d4ed8; /* azul escuro */
+  transition: color 0.3s ease-in;
+}
+
+.update-button:hover .update-icon {
+  color: white;
+}
+
+.tooltip {
+  display: none;
+  position: absolute;
+  left: 48px;
+  text-align: center;
+  width: 168px;
+  border-radius: 6px;
+  background-color: #2563eb; /* azul */
+  color: white;
+  padding: 4px 8px;
+}
+
+.main-container:hover .tooltip {
+  display: flex;
+  justify-content: center;
+}
+</style>
