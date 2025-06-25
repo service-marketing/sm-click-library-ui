@@ -32,7 +32,12 @@ const test = ref(false);
         />
 
         <BtnNewUpdates
-          type="manager"
+          type="managerSideBarClose"
+          @open-new-updates="test ? (test = false) : (test = true)"
+        />
+
+        <BtnNewUpdates
+          type="managerSideBarOpen"
           @open-new-updates="test ? (test = false) : (test = true)"
         />
       </div>
