@@ -14,6 +14,7 @@ onMounted(() => {
 const emit = defineEmits(["close"]);
 const close = () => {
   emit("close");
+  patchStore.resetPatchStates();
 };
 </script>
 

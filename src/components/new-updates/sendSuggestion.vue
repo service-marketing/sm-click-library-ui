@@ -1,6 +1,8 @@
 <script setup>
 import { ref } from "vue";
 import rocket_animate from "../../assets/lottieAnimates/rocket_animate.json";
+import { usePatchStore } from "../../stores/patchNotesStore.js";
+const patchStore = usePatchStore();
 
 const emit = defineEmits(["sendSuggestion"]);
 const loader = ref(false);
@@ -19,7 +21,7 @@ const sendSuggestion = () => {
 <template>
   <main class="relative">
     <section
-      v-if="false"
+      v-if="patchStore.suggestionSent"
       class="absolute w-full h-full bg-black/90 z-10 p-2 flex justify-center items-center rounded-lg"
     >
       <div
@@ -47,17 +49,24 @@ const sendSuggestion = () => {
       <h1 class="header_send_suggestion">Envie sua sugestão para nós</h1>
 
       <textarea
-        v-model="suggestionPayload.suggestion"
+        v-model="patchStore.suggestion"
         class="input_send_suggestion textarea-send-suggestion"
         placeholder="Gostaria que vocês adicionassem..."
         type="text"
       ></textarea>
 
+      <span class="tool_tip_suggestion_error" v-if="patchStore.errorSent">
+        Preencha o campo antes de continuar
+      </span>
+
       <button
-        @click="loader ? (loader = false) : (loader = true)"
+        @click="patchStore.sendSuggestions()"
         class="submit-button-send-suggestion"
       >
-        <div v-if="loader" class="loader-suggestion"></div>
+        <div
+          v-if="patchStore.loaderBtnSuggestion"
+          class="loader-suggestion"
+        ></div>
         <p v-else>Enviar</p>
       </button>
     </section>
@@ -77,6 +86,12 @@ const sendSuggestion = () => {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.tool_tip_suggestion_error {
+  text-align: center;
+  color: rgba(199, 40, 8, 0.977);
+  transition: ease-in;
 }
 
 .input_send_suggestion {

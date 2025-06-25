@@ -25,12 +25,12 @@ const test = ref(false);
 <template>
   <main class="h-screen w-screen justify-center items-center flex">
     <div class="w-full justify-center flex">
-      <BtnNewUpdates
-        type="attendance"
-        @open-new-updates="test ? (test = false) : (test = true)"
-      />
-
-      <chatWindow class="mt-24" />
+      <div class="bg-red-200 p-2">
+        <BtnNewUpdates
+          type="attendance"
+          @open-new-updates="test ? (test = false) : (test = true)"
+        />
+      </div>
 
       <PatchNotes @close="test = false" v-if="test" />
     </div>

@@ -150,7 +150,6 @@ const pillDateClass = computed(() => ({
   transform: translateY(-10px);
 }
 
-/* Estrutura básica */
 .feature-card {
   border-radius: 0.375rem;
   padding: 0.75rem;
@@ -160,7 +159,6 @@ const pillDateClass = computed(() => ({
   cursor: pointer;
 }
 
-/* Cores de fundo por estado */
 .feature-card--updated {
   background-color: #83878b1a;
 }
@@ -170,10 +168,9 @@ const pillDateClass = computed(() => ({
 }
 
 .feature-card--other {
-  background-color: #93c5fd; /* bg-blue-300 */
+  background-color: #93c5fd;
 }
 
-/* Header */
 .feature-card__header {
   display: flex;
   justify-content: space-between;
@@ -184,7 +181,6 @@ const pillDateClass = computed(() => ({
   font-weight: 600;
 }
 
-/* Arrow */
 .arrow-icon-patch-notes {
   width: 1.7rem;
   height: 1.7rem;
@@ -196,7 +192,6 @@ const pillDateClass = computed(() => ({
   transform: rotate(180deg);
 }
 
-/* Divider */
 .feature-card__divider {
   height: 1px;
   background-color: rgba(110, 185, 175, 0.486);
@@ -204,7 +199,6 @@ const pillDateClass = computed(() => ({
   border: none;
 }
 
-/* Content */
 .feature-card__content {
   display: flex;
   flex-direction: column;
@@ -225,7 +219,6 @@ const pillDateClass = computed(() => ({
   font-weight: 200;
 }
 
-/* Tutorial button */
 .feature-card__tutorial-button {
   color: #1e3a8a;
   background-color: #bfdbfe;
@@ -245,25 +238,54 @@ const pillDateClass = computed(() => ({
   color: #bfdbfe;
 }
 
-/* Footer */
 .feature-card__footer {
   cursor: pointer;
 }
 
 .feature-card__footer-section {
   display: flex;
+  flex-direction: column;
+  text-align: center;
+  gap: 8px;
   justify-content: space-between;
   align-items: center;
+  @apply lg:text-center;
 }
 
-/* Pill flag */
 .pill-flag {
+  width: 100%;
   color: white;
-  padding: 0.25rem 0.75rem;
+  padding: 0.35rem 0.75rem;
   font-size: 0.625rem;
   border-radius: 9999px;
   font-weight: 600;
   text-transform: uppercase;
+}
+
+.pill-date {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: white;
+  font-size: 0.75rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+}
+
+@media (min-width: 1280px) {
+  .feature-card__footer-section {
+    justify-content: space-between;
+    flex-direction: row;
+  }
+
+  .pill-flag {
+    width: auto;
+  }
+
+  .pill-date {
+    width: auto;
+  }
 }
 
 .pill-flag--new-feature {
@@ -278,17 +300,6 @@ const pillDateClass = computed(() => ({
   background-color: #21b458b3;
 }
 
-/* Pill date */
-.pill-date {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: white;
-  font-size: 0.75rem;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-}
-
 .pill-date--updated {
   background-color: transparent;
 }
@@ -298,15 +309,15 @@ const pillDateClass = computed(() => ({
 }
 
 .scroll_area_feature_card::-webkit-scrollbar {
-  width: 3px; /* Largura da scrollbar */
+  width: 3px;
 }
 
 .scroll_area_feature_card::-webkit-scrollbar-thumb {
-  background-color: rgba(110, 185, 175, 0.486); /* Cor da "barra" */
-  border-radius: 4px; /* Bordas arredondadas */
+  background-color: rgba(110, 185, 175, 0.486);
+  border-radius: 4px;
 }
 
 .scroll_area_feature_card::-webkit-scrollbar-track {
-  background: transparent; /* Cor de fundo da track (pode deixar transparente) */
+  background: transparent;
 }
 </style>

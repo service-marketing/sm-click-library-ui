@@ -65,7 +65,7 @@ const openNewUpdates = () => {
 .update-icon {
   width: 22px;
   height: 22px;
-  color: #03b5eb;
+  color: white;
   transition: color 0.3s ease-in;
 }
 
