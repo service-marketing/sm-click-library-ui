@@ -206,6 +206,7 @@ const close = () => {
 }
 
 .features-list {
+  min-height: 70vh;
   max-height: 70vh; /* ou 50vh, dependendo da sua preferência */
   overflow-y: auto;
   display: flex;

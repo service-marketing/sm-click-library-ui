@@ -56,7 +56,7 @@ const sendSuggestion = () => {
       ></textarea>
 
       <span class="tool_tip_suggestion_error" v-if="patchStore.errorSent">
-        Preencha o campo antes de continuar
+        Por favor, preencha o campo antes de continuar
       </span>
 
       <button

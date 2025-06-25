@@ -12,7 +12,7 @@ const props = defineProps({
   state: { type: String, required: true, default: "updated" },
   title: { type: String, required: true },
   description: { type: Array, required: true },
-  date: { type: String, required: true },
+  date: { type: [String, null], required: true },
   tutorial: { type: String, default: null },
   flag: { type: String, required: true },
 });
@@ -58,6 +58,11 @@ const pillDateClass = computed(() => ({
   "pill-date--updated": props.state === "updated",
   "pill-date--future": props.state !== "updated",
 }));
+
+const predictiveTextClass = computed(() => ({
+  hidden: props.state === "updated",
+  predictive_text: props.state !== "updated",
+}));
 </script>
 
 <template>
@@ -99,10 +104,15 @@ const pillDateClass = computed(() => ({
             </p>
           </span>
 
-          <button v-if="tutorial" class="feature-card__tutorial-button">
+          <a
+            class="feature-card__tutorial-button"
+            v-if="tutorial"
+            :href="tutorial"
+            target="__blank"
+          >
             Veja o tutorial
             <Svg :svgContent="shareSvg('size-4 text-blue-900')" />
-          </button>
+          </a>
         </section>
       </div>
     </Transition>
@@ -113,11 +123,23 @@ const pillDateClass = computed(() => ({
           {{ pillFlagName }}
         </span>
 
-        <span :class="pillDateClass">
-          <Svg :svgContent="calendarSvg('size-4 text-white')" />
-          <p>
-            {{ date.replace(/ de /g, " ").replace(/(\d{4})$/, ",$1") }}
-          </p>
+        <span class="pill_date_span" v-if="date">
+          <p :class="predictiveTextClass">previsão</p>
+
+          <div :class="pillDateClass">
+            <Svg :svgContent="calendarSvg('size-4 text-white')" />
+            <p>
+              {{
+                new Intl.DateTimeFormat("pt-BR", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })
+                  .format(new Date(date))
+                  .replace(/ de /g, " ")
+              }}
+            </p>
+          </div>
         </span>
       </section>
     </footer>
@@ -151,16 +173,27 @@ const pillDateClass = computed(() => ({
 }
 
 .feature-card {
-  border-radius: 0.375rem;
+  border-radius: 10px;
   padding: 0.75rem;
   display: flex;
+  justify-content: space-between;
   flex-direction: column;
   gap: 0.75rem;
   cursor: pointer;
+  min-height: 7rem;
 }
 
 .feature-card--updated {
   background-color: #83878b1a;
+}
+
+.predictive_text {
+  color: white;
+  font-size: 10px;
+  display: flex;
+  align-content: flex-start;
+  padding-left: 8px;
+  text-transform: uppercase;
 }
 
 .feature-card--future {
@@ -273,6 +306,10 @@ const pillDateClass = computed(() => ({
   border-radius: 9999px;
 }
 
+.pill_date_span {
+  width: 100%;
+}
+
 @media (min-width: 1280px) {
   .feature-card__footer-section {
     justify-content: space-between;
@@ -284,6 +321,10 @@ const pillDateClass = computed(() => ({
   }
 
   .pill-date {
+    width: auto;
+  }
+
+  .pill_date_span {
     width: auto;
   }
 }
