@@ -25,9 +25,14 @@ const test = ref(false);
 <template>
   <main class="h-screen w-screen justify-center items-center flex">
     <div class="w-full justify-center flex">
-      <div class="bg-red-200 p-2">
+      <div class="bg-red-200 p-2 flex flex-col gap-12">
         <BtnNewUpdates
           type="attendance"
+          @open-new-updates="test ? (test = false) : (test = true)"
+        />
+
+        <BtnNewUpdates
+          type="manager"
           @open-new-updates="test ? (test = false) : (test = true)"
         />
       </div>
