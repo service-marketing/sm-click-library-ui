@@ -138,7 +138,7 @@ const close = () => {
   background-color: var(--base-300, #0f172a);
   border-radius: 0.5rem;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
-  @apply max-w-7xl;
+  max-width: 90rem;
 }
 
 .modal-header-patch-notes {
@@ -215,7 +215,7 @@ const close = () => {
   flex-direction: column;
   gap: 0.5rem;
   margin-top: 0.5rem;
-  max-height: 31rem;
+  max-height: 32vmax;
 }
 
 .header_latest_update {
