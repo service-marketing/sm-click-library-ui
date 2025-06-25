@@ -41,11 +41,16 @@ const backgroundClass = computed(() => {
 const pillFlagClass = computed(() => ({
   "pill-flag": true,
   "pill-flag--new-feature": props.flag === "new-feature",
-  "pill-flag--improvement": props.flag !== "new-feature",
+  "pill-flag--improvement": props.flag === "improvement",
+  "pill-flag--bug-fix": props.flag === "bug-fix",
 }));
 
 const pillFlagName = computed(() => {
-  return props.flag === "new-feature" ? "Melhorias" : "Novo Recurso";
+  return props.flag === "new-feature"
+    ? "Melhorias"
+    : props.flag === "improvement"
+    ? "Novo Recurso"
+    : "correção de erros";
 });
 
 const pillDateClass = computed(() => ({
@@ -80,11 +85,11 @@ const pillDateClass = computed(() => ({
       </svg>
     </header>
 
-    <Transition>
+    <Transition name="fade-slide">
       <div v-if="isOpen">
         <hr class="feature-card__divider" />
         <section class="feature-card__content">
-          <span class="feature-card__description scroll_area_new_features">
+          <span class="feature-card__description scroll_area_feature_card">
             <p
               v-for="descrip in description"
               class="feature-card__paragraph"
@@ -120,6 +125,31 @@ const pillDateClass = computed(() => ({
 </template>
 
 <style scoped>
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.5s ease-in-out;
+}
+
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.fade-slide-enter-to {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.fade-slide-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
 /* Estrutura básica */
 .feature-card {
   border-radius: 0.375rem;
@@ -169,7 +199,7 @@ const pillDateClass = computed(() => ({
 /* Divider */
 .feature-card__divider {
   height: 1px;
-  background-color: rgba(229, 231, 235, 0.2);
+  background-color: rgba(110, 185, 175, 0.486);
   margin-bottom: 0.75rem;
   border: none;
 }
@@ -182,7 +212,7 @@ const pillDateClass = computed(() => ({
 }
 
 .feature-card__description {
-  max-height: 16rem; /* 64 * 4px */
+  max-height: 16rem;
   overflow: auto;
   display: flex;
   flex-direction: column;
@@ -190,15 +220,15 @@ const pillDateClass = computed(() => ({
 }
 
 .feature-card__paragraph {
-  color: rgb(209, 213, 219); /* text-gray-300 */
-  font-size: 0.875rem; /* text-sm */
-  font-weight: 200; /* font-extralight */
+  color: rgb(209, 213, 219);
+  font-size: 0.875rem;
+  font-weight: 200;
 }
 
 /* Tutorial button */
 .feature-card__tutorial-button {
-  color: #1e3a8a; /* text-blue-900 */
-  background-color: #bfdbfe; /* bg-blue-200 */
+  color: #1e3a8a;
+  background-color: #bfdbfe;
   display: flex;
   align-items: center;
   gap: 0.25rem;
@@ -211,8 +241,8 @@ const pillDateClass = computed(() => ({
 }
 
 .feature-card__tutorial-button:hover {
-  background-color: #3b82f6; /* bg-blue-500 */
-  color: #bfdbfe; /* text-blue-200 */
+  background-color: #3b82f6;
+  color: #bfdbfe;
 }
 
 /* Footer */
@@ -244,6 +274,10 @@ const pillDateClass = computed(() => ({
   background-color: #5856d6;
 }
 
+.pill-flag--bug-fix {
+  background-color: #21b458b3;
+}
+
 /* Pill date */
 .pill-date {
   display: flex;
@@ -261,5 +295,18 @@ const pillDateClass = computed(() => ({
 
 .pill-date--future {
   background-color: rgba(33, 180, 88, 0.7);
+}
+
+.scroll_area_feature_card::-webkit-scrollbar {
+  width: 3px; /* Largura da scrollbar */
+}
+
+.scroll_area_feature_card::-webkit-scrollbar-thumb {
+  background-color: rgba(110, 185, 175, 0.486); /* Cor da "barra" */
+  border-radius: 4px; /* Bordas arredondadas */
+}
+
+.scroll_area_feature_card::-webkit-scrollbar-track {
+  background: transparent; /* Cor de fundo da track (pode deixar transparente) */
 }
 </style>

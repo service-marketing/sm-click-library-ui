@@ -3,16 +3,3 @@
   --cor-secundaria: #2ecc71;
   --cor-destaque: #e74c3c;
 }
-
-.scroll_area_new_features::-webkit-scrollbar {
-  width: 6px; /* Largura da scrollbar */
-}
-
-.scroll_area_new_features::-webkit-scrollbar-thumb {
-  background-color: rgba(100, 100, 100, 0.3); /* Cor da "barra" */
-  border-radius: 4px; /* Bordas arredondadas */
-}
-
-.scroll_area_new_features::-webkit-scrollbar-track {
-  background: transparent; /* Cor de fundo da track (pode deixar transparente) */
-}

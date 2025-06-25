@@ -29,7 +29,7 @@ const close = () => {
       <div class="modal-backdrop-patch-notes"></div>
     </div>
 
-    <div class="modal-container-patch-notes scroll_area_new_features">
+    <div class="modal-container-patch-notes">
       <div class="modal-content-patch-notes">
         <div class="modal-header-patch-notes">
           <button @click="close()" class="modal-close-btn-patch-notes">
@@ -57,7 +57,7 @@ const close = () => {
               <h1 class="header_latest_update">Ultimas Atualizações</h1>
 
               <div
-                class="features-list scrollable-section scroll_area_new_features"
+                class="features-list scrollable-section scroll_area_patch_notes_latest_update"
               >
                 <FeatureCard
                   v-for="mock in patchNotes?.latest_update"
@@ -74,10 +74,12 @@ const close = () => {
           </div>
 
           <div class="modal-section-patch-notes future-section-patch-notes">
-            <div class="scrollable-section scroll_area_new_features">
+            <div class="">
               <h1 class="header_future_updates">Futuras Atualizações</h1>
 
-              <div class="features-list">
+              <div
+                class="features-list scrollable-section scroll_area_patch_notes_future_updates"
+              >
                 <FeatureCard
                   v-for="mock in patchNotes?.future_updates"
                   :key="mock"
@@ -100,18 +102,6 @@ const close = () => {
 </template>
 
 <style scoped>
-/* Overlay e animação */
-@keyframes modalani {
-  0% {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
 .modal-overlay-patch-notes {
   position: fixed;
   inset: 0;
@@ -133,7 +123,6 @@ const close = () => {
   backdrop-filter: blur(4px);
 }
 
-/* Modal */
 .modal-container-patch-notes {
   display: flex;
   justify-content: center;
@@ -141,25 +130,22 @@ const close = () => {
   position: fixed;
   inset: 0;
   z-index: 50;
-  overflow: auto;
 }
 
 .modal-content-patch-notes {
   padding: 0.25rem;
   width: 100%;
-  max-width: 90rem;
   background-color: var(--base-300, #0f172a);
   border-radius: 0.5rem;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+  @apply max-w-7xl;
 }
 
-/* Header */
 .modal-header-patch-notes {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   padding: 0.5rem;
-  /* border-bottom: 1px solid #e5e7eb; */
   border-radius: 0.5rem 0.5rem 0 0;
 }
 
@@ -190,7 +176,6 @@ const close = () => {
   height: 0.75rem;
 }
 
-/* Body */
 .modal-body-patch-notes {
   display: flex;
   flex-direction: column;
@@ -206,9 +191,8 @@ const close = () => {
   }
 }
 
-/* Sections */
 .modal-section-patch-notes {
-  border-radius: 0.375rem;
+  border-radius: 10px;
   padding: 0.5rem;
   display: flex;
   flex-direction: column;
@@ -223,7 +207,6 @@ const close = () => {
 }
 
 .scrollable-section {
-  max-height: 27rem;
   overflow: auto;
 }
 
@@ -232,19 +215,65 @@ const close = () => {
   flex-direction: column;
   gap: 0.5rem;
   margin-top: 0.5rem;
+  max-height: 31rem;
 }
 
 .header_latest_update {
   background: #3666f0;
-  padding: 8px;
-  border-radius: 0.375rem;
+  padding: 16px;
+  border-radius: 10px;
   color: white;
+  font-size: 0.9rem;
+  line-height: 1rem;
+  font-weight: 600;
 }
 
 .header_future_updates {
   background: #21b458;
-  padding: 8px;
-  border-radius: 0.375rem;
+  padding: 16px;
+  border-radius: 10px;
   color: white;
+  font-size: 0.9rem;
+  line-height: 1rem;
+  font-weight: 600;
+}
+
+.scroll_area_patch_notes_latest_update::-webkit-scrollbar {
+  width: 3px;
+}
+
+.scroll_area_patch_notes_latest_update::-webkit-scrollbar-thumb {
+  background-color: rgba(33, 180, 87, 0);
+  border-radius: 4px;
+}
+
+.scroll_area_patch_notes_latest_update::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroll_area_patch_notes_future_updates::-webkit-scrollbar {
+  width: 3px;
+}
+
+.scroll_area_patch_notes_future_updates::-webkit-scrollbar-thumb {
+  background-color: rgba(33, 180, 87, 0);
+  border-radius: 4px;
+}
+
+.scroll_area_patch_notes_future_updates::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@keyframes modalani {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 </style>
+
+
