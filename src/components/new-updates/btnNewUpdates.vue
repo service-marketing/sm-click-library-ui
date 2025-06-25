@@ -41,7 +41,7 @@ const openNewUpdates = () => {
 
   <main
     v-if="type === 'managerSideBarClose'"
-    class="main-container-new-update-manager"
+    class="main-container-new-update-manager-close"
   >
     <Popper class="popper-manager-button" hover arrow placement="right">
       <button @click="openNewUpdates()" class="new_update-button">
@@ -73,7 +73,7 @@ const openNewUpdates = () => {
 
   <main
     v-if="type === 'managerSideBarOpen'"
-    class="main-container-new-update-manager"
+    class="main-container-new-update-manager-open"
   >
     <button @click="openNewUpdates()" class="new_update-button-open-side">
       <svg
@@ -105,7 +105,7 @@ const openNewUpdates = () => {
   align-items: center;
 }
 
-.main-container-new-update-manager {
+.main-container-new-update-manager-open {
   position: relative;
   display: flex;
   align-items: center;
@@ -114,7 +114,24 @@ const openNewUpdates = () => {
   background-color: #3666f0;
 }
 
-.main-container-new-update-manager:hover {
+.main-container-new-update-manager-close {
+  z-index: 9999;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  padding: 0.25rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  background-color: #3666f0;
+}
+
+.main-container-new-update-manager-open:hover {
+  background-color: #27489d;
+}
+
+.main-container-new-update-manager-close:hover {
   background-color: #27489d;
 }
 
