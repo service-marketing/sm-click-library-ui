@@ -110,20 +110,20 @@ const openNewUpdates = () => {
   display: flex;
   align-items: center;
   border-radius: 9999px;
-  padding: 0.25rem;
+  padding: 0.40rem;
   background-color: #3666f0;
+  width: 100%;
 }
 
 .main-container-new-update-manager-close {
-  z-index: 9999;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 9999px;
   padding: 0.25rem;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 3rem;
+  height: 3rem;
   background-color: #3666f0;
 }
 

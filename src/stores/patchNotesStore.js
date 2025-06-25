@@ -6,17 +6,25 @@ export const usePatchStore = defineStore("PatchStore", {
   state: () => ({
     patchNotes: null,
     suggestion: "",
+    skeletonLoader: false,
     loaderBtnSuggestion: false,
     suggestionSent: false,
     errorSent: false,
   }),
   actions: {
     async getPatchNotes() {
-      const res = await api.get(
-        "https://8c921c4e-8185-44ed-aa7d-71c64f6174ee.mock.pstmn.io/v1/api/patch-notes/attendance"
-      );
-      this.patchNotes = res.data;
-      console.log(this.patchNotes);
+      this.skeletonLoader = true;
+      try {
+        const res = await api.get(
+          "/v1/api/services/updates/history?system=manager&type=future&page=1&page_size=1"
+        );
+        this.patchNotes = res.data;
+        console.log(this.patchNotes);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        this.skeletonLoader = false;
+      }
     },
     async sendSuggestions() {
       this.loaderBtnSuggestion = true;

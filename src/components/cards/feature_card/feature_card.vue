@@ -180,7 +180,6 @@ const predictiveTextClass = computed(() => ({
   flex-direction: column;
   gap: 0.75rem;
   cursor: pointer;
-  min-height: 7rem;
 }
 
 .feature-card--updated {
@@ -239,7 +238,8 @@ const predictiveTextClass = computed(() => ({
 }
 
 .feature-card__description {
-  max-height: 16rem;
+  min-height: 2rem;
+  max-height: 6rem;
   overflow: auto;
   display: flex;
   flex-direction: column;
@@ -314,6 +314,10 @@ const predictiveTextClass = computed(() => ({
   .feature-card__footer-section {
     justify-content: space-between;
     flex-direction: row;
+  }
+
+  .feature-card {
+    min-height: 7rem;
   }
 
   .pill-flag {

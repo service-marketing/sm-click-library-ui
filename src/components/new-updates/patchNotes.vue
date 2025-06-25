@@ -54,7 +54,28 @@ const close = () => {
               <div
                 class="features-list scrollable-section scroll_area_patch_notes_latest_update"
               >
+                <section
+                  v-if="patchStore.skeletonLoader"
+                  class="w-full animate-pulse flex flex-col gap-2"
+                >
+                  <div
+                    class="h-[7.1rem] w-full bg-[#27435b] rounded-[10px]"
+                    v-for="skeleton in 15"
+                  ></div>
+                </section>
+
+                <span
+                  class="text-white justify-center items-center flex h-full font-medium"
+                  v-else-if="
+                    !patchStore.skeletonLoader &&
+                    patchStore.patchNotes?.latest_update <= 0
+                  "
+                >
+                  Nenhum atualizações programada
+                </span>
+
                 <FeatureCard
+                  v-else
                   v-for="mock in patchStore.patchNotes?.latest_update"
                   :key="mock"
                   state="updated"
@@ -75,6 +96,13 @@ const close = () => {
               <div
                 class="features-list scrollable-section scroll_area_patch_notes_future_updates"
               >
+                <div
+                  class="text-white justify-center items-center flex h-full font-medium"
+                  v-if="patchStore.patchNotes?.future_updates <= 0"
+                >
+                  Nenhum atualizações programada
+                </div>
+
                 <FeatureCard
                   v-for="mock in patchStore.patchNotes?.future_updates"
                   :key="mock"
@@ -206,8 +234,9 @@ const close = () => {
 }
 
 .features-list {
+  height: 100%;
   min-height: 70vh;
-  max-height: 70vh; /* ou 50vh, dependendo da sua preferência */
+  max-height: 70vh;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
