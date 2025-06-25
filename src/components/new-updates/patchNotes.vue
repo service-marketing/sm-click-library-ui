@@ -2,19 +2,13 @@
 import { ref, onMounted } from "vue";
 import SendSuggestion from "./sendSuggestion.vue";
 import FeatureCard from "../../components/cards/feature_card/feature_card.vue";
+import { usePatchStore } from "../../stores/patchNotesStore.js";
 import "../../components/cards/feature_card/feature_card.css";
-import axios from "axios";
 
-const patchNotes = ref(null);
-const getPatchNotes = async () => {
-  const res = await axios.get(
-    "https://8c921c4e-8185-44ed-aa7d-71c64f6174ee.mock.pstmn.io/v1/api/patch-notes/attendance"
-  );
-  patchNotes.value = res.data;
-};
+const patchStore = usePatchStore();
 
 onMounted(() => {
-  getPatchNotes();
+  patchStore.getPatchNotes();
 });
 
 const emit = defineEmits(["close"]);
@@ -60,7 +54,7 @@ const close = () => {
                 class="features-list scrollable-section scroll_area_patch_notes_latest_update"
               >
                 <FeatureCard
-                  v-for="mock in patchNotes?.latest_update"
+                  v-for="mock in patchStore.patchNotes?.latest_update"
                   :key="mock"
                   state="updated"
                   :title="mock.title_feature"
@@ -81,7 +75,7 @@ const close = () => {
                 class="features-list scrollable-section scroll_area_patch_notes_future_updates"
               >
                 <FeatureCard
-                  v-for="mock in patchNotes?.future_updates"
+                  v-for="mock in patchStore.patchNotes?.future_updates"
                   :key="mock"
                   state="future-update"
                   :title="mock.title_feature"
@@ -211,11 +205,12 @@ const close = () => {
 }
 
 .features-list {
+  max-height: 70vh; /* ou 50vh, dependendo da sua preferência */
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   margin-top: 0.5rem;
-  max-height: 28rem;
 }
 
 .header_latest_update {
