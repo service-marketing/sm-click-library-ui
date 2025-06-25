@@ -215,7 +215,7 @@ const close = () => {
   flex-direction: column;
   gap: 0.5rem;
   margin-top: 0.5rem;
-  max-height: 31rem;
+  max-height: 28rem;
 }
 
 .header_latest_update {
