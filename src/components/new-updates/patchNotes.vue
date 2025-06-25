@@ -57,9 +57,9 @@ const close = () => {
                   v-for="mock in patchStore.patchNotes?.latest_update"
                   :key="mock"
                   state="updated"
-                  :title="mock.title_feature"
+                  :title="mock.title"
                   :description="mock.description"
-                  :date="mock.date"
+                  :date="mock.created_at"
                   :tutorial="mock.tutorial"
                   :flag="mock.flag"
                 />
@@ -78,9 +78,9 @@ const close = () => {
                   v-for="mock in patchStore.patchNotes?.future_updates"
                   :key="mock"
                   state="future-update"
-                  :title="mock.title_feature"
+                  :title="mock.title"
                   :description="mock.description"
-                  :date="mock.date"
+                  :date="mock.created_at"
                   :tutorial="mock.tutorial"
                   :flag="mock.flag"
                 />
