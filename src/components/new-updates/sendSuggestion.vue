@@ -119,7 +119,7 @@ const sendSuggestion = () => {
 
 .form-grid-send-suggestion {
   display: grid;
-  grid-template-rows: repeat(8, 1fr);
+  grid-template-rows: repeat(7, 1fr);
   gap: 12px;
 }
 
@@ -132,6 +132,7 @@ const sendSuggestion = () => {
   padding: 12px;
   border: none;
   outline: none;
+  grid-row: span 1;
 }
 
 .input_send_suggestion::placeholder {
@@ -142,7 +143,7 @@ const sendSuggestion = () => {
 }
 
 .textarea-container-send-suggestion {
-  grid-row: span 6;
+  grid-row: span 5;
   position: relative;
 }
 
