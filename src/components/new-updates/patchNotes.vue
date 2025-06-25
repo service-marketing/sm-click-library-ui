@@ -80,7 +80,7 @@ const close = () => {
               <div
                 class="features-list scrollable-section scroll_area_patch_notes_future_updates"
               >
-                <FeatureCard
+                <!-- <FeatureCard
                   v-for="mock in patchNotes?.future_updates"
                   :key="mock"
                   state="future-update"
@@ -89,12 +89,12 @@ const close = () => {
                   :date="mock.date"
                   :tutorial="mock.tutorial"
                   :flag="mock.flag"
-                />
+                /> -->
               </div>
             </div>
           </div>
 
-          <SendSuggestion />
+          <!-- <SendSuggestion /> -->
         </div>
       </div>
     </div>
@@ -215,7 +215,7 @@ const close = () => {
   flex-direction: column;
   gap: 0.5rem;
   margin-top: 0.5rem;
-  max-height: 32vmax;
+  max-height: 31rem;
 }
 
 .header_latest_update {
