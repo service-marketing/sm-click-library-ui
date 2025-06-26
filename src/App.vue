@@ -28,6 +28,7 @@ const test = ref(false);
   <main class="h-screen w-screen justify-center items-center flex">
     <div class="w-full justify-center flex">
       <div class="bg-red-200 p-2 flex flex-col gap-12">
+        aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
         <BtnNewUpdates
           type="attendant"
           @openNewUpdates="test ? (test = false) : (test = true)"
@@ -49,7 +50,7 @@ const test = ref(false);
         :future_updates="patchStore.future_patchs"
         :latest_update="patchStore.latest_patchs"
         :loader="false"
-        :sentSuccess="false"
+        :sentSuccess="true"
         @close="test = false"
         @postSuggestion="(data) => console.log('ai sim:', data)"
       />
