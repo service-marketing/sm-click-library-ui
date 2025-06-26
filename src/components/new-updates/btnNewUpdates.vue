@@ -17,7 +17,7 @@ const openNewUpdates = () => {
 
 <template>
   <main v-if="type === 'attendant'" class="main-container-new-update">
-    <button @click="openNewUpdates()" class="new_update-button">
+    <button @click="openNewUpdates()" class="update-button">
       <svg
         class="new_update-icon"
         fill="currentColor"
@@ -172,6 +172,9 @@ const openNewUpdates = () => {
 
 .update-button:hover {
   background-color: #03b5eb;
+  padding: 0.5rem ease-in;
+  border-radius: 9999px;
+  @apply p-2;
 }
 
 .new_update-icon {

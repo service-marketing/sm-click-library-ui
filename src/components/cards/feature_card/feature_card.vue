@@ -10,7 +10,7 @@ const targetFeatureCard = ref(null);
 const props = defineProps({
   state: { type: String, required: true, default: "updated" },
   title: { type: String, required: true },
-  description: { type: Array, required: true },
+  description: { type: String, required: true },
   date: { type: [String, null], required: true },
   tutorial: { type: String, default: null },
   flag: { type: String, required: true },
@@ -94,9 +94,10 @@ const predictiveTextClass = computed(() => ({
         <hr class="feature-card__divider" />
         <section class="feature-card__content">
           <span class="feature-card__description scroll_area_feature_card">
-            <p class="feature-card__paragraph">
-              {{ description }}
-            </p>
+            <p
+              class="feature-card__paragraph"
+              v-html="description.replace(/\n/g, '<br>')"
+            ></p>
           </span>
 
           <a
@@ -309,10 +310,6 @@ const predictiveTextClass = computed(() => ({
   .feature-card__footer-section {
     justify-content: space-between;
     flex-direction: row;
-  }
-
-  .feature-card {
-    min-height: 7rem;
   }
 
   .pill-flag {

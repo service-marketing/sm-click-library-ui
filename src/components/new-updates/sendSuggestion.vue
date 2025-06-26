@@ -5,20 +5,30 @@ import { usePatchStore } from "../../stores/patchNotesStore.js";
 const patchStore = usePatchStore();
 
 const emit = defineEmits(["sendSuggestion"]);
-const loader = ref(false);
-const suggestionPayload = ref({
-  suggestion: "",
+const props = defineProps({
+  loader: { type: Boolean, default: false },
+  sendSuccess: { type: Boolean, default: false },
 });
 
-const sendSuggestion = () => {
-  emit("sendSuggestion", suggestionPayload.value);
+const suggestion = ref("");
+const errorSent = ref(false);
+
+const sendSuggestions = () => {
+  errorSent.value = false;
+
+  if (!suggestion.value) {
+    errorSent.value = true;
+    return;
+  }
+
+  emit("sendSuggestion", suggestion.value);
 };
 </script>
 
 <template>
   <main class="relative">
     <section
-      v-if="patchStore.suggestionSent"
+      v-if="sendSuccess"
       class="absolute w-full h-full bg-black/90 z-10 p-2 flex justify-center items-center rounded-lg"
     >
       <div
@@ -46,24 +56,18 @@ const sendSuggestion = () => {
       <h1 class="header_send_suggestion">Envie sua sugestão para nós</h1>
 
       <textarea
-        v-model="patchStore.suggestion"
+        v-model="suggestion"
         class="input_send_suggestion textarea-send-suggestion"
         placeholder="Gostaria que vocês adicionassem..."
         type="text"
       ></textarea>
 
-      <span class="tool_tip_suggestion_error" v-if="patchStore.errorSent">
+      <span class="tool_tip_suggestion_error" v-if="errorSent">
         Por favor, preencha o campo antes de continuar
       </span>
 
-      <button
-        @click="patchStore.sendSuggestions()"
-        class="submit-button-send-suggestion"
-      >
-        <div
-          v-if="patchStore.loaderBtnSuggestion"
-          class="loader-suggestion"
-        ></div>
+      <button @click="sendSuggestions()" class="submit-button-send-suggestion">
+        <div v-if="loader" class="loader-suggestion"></div>
         <p v-else>Enviar</p>
       </button>
     </section>

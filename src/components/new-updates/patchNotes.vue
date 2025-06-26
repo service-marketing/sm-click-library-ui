@@ -6,11 +6,19 @@ import { usePatchStore } from "../../stores/patchNotesStore.js";
 
 const patchStore = usePatchStore();
 const props = defineProps({
-  future_updates: { type: Object, required: true },
-  latest_update: { type: Object },
+  future_updates: { type: [Object, null], required: true },
+  latest_update: { type: [Object, null], required: true },
+
+  loader: { type: Boolean, default: false },
+  sendSuccess: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(["close"]);
+const emit = defineEmits(["close", "sendSuggestions"]);
+
+const getSuggestionText = (suggestion) => {
+  emit("sendSuggestions", suggestion);
+};
+
 const close = () => {
   emit("close");
   patchStore.resetPatchStates();
@@ -114,7 +122,7 @@ onMounted(() => {
                   state="future-update"
                   :title="fut.title"
                   :description="fut.description"
-                  :date="fut.created_at"
+                  :date="fut.launched_at"
                   :tutorial="fut.tutorial"
                   :flag="fut.flag"
                 />
@@ -122,7 +130,11 @@ onMounted(() => {
             </section>
           </div>
 
-          <SendSuggestion />
+          <SendSuggestion
+            :loader="loader"
+            :sendSuccess="sendSuccess"
+            @sendSuggestion="getSuggestionText"
+          />
         </div>
       </div>
     </div>

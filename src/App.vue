@@ -30,28 +30,31 @@ const test = ref(false);
       <div class="bg-red-200 p-2 flex flex-col gap-12">
         <BtnNewUpdates
           type="attendant"
-          @open-new-updates="test ? (test = false) : (test = true)"
+          @openNewUpdates="test ? (test = false) : (test = true)"
         />
 
         <BtnNewUpdates
           type="managerSideBarClose"
-          @open-new-updates="test ? (test = false) : (test = true)"
+          @openNewUpdates="test ? (test = false) : (test = true)"
         />
 
         <BtnNewUpdates
           type="managerSideBarOpen"
-          @open-new-updates="test ? (test = false) : (test = true)"
+          @openNewUpdates="test ? (test = false) : (test = true)"
         />
       </div>
 
       <PatchNotes
+        v-if="test"
         :future_updates="patchStore.future_patchs"
         :latest_update="patchStore.latest_patchs"
+        :loader="false"
+        :sendSuccess="false"
         @close="test = false"
-        v-if="test"
+        @sendSuggestions="(data) => console.log('ai sim:', data)"
       />
     </div>
   </main>
 </template>
 
-<style scoped></style>
+
