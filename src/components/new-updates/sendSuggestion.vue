@@ -7,10 +7,7 @@ const patchStore = usePatchStore();
 const emit = defineEmits(["sendSuggestion"]);
 const loader = ref(false);
 const suggestionPayload = ref({
-  name: "",
-  companySegment: "",
   suggestion: "",
-  terms: false,
 });
 
 const sendSuggestion = () => {
