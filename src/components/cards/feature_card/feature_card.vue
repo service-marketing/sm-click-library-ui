@@ -2,7 +2,6 @@
 import { ref, computed } from "vue";
 import { onClickOutside } from "@vueuse/core";
 import { arrowSvg, shareSvg, calendarSvg } from "./feature_card_svgs";
-import "./feature_card.css";
 import Svg from "../../../assets/svg.vue";
 
 const isOpen = ref(false);

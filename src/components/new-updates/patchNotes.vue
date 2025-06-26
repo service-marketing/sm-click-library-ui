@@ -3,7 +3,6 @@ import { ref, onMounted } from "vue";
 import SendSuggestion from "./sendSuggestion.vue";
 import FeatureCard from "../../components/cards/feature_card/feature_card.vue";
 import { usePatchStore } from "../../stores/patchNotesStore.js";
-import "../../components/cards/feature_card/feature_card.css";
 
 const patchStore = usePatchStore();
 
@@ -49,76 +48,84 @@ const close = () => {
         </div>
 
         <div class="modal-body-patch-notes">
-          <div class="flex gap-2 col-span-2 w-full">
-            <div class="modal-section-patch-notes updates-section-patch-notes">
-              <div class="">
-                <h1 class="header_latest_update">Ultimas Atualizações</h1>
+          <div class="modal-body-control">
+            <section
+              class="modal-section-patch-notes updates-section-patch-notes"
+            >
+              <h1 class="header_latest_update">Ultimas Atualizações</h1>
 
-                <div
-                  class="features-list scrollable-section scroll_area_patch_notes_latest_update"
+              <div
+                class="features-list scrollable-section scroll_area_patch_notes_latest_update"
+              >
+                <section
+                  v-if="patchStore.skeletonLoader"
+                  class="sections-skeleton-loader"
                 >
-                  <section
-                    v-if="patchStore.skeletonLoader"
-                    class="w-full animate-pulse flex flex-col gap-2"
-                  >
-                    <div
-                      class="h-[7.1rem] w-full bg-[#27435b] rounded-[10px]"
-                      v-for="skeleton in 15"
-                    ></div>
-                  </section>
+                  <div class="skeleton-loader" v-for="skeleton in 15"></div>
+                </section>
 
-                  <span
-                    class="text-white justify-center items-center flex h-full font-medium"
-                    v-else-if="
-                      !patchStore.skeletonLoader &&
-                      patchStore.patchNotes?.latest_update <= 0
-                    "
-                  >
-                    Nenhum atualizações programada
-                  </span>
-
-                  <FeatureCard
-                    v-else
-                    v-for="mock in patchStore.patchNotes?.latest_update"
-                    :key="mock"
-                    state="updated"
-                    :title="mock.title"
-                    :description="mock.description"
-                    :date="mock.created_at"
-                    :tutorial="mock.tutorial"
-                    :flag="mock.flag"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div class="modal-section-patch-notes future-section-patch-notes">
-              <div class="">
-                <h1 class="header_future_updates">Futuras Atualizações</h1>
-
-                <div
-                  class="features-list scrollable-section scroll_area_patch_notes_future_updates"
+                <span
+                  v-else-if="
+                    !patchStore.skeletonLoader &&
+                    patchStore.patchNotes?.latest_update <= 0
+                  "
+                  class="text-not-patchs"
                 >
-                  <div
-                    class="text-white justify-center items-center flex h-full font-medium"
-                    v-if="patchStore.patchNotes?.future_updates <= 0"
-                  >
-                    Nenhum atualizações programada
-                  </div>
+                  Nenhuma atualização programada
+                </span>
 
-                  <FeatureCard
-                    v-for="mock in patchStore.patchNotes?.future_updates"
-                    :key="mock"
-                    state="future-update"
-                    :title="mock.title"
-                    :description="mock.description"
-                    :date="mock.created_at"
-                    :tutorial="mock.tutorial"
-                    :flag="mock.flag"
-                  />
-                </div>
+                <FeatureCard
+                  v-else
+                  v-for="mock in patchStore.patchNotes?.latest_update"
+                  :key="mock"
+                  state="updated"
+                  :title="mock.title"
+                  :description="mock.description"
+                  :date="mock.created_at"
+                  :tutorial="mock.tutorial"
+                  :flag="mock.flag"
+                />
               </div>
-            </div>
+            </section>
+
+            <section
+              class="modal-section-patch-notes future-section-patch-notes"
+            >
+              <h1 class="header_future_updates">Futuras Atualizações</h1>
+
+              <div
+                class="features-list scrollable-section scroll_area_patch_notes_future_updates"
+              >
+                <section
+                  v-if="patchStore.skeletonLoader"
+                  class="sections-skeleton-loader"
+                >
+                  <div class="skeleton-loader" v-for="skeleton in 15"></div>
+                </section>
+
+                <span
+                  v-else-if="
+                    !patchStore.skeletonLoader &&
+                    patchStore.patchNotes?.future_updates <= 0
+                  "
+                  class="text-not-patchs"
+                >
+                  Nenhuma atualização programada
+                </span>
+
+                <FeatureCard
+                  v-else
+                  v-for="mock in patchStore.patchNotes?.future_updates"
+                  :key="mock"
+                  state="future-update"
+                  :title="mock.title"
+                  :description="mock.description"
+                  :date="mock.created_at"
+                  :tutorial="mock.tutorial"
+                  :flag="mock.flag"
+                />
+              </div>
+            </section>
           </div>
 
           <SendSuggestion />
@@ -157,6 +164,13 @@ const close = () => {
   position: fixed;
   inset: 0;
   z-index: 50;
+}
+
+.modal-body-control {
+  display: flex;
+  gap: 0.5rem;
+  grid-column: span 2 / span 2;
+  width: 100%;
 }
 
 .modal-content-patch-notes {
@@ -306,6 +320,36 @@ const close = () => {
 
 .scroll_area_patch_notes_future_updates::-webkit-scrollbar-track {
   background: transparent;
+}
+
+.text-not-patchs {
+  color: white;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  height: 100%;
+  font-weight: 500;
+}
+
+.sections-skeleton-loader {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.skeleton-loader {
+  width: 100%;
+  height: 7.1rem;
+  background-color: #27435b;
+  border-radius: 10px;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.5;
+  }
 }
 
 @keyframes modalani {
