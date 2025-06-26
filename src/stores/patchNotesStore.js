@@ -12,17 +12,17 @@ export const usePatchStore = defineStore("PatchStore", {
     errorSent: false,
   }),
   actions: {
-    async getPatchNotes() {
+    async getPatchNotes(system) {
       this.skeletonLoader = true;
       try {
         const resLatest = await api.get(
           //   "https://8c921c4e-8185-44ed-aa7d-71c64f6174ee.mock.pstmn.io/v1/api/patch-notes/attendance"
-          "/v1/api/services/updates/history?system=attendant&type=latest&page=1&page_size=10"
+          `/v1/api/services/updates/history?system=${system}&type=latest&page=1&page_size=10`
         );
 
         const resFuture = await api.get(
           //   "https://8c921c4e-8185-44ed-aa7d-71c64f6174ee.mock.pstmn.io/v1/api/patch-notes/attendance"
-          "/v1/api/services/updates/history?system=attendant&type=future&page=1&page_size=10"
+          `/v1/api/services/updates/history?system=${system}&type=future&page=1&page_size=10`
         );
 
         console.log("Ultimas atts", resLatest.data);
