@@ -85,7 +85,7 @@ export function attLibInstances(instances, action = "add") {
 
 export function attPatchNoteStore(action, system) {
   const patchStore = usePatchStore();
-  systemType = system === "manager" ? "manager" : "attendant";
+  const systemType = system === "manager" ? "manager" : "attendant";
 
   if (action === "getPatch") {
     patchStore.getPatchNotes(systemType);
