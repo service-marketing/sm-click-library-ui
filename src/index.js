@@ -19,6 +19,7 @@ import { useAuthStore } from "~/stores/authStore";
 import { useAttendantStore } from "./stores/attendantStore";
 import { useDepartmentStore } from "./stores/departmentStore";
 import { useInstanceStore } from "./stores/instanceStore";
+import { usePatchStore } from "./stores/patchNotesStore";
 import api from "~/utils/api"; // Importa a instância personalizada do Axios
 
 function install(Vue) {
@@ -126,6 +127,11 @@ export async function setupLibrary(
     // Configuração do InstanceStore
     const instanceStore = useInstanceStore(piniaInstance);
     await instanceStore.fetchInstances();
+
+    // configuração do patchStore
+    const patchStore = usePatchStore(piniaInstance);
+    patchStore.getPatchNotes();
+
     // if (instances.length) {
     //   instanceStore.setInstances(instances);
     // } else {
