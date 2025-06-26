@@ -4,10 +4,10 @@ import rocket_animate from "../../assets/lottieAnimates/rocket_animate.json";
 import { usePatchStore } from "../../stores/patchNotesStore.js";
 const patchStore = usePatchStore();
 
-const emit = defineEmits(["sendSuggestion"]);
+const emit = defineEmits(["postSuccess"]);
 const props = defineProps({
   loader: { type: Boolean, default: false },
-  sendSuccess: { type: Boolean, default: false },
+  sentSuccess: { type: Boolean, default: false },
 });
 
 const suggestion = ref("");
@@ -21,14 +21,14 @@ const sendSuggestions = () => {
     return;
   }
 
-  emit("sendSuggestion", suggestion.value);
+  emit("postSuccess", suggestion.value);
 };
 </script>
 
 <template>
   <main class="relative">
     <section
-      v-if="sendSuccess"
+      v-if="sentSuccess"
       class="absolute w-full h-full bg-black/90 z-10 p-2 flex justify-center items-center rounded-lg"
     >
       <div

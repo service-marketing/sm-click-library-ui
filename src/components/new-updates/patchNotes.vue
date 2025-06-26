@@ -10,13 +10,13 @@ const props = defineProps({
   latest_update: { type: [Object, null], required: true },
 
   loader: { type: Boolean, default: false },
-  sendSuccess: { type: Boolean, default: false },
+  sentSuccess: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(["close", "sendSuggestions"]);
+const emit = defineEmits(["close", "postSuggestion"]);
 
 const getSuggestionText = (suggestion) => {
-  emit("sendSuggestions", suggestion);
+  emit("postSuggestion", suggestion);
 };
 
 const close = () => {
@@ -132,8 +132,8 @@ onMounted(() => {
 
           <SendSuggestion
             :loader="loader"
-            :sendSuccess="sendSuccess"
-            @sendSuggestion="getSuggestionText"
+            :sentSuccess="sentSuccess"
+            @postSuccess="getSuggestionText"
           />
         </div>
       </div>

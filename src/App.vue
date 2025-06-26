@@ -49,9 +49,9 @@ const test = ref(false);
         :future_updates="patchStore.future_patchs"
         :latest_update="patchStore.latest_patchs"
         :loader="false"
-        :sendSuccess="false"
+        :sentSuccess="false"
         @close="test = false"
-        @sendSuggestions="(data) => console.log('ai sim:', data)"
+        @postSuggestion="(data) => console.log('ai sim:', data)"
       />
     </div>
   </main>
