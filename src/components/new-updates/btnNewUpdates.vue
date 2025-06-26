@@ -1,16 +1,9 @@
 <script setup>
 import { ref } from "vue";
-import { usePatchStore } from "../../stores/patchNotesStore.js";
-const patchStore = usePatchStore();
 
-const emit = defineEmits(["open-new-updates"]);
+const emit = defineEmits(["openNewUpdates"]);
 const props = defineProps({
   type: {
-    type: String,
-    default: "",
-    required: true,
-  },
-  system: {
     type: String,
     default: "",
     required: true,
@@ -18,8 +11,7 @@ const props = defineProps({
 });
 
 const openNewUpdates = () => {
-  patchStore.getPatchNotes(props.system);
-  emit("open-new-updates");
+  emit("openNewUpdates");
 };
 </script>
 

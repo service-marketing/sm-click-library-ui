@@ -18,7 +18,9 @@ import MinModal from "./components/modals/min_modal/min_modal.vue";
 
 import BtnNewUpdates from "./components/new-updates/btnNewUpdates.vue";
 import PatchNotes from "./components/new-updates/patchNotes.vue";
+import { usePatchStore } from "./stores/patchNotesStore.js";
 
+const patchStore = usePatchStore();
 const test = ref(false);
 </script>
 
@@ -42,7 +44,12 @@ const test = ref(false);
         />
       </div>
 
-      <PatchNotes @close="test = false" v-if="test" />
+      <PatchNotes
+        :future_updates="patchStore.future_patchs"
+        :latest_update="patchStore.latest_patchs"
+        @close="test = false"
+        v-if="test"
+      />
     </div>
   </main>
 </template>

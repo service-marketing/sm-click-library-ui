@@ -94,12 +94,8 @@ const predictiveTextClass = computed(() => ({
         <hr class="feature-card__divider" />
         <section class="feature-card__content">
           <span class="feature-card__description scroll_area_feature_card">
-            <p
-              v-for="descrip in description"
-              class="feature-card__paragraph"
-              :key="descrip"
-            >
-              {{ descrip }}
+            <p class="feature-card__paragraph">
+              {{ description }}
             </p>
           </span>
 

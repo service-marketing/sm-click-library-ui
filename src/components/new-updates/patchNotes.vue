@@ -5,9 +5,9 @@ import FeatureCard from "../../components/cards/feature_card/feature_card.vue";
 import { usePatchStore } from "../../stores/patchNotesStore.js";
 
 const patchStore = usePatchStore();
-
-onMounted(() => {
-  patchStore.getPatchNotes();
+const props = defineProps({
+  future_updates: { type: Object, required: true },
+  latest_update: { type: Object },
 });
 
 const emit = defineEmits(["close"]);
@@ -15,6 +15,9 @@ const close = () => {
   emit("close");
   patchStore.resetPatchStates();
 };
+onMounted(() => {
+  patchStore.getPatchNotes();
+});
 </script>
 
 <template>
@@ -57,36 +60,27 @@ const close = () => {
               <div
                 class="features-list scrollable-section scroll_area_patch_notes_latest_update"
               >
-                <section
-                  v-if="patchStore.skeletonLoader"
-                  class="sections-skeleton-loader"
-                >
+                <section v-if="!latest_update" class="sections-skeleton-loader">
                   <div
                     class="skeleton-loader skeleton-color-latest_update"
                     v-for="skeleton in 15"
                   ></div>
                 </section>
 
-                <span
-                  v-else-if="
-                    !patchStore.skeletonLoader &&
-                    patchStore.patchNotes?.latest_update <= 0
-                  "
-                  class="text-not-patchs"
-                >
+                <span v-else-if="latest_update <= 0" class="text-not-patchs">
                   Nenhuma atualização programada
                 </span>
 
                 <FeatureCard
                   v-else
-                  v-for="mock in patchStore.patchNotes?.latest_update"
-                  :key="mock"
+                  v-for="last in latest_update"
+                  :key="last"
                   state="updated"
-                  :title="mock.title"
-                  :description="mock.description"
-                  :date="mock.created_at"
-                  :tutorial="mock.tutorial"
-                  :flag="mock.flag"
+                  :title="last.title"
+                  :description="last.description"
+                  :date="last.launched_at"
+                  :tutorial="last.tutorial"
+                  :flag="last.flag"
                 />
               </div>
             </section>
@@ -100,35 +94,29 @@ const close = () => {
                 class="features-list scrollable-section scroll_area_patch_notes_future_updates"
               >
                 <section
-                  v-if="patchStore.skeletonLoader"
+                  v-if="!future_updates"
                   class="sections-skeleton-loader"
                 >
                   <div
-                    class="skeleton-loader skeleton-color-future_updates"
+                    class="skeleton-loader skeleton-color-latest_update"
                     v-for="skeleton in 15"
                   ></div>
                 </section>
 
-                <span
-                  v-else-if="
-                    !patchStore.skeletonLoader &&
-                    patchStore.patchNotes?.future_updates <= 0
-                  "
-                  class="text-not-patchs"
-                >
+                <span v-else-if="future_updates <= 0" class="text-not-patchs">
                   Nenhuma atualização programada
                 </span>
 
                 <FeatureCard
                   v-else
-                  v-for="mock in patchStore.patchNotes?.future_updates"
-                  :key="mock"
+                  v-for="fut in future_updates"
+                  :key="fut"
                   state="future-update"
-                  :title="mock.title"
-                  :description="mock.description"
-                  :date="mock.created_at"
-                  :tutorial="mock.tutorial"
-                  :flag="mock.flag"
+                  :title="fut.title"
+                  :description="fut.description"
+                  :date="fut.created_at"
+                  :tutorial="fut.tutorial"
+                  :flag="fut.flag"
                 />
               </div>
             </section>

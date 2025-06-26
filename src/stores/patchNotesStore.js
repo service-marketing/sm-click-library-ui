@@ -5,6 +5,8 @@ import { getInstances, stateInstance } from "~/utils/systemUrls";
 export const usePatchStore = defineStore("PatchStore", {
   state: () => ({
     patchNotes: null,
+    future_patchs: null,
+    latest_patchs: null,
     suggestion: "",
     skeletonLoader: false,
     loaderBtnSuggestion: false,
@@ -15,18 +17,13 @@ export const usePatchStore = defineStore("PatchStore", {
     async getPatchNotes(system) {
       this.skeletonLoader = true;
       try {
-        const resLatest = await api.get(
-          //   "https://8c921c4e-8185-44ed-aa7d-71c64f6174ee.mock.pstmn.io/v1/api/patch-notes/attendance"
-          `/v1/api/services/updates/history?system=${system}&type=latest&page=1&page_size=10`
-        );
-
         const resFuture = await api.get(
-          //   "https://8c921c4e-8185-44ed-aa7d-71c64f6174ee.mock.pstmn.io/v1/api/patch-notes/attendance"
-          `/v1/api/services/updates/history?system=${system}&type=future&page=1&page_size=10`
+          "https://8c921c4e-8185-44ed-aa7d-71c64f6174ee.mock.pstmn.io/v1/api/patch-notes/attendance"
+          //   `/v1/api/services/updates/history?system=${system}&type=future&page=1&page_size=10`
         );
-
-        console.log("Ultimas atts", resLatest.data);
-        console.log("Futuras atts", resFuture.data);
+        console.log(resFuture.data);
+        this.future_patchs = resFuture.data;
+        this.latest_patchs = resFuture.data;
       } catch (error) {
         console.error(error);
       } finally {
