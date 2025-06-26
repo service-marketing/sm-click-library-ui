@@ -61,7 +61,10 @@ const close = () => {
                   v-if="patchStore.skeletonLoader"
                   class="sections-skeleton-loader"
                 >
-                  <div class="skeleton-loader" v-for="skeleton in 15"></div>
+                  <div
+                    class="skeleton-loader skeleton-color-latest_update"
+                    v-for="skeleton in 15"
+                  ></div>
                 </section>
 
                 <span
@@ -100,7 +103,10 @@ const close = () => {
                   v-if="patchStore.skeletonLoader"
                   class="sections-skeleton-loader"
                 >
-                  <div class="skeleton-loader" v-for="skeleton in 15"></div>
+                  <div
+                    class="skeleton-loader skeleton-color-future_updates"
+                    v-for="skeleton in 15"
+                  ></div>
                 </section>
 
                 <span
@@ -342,8 +348,15 @@ const close = () => {
 .skeleton-loader {
   width: 100%;
   height: 7.1rem;
-  background-color: #27435b;
   border-radius: 10px;
+}
+
+.skeleton-color-latest_update {
+  background-color: #27435b;
+}
+
+.skeleton-color-future_updates {
+  background-color: #225a49;
 }
 
 @keyframes pulse {

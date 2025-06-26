@@ -130,7 +130,6 @@ export async function setupLibrary(
 
     // configuração do patchStore
     const patchStore = usePatchStore(piniaInstance);
-    patchStore.getPatchNotes();
 
     // if (instances.length) {
     //   instanceStore.setInstances(instances);
