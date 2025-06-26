@@ -27,7 +27,7 @@ const test = ref(false);
     <div class="w-full justify-center flex">
       <div class="bg-red-200 p-2 flex flex-col gap-12">
         <BtnNewUpdates
-          type="attendance"
+          type="attendant"
           @open-new-updates="test ? (test = false) : (test = true)"
         />
 

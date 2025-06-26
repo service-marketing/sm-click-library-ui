@@ -1,5 +1,7 @@
 <script setup>
 import { ref } from "vue";
+import { usePatchStore } from "../../stores/patchNotesStore.js";
+const patchStore = usePatchStore();
 
 const emit = defineEmits(["open-new-updates"]);
 const props = defineProps({
@@ -8,15 +10,21 @@ const props = defineProps({
     default: "",
     required: true,
   },
+  system: {
+    type: String,
+    default: "",
+    required: true,
+  },
 });
 
 const openNewUpdates = () => {
+  patchStore.getPatchNotes(props.system);
   emit("open-new-updates");
 };
 </script>
 
 <template>
-  <main v-if="type === 'attendance'" class="main-container-new-update">
+  <main v-if="type === 'attendant'" class="main-container-new-update">
     <button @click="openNewUpdates()" class="new_update-button">
       <svg
         class="new_update-icon"
@@ -110,7 +118,7 @@ const openNewUpdates = () => {
   display: flex;
   align-items: center;
   border-radius: 9999px;
-  padding: 0.40rem;
+  padding: 0.4rem;
   background-color: #3666f0;
   width: 100%;
 }
