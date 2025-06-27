@@ -13,21 +13,25 @@ const getVariantConfig = (type, sparkles) => {
     attendant: {
       container: "main-container-new-update",
       button: sparkles
-        ? "update-button sparkle_update-button"
+        ? "update-button sparkle_update-button animate_sparkle"
         : "update-button",
       tooltip: "tooltip-new-update",
       usePopper: false,
       text: null,
     },
     managerSideBarClose: {
-      container: "main-container-new-update-manager-close",
-      button: "new_update-button",
+      container: sparkles
+        ? "main-container-new-update-manager-close animate_sparkle"
+        : "main-container-new-update-manager-close ",
+      button: "new_update-button ",
       tooltip: null,
       usePopper: true,
       text: null,
     },
     managerSideBarOpen: {
-      container: "main-container-new-update-manager-open",
+      container: sparkles
+        ? "main-container-new-update-manager-open animate_sparkle"
+        : "main-container-new-update-manager-open",
       button: "new_update-button-open-side open-width",
       tooltip: null,
       usePopper: false,
@@ -228,7 +232,7 @@ const openNewUpdates = () => {
 .update-button {
   display: flex;
   align-items: center;
-  padding: 6px;
+  padding: 7px;
   border-radius: 50%;
   background-color: transparent;
   border: none;
@@ -237,6 +241,9 @@ const openNewUpdates = () => {
 }
 .sparkle_update-button {
   background-color: #03b5eb;
+}
+.animate_sparkle {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 .new_update-button,
 .new_update-button-open-side {
@@ -294,5 +301,11 @@ const openNewUpdates = () => {
 }
 .open-width {
   width: 100%;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.5;
+  }
 }
 </style>

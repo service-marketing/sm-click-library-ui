@@ -181,7 +181,7 @@ const loadMoreLatestUpdates = ({ loaded, complete }) => {
 
                   <template #spinner>
                     <section class="sections-skeleton-loader">
-                      <div class="skeleton-loader skeleton-color-latest_update">
+                      <div class="skeleton-loader skeleton-color-future_updates">
                         <div class="infinite-loader-spin"></div>
                       </div>
                     </section>
