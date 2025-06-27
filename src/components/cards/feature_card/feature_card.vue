@@ -57,11 +57,6 @@ const pillDateClass = computed(() => ({
   "pill-date--updated": props.state === "updated",
   "pill-date--future": props.state !== "updated",
 }));
-
-const predictiveTextClass = computed(() => ({
-  hidden: props.state === "updated",
-  predictive_text: props.state !== "updated",
-}));
 </script>
 
 <template>
@@ -119,9 +114,13 @@ const predictiveTextClass = computed(() => ({
           {{ pillFlagName }}
         </span>
 
-        <span class="pill_date_span" v-if="date">
-          <p :class="predictiveTextClass">previsão</p>
-
+        <Popper
+          class="pill_date_popper"
+          hover
+          :disabled="state === 'updated'"
+          :arrow="true"
+          content="Essa é uma data prevista para o lançamento deste recurso, a mesma está sujeita a mudanças a qualquer momento"
+        >
           <div :class="pillDateClass">
             <Svg :svgContent="calendarSvg('size-4 text-white')" />
             <p>
@@ -136,13 +135,28 @@ const predictiveTextClass = computed(() => ({
               }}
             </p>
           </div>
-        </span>
+        </Popper>
       </section>
     </footer>
   </main>
 </template>
 
 <style scoped>
+.pill_date_popper {
+  --popper-theme-background-color: #021812;
+  --popper-theme-background-color-hover: #021812;
+  --popper-theme-text-color: #ffffff;
+  --popper-theme-border-width: 0px;
+  --popper-theme-border-style: solid;
+  --popper-theme-border-radius: 8px;
+  --popper-theme-padding: 12px;
+  --popper-theme-box-shadow: 0 6px 30px -6px rgba(0, 0, 0, 0.25);
+  font-size: 12px;
+  font-weight: 400;
+  text-align: justify;
+  width: 20.5rem;
+}
+
 .fade-slide-enter-active,
 .fade-slide-leave-active {
   transition: all 0.5s ease-in-out;
@@ -321,6 +335,10 @@ const predictiveTextClass = computed(() => ({
   }
 
   .pill_date_span {
+    width: auto;
+  }
+
+  .pill_date_popper {
     width: auto;
   }
 }

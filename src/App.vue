@@ -21,15 +21,41 @@ import PatchNotes from "./components/new-updates/patchNotes.vue";
 import { usePatchStore } from "./stores/patchNotesStore.js";
 
 const patchStore = usePatchStore();
+const futureUpdates = ref([]);
+const page = ref(1);
 const test = ref(false);
+
+const handleLoadMoreFutureUpdates = async ({ loaded, complete, page }) => {
+  console.log("ativou");
+
+  try {
+    const res = await new Promise((resolve) => {
+      setTimeout(() => {
+        // Simula retorno de dados (mude conforme necessário)
+        const fakeData = page < 8 ? [{ id: page, title: `Item ${page}` }] : [];
+        resolve(fakeData);
+      }, 1500); // 1.5 segundos de atraso
+    });
+
+    if (res.length === 0) {
+      complete(); // sem mais dados
+    } else {
+      futureUpdates.value.push(...res);
+      loaded(); // dados carregados
+    }
+  } catch (e) {
+    console.error(e);
+    complete(); // para não travar o carregamento
+  }
+};
 </script>
 
 <template>
   <main class="h-screen w-screen justify-center items-center flex">
     <div class="w-full justify-center flex">
       <div class="bg-red-200 p-2 flex flex-col gap-12">
-        aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
         <BtnNewUpdates
+          sparkles
           type="attendant"
           @openNewUpdates="test ? (test = false) : (test = true)"
         />
@@ -53,6 +79,8 @@ const test = ref(false);
         :sentSuccess="true"
         @close="test = false"
         @postSuggestion="(data) => console.log('ai sim:', data)"
+        @loadMoreFutureUpdates="handleLoadMoreFutureUpdates"
+        @loadMoreLatestUpdates="handleLoadMoreFutureUpdates"
       />
     </div>
   </main>

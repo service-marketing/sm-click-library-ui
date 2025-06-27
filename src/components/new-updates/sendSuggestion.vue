@@ -48,6 +48,10 @@ const sendSuggestions = () => {
         <p>
           Nossa equipe irá avaliá-la com atenção e considerar sua implementação.
         </p>
+        <p>
+          Você irá receber um e-mail com as informações da solicitação e nossa
+          equipe irá responder em até 30 dias
+        </p>
         <p>Agradecemos sua colaboração</p>
       </div>
     </section>

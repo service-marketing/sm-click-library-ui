@@ -3,17 +3,32 @@ import { ref, onMounted } from "vue";
 import SendSuggestion from "./sendSuggestion.vue";
 import FeatureCard from "../../components/cards/feature_card/feature_card.vue";
 import { usePatchStore } from "../../stores/patchNotesStore.js";
+import V3InfiniteLoading from "v3-infinite-loading";
+import "v3-infinite-loading/lib/style.css";
 
+const pageFuture = ref(1);
+const pageLatest = ref(1);
+const scrollFutContainer = ref(null);
+const scrollLasContainer = ref(null);
 const patchStore = usePatchStore();
+
 const props = defineProps({
   future_updates: { type: [Object, null], required: true },
   latest_update: { type: [Object, null], required: true },
-
   loader: { type: Boolean, default: false },
   sentSuccess: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(["close", "postSuggestion"]);
+const emit = defineEmits([
+  "close",
+  "postSuggestion",
+  "loadMoreFutureUpdates",
+  "loadMoreLatestUpdates",
+]);
+
+onMounted(() => {
+  patchStore.getPatchNotes();
+});
 
 const getSuggestionText = (suggestion) => {
   emit("postSuggestion", suggestion);
@@ -21,11 +36,19 @@ const getSuggestionText = (suggestion) => {
 
 const close = () => {
   emit("close");
-  patchStore.resetPatchStates();
+  pageFuture.value = 1;
+  pageLatest.value = 1;
 };
-onMounted(() => {
-  patchStore.getPatchNotes();
-});
+
+const loadMoreFutureUpdates = ({ loaded, complete }) => {
+  emit("loadMoreFutureUpdates", { loaded, complete, page: pageFuture.value });
+  pageFuture.value++;
+};
+
+const loadMoreLatestUpdates = ({ loaded, complete }) => {
+  emit("loadMoreLatestUpdates", { loaded, complete, page: pageLatest.value });
+  pageLatest.value++;
+};
 </script>
 
 <template>
@@ -66,6 +89,7 @@ onMounted(() => {
               <h1 class="header_latest_update">Ultimas Atualizações</h1>
 
               <div
+                ref="scrollLasContainer"
                 class="features-list scrollable-section scroll_area_patch_notes_latest_update"
               >
                 <section v-if="!latest_update" class="sections-skeleton-loader">
@@ -90,6 +114,24 @@ onMounted(() => {
                   :tutorial="last.tutorial"
                   :flag="last.flag"
                 />
+
+                <V3InfiniteLoading
+                  :distance="20"
+                  :target="scrollLasContainer"
+                  @infinite="loadMoreLatestUpdates"
+                >
+                  <template #complete>
+                    <span class=""></span>
+                  </template>
+
+                  <template #spinner>
+                    <section class="sections-skeleton-loader">
+                      <div class="skeleton-loader skeleton-color-latest_update">
+                        <div class="infinite-loader-spin"></div>
+                      </div>
+                    </section>
+                  </template>
+                </V3InfiniteLoading>
               </div>
             </section>
 
@@ -99,6 +141,7 @@ onMounted(() => {
               <h1 class="header_future_updates">Futuras Atualizações</h1>
 
               <div
+                ref="scrollFutContainer"
                 class="features-list scrollable-section scroll_area_patch_notes_future_updates"
               >
                 <section
@@ -126,6 +169,24 @@ onMounted(() => {
                   :tutorial="fut.tutorial"
                   :flag="fut.flag"
                 />
+
+                <V3InfiniteLoading
+                  :distance="20"
+                  :target="scrollFutContainer"
+                  @infinite="loadMoreFutureUpdates"
+                >
+                  <template #complete>
+                    <span class=""></span>
+                  </template>
+
+                  <template #spinner>
+                    <section class="sections-skeleton-loader">
+                      <div class="skeleton-loader skeleton-color-latest_update">
+                        <div class="infinite-loader-spin"></div>
+                      </div>
+                    </section>
+                  </template>
+                </V3InfiniteLoading>
               </div>
             </section>
           </div>
@@ -142,6 +203,28 @@ onMounted(() => {
 </template>
 
 <style scoped>
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
+}
+
+.result {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-weight: 300;
+  width: 400px;
+  padding: 10px;
+  text-align: center;
+  margin: 0 auto 10px auto;
+  background: #eceef0;
+  border-radius: 10px;
+}
+
 .modal-overlay-patch-notes {
   position: fixed;
   inset: 0;
@@ -245,8 +328,8 @@ onMounted(() => {
 }
 
 .features-list {
-  height: 100%;
-  max-height: 30vh;
+  position: relative;
+  height: 70vh;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -265,8 +348,8 @@ onMounted(() => {
   }
 
   .features-list {
-    min-height: 70vh;
-    max-height: 70vh;
+    /* min-height: 70vh;
+    max-height: 70vh; */
   }
 }
 
@@ -349,6 +432,7 @@ onMounted(() => {
   width: 100%;
   height: 7.1rem;
   border-radius: 10px;
+  @apply justify-center items-center mx-auto flex;
 }
 
 .skeleton-color-latest_update {
@@ -375,6 +459,39 @@ onMounted(() => {
     transform: scale(1);
   }
 }
+
+.infinite-loader-spin {
+  --r1: 154%;
+  --r2: 68.5%;
+  width: 20px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+      var(--r1) var(--r2) at top,
+      #0000 79.5%,
+      #269af2 80%
+    ),
+    radial-gradient(var(--r1) var(--r2) at bottom, #269af2 79.5%, #0000 80%),
+    radial-gradient(var(--r1) var(--r2) at top, #0000 79.5%, #269af2 80%), #ccc;
+  background-size: 50.5% 220%;
+  background-position: -100% 0%, 0% 0%, 100% 0%;
+  background-repeat: no-repeat;
+  animation: l9 2s infinite linear;
+}
+
+@keyframes l9 {
+  33% {
+    background-position: 0% 33%, 100% 33%, 200% 33%;
+  }
+  66% {
+    background-position: -100% 66%, 0% 66%, 100% 66%;
+  }
+  100% {
+    background-position: 0% 100%, 100% 100%, 200% 100%;
+  }
+}
 </style>
+
+
 
 
