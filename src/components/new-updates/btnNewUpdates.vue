@@ -202,7 +202,7 @@ const openNewUpdates = () => {
   align-items: center;
   border-radius: 9999px;
   padding: 0.4rem;
-  background-color: #e06a25;
+  background-color: #166534;
   width: 100%;
   cursor: pointer;
 }
@@ -212,10 +212,11 @@ const openNewUpdates = () => {
   align-items: center;
   justify-content: center;
   border-radius: 9999px;
-  width: 2rem;
-  height: 2rem;
-  background-color: #e06a25;
+  width: 2.5rem;
+  height: 2.5rem;
+  background-color: #166534;
   cursor: pointer;
+  padding-left: 0.13rem;
 }
 
 @media (min-width: 1280px) {
@@ -227,7 +228,7 @@ const openNewUpdates = () => {
 
 .main-container-new-update-manager-close:hover,
 .main-container-new-update-manager-open:hover {
-  background-color: #8a4822;
+  background-color: #0c8239;
 }
 .update-button {
   display: flex;

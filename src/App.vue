@@ -61,13 +61,13 @@ const handleLoadMoreFutureUpdates = async ({ loaded, complete, page }) => {
         />
 
         <BtnNewUpdates
-          sparkles
+          
           type="managerSideBarClose"
           @openNewUpdates="test ? (test = false) : (test = true)"
         />
 
         <BtnNewUpdates
-          sparkles
+        
           type="managerSideBarOpen"
           @openNewUpdates="test ? (test = false) : (test = true)"
         />

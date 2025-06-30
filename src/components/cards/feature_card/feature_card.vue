@@ -355,7 +355,7 @@ const pillDateClass = computed(() => ({
 }
 
 .pill-date--future {
-  background-color: rgba(33, 180, 88, 0.7);
+  text-decoration-line: underline;
 }
 
 .scroll_area_feature_card::-webkit-scrollbar {
