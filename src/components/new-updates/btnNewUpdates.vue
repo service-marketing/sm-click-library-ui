@@ -35,7 +35,7 @@ const getVariantConfig = (type, sparkles) => {
       button: "new_update-button-open-side open-width",
       tooltip: null,
       usePopper: false,
-      text: "Notas de Atualização",
+      text: "Notas de atualização",
     },
   };
 
@@ -187,7 +187,7 @@ const openNewUpdates = () => {
         </span>
       </button>
       <p v-show="config.tooltip" :class="config.tooltip">
-        Notas de Atualização
+        Notas de atualização
       </p>
     </template>
   </main>

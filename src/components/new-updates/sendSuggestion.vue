@@ -26,17 +26,13 @@ const sendSuggestions = () => {
 </script>
 
 <template>
-  <main class="relative">
-    <section
-      v-if="sentSuccess"
-      class="absolute w-full h-full bg-black/90 z-10 p-2 flex justify-center items-center rounded-lg"
-    >
-      <div
-        class="text-white p-4 text-center flex flex-col justify-between h-full"
-      >
-        <p class="text-lg font-semibold">
+  <main class="main-send-suggestion">
+    <section v-if="sentSuccess" class="sent-suggestion-section">
+      <div class="sent-suggestion-content">
+        <p class="text-lg font-semibold uppercase">
           Sua sugestão foi recebida com sucesso
         </p>
+
         <Vue3Lottie
           :animation-data="rocket_animate"
           :height="200"
@@ -45,14 +41,19 @@ const sendSuggestions = () => {
           :loop="true"
         />
 
-        <p>
-          Nossa equipe irá avaliá-la com atenção e considerar sua implementação.
-        </p>
-        <p>
-          Você irá receber um e-mail com as informações da solicitação e nossa
-          equipe irá responder em até 30 dias
-        </p>
-        <p>Agradecemos sua colaboração</p>
+        <span class="flex flex-col gap-3 lg:text-justify">
+          <p class="font-semibold">
+            Nossa equipe irá avaliá-la com atenção e considerar sua
+            implementação.
+          </p>
+
+          <p class="text-[12px]">
+            Você irá receber um e-mail com as informações da solicitação e nossa
+            equipe irá responder em até 30 dias
+          </p>
+        </span>
+
+        <p class="font-bold">Agradecemos sua colaboração</p>
       </div>
     </section>
 
@@ -79,6 +80,31 @@ const sendSuggestions = () => {
 </template>
 
 <style scoped>
+.main-send-suggestion {
+  position: relative;
+}
+
+.sent-suggestion-section {
+  position: absolute;
+  display: flex;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  background-color: rgb(0 0 0 / 0.9);
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  justify-content: center;
+}
+
+.sent-suggestion-content {
+  display: flex;
+  padding: 0.5rem;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
+  color: white;
+}
+
 .container-send-suggestion {
   --blue-primary: #2563eb;
   --gray-primary: #46637b;

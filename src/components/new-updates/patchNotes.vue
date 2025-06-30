@@ -181,7 +181,9 @@ const loadMoreLatestUpdates = ({ loaded, complete }) => {
 
                   <template #spinner>
                     <section class="sections-skeleton-loader">
-                      <div class="skeleton-loader skeleton-color-future_updates">
+                      <div
+                        class="skeleton-loader skeleton-color-future_updates"
+                      >
                         <div class="infinite-loader-spin"></div>
                       </div>
                     </section>
@@ -203,28 +205,6 @@ const loadMoreLatestUpdates = ({ loaded, complete }) => {
 </template>
 
 <style scoped>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-
-.result {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  font-weight: 300;
-  width: 400px;
-  padding: 10px;
-  text-align: center;
-  margin: 0 auto 10px auto;
-  background: #eceef0;
-  border-radius: 10px;
-}
-
 .modal-overlay-patch-notes {
   position: fixed;
   inset: 0;
@@ -263,7 +243,6 @@ const loadMoreLatestUpdates = ({ loaded, complete }) => {
 }
 
 .modal-content-patch-notes {
-  margin: 1rem;
   padding: 0.25rem;
   width: 100%;
   background-color: var(--base-300, #0f172a);
@@ -316,7 +295,8 @@ const loadMoreLatestUpdates = ({ loaded, complete }) => {
   gap: 0.5rem;
   justify-content: space-between;
   padding: 0.5rem;
-  overflow: auto;
+  overflow-y: auto;
+  width: 100%;
 }
 
 .modal-section-patch-notes {
@@ -337,12 +317,14 @@ const loadMoreLatestUpdates = ({ loaded, complete }) => {
   margin-top: 0.5rem;
 }
 
-@media (min-width: 864px) {
+@media (min-width: 1280px) {
   .modal-body-patch-notes {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
   }
+}
 
+@media (min-width: 864px) {
   .modal-content-patch-notes {
     margin: 0;
   }

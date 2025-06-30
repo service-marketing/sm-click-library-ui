@@ -154,7 +154,6 @@ const pillDateClass = computed(() => ({
   font-size: 12px;
   font-weight: 400;
   text-align: justify;
-  width: 20.5rem;
 }
 
 .fade-slide-enter-active,
@@ -335,10 +334,6 @@ const pillDateClass = computed(() => ({
   }
 
   .pill_date_span {
-    width: auto;
-  }
-
-  .pill_date_popper {
     width: auto;
   }
 }
