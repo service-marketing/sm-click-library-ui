@@ -216,7 +216,6 @@ const openNewUpdates = () => {
   height: 2.5rem;
   background-color: #166534;
   cursor: pointer;
-  padding-left: 0.13rem;
 }
 
 @media (min-width: 1280px) {
@@ -272,10 +271,10 @@ const openNewUpdates = () => {
   border-radius: 9999px;
 }
 .new_update-icon {
-  width: 22px;
-  height: 22px;
   color: white;
   transition: color 0.3s ease-in;
+  width: 1.5rem;
+  height: 1.5rem;
 }
 .tooltip-popper-manager {
   width: 11rem;
