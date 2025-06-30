@@ -19,7 +19,6 @@ import { useAuthStore } from "~/stores/authStore";
 import { useAttendantStore } from "./stores/attendantStore";
 import { useDepartmentStore } from "./stores/departmentStore";
 import { useInstanceStore } from "./stores/instanceStore";
-import { usePatchStore } from "./stores/patchNotesStore";
 import api from "~/utils/api"; // Importa a instância personalizada do Axios
 
 function install(Vue) {
@@ -83,14 +82,7 @@ export function attLibInstances(instances, action = "add") {
   }
 }
 
-export function attPatchNoteStore(action, system) {
-  const patchStore = usePatchStore();
-  const systemType = system === "manager" ? "manager" : "attendant";
 
-  if (action === "getPatch") {
-    patchStore.getPatchNotes(systemType);
-  }
-}
 
 // Função de configuração geral
 export async function setupLibrary(
@@ -137,9 +129,6 @@ export async function setupLibrary(
     const instanceStore = useInstanceStore(piniaInstance);
     await instanceStore.fetchInstances();
 
-    // configuração do patchStore
-    const patchStore = usePatchStore(piniaInstance);
-
     // if (instances.length) {
     //   instanceStore.setInstances(instances);
     // } else {
@@ -155,7 +144,6 @@ export default {
   attLibDeparts,
   attLibAttendants,
   attLibInstances,
-  attPatchNoteStore,
   primarySelect,
   simpleModal,
   simpleCard,

@@ -2,7 +2,6 @@
 import { ref, onMounted } from "vue";
 import SendSuggestion from "./sendSuggestion.vue";
 import FeatureCard from "../../components/cards/feature_card/feature_card.vue";
-import { usePatchStore } from "../../stores/patchNotesStore.js";
 import V3InfiniteLoading from "v3-infinite-loading";
 import "v3-infinite-loading/lib/style.css";
 
@@ -10,7 +9,6 @@ const pageFuture = ref(1);
 const pageLatest = ref(1);
 const scrollFutContainer = ref(null);
 const scrollLasContainer = ref(null);
-const patchStore = usePatchStore();
 
 const props = defineProps({
   future_updates: { type: [Object, null], required: true },
@@ -25,10 +23,6 @@ const emit = defineEmits([
   "loadMoreFutureUpdates",
   "loadMoreLatestUpdates",
 ]);
-
-onMounted(() => {
-  patchStore.getPatchNotes();
-});
 
 const getSuggestionText = (suggestion) => {
   emit("postSuggestion", suggestion);

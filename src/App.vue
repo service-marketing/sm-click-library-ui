@@ -18,9 +18,7 @@ import MinModal from "./components/modals/min_modal/min_modal.vue";
 
 import BtnNewUpdates from "./components/new-updates/btnNewUpdates.vue";
 import PatchNotes from "./components/new-updates/patchNotes.vue";
-import { usePatchStore } from "./stores/patchNotesStore.js";
 
-const patchStore = usePatchStore();
 const futureUpdates = ref([]);
 const page = ref(1);
 const test = ref(false);
@@ -31,21 +29,21 @@ const handleLoadMoreFutureUpdates = async ({ loaded, complete, page }) => {
   try {
     const res = await new Promise((resolve) => {
       setTimeout(() => {
-        // Simula retorno de dados (mude conforme necessário)
+        // Simula retorno de dados
         const fakeData = page < 8 ? [{ id: page, title: `Item ${page}` }] : [];
         resolve(fakeData);
-      }, 1500); // 1.5 segundos de atraso
+      }, 1500);
     });
 
     if (res.length === 0) {
-      complete(); // sem mais dados
+      complete();
     } else {
       futureUpdates.value.push(...res);
-      loaded(); // dados carregados
+      loaded();
     }
   } catch (e) {
     console.error(e);
-    complete(); // para não travar o carregamento
+    complete();
   }
 };
 </script>
@@ -61,13 +59,11 @@ const handleLoadMoreFutureUpdates = async ({ loaded, complete, page }) => {
         />
 
         <BtnNewUpdates
-          
           type="managerSideBarClose"
           @openNewUpdates="test ? (test = false) : (test = true)"
         />
 
         <BtnNewUpdates
-        
           type="managerSideBarOpen"
           @openNewUpdates="test ? (test = false) : (test = true)"
         />
@@ -75,13 +71,12 @@ const handleLoadMoreFutureUpdates = async ({ loaded, complete, page }) => {
 
       <PatchNotes
         v-if="test"
-        :future_updates="patchStore.future_patchs"
-        :latest_update="patchStore.latest_patchs"
+        :future_updates="null"
+        :latest_update="null"
         :loader="false"
         :sentSuccess="true"
         @close="test = false"
         @postSuggestion="(data) => console.log('ai sim:', data)"
-
       />
     </div>
   </main>

@@ -1,8 +1,6 @@
 <script setup>
 import { ref } from "vue";
 import rocket_animate from "../../assets/lottieAnimates/rocket_animate.json";
-import { usePatchStore } from "../../stores/patchNotesStore.js";
-const patchStore = usePatchStore();
 
 const emit = defineEmits(["postSuccess"]);
 const props = defineProps({
