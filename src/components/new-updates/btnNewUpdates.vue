@@ -22,7 +22,7 @@ const getVariantConfig = (type, sparkles) => {
     managerSideBarClose: {
       container: sparkles
         ? "main-container-new-update-manager-close animate_sparkle"
-        : "main-container-new-update-manager-close ",
+        : "main-container-new-update-manager-close",
       button: "new_update-button ",
       tooltip: null,
       usePopper: true,
@@ -52,13 +52,6 @@ const openNewUpdates = () => {
 <template>
   <main @click="openNewUpdates" :class="config.container">
     <template v-if="config.usePopper">
-      <!-- <Popper class="popper-manager-button" hover arrow placement="right">
-   
-        <template #content>
-          <div class="tooltip-popper-manager">Novas atualizações</div>
-        </template>
-      </Popper> -->
-
       <button :class="config.button">
         <svg v-if="sparkles" class="size-6" viewBox="0 0 128 128">
           <path
@@ -219,12 +212,19 @@ const openNewUpdates = () => {
   align-items: center;
   justify-content: center;
   border-radius: 9999px;
-  padding: 0.25rem;
-  width: 3rem;
-  height: 3rem;
+  width: 2rem;
+  height: 2rem;
   background-color: #e06a25;
   cursor: pointer;
 }
+
+@media (min-width: 1280px) {
+  .main-container-new-update-manager-close {
+    width: 3rem;
+    height: 3rem;
+  }
+}
+
 .main-container-new-update-manager-close:hover,
 .main-container-new-update-manager-open:hover {
   background-color: #8a4822;
