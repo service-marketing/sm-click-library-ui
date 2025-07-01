@@ -14,6 +14,7 @@ const props = defineProps({
   date: { type: [String, null], required: true },
   tutorial: { type: String, default: null },
   flag: { type: String, required: true },
+  sparkles: { type: String, required: true },
 });
 
 const close = () => {
@@ -61,7 +62,7 @@ const pillDateClass = computed(() => ({
 
 <template>
   <main
-    class="feature_style"
+    class="feature_style relative"
     ref="targetFeatureCard"
     @click="isOpen = !isOpen"
     :class="backgroundClass"
@@ -71,17 +72,62 @@ const pillDateClass = computed(() => ({
         {{ title }}
       </h1>
 
-      <svg :class="svgClass" viewBox="0 0 24 24" fill="none">
-        <g>
-          <path
-            d="M15 11L12 8M12 8L9 11M12 8V16M21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21C16.9706 21 21 16.9706 21 12Z"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </g>
-      </svg>
+      <section class="flex items-center gap-2">
+        <svg :class="svgClass" viewBox="0 0 24 24" fill="none">
+          <g>
+            <path
+              d="M15 11L12 8M12 8L9 11M12 8V16M21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21C16.9706 21 21 16.9706 21 12Z"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </g>
+        </svg>
+
+        <div v-if="sparkles" class="sparkle-badge">
+          <svg class="size-4" viewBox="0 0 128 128">
+            <path
+              d="M121.59 60.83l-13.93-4.49c-8.91-2.94-14.13-10.15-16.58-19.21L84.95 7.27c-.16-.59-.55-1.38-1.75-1.38c-1.01 0-1.59.79-1.75 1.38l-6.13 29.87c-2.46 9.06-7.67 16.27-16.58 19.21l-13.93 4.49c-1.97.64-2 3.42-.04 4.09l14.03 4.83c8.88 2.95 14.06 10.15 16.52 19.17l6.14 29.53c.16.59.49 1.65 1.75 1.65c1.33 0 1.59-1.06 1.75-1.65l6.14-29.53c2.46-9.03 7.64-16.23 16.52-19.17l14.03-4.83c1.94-.68 1.91-3.46-.06-4.1z"
+              fill="#fdd835"
+            ></path>
+
+            <path
+              d="M122.91 62.08c-.22-.55-.65-1.03-1.32-1.25l-13.93-4.49c-8.91-2.94-14.13-10.15-16.58-19.21L84.95 7.27c-.09-.34-.41-.96-.78-1.14l1.98 29.97c1.47 13.68 2.73 20.12 13.65 22c9.38 1.62 20.23 3.48 23.11 3.98z"
+              fill="#ffee58"
+            ></path>
+
+            <path
+              d="M122.94 63.64l-24.16 5.54c-8.51 2.16-13.2 7.09-13.2 19.99l-2.37 30.94c.81-.08 1.47-.52 1.75-1.65l6.14-29.53c2.46-9.03 7.64-16.23 16.52-19.17l14.03-4.83c.66-.24 1.08-.73 1.29-1.29z"
+              fill="#f4b400"
+            ></path>
+
+            <g>
+              <path
+                d="M41.81 86.81c-8.33-2.75-9.09-5.85-10.49-11.08l-3.49-12.24c-.21-.79-2.27-.79-2.49 0L22.97 74.8c-1.41 5.21-4.41 9.35-9.53 11.04l-8.16 3.54c-1.13.37-1.15 1.97-.02 2.35l8.22 2.91c5.1 1.69 8.08 5.83 9.5 11.02l2.37 10.82c.22.79 2.27.79 2.48 0l2.78-10.77c1.41-5.22 3.57-9.37 10.5-11.07l7.72-2.91c1.13-.39 1.12-1.99-.02-2.36l-7-2.56z"
+                fill="#fdd835"
+              ></path>
+
+              <path
+                d="M28.49 75.55c.85 7.86 1.28 10.04 7.65 11.67l13.27 2.59c-.14-.19-.34-.35-.61-.43l-7-2.57c-7.31-2.5-9.33-5.68-10.7-12.04c-1.37-6.36-2.83-10.51-2.83-10.51c-.51-1.37-1.24-1.3-1.24-1.3l1.46 12.59z"
+                fill="#ffee58"
+              ></path>
+
+              <path
+                d="M28.73 102.99c0-7.41 4.05-11.08 10.49-11.08l10.02-.41s-.58.77-1.59 1.01l-6.54 2.13c-5.55 2.23-8.08 3.35-9.8 10.94c0 0-2.22 8.83-2.64 9.76c-.58 1.3-1.27 1.57-1.27 1.57l1.33-13.92z"
+                fill="#f4b400"
+              ></path>
+            </g>
+
+            <path
+              d="M59.74 28.14c.56-.19.54-.99-.03-1.15l-7.72-2.08a4.77 4.77 0 0 1-3.34-3.3L45.61 9.06c-.15-.61-1.02-.61-1.17.01l-2.86 12.5a4.734 4.734 0 0 1-3.4 3.37l-7.67 1.99c-.57.15-.61.95-.05 1.15l8.09 2.8c1.45.5 2.57 1.68 3.01 3.15l2.89 11.59c.15.6 1.01.61 1.16 0l2.99-11.63a4.773 4.773 0 0 1 3.04-3.13l8.1-2.72z"
+              fill="#f4b400"
+              stroke="#f4b400"
+              stroke-miterlimit="10"
+            ></path>
+          </svg>
+        </div>
+      </section>
     </header>
 
     <Transition name="fade-slide">
@@ -154,6 +200,17 @@ const pillDateClass = computed(() => ({
   font-size: 12px;
   font-weight: 400;
   text-align: justify;
+}
+
+.sparkle-badge {
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  z-index: 20;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 .fade-slide-enter-active,
@@ -369,5 +426,11 @@ const pillDateClass = computed(() => ({
 
 .scroll_area_feature_card::-webkit-scrollbar-track {
   background: transparent;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.5;
+  }
 }
 </style>

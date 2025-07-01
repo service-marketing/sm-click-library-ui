@@ -15,6 +15,7 @@ const props = defineProps({
   latest_update: { type: [Object, null], required: true },
   loader: { type: Boolean, default: false },
   sentSuccess: { type: Boolean, default: false },
+  sparklesPosition: { type: [Number, null], default: null },
 });
 
 const emit = defineEmits([
@@ -43,6 +44,7 @@ const loadMoreLatestUpdates = ({ loaded, complete }) => {
   emit("loadMoreLatestUpdates", { loaded, complete, page: pageLatest.value });
   pageLatest.value++;
 };
+const maxSparkles = Math.min(props.sparklesPosition, 3);
 </script>
 
 <template>
@@ -98,15 +100,15 @@ const loadMoreLatestUpdates = ({ loaded, complete }) => {
                 </span>
 
                 <FeatureCard
-                  v-else
-                  v-for="last in latest_update"
-                  :key="last"
+                  v-for="(last, index) in latest_update"
+                  :key="index"
                   state="updated"
                   :title="last.title"
                   :description="last.description"
                   :date="last.launched_at"
                   :tutorial="last.tutorial"
                   :flag="last.flag"
+                  :sparkles="index < maxSparkles"
                 />
 
                 <V3InfiniteLoading
@@ -154,8 +156,8 @@ const loadMoreLatestUpdates = ({ loaded, complete }) => {
 
                 <FeatureCard
                   v-else
-                  v-for="fut in future_updates"
-                  :key="fut"
+                  v-for="(fut, index) in future_updates"
+                  :key="index"
                   state="future-update"
                   :title="fut.title"
                   :description="fut.description"
