@@ -14,7 +14,7 @@ const props = defineProps({
   date: { type: [String, null], required: true },
   tutorial: { type: String, default: null },
   flag: { type: String, required: true },
-  sparkles: { type: String, required: true },
+  sparkles: { type: Boolean, default: false },
 });
 
 const close = () => {
