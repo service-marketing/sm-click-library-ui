@@ -15,7 +15,6 @@ const props = defineProps({
   latest_update: { type: [Object, null], required: true },
   loader: { type: Boolean, default: false },
   sentSuccess: { type: Boolean, default: false },
-  sparklesPosition: { type: [Number, null], default: null },
 });
 
 const emit = defineEmits([
@@ -44,7 +43,15 @@ const loadMoreLatestUpdates = ({ loaded, complete }) => {
   emit("loadMoreLatestUpdates", { loaded, complete, page: pageLatest.value });
   pageLatest.value++;
 };
-const maxSparkles = Math.min(props.sparklesPosition, 3);
+
+const isRecent = (dateString) => {
+  if (!dateString) return false;
+  const today = new Date();
+  const launchedDate = new Date(dateString);
+  const diffTime = Math.abs(today - launchedDate);
+  const diffDays = diffTime / (1000 * 60 * 60 * 24);
+  return diffDays <= 3;
+};
 </script>
 
 <template>
@@ -108,7 +115,7 @@ const maxSparkles = Math.min(props.sparklesPosition, 3);
                   :date="last.launched_at"
                   :tutorial="last.tutorial"
                   :flag="last.flag"
-                  :sparkles="index < maxSparkles"
+                  :sparkles="isRecent(last.launched_at)"
                 />
 
                 <V3InfiniteLoading

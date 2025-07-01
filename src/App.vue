@@ -56,7 +56,7 @@ const test2 = ref([
       "Foi disponibilizada a nova tela onde o usuário poderá visualizar as atualizações passadas, as que estão previstas para serem lançadas e também sugerirem melhorias, funcionalidades ou correções.",
     flag: "new-feature",
     tutorial: null,
-    launched_at: "2025-08-27",
+    launched_at: "2025-07-01",
   },
   {
     id: "91a6562c-1fbd-486e-a288-d54bd0f787a2",
@@ -141,7 +141,6 @@ const test2 = ref([
 
       <PatchNotes
         v-if="test"
-        :sparklesPosition="2"
         :future_updates="test2"
         :latest_update="test2"
         :loader="false"

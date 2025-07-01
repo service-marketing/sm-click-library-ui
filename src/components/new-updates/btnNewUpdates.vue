@@ -14,6 +14,7 @@ const getVariantConfig = (type, sparkles) => {
       container: "main-container-new-update",
       button: "update-button",
       tooltip: "tooltip-new-update",
+      iconSize: "size-4",
       usePopper: false,
       text: null,
     },
@@ -21,6 +22,7 @@ const getVariantConfig = (type, sparkles) => {
       container: "main-container-new-update-manager-close",
       button: "new_update-button ",
       tooltip: null,
+      iconSize: "size-6",
       usePopper: true,
       text: null,
     },
@@ -28,6 +30,7 @@ const getVariantConfig = (type, sparkles) => {
       container: "main-container-new-update-manager-open",
       button: "new_update-button-open-side open-width",
       tooltip: null,
+      iconSize: "size-6",
       usePopper: false,
       text: "Notas de atualização",
     },
@@ -66,7 +69,7 @@ const openNewUpdates = () => {
       </button>
 
       <div v-if="sparkles" class="sparkle-badge">
-        <svg class="size-6" viewBox="0 0 128 128">
+        <svg :class="config.iconSize" viewBox="0 0 128 128">
           <path
             d="M121.59 60.83l-13.93-4.49c-8.91-2.94-14.13-10.15-16.58-19.21L84.95 7.27c-.16-.59-.55-1.38-1.75-1.38c-1.01 0-1.59.79-1.75 1.38l-6.13 29.87c-2.46 9.06-7.67 16.27-16.58 19.21l-13.93 4.49c-1.97.64-2 3.42-.04 4.09l14.03 4.83c8.88 2.95 14.06 10.15 16.52 19.17l6.14 29.53c.16.59.49 1.65 1.75 1.65c1.33 0 1.59-1.06 1.75-1.65l6.14-29.53c2.46-9.03 7.64-16.23 16.52-19.17l14.03-4.83c1.94-.68 1.91-3.46-.06-4.1z"
             fill="#fdd835"
@@ -133,7 +136,7 @@ const openNewUpdates = () => {
         </span>
 
         <div v-if="sparkles" class="sparkle-badge">
-          <svg class="size-6" viewBox="0 0 128 128">
+          <svg :class="config.iconSize" viewBox="0 0 128 128">
             <path
               d="M121.59 60.83l-13.93-4.49c-8.91-2.94-14.13-10.15-16.58-19.21L84.95 7.27c-.16-.59-.55-1.38-1.75-1.38c-1.01 0-1.59.79-1.75 1.38l-6.13 29.87c-2.46 9.06-7.67 16.27-16.58 19.21l-13.93 4.49c-1.97.64-2 3.42-.04 4.09l14.03 4.83c8.88 2.95 14.06 10.15 16.52 19.17l6.14 29.53c.16.59.49 1.65 1.75 1.65c1.33 0 1.59-1.06 1.75-1.65l6.14-29.53c2.46-9.03 7.64-16.23 16.52-19.17l14.03-4.83c1.94-.68 1.91-3.46-.06-4.1z"
               fill="#fdd835"
@@ -219,9 +222,7 @@ const openNewUpdates = () => {
   position: absolute;
   top: -16px;
   right: -16px;
-  /* background-color: #1dad3d; */
   border-radius: 9999px;
-
   display: flex;
   align-items: center;
   justify-content: center;
