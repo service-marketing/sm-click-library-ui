@@ -46,9 +46,9 @@ const pillFlagClass = computed(() => ({
 }));
 
 const pillFlagName = computed(() => {
-  return props.flag === "new-feature"
+  return props.flag === "improvement"
     ? "Melhorias"
-    : props.flag === "improvement"
+    : props.flag === "new-feature"
     ? "Novo Recurso"
     : "correção de erros";
 });
@@ -156,9 +156,7 @@ const pillDateClass = computed(() => ({
 
     <footer class="feature-card__footer">
       <section class="feature-card__footer-section">
-        <span :class="pillFlagClass">
-          {{ pillFlagName }}
-        </span>
+        <span :class="pillFlagClass"> {{ pillFlagName }} </span>
 
         <Popper
           class="pill_date_popper"
@@ -176,7 +174,7 @@ const pillDateClass = computed(() => ({
                   month: "short",
                   year: "numeric",
                 })
-                  .format(new Date(date))
+                  .format(new Date(date + "T12:00:00"))
                   .replace(/ de /g, " ")
               }}
             </p>

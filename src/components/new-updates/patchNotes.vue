@@ -47,7 +47,7 @@ const loadMoreLatestUpdates = ({ loaded, complete }) => {
 const isRecent = (dateString) => {
   if (!dateString) return false;
   const today = new Date();
-  const launchedDate = new Date(dateString);
+  const launchedDate = new Date(dateString + "T12:00:00");
   const diffTime = Math.abs(today - launchedDate);
   const diffDays = diffTime / (1000 * 60 * 60 * 24);
   return diffDays <= 3;

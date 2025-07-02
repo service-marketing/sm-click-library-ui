@@ -212,8 +212,6 @@ const openNewUpdates = () => {
   align-items: center;
   justify-content: center;
   border-radius: 9999px;
-  width: 2.5rem;
-  height: 2.5rem;
   background-color: #166534;
   cursor: pointer;
 }
