@@ -115,7 +115,9 @@ const openNewUpdates = () => {
     <template v-else>
       <button class="relative" :class="config.button">
         <svg
-          class="new_update-icon"
+          :class="
+            props.mode === 'dark' ? 'dark_new_update-icon' : 'new_update-icon'
+          "
           fill="currentColor"
           viewBox="0 0 420.827 420.827"
         >
@@ -281,6 +283,12 @@ const openNewUpdates = () => {
 }
 .new_update-icon {
   color: white;
+  transition: color 0.3s ease-in;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+.dark_new_update-icon {
+  color: #4b5563;
   transition: color 0.3s ease-in;
   width: 1.5rem;
   height: 1.5rem;
