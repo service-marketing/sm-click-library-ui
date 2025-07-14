@@ -5,7 +5,7 @@
     "dist",
     "src/test-utils"
   ],
-  "version": "0.0.370",
+  "version": "0.0.371",
   "main": "dist/sm-click-library-ui.es.js",
   "module": "dist/sm-click-library-ui.umd.js",
   "private": false,
@@ -64,7 +64,6 @@
     "jsdom": "^26.0.0",
     "postcss": "^8.4.39",
     "postcss-cli": "^11.0.0",
-
     "storybook": "^8.2.3",
     "storybook-dark-mode": "^4.0.2",
     "tailwindcss": "^3.4.4",
