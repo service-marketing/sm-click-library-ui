@@ -17,15 +17,12 @@ import RandomAvatar from "./components/avatar/randomAvatar.vue";
 import MinModal from "./components/modals/min_modal/min_modal.vue";
 import BtnNewUpdates from "./components/new-updates/btnNewUpdates.vue";
 import PatchNotes from "./components/new-updates/patchNotes.vue";
-import KnowledgeDragAndDrop from "./components/drag-and-drop/knowledgeDragAndDrop.vue";
 </script>
 
 <template>
   <main class="h-screen w-screen justify-center items-center flex">
     <div class="w-full justify-center flex">
       <div class="bg-blue-900 p-2 flex flex-col gap-12">
-        <!-- <KnowledgeDragAndDrop @receiveFile="(data) => console.log(data)" /> -->
-
         <chatWindow mode="dark" />
 
         <BtnNewUpdates

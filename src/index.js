@@ -14,7 +14,6 @@ import RandomAvatar from "./components/avatar/randomAvatar.vue";
 import MinModal from "./components/modals/min_modal/min_modal.vue";
 import libPatchNotes from "./components/new-updates/patchNotes.vue";
 import btnNewUpdates from "./components/new-updates/btnNewUpdates.vue";
-import KnowledgeDragAndDrop from "./components/drag-and-drop/knowledgeDragAndDrop.vue";
 import { useDebugStore } from "~/stores/debugStore";
 import { useAuthStore } from "~/stores/authStore";
 import { useAttendantStore } from "./stores/attendantStore";
@@ -39,7 +38,6 @@ function install(Vue) {
   Vue.component("MinModal", MinModal);
   Vue.component("LibPatchNotes", libPatchNotes);
   Vue.component("BtnNewUpdates", btnNewUpdates);
-  Vue.component("KnowledgeDragAndDrop", KnowledgeDragAndDrop);
 }
 
 export function attLibDeparts(department, action = "add") {
@@ -159,5 +157,4 @@ export default {
   MinModal,
   libPatchNotes,
   btnNewUpdates,
-  KnowledgeDragAndDrop,
 };
