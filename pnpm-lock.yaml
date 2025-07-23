@@ -59,6 +59,9 @@ importers:
       vue3-avataaars:
         specifier: ^1.0.15
         version: 1.0.15(typescript@5.8.3)
+      vue3-carousel:
+        specifier: ^0.16.0
+        version: 0.16.0(vue@3.5.17(typescript@5.8.3))
       vue3-lottie:
         specifier: ^3.3.1
         version: 3.3.1(vue@3.5.17(typescript@5.8.3))
@@ -2376,8 +2379,8 @@ packages:
   vue-component-type-helpers@2.2.12:
     resolution: {integrity: sha512-YbGqHZ5/eW4SnkPNR44mKVc6ZKQoRs/Rux1sxC6rdwXb4qpbOSYfDr9DsTHolOTGmIKgM9j141mZbBeg05R1pw==}
 
-  vue-component-type-helpers@3.0.1:
-    resolution: {integrity: sha512-j23mCB5iEbGsyIhnVdXdWUOg+UdwmVxpKnYYf2j+4ppCt5VSFXKjwu9YFt0QYxUaf5G99PuHsVfRScjHCRSsGQ==}
+  vue-component-type-helpers@3.0.3:
+    resolution: {integrity: sha512-koiBu7lO8e6w/UlbZAAIW11qcFQocYIl7Nh/SVwGZ804ej5KrncU32bRxi2zfU2Kyf6HWuk1CeeVP2rhIL+vyQ==}
 
   vue-debounce@5.0.1:
     resolution: {integrity: sha512-tJWEDhjHQ47MAUnr7EtZvClNQZJUlKlzd6TVxkSCzWXjeCH/rcKbCDzrd6FNEhvxDOBsTfJFbb9P4f5Xc26Iag==}
@@ -2407,6 +2410,11 @@ packages:
 
   vue3-avataaars@1.0.15:
     resolution: {integrity: sha512-pjygf/Z5B/vEEWM8AtKjpA/uItKYbvaVW8NHbbEFTek2YTqzeLMnsuPVDMEul8CZs5JqxcI1OMvXAEt+5e9gwg==}
+
+  vue3-carousel@0.16.0:
+    resolution: {integrity: sha512-IKRKtvHP8gNDRHSzINXwFbJ/Zy2HS+Gv2lXPnAEop6pxsvB17+fz2WQlNZ6ytilLkM5DOu/jXPoDQi/xy17bjg==}
+    peerDependencies:
+      vue: ^3.5.0
 
   vue3-lottie@3.3.1:
     resolution: {integrity: sha512-60uQmx4eefi3FdPjAxWnblrgJJjnVTXUA6e4BAI3jGzgOSR76pyzL1rrWDiyPmMFo4mTw4wGTW6Gbkg3HR1mYw==}
@@ -3065,7 +3073,7 @@ snapshots:
       ts-dedent: 2.2.0
       type-fest: 2.19.0
       vue: 3.5.17(typescript@5.8.3)
-      vue-component-type-helpers: 3.0.1
+      vue-component-type-helpers: 3.0.3
 
   '@tailwindcss/typography@0.5.16(tailwindcss@3.4.17)':
     dependencies:
@@ -4708,7 +4716,7 @@ snapshots:
 
   vue-component-type-helpers@2.2.12: {}
 
-  vue-component-type-helpers@3.0.1: {}
+  vue-component-type-helpers@3.0.3: {}
 
   vue-debounce@5.0.1(vue@3.5.17(typescript@5.8.3)):
     dependencies:
@@ -4744,6 +4752,10 @@ snapshots:
       vue: 3.5.17(typescript@5.8.3)
     transitivePeerDependencies:
       - typescript
+
+  vue3-carousel@0.16.0(vue@3.5.17(typescript@5.8.3)):
+    dependencies:
+      vue: 3.5.17(typescript@5.8.3)
 
   vue3-lottie@3.3.1(vue@3.5.17(typescript@5.8.3)):
     dependencies:

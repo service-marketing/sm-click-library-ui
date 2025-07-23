@@ -17,10 +17,14 @@ import RandomAvatar from "./components/avatar/randomAvatar.vue";
 import MinModal from "./components/modals/min_modal/min_modal.vue";
 import BtnNewUpdates from "./components/new-updates/btnNewUpdates.vue";
 import PatchNotes from "./components/new-updates/patchNotes.vue";
+import dropFiles from "./components/intern-chat/dropFilesArea.vue";
 </script>
 
 <template>
-  <main class="h-screen w-screen justify-center items-center flex">
+  <dropFiles>
+    <div class="h-screen flex bg-red-200">Test</div>
+  </dropFiles>
+  <!-- <main class="h-screen w-screen justify-center items-center flex">
     <div class="w-full justify-center flex">
       <div class="bg-blue-900 p-2 flex flex-col gap-12">
         <chatWindow mode="dark" />
@@ -33,7 +37,7 @@ import PatchNotes from "./components/new-updates/patchNotes.vue";
         />
       </div>
     </div>
-  </main>
+  </main> -->
 </template>
 
 

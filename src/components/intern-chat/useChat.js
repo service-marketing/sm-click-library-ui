@@ -9,13 +9,13 @@ export function useChat() {
 
   const fetchMessagesForAtendente = async (atendenteId) => {
     const attendant = attendantStore.attendants.find(
-      (att) => att.id === atendenteId,
+      (att) => att.id === atendenteId
     );
     if (!attendant) return;
 
     try {
       const response = await api.get(
-        `${internalChatUrl}?attendant=${atendenteId}&page=1`,
+        `${internalChatUrl}?attendant=${atendenteId}&page=1`
       );
       attendant.messages = response.data.results.reverse(); // Adiciona mensagens ao atendente
       attendant.hasNextPage = response.data.next !== null;
@@ -31,13 +31,13 @@ export function useChat() {
 
   const loadMessagesForAtendente = async (atendenteId) => {
     const attendant = attendantStore.attendants.find(
-      (att) => att.id === atendenteId,
+      (att) => att.id === atendenteId
     );
     if (!attendant || !attendant.hasNextPage) return;
 
     try {
       const response = await api.get(
-        `${internalChatUrl}?attendant=${atendenteId}&page=${attendant.currentPage}`,
+        `${internalChatUrl}?attendant=${atendenteId}&page=${attendant.currentPage}`
       );
       attendant.messages = [
         ...response.data.results.reverse(),
@@ -55,13 +55,13 @@ export function useChat() {
     if (!message) return;
 
     const attendant = attendantStore.attendants.find(
-      (att) => att.internal_chat?.channel_id === message.channel_id,
+      (att) => att.internal_chat?.channel_id === message.channel_id
     );
 
     if (attendant) {
       attendant.messages = attendant.messages || [];
       const existingMessage = attendant.messages.find(
-        (msg) => msg.id === message.id,
+        (msg) => msg.id === message.id
       );
 
       if (!existingMessage) {
@@ -79,7 +79,7 @@ export function useChat() {
 
   const resetUnreadMessages = (atendenteId) => {
     const attendant = attendantStore.attendants.find(
-      (att) => att.id === atendenteId,
+      (att) => att.id === atendenteId
     );
     if (attendant) {
       attendant.internal_chat.unread = 0;
@@ -90,15 +90,24 @@ export function useChat() {
     atendenteId,
     messageContent,
     sender,
+    sendFile = false
   ) => {
     const attendant = attendantStore.attendants.find(
-      (att) => att.id === atendenteId,
+      (att) => att.id === atendenteId
     );
     if (!attendant || !attendant.internal_chat?.channel_id) return;
 
+    let mountContent;
+
+    if (sendFile) {
+      mountContent = messageContent;
+    } else {
+      mountContent = { type: "text", content: messageContent };
+    }
+
     const newMessage = {
       id: uuidv4(),
-      content: { type: "text", content: messageContent },
+      content: mountContent,
       created_at: new Date().toISOString(),
       sender,
     };
@@ -112,7 +121,7 @@ export function useChat() {
         {
           id: newMessage.id,
           content: newMessage.content,
-        },
+        }
       );
     } catch (error) {
       console.error("Erro ao enviar mensagem:", error);
@@ -121,7 +130,7 @@ export function useChat() {
 
   const hasNextPageForAtendente = (atendenteId) => {
     const attendant = attendantStore.attendants.find(
-      (att) => att.id === atendenteId,
+      (att) => att.id === atendenteId
     );
     return attendant ? attendant.hasNextPage : false;
   };

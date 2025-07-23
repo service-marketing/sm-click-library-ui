@@ -87,14 +87,22 @@
           </button>
           <loading v-if="loadingMessages || loadingAttendants" />
           <div v-else-if="selectedAtendente && !loadingMessages" class="h-full">
-            <ChatMessages
+            <DropFilesArea
+              ref="dropFilesRef"
               :attendant="attendant"
-              :selectedAtendente="selectedAtendente"
-              @voltar="selectedAtendente = null"
-              :loadMessagesForAtendente="loadMessagesForAtendente"
-              :sendMessageToAtendente="sendMessageToAtendente"
-              :hasNextPageForAtendente="hasNextPageForAtendente"
-            />
+              :selectedAttendant="selectedAtendente"
+              :sendFilesToAttendant="sendMessageToAtendente"
+            >
+              <ChatMessages
+                @send-files="onSendFiles"
+                :attendant="attendant"
+                :selectedAtendente="selectedAtendente"
+                @voltar="selectedAtendente = null"
+                :loadMessagesForAtendente="loadMessagesForAtendente"
+                :sendMessageToAtendente="sendMessageToAtendente"
+                :hasNextPageForAtendente="hasNextPageForAtendente"
+              />
+            </DropFilesArea>
           </div>
 
           <ChatList
@@ -122,6 +130,7 @@ import { useChat } from "./useChat"; // Importe o composable
 import ChatList from "./ChatList.vue";
 import ChatMessages from "./ChatMessages.vue";
 import loading from "./loading.vue";
+import DropFilesArea from "./dropFilesArea.vue";
 
 const props = defineProps({
   attendant: {
@@ -173,6 +182,11 @@ const showContent = ref(false);
 const selectedAtendente = ref(null);
 const chatContainer = ref(null); // Ref para o contêiner do chat
 const emit = defineEmits(["unreadMessagesEmit"]);
+const dropFilesRef = ref(null);
+
+const onSendFiles = () => {
+  dropFilesRef.value?.chooseFiles();
+};
 
 // Computed property para obter o número de mensagens não lidas
 const unreadMessagesCount = computed(() => {

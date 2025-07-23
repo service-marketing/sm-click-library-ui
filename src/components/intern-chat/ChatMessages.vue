@@ -2,7 +2,7 @@
   <div class="messages-container bg-base-300">
     <!-- Cabeçalho -->
     <div class="header-intern bg-base-300">
-      <button @click="$emit('voltar')" class="back-button">
+      <button @click="emits('voltar')" class="back-button">
         <svg
           class="w-6 h-6"
           aria-hidden="true"
@@ -99,7 +99,27 @@
                   },
                 ]"
               >
-                {{ msg.content.content }}
+                <section
+                  v-if="
+                    msg.content && msg.content.media && msg.content.media.data
+                  "
+                >
+                  <PreviewFiles
+                    mode="message"
+                    @download="
+                      downloadFiles(
+                        msg.content.media.data,
+                        msg.content.media.name
+                      )
+                    "
+                    :fileName="msg.content.media.name"
+                    :base64="msg.content.media.data"
+                    :mimetype="msg.content.media.mimetype"
+                  />
+                </section>
+
+                <p>{{ msg.content.content }}</p>
+
                 <div class="message-time">
                   {{ formatMessageTime(msg.created_at) }}
                 </div>
@@ -119,7 +139,43 @@
         placeholder="Digite sua mensagem..."
         @keydown="handleKeydown"
       />
-      <button @click="handleButtonClick" class="send-button">Enviar</button>
+      <button @click="handleSendFilesClick" class="send-files-button">
+        <svg
+          class="size-5 text-white"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M7 8v8a5 5 0 1 0 10 0V6.5a3.5 3.5 0 1 0-7 0V15a2 2 0 0 0 4 0V8"
+          />
+        </svg>
+      </button>
+
+      <button @click="handleButtonClick" class="send-button">
+        <svg
+          class="size-5 text-white rotate-90"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M12 2a1 1 0 0 1 .932.638l7 18a1 1 0 0 1-1.326 1.281L13 19.517V13a1 1 0 1 0-2 0v6.517l-5.606 2.402a1 1 0 0 1-1.326-1.281l7-18A1 1 0 0 1 12 2Z"
+            clip-rule="evenodd"
+          />
+        </svg>
+      </button>
     </div>
   </div>
 </template>
@@ -130,6 +186,7 @@ import V3InfiniteLoading from "v3-infinite-loading";
 import { format, isToday, isYesterday, isThisWeek } from "date-fns";
 import { ptBR } from "date-fns/locale"; // Para formatação em português
 import Avatar from "./Avatar.vue";
+import PreviewFiles from "./previewFiles.vue";
 
 const props = defineProps({
   selectedAtendente: { type: Object, required: true },
@@ -139,6 +196,8 @@ const props = defineProps({
   hasNextPageForAtendente: { type: Function, required: true }, // Recebe do pai,
   sendMessageToAtendente: { type: Function, required: true },
 });
+
+const emits = defineEmits(["send-files", "voltar"]);
 
 const novaMensagem = ref("");
 const chatArea = ref(null);
@@ -150,7 +209,7 @@ const mensagens = computed(() => {
 });
 
 const hasNextPage = computed(() =>
-  props.hasNextPageForAtendente(props.selectedAtendente.id),
+  props.hasNextPageForAtendente(props.selectedAtendente.id)
 );
 const formatMessageTime = (dateStr) => {
   const date = new Date(dateStr);
@@ -158,7 +217,9 @@ const formatMessageTime = (dateStr) => {
   const localHours = date.getHours();
   const localMinutes = date.getMinutes();
   // Formata para 'HH:mm'
-  return `${localHours.toString().padStart(2, "0")}:${localMinutes.toString().padStart(2, "0")}`;
+  return `${localHours.toString().padStart(2, "0")}:${localMinutes
+    .toString()
+    .padStart(2, "0")}`;
 };
 
 const formatDateSeparator = (dateStr) => {
@@ -240,7 +301,7 @@ const enviarMensagem = async () => {
       await props.sendMessageToAtendente(
         props.selectedAtendente.id,
         newMessage,
-        props.attendant,
+        props.attendant
       );
       await nextTick();
       scrollToBottom();
@@ -253,6 +314,15 @@ const enviarMensagem = async () => {
 const handleButtonClick = () => {
   enviarMensagem();
   const button = document.querySelector(".send-button");
+  button.classList.add("clicked");
+  setTimeout(() => {
+    button.classList.remove("clicked");
+  }, 200);
+};
+
+const handleSendFilesClick = () => {
+  emits("send-files");
+  const button = document.querySelector(".send-files-button");
   button.classList.add("clicked");
   setTimeout(() => {
     button.classList.remove("clicked");
@@ -280,7 +350,7 @@ watch(
         }, 100);
       }
     }
-  },
+  }
 );
 
 function checkIsNearBottom() {
@@ -289,6 +359,28 @@ function checkIsNearBottom() {
   const height = chatArea.value.scrollHeight;
   return height - position <= threshold;
 }
+
+const downloadFiles = async (url, name = "undefined") => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error("Erro ao baixar o arquivo");
+    }
+
+    const blob = await response.blob();
+    const blobUrl = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = blobUrl;
+    link.download = name; // você pode alterar o nome aqui se quiser
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(blobUrl);
+  } catch (error) {
+    console.error("Erro no download:", error);
+  }
+};
 </script>
 
 <style scoped>
@@ -406,6 +498,7 @@ function checkIsNearBottom() {
   padding: 0.5rem;
   border-radius: 1rem;
   color: black;
+  max-width: 16rem;
 }
 
 .message-content.me {
@@ -422,7 +515,7 @@ function checkIsNearBottom() {
   font-size: 0.75rem;
   /* color: #374151; */
   text-align: right;
-  margin-top: -0.25rem;
+  /* margin-top: -0.25rem; */
   opacity: 50%;
 }
 
@@ -468,7 +561,7 @@ function checkIsNearBottom() {
   height: 56px;
   border: none;
   outline: none;
-  padding-right: 80px;
+  padding-right: 110px;
   max-height: 56px;
   min-height: 56px;
   border-radius: 0 0 7px 7px;
@@ -501,7 +594,24 @@ function checkIsNearBottom() {
   font-size: 15px;
 }
 
+.send-files-button {
+  position: absolute;
+  right: 3.5rem;
+  top: 0.65rem;
+  background-color: #3b82f6;
+  color: white;
+  padding: 0.3rem 0.7rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 15px;
+}
+
 .send-button:hover {
+  background-color: #2563eb;
+}
+
+.send-files-button:hover {
   background-color: #2563eb;
 }
 
@@ -528,9 +638,7 @@ function checkIsNearBottom() {
 
 /* Animação para as mensagens enviadas pelo usuário (vindo da esquerda) */
 .message-enter-active {
-  transition:
-    transform 0.3s ease,
-    opacity 0.3s ease;
+  transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
 .message.me.new-message {
