@@ -91,7 +91,11 @@
               "
             >
               <div class="dropdown-container-internal-messages">
-                <Popper class="label-popper-internal-messages" placement="left">
+                <Popper
+                  hover
+                  class="label-popper-internal-messages"
+                  placement="left"
+                >
                   <button class="dropdown-toggle-internal-messages">
                     <svg
                       class="dropdown-icon-internal-messages"
@@ -436,8 +440,6 @@ const downloadFiles = async (url, name = "undefined") => {
 
 .dropdown-container-internal-messages {
   position: absolute;
-  right: 0.5rem;
-  top: 0.5rem;
   z-index: 20;
 }
 
@@ -578,6 +580,16 @@ const downloadFiles = async (url, name = "undefined") => {
 
 .message.me {
   text-align: right;
+}
+
+.message.me .dropdown-container-internal-messages {
+  right: 0.5rem;
+  top: 0.5rem;
+}
+
+.message.not-me .dropdown-container-internal-messages {
+  left: 0.5rem;
+  top: 0.5rem;
 }
 
 .message.not-me {
