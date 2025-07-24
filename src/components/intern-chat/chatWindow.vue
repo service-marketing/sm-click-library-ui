@@ -200,8 +200,11 @@ const unreadMessagesCount = computed(() => {
 });
 
 const handleClickOutside = (event) => {
-  if (chatContainer.value && !chatContainer.value.contains(event.target)) {
-    // Se o clique foi fora do chatContainer, fecha o chat
+  // Se o clique foi fora do chatContainer, fecha o chat
+  const clickedInsideChat = chatContainer.value?.contains(event.target);
+  const clickedInsideFancybox = event.target.closest(".fancybox__container");
+
+  if (!clickedInsideChat && !clickedInsideFancybox) {
     if (isChatOpen.value) toggleChat();
   }
 };

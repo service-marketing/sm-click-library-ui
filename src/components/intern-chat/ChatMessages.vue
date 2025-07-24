@@ -85,10 +85,48 @@
             ]"
           >
             <div
+              class="relative"
               :class="
                 msg.sender.id === attendant.id ? 'text-right' : 'text-left'
               "
             >
+              <div class="dropdown-container-internal-messages">
+                <Popper class="label-popper-internal-messages" placement="left">
+                  <button class="dropdown-toggle-internal-messages">
+                    <svg
+                      class="dropdown-icon-internal-messages"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="m19 9-7 7-7-7"
+                      />
+                    </svg>
+                  </button>
+                  <template #content>
+                    <button
+                      class="download-button-internal-messages"
+                      @click="
+                        downloadFiles(
+                          msg.content.media.data,
+                          msg.content.media.name
+                        )
+                      "
+                    >
+                      Baixar
+                    </button>
+                  </template>
+                </Popper>
+              </div>
+
               <div
                 class="shadow shadow-gray-900 dark:shadow-gray-500"
                 :class="[
@@ -361,10 +399,11 @@ function checkIsNearBottom() {
 }
 
 const downloadFiles = async (url, name = "undefined") => {
+  const isSvg = url.endsWith("svg+xml");
   try {
-    const response = await fetch(url);
+    const response = await fetch(isSvg ? url.replace("+", "%2B") : url);
     if (!response.ok) {
-      throw new Error("Erro ao baixar o arquivo");
+      throw new Error("Erro ao baixar o arquivo", console.log(response));
     }
 
     const blob = await response.blob();
@@ -384,6 +423,58 @@ const downloadFiles = async (url, name = "undefined") => {
 </script>
 
 <style scoped>
+.label-popper-internal-messages {
+  --popper-theme-background-color: #26343d;
+  --popper-theme-background-color-hover: #26343d;
+  --popper-theme-text-color: #ffffff;
+  --popper-theme-border-width: 0px;
+  --popper-theme-border-style: solid;
+  --popper-theme-border-radius: 6px;
+  --popper-theme-padding: 0px;
+  --popper-theme-box-shadow: 0 6px 30px -6px rgba(0, 0, 0, 0.25);
+}
+
+.dropdown-container-internal-messages {
+  position: absolute;
+  right: 0.5rem;
+  top: 0.5rem;
+  z-index: 20;
+}
+
+.dropdown-toggle-internal-messages {
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 0.25rem;
+  border-radius: 0.375rem;
+  border: none;
+  cursor: pointer;
+  opacity: 0;
+}
+
+.dropdown-icon-internal-messages {
+  width: 0.75rem;
+  height: 0.75rem;
+  color: white;
+}
+
+.download-button-internal-messages {
+  width: 8rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #111b21;
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.2s ease;
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+.download-button-internal-messages:hover {
+  background-color: #26343d;
+}
+
 /* Estilos para o messages-container principal */
 .messages-container {
   display: flex;
@@ -499,6 +590,10 @@ const downloadFiles = async (url, name = "undefined") => {
   border-radius: 1rem;
   color: black;
   max-width: 16rem;
+}
+
+.message:hover .dropdown-toggle-internal-messages {
+  opacity: 1;
 }
 
 .message-content.me {

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, nextTick, onMounted, watch } from "vue";
+import { ref, computed, nextTick, onMounted, onUnmounted, watch } from "vue";
 import PreviewFiles from "./previewFiles.vue";
 import "vue3-carousel/carousel.css";
 import { Carousel, Slide, Pagination, Navigation } from "vue3-carousel";
@@ -111,15 +111,21 @@ const onDrop = async (event) => {
   isDragging.value = false;
   const droppedFiles = Array.from(event.dataTransfer.files);
 
-  files.value = droppedFiles;
+  files.value.push(...droppedFiles);
 
-  b64files.value = await Promise.all(
+  const newB64Files = await Promise.all(
     droppedFiles.map(async (file) => ({
       name: file.name,
       base64: await convertToB64(file),
     }))
   );
-  selectedFileToPreview.value = b64files.value[0];
+
+  b64files.value.push(...newB64Files);
+
+  if (!selectedFileToPreview.value) {
+    selectedFileToPreview.value = b64files.value[0];
+    currentSlide.value = 0;
+  }
 };
 
 const getMimeType = (base64) => {
@@ -176,8 +182,47 @@ const setPreviewFiles = (docs, index) => {
   currentSlide.value = index;
 };
 
+const handlePaste = async (event) => {
+  const items = event.clipboardData?.items;
+  if (!items) return;
+
+  const fileItems = [];
+  for (const item of items) {
+    if (item.kind === "file") {
+      const file = item.getAsFile();
+      if (file) fileItems.push(file);
+    }
+  }
+
+  if (fileItems.length > 0) {
+    files.value.push(...fileItems);
+
+    const newB64Files = await Promise.all(
+      fileItems.map(async (file) => ({
+        name: file.name,
+        base64: await convertToB64(file),
+      }))
+    );
+
+    b64files.value.push(...newB64Files);
+
+    if (!selectedFileToPreview.value) {
+      selectedFileToPreview.value = newB64Files[0];
+      currentSlide.value = 0;
+    }
+  }
+};
+
 watch(currentSlide, (newVal, oldVal) => {
   selectedFileToPreview.value = b64files.value[newVal];
+});
+
+onMounted(() => {
+  window.addEventListener("paste", handlePaste);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("paste", handlePaste);
 });
 
 defineExpose({
@@ -374,6 +419,11 @@ defineExpose({
   z-index: 10;
   display: flex;
 }
+
+.remove-file-btn:hover {
+  background-color: #4b6374;
+}
+
 .remove-file-btn svg {
   width: 16px;
   height: 16px;
