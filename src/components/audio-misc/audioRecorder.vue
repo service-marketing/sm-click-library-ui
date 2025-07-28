@@ -4,13 +4,13 @@
     class="flex w-full items-center space-x-3 text-white dark:text-black"
   >
     <button
+      :class="['send-audio-button', { recording: recording }]"
       v-if="!recording && !base64Audio"
       :disabled="recording || !canSendMessage"
-      class="rounded-full p-1 text-white hover:bg-gray-100 hover:text-primary dark:hover:bg-gray-300"
       @click="startRecording(), (pausedTime = 0), (canceled = false)"
     >
       <svg
-        class="size-4 dark:text-gray-600"
+        class="start-recording-icon"
         aria-hidden="true"
         xmlns="http://www.w3.org/2000/svg"
         fill="currentColor"
@@ -106,7 +106,7 @@
     />
     <div v-if="base64Audio" class="flex w-full items-center space-x-2">
       <audioView
-        :avatar="null"
+        :avatar="attendant?.photo || null"
         :audio="base64Audio"
         @duration="handleDuration"
         @current-time="handleCurrentTime"
@@ -122,7 +122,6 @@
       class="rounded-full p-2 hover:bg-gray-100 hover:text-light"
       @click="sendAudio()"
     >
-      <!-- <PaperAirplaneIcon class="size-6 cursor-pointer" /> -->
       <svg
         class="size-5 text-white rotate-90"
         aria-hidden="true"
@@ -149,13 +148,7 @@
 <script setup>
 import { ref } from "vue";
 import audioVisualizer from "./audioVisualizer.vue";
-// import { PaperAirplaneIcon } from "@heroicons/vue/24/solid";
 import audioView from "./audioView.vue";
-// import { useGlobalStore } from "../stores/globalStore";
-// import api from "../router/axios";
-// import { messages } from "../utils/urls";
-// import { notify } from "notiwind";
-// import SendAnimate from "./assets/animations/SendAnimate.vue";
 
 const props = defineProps({
   canSendMessage: Boolean,
@@ -178,8 +171,6 @@ const audioStream = ref(null);
 const duration = ref(0);
 const currentTime = ref(0);
 const audioUrl = ref(null);
-// const messageStore = useGlobalStore().messageStore;
-// const globalStore = useGlobalStore();
 const canceled = ref(false);
 const isLoading = ref(false);
 
@@ -258,25 +249,24 @@ const stopRecording = async () => {
   if (audioStream.value) {
     audioStream.value.getTracks().forEach((track) => track.stop());
   }
-
   console.log(base64Audio.value);
 };
 
 const convertToBase64 = async () => {
   if (audioBlob.value) {
-    const correctedBlob = new Blob([audioBlob.value], { type: "audio/webm" }); // ou outro tipo suportado
+    // Use o tipo correto desejado
+    const correctedBlob = new Blob([audioBlob.value], { type: "audio/mpeg" });
     const reader = new FileReader();
     reader.onload = () => {
       base64Audio.value = reader.result;
     };
-    reader.readAsDataURL(audioBlob.value);
+    reader.readAsDataURL(correctedBlob);
   }
 };
 import { v4 as uuidv4 } from "uuid";
 const sendAudio = async () => {
   isLoading.value = true;
   emit("b64Audio", base64Audio.value);
-  console.log(base64Audio.value);
 
   const getMimeType = (base64) => {
     if (base64) {
@@ -373,3 +363,28 @@ const resetAudio = async () => {
   recordingTime.value = 0;
 };
 </script>
+
+<style scoped>
+.start-recording-icon {
+  width: 1.2rem;
+  height: 1.2rem;
+  color: white;
+}
+
+.send-audio-button {
+  position: absolute;
+  right: 0.5rem;
+  top: 0.65rem;
+  background-color: #3b82f6;
+  color: white;
+  padding: 0.3rem 0.7rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 15px;
+}
+
+.send-audio-button:not(.recording):hover {
+  background-color: #2563eb;
+}
+</style>

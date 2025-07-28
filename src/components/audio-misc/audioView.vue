@@ -4,7 +4,7 @@
   >
     <section v-if="!isOwner" class="w-20">
       <main v-show="!isPlaying" class="fade relative">
-        <Avatar :icon-url="avatar" class="xl:size-[50px]" />
+        <Avatar :url="avatar" class="xl:size-[50px]" />
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -96,7 +96,7 @@
     </section>
     <section v-if="isOwner" class="w-24 pl-3">
       <main v-show="!isPlaying" class="fade relative">
-        <Avatar :icon-url="avatar" class="xl:size-[50px]" />
+        <Avatar :url="avatar" class="xl:size-[50px]" />
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"

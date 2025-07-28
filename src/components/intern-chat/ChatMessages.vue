@@ -159,17 +159,34 @@
                         msg.content.media.name
                       )
                     "
+                    :avatar="
+                      msg.sender.id === attendant.id
+                        ? attendant.photo
+                        : msg.sender.photo
+                    "
                     :fileName="msg.content.media.name"
                     :base64="msg.content.media.data"
                     :mimetype="msg.content.media.mimetype"
-                  />
+                  >
+                    <template v-slot:content-message>
+                      <p>{{ msg.content.content }}</p>
+                    </template>
+
+                    <template v-slot:time-message>
+                      <div class="message-time">
+                        {{ formatMessageTime(msg.created_at) }}
+                      </div>
+                    </template>
+                  </PreviewFiles>
                 </section>
 
-                <p>{{ msg.content.content }}</p>
+                <section v-else>
+                  <p>{{ msg.content.content }}</p>
 
-                <div class="message-time">
-                  {{ formatMessageTime(msg.created_at) }}
-                </div>
+                  <div class="message-time">
+                    {{ formatMessageTime(msg.created_at) }}
+                  </div>
+                </section>
               </div>
             </div>
           </div>
@@ -206,7 +223,11 @@
         </svg>
       </button>
 
-      <!-- <button @click="handleButtonClick" class="send-button">
+      <button
+        v-if="novaMensagem.length > 0"
+        @click="handleButtonClick"
+        class="send-button"
+      >
         <svg
           class="size-5 text-white rotate-90"
           aria-hidden="true"
@@ -222,19 +243,20 @@
             clip-rule="evenodd"
           />
         </svg>
-      </button> -->
+      </button>
 
-      <button :class="['send-button', { recording: isRecording }]">
+      <section
+        v-else
+        :class="['send-audio-button', { recording: isRecording }]"
+      >
         <AudioRecorder
           :can-send-message="true"
           :attendant="attendant"
           :selectedAttendant="selectedAtendente"
           :sendAudioToAttendant="sendMessageToAtendente"
           @recording="(rec) => (isRecording = rec)"
-          @b64Audio="(b64) => console.log(b64)"
-          @audio-sent="(sent) => console.log(sent)"
         />
-      </button>
+      </section>
     </div>
   </div>
 </template>
@@ -421,6 +443,7 @@ function checkIsNearBottom() {
 }
 
 const downloadFiles = async (url, name = "undefined") => {
+  console.log(url);
   const isSvg = url.endsWith("svg+xml");
   try {
     const response = await fetch(isSvg ? url.replace("+", "%2B") : url);
@@ -712,27 +735,37 @@ const downloadFiles = async (url, name = "undefined") => {
   top: 0.65rem;
   background-color: #3b82f6;
   color: white;
-  /* padding: 0.3rem 0.7rem; */
+  padding: 0.3rem 0.7rem;
   border-radius: 9999px;
   cursor: pointer;
   transition: background-color 0.3s ease;
   font-size: 15px;
 }
 
-.send-button.recording {
-  position: absolute;
-  width: 100%;
-  background-color: #111b21;
-  @apply inset-0 flex justify-end px-3;
-  /*right: 0.5rem;
+.send-audio-button {
+  /* position: absolute;
+  right: 0.5rem;
   top: 0.65rem;
   background-color: #3b82f6;
-  color: white; */
-  /* padding: 0.3rem 0.7rem; */
-  /* border-radius: 9999px;
+  color: white;
+  padding: 0.3rem 0.7rem;
+  border-radius: 9999px;
   cursor: pointer;
   transition: background-color 0.3s ease;
   font-size: 15px; */
+}
+
+.send-audio-button.recording {
+  position: absolute;
+  width: 100%;
+  background-color: #111b21;
+  inset: 0px;
+  display: flex;
+  justify-content: flex-end;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  border-radius: 0.375rem;
+  @apply rounded-md;
 }
 
 .send-files-button {
@@ -746,10 +779,6 @@ const downloadFiles = async (url, name = "undefined") => {
   cursor: pointer;
   transition: background-color 0.3s ease;
   font-size: 15px;
-}
-
-.send-button:not(.recording):hover {
-  background-color: #2563eb;
 }
 
 .send-files-button:hover {

@@ -9,8 +9,14 @@ const props = defineProps({
   mimetype: { type: String },
   mode: { type: String, default: "message" }, // miniature | message | preview
   fileName: { type: String },
+  avatar: {
+    type: [String, null],
+    required: true,
+  },
 });
 const thumbnail = ref(null);
+const audioDuration = ref(null);
+const currentTime = ref(0);
 
 const viewSingleImage = async (src, mimetype, caption = "") => {
   if (props.mode === "miniature") return;
@@ -87,6 +93,14 @@ const isVideo = (mimetype) => {
   if (!mimetype) return;
   const validateMymetype = mimetype.startsWith("video/");
   return validateMymetype;
+};
+
+const formatTime = (segundos) => {
+  const minutos = Math.floor(segundos / 60);
+  const segundosRestantes = (segundos % 60).toFixed(0);
+  const minutosStr = minutos.toString().padStart(2, "0");
+  const segundosStr = segundosRestantes.toString().padStart(2, "0");
+  return `${minutosStr}:${segundosStr}`;
 };
 
 onMounted(async () => {
@@ -284,9 +298,10 @@ onMounted(async () => {
       "
     >
       <AudioView
+        :avatar="avatar"
         :audio="base64"
-        @duration="(dr) => console.log(dr)"
-        @current-time="(ct) => console.log(ct)"
+        @duration="(dr) => (audioDuration = dr)"
+        @current-time="(ct) => (currentTime = ct)"
       />
     </section>
 
@@ -314,7 +329,7 @@ onMounted(async () => {
     <div :class="mode === 'message' ? 'generic_files' : ''" v-else>
       <div>
         <svg
-          class="size-12 text-white"
+          class="size-8 text-white"
           aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -338,6 +353,22 @@ onMounted(async () => {
         </button>
       </span>
     </div>
+
+    <div v-if="mode === 'message'" class="flex flex-col w-full">
+      <slot name="content-message" />
+
+      <div
+        :class="audioDuration ? 'justify-between' : ' justify-end'"
+        class="flex w-full"
+      >
+        <p v-if="audioDuration" class="preview_audio_time">
+          {{ formatTime(audioDuration) }} -
+          {{ currentTime ? formatTime(currentTime) : "00:00" }}
+        </p>
+
+        <slot name="time-message" />
+      </div>
+    </div>
   </main>
 </template>
 
@@ -348,6 +379,7 @@ onMounted(async () => {
   justify-content: center;
   width: 100%;
   border-radius: 0.375rem;
+  @apply flex-col;
 }
 
 .main_preview_files_container_miniature {
@@ -410,6 +442,8 @@ onMounted(async () => {
   color: #ffffff;
   border-radius: 0.5rem;
   background-color: #1f2a30;
+  gap: 0.5rem;
+  align-items: center;
 }
 
 .span_generic_files {
@@ -449,5 +483,13 @@ onMounted(async () => {
 .preview_img.miniature {
   width: 3rem;
   height: 3rem;
+}
+
+.preview_audio_time {
+  font-size: 0.75rem;
+  /* color: #374151; */
+  text-align: right;
+  /* margin-top: -0.25rem; */
+  opacity: 50%;
 }
 </style>

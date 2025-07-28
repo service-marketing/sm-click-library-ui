@@ -23,21 +23,21 @@ import AudioRecorder from "./components/audio-misc/audioRecorder.vue";
 </script>
 
 <template>
-  <!-- <dropFiles>
-    <div class="h-screen flex bg-red-200">Test</div>
-  </dropFiles> -->
-
-  <button class="bg-red-200 p-3">
-    <AudioRecorder
-      :can-send-message="true"
-      :attendant="attendant"
-      :selectedAttendant="selectedAtendente"
-      :sendAudioToAttendant="sendMessageToAtendente"
-      @recording="(rec) => (isRecording = rec)"
-      @b64Audio="(b64) => console.log(b64)"
-      @audio-sent="(sent) => console.log(sent)"
-    />
-  </button>
+  <dropFiles>
+    <div class="h-screen flex bg-red-200">
+      <button class="bg-red-200 p-3">
+        <AudioRecorder
+          :can-send-message="true"
+          :attendant="attendant"
+          :selectedAttendant="selectedAtendente"
+          :sendAudioToAttendant="sendMessageToAtendente"
+          @recording="(rec) => (isRecording = rec)"
+          @b64Audio="(b64) => console.log(b64)"
+          @audio-sent="(sent) => console.log(sent)"
+        />
+      </button>
+    </div>
+  </dropFiles>
 
   <!-- <main class="h-screen w-screen justify-center items-center flex">
     <div class="w-full justify-center flex">
