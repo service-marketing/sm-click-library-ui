@@ -246,6 +246,7 @@
       </button>
 
       <section
+        class="bg-base-300"
         v-else
         :class="['send-audio-button', { recording: isRecording }]"
       >
@@ -758,7 +759,7 @@ const downloadFiles = async (url, name = "undefined") => {
 .send-audio-button.recording {
   position: absolute;
   width: 100%;
-  background-color: #111b21;
+  /* background-color: #111b21; */
   inset: 0px;
   display: flex;
   justify-content: flex-end;

@@ -117,7 +117,7 @@ onMounted(async () => {
     :class="{
       main_preview_files_container_message: mode === 'message',
       main_preview_files_container_miniature: mode === 'miniature',
-      main_preview_files_container_preview: mode === 'preview',
+      'main_preview_files_container_preview bg-base-200': mode === 'preview',
     }"
   >
     <!-- PDF preview (iframe) -->
@@ -379,7 +379,7 @@ onMounted(async () => {
   justify-content: center;
   width: 100%;
   border-radius: 0.375rem;
-  @apply flex-col;
+  flex-direction: column;
 }
 
 .main_preview_files_container_miniature {
@@ -395,7 +395,7 @@ onMounted(async () => {
   justify-content: center;
   width: 100%;
   height: 100%;
-  background-color: #1f2a30;
+  /* background-color: #1f2a30; */
   border-radius: 0.375rem;
   min-height: 9.5rem;
 }

@@ -119,11 +119,11 @@
 
     <button
       v-if="base64Audio"
-      class="rounded-full p-2 hover:bg-gray-100 hover:text-light"
+      class="rounded-full p-2 hover:bg-base-100"
       @click="sendAudio()"
     >
       <svg
-        class="size-5 text-white rotate-90"
+        class="size-5 text-base-200 rotate-90"
         aria-hidden="true"
         xmlns="http://www.w3.org/2000/svg"
         width="24"
@@ -140,7 +140,7 @@
     </button>
   </div>
   <div v-else class="flex items-center px-2 pr-[21px]">
-    loading
+    <span class="loader-audio-recorder"></span>
     <!-- <SendAnimate class="" /> -->
   </div>
 </template>
@@ -386,5 +386,44 @@ const resetAudio = async () => {
 
 .send-audio-button:not(.recording):hover {
   background-color: #2563eb;
+}
+.loader-audio-recorder {
+  width: 32px;
+  height: 32px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+.loader-audio-recorder::after,
+.loader-audio-recorder::before {
+  content: "";
+  box-sizing: border-box;
+  position: absolute;
+  left: 0;
+  top: 0;
+  background: #60a5fa;
+  width: 6px;
+  height: 6px;
+  transform: translate(150%, 150%);
+  border-radius: 50%;
+}
+.loader-audio-recorder::before {
+  left: auto;
+  top: auto;
+  right: 0;
+  bottom: 0;
+  transform: translate(-150%, -150%);
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>

@@ -248,7 +248,7 @@ defineExpose({
     >
       <div
         v-if="!loaderSendFile && b64files.length > 0 && !isDragging"
-        class="preview-overlay"
+        class="preview-overlay bg-base-300"
       >
         <button @click="discardFile()" class="close-button">
           <svg
@@ -278,7 +278,7 @@ defineExpose({
           />
           <input
             placeholder="Digite uma mensagem para acompanhar o arquivo"
-            class="input-drop-files-area"
+            class="input-drop-files-area bg-base-200"
             v-model="fileContentText"
             type="text"
           />
@@ -286,7 +286,7 @@ defineExpose({
 
         <div class="queue-info">
           <p>fila de envio</p>
-          <section class="carousel-container">
+          <section class="carousel-container bg-base-200">
             <Carousel v-model="currentSlide" v-bind="carouselConfig">
               <Slide v-for="(docs, index) in b64files" :key="index">
                 <section class="carousel-item">
@@ -312,6 +312,7 @@ defineExpose({
                   </button>
 
                   <button
+                    class="bg-base-100"
                     :class="[
                       'carousel-preview',
                       { active: currentSlide === index },
@@ -375,14 +376,14 @@ defineExpose({
   border-radius: 8px;
   width: 100%;
   height: 100%;
-  background-color: #111827;
+  /* background-color: #111827; */
   z-index: 50;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: 8px;
-  overflow: auto;
-  gap: 0.75rem;
+  /* overflow: auto; */
+  gap: 1px;
 }
 .close-button {
   background-color: #26343d98;
@@ -400,7 +401,7 @@ defineExpose({
 .preview-info {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 8px;
   justify-content: center;
   align-items: center;
 }
@@ -420,7 +421,7 @@ defineExpose({
   font-size: 12px;
 }
 .carousel-container {
-  background-color: #26343d;
+  /* background-color: #26343d; */
   padding: 8px;
   border-radius: 6px;
   overflow: hidden;
@@ -454,7 +455,7 @@ defineExpose({
 }
 .carousel-preview {
   padding: 12px;
-  background-color: #4b6374;
+  /* background-color: #4b6374; */
   border-radius: 6px;
   cursor: pointer;
 }
@@ -491,7 +492,7 @@ defineExpose({
   border-radius: 6px;
   padding: 8px 10px;
   color: white;
-  background-color: #26343d;
+  /* background-color: #26343d; */
   transition: all 0.2s ease-in;
 }
 .input-drop-files-area::placeholder {
