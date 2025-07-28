@@ -195,6 +195,13 @@ const handlePaste = async (event) => {
   }
 
   if (fileItems.length > 0) {
+    const existingNames = new Set(files.value.map((f) => f.name));
+    const uniqueFileItems = fileItems.filter(
+      (file) => !existingNames.has(file.name)
+    );
+
+    if (uniqueFileItems.length === 0) return;
+
     files.value.push(...fileItems);
 
     const newB64Files = await Promise.all(
@@ -236,7 +243,9 @@ defineExpose({
     @dragleave="onDragLeave"
     @drop.prevent="onDrop"
   >
-    <section :class="['dropzone-container', { 'dropzone-active': isDragging }]">
+    <section
+      :class="['dropzone-container ', { 'dropzone-active': isDragging }]"
+    >
       <div
         v-if="!loaderSendFile && b64files.length > 0 && !isDragging"
         class="preview-overlay"
@@ -257,6 +266,7 @@ defineExpose({
             />
           </svg>
         </button>
+
         <section class="preview-info">
           <p>
             {{ selectedFileToPreview?.name }}
@@ -371,10 +381,20 @@ defineExpose({
   flex-direction: column;
   justify-content: space-between;
   padding: 8px;
+  overflow: auto;
+  gap: 0.75rem;
+}
+.close-button {
+  background-color: #26343d98;
+  @apply p-2 w-7 flex items-center justify-center
+    rounded-md;
+}
+.close-button:hover {
+  background-color: #253641;
 }
 .close-button svg {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   color: white;
 }
 .preview-info {
@@ -419,15 +439,18 @@ defineExpose({
   z-index: 10;
   display: flex;
 }
-
 .remove-file-btn:hover {
   background-color: #4b6374;
+  @apply bg-base-200;
 }
 
 .remove-file-btn svg {
   width: 16px;
   height: 16px;
-  color: #dc2626;
+  color: #ef4444;
+}
+.remove-file-btn:hover svg {
+  color: #991b1b;
 }
 .carousel-preview {
   padding: 12px;
@@ -436,7 +459,7 @@ defineExpose({
   cursor: pointer;
 }
 .carousel-preview.active {
-  background-color: #60a5fa;
+  background-color: #2563eb;
 }
 .send-footer {
   display: flex;
@@ -451,9 +474,12 @@ defineExpose({
   align-items: center;
   justify-content: center;
 }
+.send-button:hover {
+  background-color: #2563eb;
+}
 .send-button svg {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   transform: rotate(90deg);
 }
 .input-drop-files-area {

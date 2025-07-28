@@ -18,12 +18,27 @@ import MinModal from "./components/modals/min_modal/min_modal.vue";
 import BtnNewUpdates from "./components/new-updates/btnNewUpdates.vue";
 import PatchNotes from "./components/new-updates/patchNotes.vue";
 import dropFiles from "./components/intern-chat/dropFilesArea.vue";
+
+import AudioRecorder from "./components/audio-misc/audioRecorder.vue";
 </script>
 
 <template>
-  <dropFiles>
+  <!-- <dropFiles>
     <div class="h-screen flex bg-red-200">Test</div>
-  </dropFiles>
+  </dropFiles> -->
+
+  <button class="bg-red-200 p-3">
+    <AudioRecorder
+      :can-send-message="true"
+      :attendant="attendant"
+      :selectedAttendant="selectedAtendente"
+      :sendAudioToAttendant="sendMessageToAtendente"
+      @recording="(rec) => (isRecording = rec)"
+      @b64Audio="(b64) => console.log(b64)"
+      @audio-sent="(sent) => console.log(sent)"
+    />
+  </button>
+
   <!-- <main class="h-screen w-screen justify-center items-center flex">
     <div class="w-full justify-center flex">
       <div class="bg-blue-900 p-2 flex flex-col gap-12">

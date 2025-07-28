@@ -90,7 +90,12 @@
                 msg.sender.id === attendant.id ? 'text-right' : 'text-left'
               "
             >
-              <div class="dropdown-container-internal-messages">
+              <div
+                v-if="
+                  msg.content && msg.content.media && msg.content.media.data
+                "
+                class="dropdown-container-internal-messages"
+              >
                 <Popper
                   hover
                   class="label-popper-internal-messages"
@@ -201,7 +206,7 @@
         </svg>
       </button>
 
-      <button @click="handleButtonClick" class="send-button">
+      <!-- <button @click="handleButtonClick" class="send-button">
         <svg
           class="size-5 text-white rotate-90"
           aria-hidden="true"
@@ -217,6 +222,18 @@
             clip-rule="evenodd"
           />
         </svg>
+      </button> -->
+
+      <button :class="['send-button', { recording: isRecording }]">
+        <AudioRecorder
+          :can-send-message="true"
+          :attendant="attendant"
+          :selectedAttendant="selectedAtendente"
+          :sendAudioToAttendant="sendMessageToAtendente"
+          @recording="(rec) => (isRecording = rec)"
+          @b64Audio="(b64) => console.log(b64)"
+          @audio-sent="(sent) => console.log(sent)"
+        />
       </button>
     </div>
   </div>
@@ -229,6 +246,7 @@ import { format, isToday, isYesterday, isThisWeek } from "date-fns";
 import { ptBR } from "date-fns/locale"; // Para formatação em português
 import Avatar from "./Avatar.vue";
 import PreviewFiles from "./previewFiles.vue";
+import AudioRecorder from "../audio-misc/audioRecorder.vue";
 
 const props = defineProps({
   selectedAtendente: { type: Object, required: true },
@@ -236,7 +254,6 @@ const props = defineProps({
   loadMessagesForAtendente: { type: Function, required: true }, // Recebe do pai
   sendMessageToAtendente: { type: Function, required: true }, // Recebe do pai
   hasNextPageForAtendente: { type: Function, required: true }, // Recebe do pai,
-  sendMessageToAtendente: { type: Function, required: true },
 });
 
 const emits = defineEmits(["send-files", "voltar"]);
@@ -244,6 +261,7 @@ const emits = defineEmits(["send-files", "voltar"]);
 const novaMensagem = ref("");
 const chatArea = ref(null);
 const mounted = ref(false);
+const isRecording = ref(false);
 
 const isLoading = ref(false);
 const mensagens = computed(() => {
@@ -694,11 +712,27 @@ const downloadFiles = async (url, name = "undefined") => {
   top: 0.65rem;
   background-color: #3b82f6;
   color: white;
-  padding: 0.3rem 0.7rem;
+  /* padding: 0.3rem 0.7rem; */
   border-radius: 9999px;
   cursor: pointer;
   transition: background-color 0.3s ease;
   font-size: 15px;
+}
+
+.send-button.recording {
+  position: absolute;
+  width: 100%;
+  background-color: #111b21;
+  @apply inset-0 flex justify-end px-3;
+  /*right: 0.5rem;
+  top: 0.65rem;
+  background-color: #3b82f6;
+  color: white; */
+  /* padding: 0.3rem 0.7rem; */
+  /* border-radius: 9999px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 15px; */
 }
 
 .send-files-button {
@@ -714,7 +748,7 @@ const downloadFiles = async (url, name = "undefined") => {
   font-size: 15px;
 }
 
-.send-button:hover {
+.send-button:not(.recording):hover {
   background-color: #2563eb;
 }
 

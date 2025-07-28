@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, ref } from "vue";
 import { Fancybox } from "@fancyapps/ui";
+import AudioView from "../audio-misc/audioView.vue";
 // import "@fancyapps/ui/dist/fancybox/fancybox.css";
 
 const props = defineProps({
@@ -89,7 +90,11 @@ const isVideo = (mimetype) => {
 };
 
 onMounted(async () => {
-  thumbnail.value = await generateVideoThumbnail(props.base64);
+  try {
+    thumbnail.value = await generateVideoThumbnail(props.base64);
+  } catch (error) {
+    console.error(error);
+  }
 });
 </script>
 
@@ -271,12 +276,19 @@ onMounted(async () => {
     </svg>
 
     <!-- Audio player -->
-    <audio
-      v-else-if="mimetype === 'audio/mpeg' && mode !== 'miniature'"
-      controls
+    <section
+      class="w-full px-4"
+      v-else-if="
+        (mimetype === 'audio/mpeg' && mode !== 'miniature') ||
+        (mimetype === 'application/octet-stream' && mode !== 'miniature')
+      "
     >
-      <source :src="base64" :type="mimetype" />
-    </audio>
+      <AudioView
+        :audio="base64"
+        @duration="(dr) => console.log(dr)"
+        @current-time="(ct) => console.log(ct)"
+      />
+    </section>
 
     <!-- Audio icon for miniature -->
     <svg
