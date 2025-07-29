@@ -3,13 +3,32 @@ import { Media } from "@capacitor-community/media";
 import { Share } from "@capacitor/share";
 import { notify } from "notiwind";
 
-export async function downloadFilesMobile(
-  file = { url, type, title },
-  name = "",
-  typeDevice
-) {
+function convertBlobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = () => {
+      resolve(reader.result);
+    };
+    reader.readAsDataURL(blob);
+  });
+}
+
+function hashString(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash |= 0;
+  }
+  return hash.toString();
+}
+
+export async function downloadFilesMobile(file, name = "", typeDevice) {
   try {
     console.log("funcionou");
+    console.log(file, name, typeDevice);
+
     const response = await fetch(file.url);
     if (!response.ok)
       throw new Error("Falha ao buscar o arquivo", JSON.stringify(response.ok));
@@ -20,7 +39,7 @@ export async function downloadFilesMobile(
       typeof file.type === "string" && file.type.includes("/")
         ? file.type.split("/")[1]
         : file.type || "unknown";
-    const fileId = hashString(file.url);
+    const fileId = hashString(file);
     const fileName =
       file.title ||
       `${name === "file" ? `smclick-${type}` : name}-${fileId}.${type}`;
@@ -65,6 +84,7 @@ export async function downloadFilesMobile(
       },
       2000
     );
+    console.log("uhu");
   } catch (error) {
     console.error({
       message: error.message,
