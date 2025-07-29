@@ -105,6 +105,10 @@ const submitFile = async (event) => {
   );
 
   selectedFileToPreview.value = b64files.value[0];
+
+  nextTick(() => {
+    focusTextInput();
+  });
 };
 
 const onDrop = async (event) => {
@@ -126,6 +130,10 @@ const onDrop = async (event) => {
     selectedFileToPreview.value = b64files.value[0];
     currentSlide.value = 0;
   }
+
+  nextTick(() => {
+    focusTextInput();
+  });
 };
 
 const getMimeType = (base64) => {
@@ -177,6 +185,13 @@ const sendFiles = async () => {
   }
 };
 
+const textInput = ref(null);
+
+const focusTextInput = () => {
+  if (!textInput.value) return;
+  textInput.value.focus();
+};
+
 const setPreviewFiles = (docs, index) => {
   selectedFileToPreview.value = docs;
   currentSlide.value = index;
@@ -218,6 +233,10 @@ const handlePaste = async (event) => {
       currentSlide.value = 0;
     }
   }
+
+  nextTick(() => {
+    focusTextInput();
+  });
 };
 
 watch(currentSlide, (newVal, oldVal) => {
@@ -276,7 +295,10 @@ defineExpose({
             :base64="selectedFileToPreview?.base64"
             :mimetype="getMimeType(selectedFileToPreview?.base64)"
           />
+
           <input
+            ref="textInput"
+            @keydown.enter="sendFiles()"
             placeholder="Digite uma mensagem para acompanhar o arquivo"
             class="input-drop-files-area bg-base-200"
             v-model="fileContentText"
