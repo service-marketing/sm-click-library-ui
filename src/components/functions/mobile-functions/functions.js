@@ -11,7 +11,8 @@ export async function downloadFilesMobile(
   try {
     console.log("funcionou");
     const response = await fetch(file.url);
-    if (!response.ok) throw new Error("Falha ao buscar o arquivo");
+    if (!response.ok)
+      throw new Error("Falha ao buscar o arquivo", JSON.stringify(response.ok));
 
     const blob = await response.blob();
     const base64Data = await convertBlobToBase64(blob);
@@ -65,6 +66,13 @@ export async function downloadFilesMobile(
       2000
     );
   } catch (error) {
+    console.error({
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+      ...error,
+    });
+
     console.error(JSON.stringify(error));
     if (error.errorMessage === "Share canceled") return;
     notify(
