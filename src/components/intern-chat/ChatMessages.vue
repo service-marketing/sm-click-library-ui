@@ -124,7 +124,7 @@
                     <button
                       class="download-button-internal-messages"
                       @click="
-                        downloadFiles(
+                        toggleDownloadFunctions(
                           msg.content.media.data,
                           msg.content.media.name
                         )
@@ -154,7 +154,7 @@
                   <PreviewFiles
                     mode="message"
                     @download="
-                      downloadFiles(
+                      toggleDownloadFunctions(
                         msg.content.media.data,
                         msg.content.media.name
                       )
@@ -174,7 +174,7 @@
 
                     <template v-slot:time-message>
                       <div class="message-time">
-                        {{ formatMessageTime(msg.created_at) }}
+                        {{ formatMessageTime(msg.created_at) }} {{ deviceType }}
                       </div>
                     </template>
                   </PreviewFiles>
@@ -184,7 +184,7 @@
                   <p>{{ msg.content.content }}</p>
 
                   <div class="message-time">
-                    {{ formatMessageTime(msg.created_at) }}
+                    {{ formatMessageTime(msg.created_at) }} {{ deviceType }}
                   </div>
                 </section>
               </div>
@@ -270,8 +270,10 @@ import { ptBR } from "date-fns/locale"; // Para formatação em português
 import Avatar from "./Avatar.vue";
 import PreviewFiles from "./previewFiles.vue";
 import AudioRecorder from "../audio-misc/audioRecorder.vue";
+import { downloadFilesMobile } from "../functions/mobile-functions/functions.js";
 
 const props = defineProps({
+  deviceType: { type: String },
   selectedAtendente: { type: Object, required: true },
   attendant: { required: true },
   loadMessagesForAtendente: { type: Function, required: true }, // Recebe do pai
@@ -290,6 +292,15 @@ const isLoading = ref(false);
 const mensagens = computed(() => {
   return props.selectedAtendente?.messages || [];
 });
+
+const toggleDownloadFunctions = (url, name) => {
+  const isMobile = props.deviceType !== "web";
+  console.log(isMobile);
+
+  isMobile
+    ? downloadFilesMobile(url, name, props.deviceType)
+    : downloadFiles(url, name);
+};
 
 const hasNextPage = computed(() =>
   props.hasNextPageForAtendente(props.selectedAtendente.id)
@@ -413,6 +424,7 @@ const handleSendFilesClick = () => {
 };
 
 onMounted(async () => {
+  console.log(props.deviceType);
   await nextTick(() => {
     scrollToBottom();
     mounted.value = true;
@@ -444,12 +456,11 @@ function checkIsNearBottom() {
 }
 
 const downloadFiles = async (url, name = "undefined") => {
-  console.log(url);
   const isSvg = url.endsWith("svg+xml");
   try {
     const response = await fetch(isSvg ? url.replace("+", "%2B") : url);
     if (!response.ok) {
-      throw new Error("Erro ao baixar o arquivo", console.log(response));
+      throw new Error("Erro ao baixar o arquivo");
     }
 
     const blob = await response.blob();
