@@ -3,7 +3,7 @@ import { ref, computed, watch, onMounted, nextTick } from "vue";
 import { useAttendantStore } from "~/stores/attendantStore";
 
 const props = defineProps({
-  attendance: { type: Array, default: null },
+  attendance: { type: [Array, String], default: null },
   multiSelect: { type: Boolean, default: true },
   department: { type: Array, default: [] },
   modal_filter: { type: String, default: null },
@@ -19,42 +19,39 @@ const open_select = ref(false);
 const attendanceSelected = ref([]);
 
 const filteredAttendants = computed(() => {
-  const activeAttendants = attendantStore.attendants.filter(
-    (attendant) => attendant.status === true,
-  );
-
+  const active = attendantStore.attendants.filter((a) => a.status === true);
   const filtered = searchInput.value
-    ? activeAttendants.filter((attendant) =>
-        attendant.name.toLowerCase().includes(searchInput.value.toLowerCase()),
+    ? active.filter((a) =>
+        a.name.toLowerCase().includes(searchInput.value.toLowerCase())
       )
-    : activeAttendants;
-
+    : active;
   return filterByDepartment(filterByMethod(filtered));
 });
 
 function filterByMethod(attendants) {
   if (props.method === "remove") {
-    const attendanceList = props.attendance || attendants;
-    return attendanceList.filter(
-      (attendant) => attendant?.id !== props?.attDel?.id,
-    );
-  } else if (props.method === "transfer") {
-    return attendants;
-  } else if (props.method === "addParticipant") {
-    return attendants.filter(
-      (attendant) => attendant?.id !== props?.attDel?.id,
-    );
-  } else {
-    return attendants;
+    const list = Array.isArray(props.attendance)
+      ? props.attendance
+      : props.attendance
+      ? [props.attendance]
+      : attendants;
+    return list.filter((att) => {
+      const id = typeof att === "object" ? att.id : att;
+      return id !== props?.attDel?.id;
+    });
   }
+  if (props.method === "addParticipant") {
+    return attendants.filter((a) => a?.id !== props?.attDel?.id);
+  }
+  return attendants;
 }
 
 function filterByDepartment(attendants) {
   if (Array.isArray(props.department) && props.department.length > 0) {
-    return attendants.filter((attendant) =>
-      attendant.department.some((dept) =>
-        props.department.some((d) => d.id === dept.id),
-      ),
+    return attendants.filter((att) =>
+      att.department.some((dept) =>
+        props.department.some((d) => d.id === dept.id)
+      )
     );
   }
   return attendants;
@@ -66,33 +63,26 @@ onMounted(() => {
 });
 
 watch(
-  () => attendantStore.attendants.length, // Observa apenas o tamanho do array
-  async (newLength, oldLength) => {
-    if (Number.isInteger(oldLength) && Number.isInteger(newLength)) {
-      // Verifica se o tamanho realmente mudou
-      await nextTick();
-      initializeComponent();
-    }
+  () => attendantStore.attendants.length,
+  async () => {
+    await nextTick();
+    initializeComponent();
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 watch(
   () => props.modal_filter,
   () => {
-    if (!props.modal_filter && props.multiSelect) {
-      clearSelectedAttendance();
-    }
+    if (!props.modal_filter && props.multiSelect) clearSelectedAttendance();
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 watch(
   () => props.department,
-  () => {
-    initializeComponent();
-  },
-  { deep: true },
+  () => initializeComponent(),
+  { deep: true }
 );
 
 function initializeComponent() {
@@ -101,47 +91,36 @@ function initializeComponent() {
 }
 
 function clearSelectedAttendance() {
-  const attendants = filteredAttendants.value || [];
-  attendants.forEach((attendant) => {
-    attendant.selected = false;
-  });
+  attendantStore.attendants.forEach((a) => (a.selected = false));
   attendanceSelected.value = [];
 }
 
 function updateSelectedAttendance() {
   const attendants = attendantStore.attendants;
-
-  if (!attendants || attendants.length === 0) {
-    return;
-  }
-
-  if (props.attendance && props.attendance.length > 0) {
-    props.attendance.forEach((att) => {
-      const storedAttendant = attendants.find((a) => a.id === att.id);
-      if (
-        storedAttendant &&
-        !attendanceSelected.value.some((a) => a.id === att.id)
-      ) {
-        storedAttendant.selected = true;
-        attendanceSelected.value.push(storedAttendant);
-      }
-    });
-  }
+  if (!attendants?.length) return;
+  const incoming = Array.isArray(props.attendance)
+    ? props.attendance
+    : props.attendance
+    ? [props.attendance]
+    : [];
+  incoming.forEach((item) => {
+    const id = typeof item === "object" ? item.id : item;
+    const stored = attendants.find((a) => a.id === id);
+    if (stored && !attendanceSelected.value.some((a) => a.id === id)) {
+      stored.selected = true;
+      attendanceSelected.value.push(stored);
+    }
+  });
   emit("attend", attendanceSelected.value);
 }
 
 function selectAttendant(attendant) {
-  const index = attendanceSelected.value.findIndex(
-    (a) => a.id === attendant.id,
-  );
-
-  if (index !== -1) {
+  const idx = attendanceSelected.value.findIndex((a) => a.id === attendant.id);
+  if (idx !== -1) {
     attendant.selected = false;
-    attendanceSelected.value.splice(index, 1);
+    attendanceSelected.value.splice(idx, 1);
   } else {
-    if (!props.multiSelect) {
-      clearSelectedAttendance();
-    }
+    if (!props.multiSelect) clearSelectedAttendance();
     attendant.selected = true;
     attendanceSelected.value.push(attendant);
   }

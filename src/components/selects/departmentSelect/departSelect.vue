@@ -1,210 +1,133 @@
 <script setup>
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, computed, watch, onMounted, nextTick } from "vue";
 import { useDepartmentStore } from "~/stores/departmentStore";
 
 const props = defineProps({
-  department: { type: Array, default: null },
+  department: { type: [Array, String], default: null },
   modal_filter: { type: String, default: null },
   multiSelect: { type: Boolean, default: true },
   permissions: { type: Boolean, default: false },
-  externalDepartments: { type: Array, default: null }, // Nova prop
-  attDel: { type: String, default: null }, // ID do departamento a ser deletado
+  externalDepartments: { type: Array, default: null },
+  attDel: { type: String, default: null },
   hiddenDepartment: { type: String, default: null },
 });
 
 const emit = defineEmits(["depart", "component-mounted"]);
 const departmentStore = useDepartmentStore();
-
-const searchInput = ref(""); // Campo para o input de pesquisa
-
+const searchInput = ref("");
 const departmentSelected = ref([]);
 const open_select = ref(false);
 const get_loading = ref(false);
 
-// Computed property para filtrar departamentos pelo termo de busca
 const filteredDepartments = computed(() => {
   const departments = props.externalDepartments || departmentStore.departments;
-
   return departments
-    .filter((department) => {
-      // Exclui o departamento com o ID correspondente a `hiddenDepartment`
-      return !(
-        props.hiddenDepartment && department.id === props.hiddenDepartment
-      );
-    })
-    .filter((department) => {
-      // Filtra pelo termo de busca (se existir)
-      return (
+    .filter(
+      (dep) => !(props.hiddenDepartment && dep.id === props.hiddenDepartment)
+    )
+    .filter(
+      (dep) =>
         !searchInput.value ||
-        department.name.toLowerCase().includes(searchInput.value.toLowerCase())
-      );
-    });
+        dep.name.toLowerCase().includes(searchInput.value.toLowerCase())
+    );
 });
 
-onMounted(() => {
-  clearSelectedDepartments();
-  fetchDepartments();
+onMounted(async () => {
+  await clearSelectedDepartments();
+  await fetchDepartments();
   emit("component-mounted");
 });
 
-// Watch para modal_filter e multiSelect
-watch(
-  () => props.modal_filter,
-  () => {
-    if (!props.modal_filter && props.multiSelect) {
-      departmentStore.departments.forEach((department) => {
-        department.selected = false;
-      });
-      departmentSelected.value = [];
-    }
-  },
-  { immediate: true },
-);
-
-import { nextTick } from "vue";
-
 watch(
   () => departmentStore.departments.length,
-  async (newLength, oldLength) => {
-    if (Number.isInteger(oldLength) && Number.isInteger(newLength)) {
-      // console.log(
-      //   `Watch disparado, tamanho do array mudou: ${oldLength} -> ${newLength}`
-      // );
-
-      // Encadeamento explícito para garantir a ordem
-      await clearSelectedDepartments(); // Se for assíncrona
-      await nextTick();
-      await fetchDepartments();
-    }
+  async () => {
+    await clearSelectedDepartments();
+    await nextTick();
+    await fetchDepartments();
   },
-  { immediate: true },
+  { immediate: true }
 );
 
-// Watch para monitorar mudanças no ID do departamento a ser deletado
 watch(
   () => props.attDel,
-  (Id) => {
-    if (Id) {
-      deleteDepartmentById(Id);
-    }
-  },
-  { immediate: true },
+  (id) => id && deleteDepartmentById(id),
+  { immediate: true }
 );
 
 function deleteDepartmentById(departmentId) {
   const departments = props.externalDepartments || departmentStore.departments;
-
-  // Encontra o departamento pelo ID
-  const departmentIndex = departments.findIndex(
-    (dep) => dep.id === departmentId,
-  );
-
-  if (departmentIndex !== -1) {
-    // Remove o departamento da lista selecionada
+  const index = departments.findIndex((d) => d.id === departmentId);
+  if (index !== -1) {
     departmentSelected.value = departmentSelected.value.filter(
-      (dep) => dep.id !== departmentId,
+      (d) => d.id !== departmentId
     );
-
-    // Remove o departamento da store (ou de externalDepartments)
-    if (props.externalDepartments) {
-      props.externalDepartments.splice(departmentIndex, 1);
-    } else {
-      departmentStore.removeDepartments(departmentId);
-    }
+    props.externalDepartments
+      ? props.externalDepartments.splice(index, 1)
+      : departmentStore.removeDepartments(departmentId);
     emit("depart", departmentSelected.value);
   }
 }
 
-// Função para buscar departamentos
 async function fetchDepartments() {
   get_loading.value = true;
-
   const departments = props.externalDepartments || departmentStore.departments;
-
   if (props.permissions) {
     departments.forEach((department) => {
-      department.permission = "normal";
+      if (!department.permission) {
+        department.permission = "normal";
+      }
     });
   }
 
   await updateSelectedDepartments();
-
   get_loading.value = false;
 }
 
-// Função para limpar a seleção de todos os departamentos
 async function clearSelectedDepartments() {
   const departments = props.externalDepartments || departmentStore.departments;
-  departments.forEach((department) => {
-    department.selected = false;
-  });
-
+  departments.forEach((dep) => (dep.selected = false));
   departmentSelected.value = [];
 }
 
-// Atualiza departamentos selecionados
 async function updateSelectedDepartments() {
   const departments = props.externalDepartments || departmentStore.departments;
-
-  if (!departments || departments.length === 0) {
-    return;
-  }
-
-  if (props.department && props.department.length > 0) {
-    props.department.forEach((dep) => {
-      const departmentInStore = departments.find((d) => d.id === dep.id);
-
-      if (departmentInStore) {
-        departmentInStore.selected = true;
-
-        // Atualiza a permissão se o departamento recebido possuir essa propriedade
-        if (dep.permission) {
-          departmentInStore.permission = dep.permission;
-        }
-
-        const exists = departmentSelected.value.some(
-          (selected) => selected.id === dep.id,
-        );
-
-        if (!exists) {
-          departmentSelected.value.push(departmentInStore);
-        }
-      }
-    });
-  }
+  if (!departments?.length) return;
+  const incoming = Array.isArray(props.department)
+    ? props.department
+    : props.department
+    ? [props.department]
+    : [];
+  incoming.forEach((depLike) => {
+    const id = typeof depLike === "object" ? depLike.id : depLike;
+    const permission =
+      typeof depLike === "object" ? depLike.permission : undefined;
+    const deptInStore = departments.find((d) => d.id === id);
+    if (!deptInStore) return;
+    deptInStore.selected = true;
+    if (permission) deptInStore.permission = permission;
+    if (!departmentSelected.value.some((d) => d.id === id))
+      departmentSelected.value.push(deptInStore);
+  });
   emit("depart", departmentSelected.value);
 }
 
-// Função para selecionar departamento e definir permissão padrão
 function selectDepartment(department) {
-  const index = departmentSelected.value.findIndex(
-    (dep) => dep.id === department.id,
-  );
-
-  if (index !== -1) {
-    // Se o departamento já está selecionado, desmarque-o
+  const idx = departmentSelected.value.findIndex((d) => d.id === department.id);
+  if (idx !== -1) {
     department.selected = false;
-    departmentSelected.value.splice(index, 1);
+    departmentSelected.value.splice(idx, 1);
   } else {
-    // Se multiSelect está desativado, desmarque todos os departamentos na store
-    if (!props.multiSelect) {
-      clearSelectedDepartments();
-    }
-
-    // Marca e adiciona o novo departamento como selecionado
+    if (!props.multiSelect) clearSelectedDepartments();
     department.selected = true;
     departmentSelected.value.push(department);
   }
-
   emit("depart", departmentSelected.value);
 }
 
-// Função para monitorar alterações de permissão
-function changePermission(department) {
+function changePermission() {
   emit("depart", departmentSelected.value);
 }
 
-// Remoção de departamentos selecionados
 function eraseDepartment(department, index) {
   department.selected = false;
   departmentSelected.value.splice(index, 1);
@@ -480,6 +403,7 @@ function eraseDepartment(department, index) {
   width: 100%;
   align-items: center;
   display: flex;
+  padding-right: 8px;
 }
 
 .department-name {
