@@ -125,7 +125,7 @@
                       class="download-button-internal-messages"
                       @click="
                         toggleDownloadFunctions(
-                          msg.content.media.data,
+                          msg.content.media,
                           msg.content.media.name
                         )
                       "
@@ -155,7 +155,7 @@
                     mode="message"
                     @download="
                       toggleDownloadFunctions(
-                        msg.content.media.data,
+                        msg.content.media,
                         msg.content.media.name
                       )
                     "
@@ -174,7 +174,7 @@
 
                     <template v-slot:time-message>
                       <div class="message-time">
-                        {{ formatMessageTime(msg.created_at) }} {{ deviceType }}
+                        {{ formatMessageTime(msg.created_at) }}
                       </div>
                     </template>
                   </PreviewFiles>
@@ -184,7 +184,7 @@
                   <p>{{ msg.content.content }}</p>
 
                   <div class="message-time">
-                    {{ formatMessageTime(msg.created_at) }} {{ deviceType }}
+                    {{ formatMessageTime(msg.created_at) }}
                   </div>
                 </section>
               </div>
@@ -270,15 +270,16 @@ import { ptBR } from "date-fns/locale"; // Para formatação em português
 import Avatar from "./Avatar.vue";
 import PreviewFiles from "./previewFiles.vue";
 import AudioRecorder from "../audio-misc/audioRecorder.vue";
-import { downloadFilesMobile } from "../functions/mobile-functions/functions.js";
+// import { downloadFilesMobile } from "../functions/mobile-functions/functions.js";
 
 const props = defineProps({
-  deviceType: { type: String },
+  isMobile: { type: Boolean, required: true },
   selectedAtendente: { type: Object, required: true },
   attendant: { required: true },
   loadMessagesForAtendente: { type: Function, required: true }, // Recebe do pai
   sendMessageToAtendente: { type: Function, required: true }, // Recebe do pai
   hasNextPageForAtendente: { type: Function, required: true }, // Recebe do pai,
+  downloadFilesMobile: { type: Function, required: true }, //teste
 });
 
 const emits = defineEmits(["send-files", "voltar"]);
@@ -293,13 +294,24 @@ const mensagens = computed(() => {
   return props.selectedAtendente?.messages || [];
 });
 
-const toggleDownloadFunctions = (url, name) => {
-  const isMobile = props.deviceType !== "web";
-  console.log(isMobile);
+const toggleDownloadFunctions = (file, name) => {
+  if (!file) return;
+  if (props.isMobile) {
+    const filterFileType = file.mimetype.split("/");
+    const fileType = filterFileType[1];
 
-  isMobile
-    ? downloadFilesMobile(url, name, props.deviceType)
-    : downloadFiles(url, name);
+    const mobilePayload = {
+      url:
+        file.mimetype === "image/svg+xml"
+          ? file.data.replace("+", "%2B")
+          : file.data,
+      type: fileType,
+      title: file.name,
+    };
+    props.downloadFilesMobile(mobilePayload, name);
+  } else {
+    downloadFiles(file.data, name);
+  }
 };
 
 const hasNextPage = computed(() =>
@@ -424,7 +436,6 @@ const handleSendFilesClick = () => {
 };
 
 onMounted(async () => {
-  console.log(props.deviceType);
   await nextTick(() => {
     scrollToBottom();
     mounted.value = true;

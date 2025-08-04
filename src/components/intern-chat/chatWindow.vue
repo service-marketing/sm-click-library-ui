@@ -94,7 +94,7 @@
               :sendFilesToAttendant="sendMessageToAtendente"
             >
               <ChatMessages
-                :deviceType="deviceType"
+                :isMobile="false"
                 @send-files="onSendFiles"
                 :attendant="attendant"
                 :selectedAtendente="selectedAtendente"
@@ -164,7 +164,6 @@ const props = defineProps({
     default: null,
   },
   mode: { type: String, default: "dark" },
-  deviceType: { type: String },
 });
 
 const {

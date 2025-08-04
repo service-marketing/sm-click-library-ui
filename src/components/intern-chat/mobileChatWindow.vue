@@ -3,13 +3,14 @@
     <loading v-if="loadingMessages || loadingAttendants" />
     <div v-else-if="selectedAtendente && !loadingMessages" class="h-full">
       <ChatMessages
-        :deviceType="deviceType"
+        isMobile
         :attendant="attendant"
         :selectedAtendente="selectedAtendente"
         @voltar="selectedAtendente = null"
         :loadMessagesForAtendente="loadMessagesForAtendente"
         :sendMessageToAtendente="sendMessageToAtendente"
         :hasNextPageForAtendente="hasNextPageForAtendente"
+        :downloadFilesMobile="downloadFilesMobile"
       />
     </div>
 
@@ -67,7 +68,7 @@ const props = defineProps({
     type: Number,
     default: null,
   },
-  deviceType: { type: String },
+  downloadFilesMobile: { type: Function, required: true },
 });
 
 const {
