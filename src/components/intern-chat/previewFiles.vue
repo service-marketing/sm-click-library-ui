@@ -24,9 +24,7 @@ const isImage = computed(() =>
   ["image/png", "image/jpeg", "image/svg+xml"].includes(props.mimetype)
 );
 // const isVideo = computed(() => props.mimetype.startsWith('video/'))
-const isAudio = computed(() =>
-  ["audio/mpeg", "application/octet-stream"].includes(props.mimetype)
-);
+const isAudio = computed(() => ["audio/mpeg"].includes(props.mimetype));
 
 const isVideo = (mimetype) => {
   if (!mimetype) return;
@@ -174,9 +172,9 @@ onMounted(async () => {
           ? 'flex flex-col bg-base-300 p-2 rounded-md gap-2'
           : ''
       "
-      v-if="isMobile && isPdf"
+      v-else-if="isMobile && isPdf"
     >
-      <span class="flex gap-2 items-center text-primary">
+      <span class="flex gap-2 items-center text-primary max-w-xs">
         <svg
           class="size-8 text-primary"
           aria-hidden="true"
@@ -192,12 +190,14 @@ onMounted(async () => {
             clip-rule="evenodd"
           />
         </svg>
-        <p class="truncate text-xs text-primary">{{ fileName }}</p>
+        <p class="truncate text-xs text-primary w-40 flex">
+          {{ fileName }}
+        </p>
       </span>
 
       <div v-if="mode === 'message'" class="flex gap-2">
         <button
-          class="bg-base-200 p-2 w-full text-white text-xs rounded-md hover:bg-base-100"
+          class="bg-base-200 p-2 text-primary w-full text-xs rounded-md hover:bg-base-100"
           @click="$emit('open-mobile-pdf')"
         >
           Abrir PDF
