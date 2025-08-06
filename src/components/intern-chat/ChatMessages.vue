@@ -249,7 +249,16 @@
         v-else
         :class="['send-audio-button', { recording: isRecording }]"
       >
+        <MobileAudioRecorder
+          v-if="isMobile"
+          :can-send-message="true"
+          :attendant="attendant"
+          :selectedAttendant="selectedAtendente"
+          :sendAudioToAttendant="sendMessageToAtendente"
+          @recording="(rec) => (isRecording = rec)"
+        />
         <AudioRecorder
+          v-else
           :can-send-message="true"
           :attendant="attendant"
           :selectedAttendant="selectedAtendente"
@@ -269,6 +278,7 @@ import { ptBR } from "date-fns/locale"; // Para formatação em português
 import Avatar from "./Avatar.vue";
 import PreviewFiles from "./previewFiles.vue";
 import AudioRecorder from "../audio-misc/audioRecorder.vue";
+import MobileAudioRecorder from "../audio-misc/mobile/mobileAudioRecorder.vue";
 
 const props = defineProps({
   isMobile: { type: Boolean, default: false },

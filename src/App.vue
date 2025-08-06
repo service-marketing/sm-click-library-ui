@@ -20,6 +20,7 @@ import PatchNotes from "./components/new-updates/patchNotes.vue";
 import dropFiles from "./components/intern-chat/dropFilesArea.vue";
 
 import AudioRecorder from "./components/audio-misc/audioRecorder.vue";
+import MobileAudioRecorder from "./components/audio-misc/mobile/mobileAudioRecorder.vue";
 </script>
 
 <template>
@@ -36,6 +37,8 @@ import AudioRecorder from "./components/audio-misc/audioRecorder.vue";
           @audio-sent="(sent) => console.log(sent)"
         />
       </button>
+
+      <MobileAudioRecorder />
     </div>
   </dropFiles>
 
