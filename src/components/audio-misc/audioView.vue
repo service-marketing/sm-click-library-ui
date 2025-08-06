@@ -175,7 +175,7 @@ export default {
   mounted() {
     this.wavesurfer = WaveSurfer.create({
       container: this.$refs.waveform,
-      //   waveColor: useGlobalStore().themeMode ? "#1ca3d9" : "#165CF3",
+      waveColor: "#165CF3",
       progressColor: "#AFAFAF",
       height: 70,
       cursorWidth: 14,

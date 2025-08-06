@@ -249,7 +249,6 @@ const stopRecording = async () => {
   if (audioStream.value) {
     audioStream.value.getTracks().forEach((track) => track.stop());
   }
-  console.log(base64Audio.value);
 };
 
 const convertToBase64 = async () => {

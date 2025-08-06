@@ -146,39 +146,38 @@
                   },
                 ]"
               >
-                <section
+                <PreviewFiles
                   v-if="
                     msg.content && msg.content.media && msg.content.media.data
                   "
+                  mode="message"
+                  :isMobile="isMobile"
+                  @download="
+                    toggleDownloadFunctions(
+                      msg.content.media,
+                      msg.content.media.name
+                    )
+                  "
+                  @open-mobile-pdf="openPdf(msg.content.media.data)"
+                  :avatar="
+                    msg.sender.id === attendant.id
+                      ? attendant.photo
+                      : msg.sender.photo
+                  "
+                  :fileName="msg.content.media.name"
+                  :base64="msg.content.media.data"
+                  :mimetype="msg.content.media.mimetype"
                 >
-                  <PreviewFiles
-                    mode="message"
-                    @download="
-                      toggleDownloadFunctions(
-                        msg.content.media,
-                        msg.content.media.name
-                      )
-                    "
-                    :avatar="
-                      msg.sender.id === attendant.id
-                        ? attendant.photo
-                        : msg.sender.photo
-                    "
-                    :fileName="msg.content.media.name"
-                    :base64="msg.content.media.data"
-                    :mimetype="msg.content.media.mimetype"
-                  >
-                    <template v-slot:content-message>
-                      <p>{{ msg.content.content }}</p>
-                    </template>
+                  <template v-slot:content-message>
+                    <p>{{ msg.content.content }}</p>
+                  </template>
 
-                    <template v-slot:time-message>
-                      <div class="message-time">
-                        {{ formatMessageTime(msg.created_at) }}
-                      </div>
-                    </template>
-                  </PreviewFiles>
-                </section>
+                  <template v-slot:time-message>
+                    <div class="message-time">
+                      {{ formatMessageTime(msg.created_at) }}
+                    </div>
+                  </template>
+                </PreviewFiles>
 
                 <section v-else>
                   <p>{{ msg.content.content }}</p>
@@ -270,16 +269,16 @@ import { ptBR } from "date-fns/locale"; // Para formatação em português
 import Avatar from "./Avatar.vue";
 import PreviewFiles from "./previewFiles.vue";
 import AudioRecorder from "../audio-misc/audioRecorder.vue";
-// import { downloadFilesMobile } from "../functions/mobile-functions/functions.js";
 
 const props = defineProps({
-  isMobile: { type: Boolean, required: true },
+  isMobile: { type: Boolean, default: false },
   selectedAtendente: { type: Object, required: true },
   attendant: { required: true },
   loadMessagesForAtendente: { type: Function, required: true }, // Recebe do pai
   sendMessageToAtendente: { type: Function, required: true }, // Recebe do pai
   hasNextPageForAtendente: { type: Function, required: true }, // Recebe do pai,
-  downloadFilesMobile: { type: Function, required: true }, //teste
+  downloadFilesMobile: { type: Function },
+  openMobilePdf: { type: Function },
 });
 
 const emits = defineEmits(["send-files", "voltar"]);
@@ -293,6 +292,12 @@ const isLoading = ref(false);
 const mensagens = computed(() => {
   return props.selectedAtendente?.messages || [];
 });
+
+const openPdf = (url) => {
+  if (props.isMobile) {
+    props.openMobilePdf(url);
+  }
+};
 
 const toggleDownloadFunctions = (file, name) => {
   if (!file) return;

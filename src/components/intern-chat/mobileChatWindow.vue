@@ -4,6 +4,7 @@
     <div v-else-if="selectedAtendente && !loadingMessages" class="h-full">
       <DropFilesArea
         ref="dropFilesRef"
+        isMobile
         :attendant="attendant"
         :selectedAttendant="selectedAtendente"
         :sendFilesToAttendant="sendMessageToAtendente"
@@ -16,6 +17,7 @@
           :sendMessageToAtendente="sendMessageToAtendente"
           :hasNextPageForAtendente="hasNextPageForAtendente"
           :downloadFilesMobile="downloadFilesMobile"
+          :openMobilePdf="openMobilePdf"
           @voltar="selectedAtendente = null"
           @send-files="onSendFiles"
         />
@@ -78,6 +80,7 @@ const props = defineProps({
     default: null,
   },
   downloadFilesMobile: { type: Function, required: true },
+  openMobilePdf: { type: Function },
 });
 
 const {

@@ -11,6 +11,7 @@ const props = defineProps({
   },
   selectedAttendant: { type: Object, required: true },
   attendant: { required: true },
+  isMobile: { type: Boolean, default: false },
 });
 
 const carouselConfig = {
@@ -25,6 +26,8 @@ const carouselConfig = {
     1024: { itemsToShow: 4 },
     768: { itemsToShow: 4 },
     480: { itemsToShow: 4 },
+    320: { itemsToShow: 2 },
+    0: { itemsToShow: 1 },
   },
 };
 
@@ -287,10 +290,12 @@ defineExpose({
         </button>
 
         <section class="preview-info">
-          <p>
+          <p class="text-black">
             {{ selectedFileToPreview?.name }}
           </p>
           <PreviewFiles
+            :isMobile="isMobile"
+            :avatar="null"
             mode="preview"
             :base64="selectedFileToPreview?.base64"
             :mimetype="getMimeType(selectedFileToPreview?.base64)"
@@ -310,6 +315,10 @@ defineExpose({
           <p>fila de envio</p>
           <section class="carousel-container bg-base-200">
             <Carousel v-model="currentSlide" v-bind="carouselConfig">
+              <template v-if="isMobile" #addons>
+                <Navigation />
+              </template>
+
               <Slide v-for="(docs, index) in b64files" :key="index">
                 <section class="carousel-item">
                   <button
@@ -343,6 +352,8 @@ defineExpose({
                     @click="setPreviewFiles(docs, index)"
                   >
                     <PreviewFiles
+                      :isMobile="isMobile"
+                      :avatar="null"
                       mode="miniature"
                       :base64="docs.base64"
                       :mimetype="getMimeType(docs.base64)"
@@ -428,9 +439,9 @@ defineExpose({
   align-items: center;
 }
 .preview-info p {
-  color: white;
   font-size: 11px;
   font-weight: 600;
+  color: #60a5fa;
 }
 .queue-info {
   display: flex;
