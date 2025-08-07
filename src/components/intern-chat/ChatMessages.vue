@@ -483,18 +483,28 @@ function checkIsNearBottom() {
 
 const downloadFiles = async (url, name = "undefined") => {
   const isSvg = url.endsWith("svg+xml");
+
   try {
     const response = await fetch(isSvg ? url.replace("+", "%2B") : url);
     if (!response.ok) {
       throw new Error("Erro ao baixar o arquivo");
     }
 
-    const blob = await response.blob();
+    const contentType = response.headers.get("Content-Type");
+
+    const arrayBuffer = await response.arrayBuffer();
+    const mimeType =
+      contentType && contentType !== "application/octet-stream"
+        ? contentType
+        : "audio/mp3";
+
+    const blob = new Blob([arrayBuffer], { type: mimeType });
     const blobUrl = window.URL.createObjectURL(blob);
 
     const link = document.createElement("a");
     link.href = blobUrl;
-    link.download = name; // você pode alterar o nome aqui se quiser
+    const finalName = contentType.endsWith("aac") ? `${name}.mp3` : name;
+    link.download = finalName; // você pode alterar o nome aqui se quiser
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
