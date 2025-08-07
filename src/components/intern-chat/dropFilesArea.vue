@@ -133,7 +133,7 @@ const onDrop = async (event) => {
     selectedFileToPreview.value = b64files.value[0];
     currentSlide.value = 0;
   }
-
+  console.log("b64files", b64files.value);
   nextTick(() => {
     focusTextInput();
   });

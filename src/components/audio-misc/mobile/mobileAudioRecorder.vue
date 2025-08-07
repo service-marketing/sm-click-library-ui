@@ -335,7 +335,7 @@ function uint8ArrayToBase64(uint8Array) {
 
 // Envia a gravação do audio
 const sendAudio = async () => {
-    isLoading.value = true
+  isLoading.value = true;
   const statusRecord = await VoiceRecorder.getCurrentStatus();
 
   if (statusRecord.status === "RECORDING") {
@@ -368,7 +368,8 @@ const sendAudio = async () => {
     };
 
     console.log("payload", payload);
-
+    return;
+    
     await props.sendAudioToAttendant(
       props.selectedAttendant.id,
       payload,
