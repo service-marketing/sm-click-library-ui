@@ -367,9 +367,9 @@ const sendAudio = async () => {
       },
     };
 
-    console.log("payload", payload);
+    console.log("payload", JSON.stringify(payload));
     return;
-    
+
     await props.sendAudioToAttendant(
       props.selectedAttendant.id,
       payload,
