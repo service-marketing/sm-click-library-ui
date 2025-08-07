@@ -25,7 +25,7 @@ const isImage = computed(() =>
 );
 // const isVideo = computed(() => props.mimetype.startsWith('video/'))
 const isAudio = computed(() =>
-  ["audio/mpeg", "audio/mp4", "audio/mp3"].includes(props.mimetype)
+  ["audio/mpeg", "audio/mp4", "audio/mp3", "audio/aac"].includes(props.mimetype)
 );
 
 const isVideo = (mimetype) => {
