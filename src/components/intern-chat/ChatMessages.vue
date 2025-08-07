@@ -251,7 +251,6 @@
       >
         <MobileAudioRecorder
           v-if="isMobile"
-          :can-send-message="true"
           :attendant="attendant"
           :selectedAttendant="selectedAtendente"
           :sendAudioToAttendant="sendMessageToAtendente"

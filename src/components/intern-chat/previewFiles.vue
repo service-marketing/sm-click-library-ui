@@ -62,6 +62,19 @@ const viewSingleImage = async (src, mimetype, caption = "") => {
   }
 };
 
+// Gera thumbnail padrão para videos que falharam o fetch
+const generateDefaultThumbnail = () => {
+  const canvas = document.createElement("canvas");
+  const width = 320;
+  const height = 180;
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "black";
+  ctx.fillRect(0, 0, width, height);
+  return canvas.toDataURL("image/png");
+};
+
 // Gera thumbnail de vídeo
 function generateVideoThumbnail(base64Video, seekTime = 1) {
   return new Promise((resolve, reject) => {
@@ -91,19 +104,6 @@ function generateVideoThumbnail(base64Video, seekTime = 1) {
       const thumbnail = canvas.toDataURL("image/png");
       resolve(thumbnail);
     });
-
-    video.addEventListener("error", (e) => {
-      const canvas = document.createElement("canvas");
-      const width = 320;
-      const height = 180;
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext("2d");
-      ctx.fillStyle = "black";
-      ctx.fillRect(0, 0, width, height);
-      const fallbackThumbnail = canvas.toDataURL("image/png");
-      resolve(fallbackThumbnail);
-    });
   });
 }
 
@@ -125,9 +125,15 @@ const formatTime = (segundos) => {
 
 onMounted(async () => {
   try {
-    thumbnail.value = await generateVideoThumbnail(props.base64);
+    const thumbnailData = await generateVideoThumbnail(props.base64);
+    const isValidThumbnail = thumbnailData && thumbnailData !== "data:,";
+
+    thumbnail.value = isValidThumbnail
+      ? thumbnailData
+      : generateDefaultThumbnail();
   } catch (error) {
-    console.error(error);
+    console.error("Erro ao gerar thumbnail:", error);
+    thumbnail.value = generateDefaultThumbnail();
   }
 });
 </script>
@@ -174,7 +180,7 @@ onMounted(async () => {
           ? 'flex flex-col bg-base-300 p-2 rounded-md gap-2'
           : ''
       "
-      v-else-if="isMobile && isPdf"
+      v-else-if="isMobile && isPdf && mode === 'message'"
     >
       <span class="flex gap-2 items-center text-primary max-w-xs">
         <svg
