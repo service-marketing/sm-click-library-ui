@@ -524,8 +524,6 @@ defineExpose({
   font-size: 10px;
   border-radius: 6px;
   padding: 8px 10px;
-  /* color: white; */
-  /* background-color: #26343d; */
   transition: all 0.2s ease-in;
 }
 .input-drop-files-area::placeholder {
