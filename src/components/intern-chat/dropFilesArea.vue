@@ -133,7 +133,7 @@ const onDrop = async (event) => {
     selectedFileToPreview.value = b64files.value[0];
     currentSlide.value = 0;
   }
-  
+
   nextTick(() => {
     focusTextInput();
   });
@@ -305,7 +305,7 @@ defineExpose({
             ref="textInput"
             @keydown.enter="sendFiles()"
             placeholder="Digite uma mensagem para acompanhar o arquivo"
-            class="input-drop-files-area bg-base-200"
+            class="input-drop-files-area bg-base-200 text-text-base"
             v-model="fileContentText"
             type="text"
           />
@@ -524,7 +524,7 @@ defineExpose({
   font-size: 10px;
   border-radius: 6px;
   padding: 8px 10px;
-  color: white;
+  /* color: white; */
   /* background-color: #26343d; */
   transition: all 0.2s ease-in;
 }
