@@ -1,6 +1,7 @@
 <script setup>
-import { ref, computed, watch, onMounted, nextTick } from "vue";
+import { ref, computed, watch, onMounted, nextTick, useSlots } from "vue";
 import { useDepartmentStore } from "~/stores/departmentStore";
+const slots = useSlots();
 
 const props = defineProps({
   department: { type: [Array, String], default: null },
@@ -133,6 +134,10 @@ function eraseDepartment(department, index) {
   departmentSelected.value.splice(index, 1);
   emit("depart", departmentSelected.value);
 }
+const isSearching = computed(() => searchInput.value.trim().length > 0);
+watch(isSearching, (val) => {
+  emit("searching", val);
+});
 </script>
 
 <template>
@@ -247,7 +252,9 @@ function eraseDepartment(department, index) {
           v-if="departmentStore.loaded && filteredDepartments.length === 0"
           class="no-departments bg-base-300"
         >
-          Nenhum departamento disponível.
+          <p v-if="!$slots.default">Nenhum departamento disponível.</p>
+
+          <slot v-else />
         </div>
         <div v-if="!departmentStore.loaded" class="library-loading-spinner">
           Inicializando departamentos
