@@ -28,11 +28,6 @@ const toggleModal = () => {
 </script>
 
 <template>
-  <Transition
-    leave-active-class="transition-opacity duration-200 ease-in"
-    leave-from-class="opacity-100"
-    leave-to-class="opacity-0"
-  >
     <div v-if="isOpen" class="modal_head">
       <div class="modal-overlay absolute h-full w-full bg-gray-600 opacity-50" />
       <div class="modal_responsive">
@@ -71,7 +66,6 @@ const toggleModal = () => {
         </div>
       </div>
     </div>
-  </Transition>
 </template>
 
 <style scoped>
