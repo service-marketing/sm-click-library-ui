@@ -18,6 +18,20 @@ const searchInput = ref("");
 const open_select = ref(false);
 const attendanceSelected = ref([]);
 
+// Normalizar lista de IDs vinda em props.attendance
+function incomingIds() {
+  const incoming = Array.isArray(props.attendance)
+    ? props.attendance
+    : props.attendance
+    ? [props.attendance]
+    : [];
+  return new Set(
+    incoming
+      .filter(Boolean)
+      .map((item) => (typeof item === "object" ? item.id : item))
+  );
+}
+
 const filteredAttendants = computed(() => {
   const active = attendantStore.attendants.filter((a) => a.status === true);
   const filtered = searchInput.value
@@ -41,7 +55,10 @@ function filterByMethod(attendants) {
     });
   }
   if (props.method === "addParticipant") {
-    return attendants.filter((a) => a?.id !== props?.attDel?.id);
+    // Em "adicionar", esconde quem já está no chat (props.attendance) e o attDel
+    const exclude = incomingIds();
+    if (props?.attDel?.id) exclude.add(props.attDel.id);
+    return attendants.filter((a) => !exclude.has(a.id));
   }
   return attendants;
 }
@@ -98,19 +115,6 @@ function clearSelectedAttendance() {
 function updateSelectedAttendance() {
   const attendants = attendantStore.attendants;
   if (!attendants?.length) return;
-  const incoming = Array.isArray(props.attendance)
-    ? props.attendance
-    : props.attendance
-    ? [props.attendance]
-    : [];
-  incoming.forEach((item) => {
-    const id = typeof item === "object" ? item.id : item;
-    const stored = attendants.find((a) => a.id === id);
-    if (stored && !attendanceSelected.value.some((a) => a.id === id)) {
-      stored.selected = true;
-      attendanceSelected.value.push(stored);
-    }
-  });
   emit("attend", attendanceSelected.value);
 }
 
