@@ -29,10 +29,7 @@ const toggleModal = () => {
 
 <template>
   <Transition
-    enter-active-class="transition-opacity duration-500 ease-out"
-    enter-from-class="opacity-0"
-    enter-to-class="opacity-100"
-    leave-active-class="transition-opacity duration-500 ease-in"
+    leave-active-class="transition-opacity duration-200 ease-in"
     leave-from-class="opacity-100"
     leave-to-class="opacity-0"
   >
