@@ -28,44 +28,44 @@ const toggleModal = () => {
 </script>
 
 <template>
-    <div v-if="isOpen" class="modal_head">
-      <div class="modal-overlay absolute h-full w-full bg-gray-600 opacity-50" />
-      <div class="modal_responsive">
-        <div class="flex min-h-full items-center justify-center text-center sm:p-0">
-          <div class="z-50 w-full shadow rounded-2xl shadow-black" :class="size">
-            <!-- Modal content -->
-            <div class="modal_tittle text-current">
-              <section class="flex items-center gap-3">
-                <div v-html="header?.svg"></div>
+  <div v-if="isOpen" class="modal_head">
+    <div class="modal-overlay absolute h-full w-full bg-gray-600 opacity-50" />
+    <div class="modal_responsive">
+      <div
+        class="flex min-h-full items-center justify-center text-center sm:p-0"
+      >
+        <div class="z-50 w-full shadow rounded-2xl shadow-black" :class="size">
+          <!-- Modal content -->
+          <div class="modal_tittle text-current">
+            <section class="flex items-center gap-3">
+              <div v-html="header?.svg"></div>
 
+              <div>
+                <h3 class="text-xl font-semibold flex items-center gap-2">
+                  <p>{{ header?.title }}</p>
+                </h3>
                 <div>
-                  <h3 class="text-xl font-semibold flex items-center gap-2">
-                    <p>{{ header?.title }}</p>
-                  </h3>
-                  <div>
-                    <slot name="header" />
-                  </div>
+                  <slot name="header" />
                 </div>
-              </section>
-
-              <button @click="toggleModal()" class="modal_close_button">
-                ✖
-              </button>
-            </div>
-
-            <div class="bg-base-200">
-              <div class="text-center">
-                <slot name="body" />
               </div>
-            </div>
+            </section>
 
-            <div class="modal_end_button">
-              <slot name="footer" />
+            <button @click="toggleModal()" class="modal_close_button">✖</button>
+          </div>
+
+          <div class="bg-base-200">
+            <div class="text-center">
+              <slot name="body" />
             </div>
+          </div>
+
+          <div class="modal_end_button">
+            <slot name="footer" />
           </div>
         </div>
       </div>
     </div>
+  </div>
 </template>
 
 <style scoped>
