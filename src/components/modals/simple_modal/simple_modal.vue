@@ -46,7 +46,7 @@ const toggleModal = () => {
             :class="size"
           >
             <!-- Modal content -->
-            <div class="modal_tittle text-current">
+            <div class="modal_tittle text-current bg-base-300 border-base-100">
               <section class="flex items-center gap-3">
                 <div v-html="header?.svg"></div>
 
@@ -60,17 +60,25 @@ const toggleModal = () => {
                 </div>
               </section>
 
-              <button @click="toggleModal()" class="modal_close_button">
+              <button
+                @click="toggleModal()"
+                class="modal_close_button bg-base-200/40"
+              >
                 <svg
-                  class="h-5 w-5"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
+                  class="size-5"
+                  aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
                 >
                   <path
-                    fill-rule="evenodd"
-                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                    clip-rule="evenodd"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 18 17.94 6M18 18 6.06 6"
                   />
                 </svg>
               </button>
@@ -82,7 +90,7 @@ const toggleModal = () => {
               </div>
             </div>
 
-            <div class="modal_end_button">
+            <div class="modal_end_button border-base-100 bg-base-300">
               <slot name="footer" />
             </div>
           </div>
@@ -116,14 +124,14 @@ const toggleModal = () => {
 }
 
 .modal_tittle {
-  @apply flex text-current uppercase justify-between bg-base-300 items-start p-3 py-3 rounded-t-2xl border-base-100;
+  @apply flex text-current uppercase justify-between  items-start p-3 py-3 rounded-t-2xl;
 }
 
 .modal_end_button {
-  @apply flex p-2 space-x-2 rounded-b-2xl border-base-100 bg-base-300;
+  @apply flex p-2 space-x-2 rounded-b-2xl;
 }
 
 .modal_close_button {
-  @apply hover:scale-105 duration-300 bg-base-200/40 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center hover:bg-gray-600 hover:text-white;
+  @apply hover:scale-105 duration-300 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center hover:bg-gray-600 hover:text-white;
 }
 </style>
