@@ -25,6 +25,7 @@ function incomingIds() {
     : props.attendance
     ? [props.attendance]
     : [];
+   // console.log(props.attendance)
   return new Set(
     incoming
       .filter(Boolean)
@@ -115,6 +116,23 @@ function clearSelectedAttendance() {
 function updateSelectedAttendance() {
   const attendants = attendantStore.attendants;
   if (!attendants?.length) return;
+
+  const incoming = Array.isArray(props.attendance)
+    ? props.attendance
+    : props.attendance
+    ? [props.attendance]
+    : [];
+
+  incoming.forEach((item) => {
+    const id = typeof item === "object" ? item.id : item;
+    const stored = attendants.find((a) => a.id === id);
+
+    if (stored && !attendanceSelected.value.some((a) => a.id === id)) {
+      stored.selected = true;
+      attendanceSelected.value.push(stored);
+    }
+  });
+
   emit("attend", attendanceSelected.value);
 }
 
