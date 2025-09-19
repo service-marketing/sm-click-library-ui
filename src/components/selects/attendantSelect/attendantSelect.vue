@@ -9,6 +9,7 @@ const props = defineProps({
   modal_filter: { type: String, default: null },
   attDel: { type: Object, default: { id: null } },
   method: { type: String, default: null },
+  preselect: { type: Boolean, default: true },
 });
 
 const emit = defineEmits(["attend", "component-mounted"]);
@@ -25,7 +26,7 @@ function incomingIds() {
     : props.attendance
     ? [props.attendance]
     : [];
-   // console.log(props.attendance)
+  // console.log(props.attendance)
   return new Set(
     incoming
       .filter(Boolean)
@@ -114,6 +115,8 @@ function clearSelectedAttendance() {
 }
 
 function updateSelectedAttendance() {
+  if (!props.preselect) return;
+
   const attendants = attendantStore.attendants;
   if (!attendants?.length) return;
 
