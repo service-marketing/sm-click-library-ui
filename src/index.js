@@ -19,6 +19,7 @@ import { useAuthStore } from "~/stores/authStore";
 import { useAttendantStore } from "./stores/attendantStore";
 import { useDepartmentStore } from "./stores/departmentStore";
 import { useInstanceStore } from "./stores/instanceStore";
+import {getContrastColor}  from "./utils/functions/getContrastColor";
 import api from "~/utils/api"; // Importa a instância personalizada do Axios
 
 function install(Vue) {
@@ -136,6 +137,10 @@ export async function setupLibrary(
   }
 }
 
+export function getWithContrastColor(hex) {
+  return getContrastColor(hex);
+}
+
 export default {
   install,
   setupLibrary,
@@ -157,4 +162,5 @@ export default {
   MinModal,
   libPatchNotes,
   btnNewUpdates,
+  getWithContrastColor,
 };
