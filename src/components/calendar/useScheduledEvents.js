@@ -1,6 +1,7 @@
 import { it } from "date-fns/locale";
 import api from "~/utils/api";
 import { crm_scheduled } from "~/utils/systemUrls";
+
 // Títulos por função (tradução)
 const FUNCTION_TITLES = {
   scheduled_messages: "Mensagem programada",
@@ -8,6 +9,7 @@ const FUNCTION_TITLES = {
 function functionTitle(fn) {
   return FUNCTION_TITLES[fn] || fn || "Evento";
 }
+
 export function sameYMD(a, b) {
   return (
     a.getFullYear() === b.getFullYear() &&
@@ -38,7 +40,6 @@ export function parseDateLocal(yyyy_mm_dd_hh_mm) {
     hh = parseInt(H || "0", 10);
     mm = parseInt(M || "0", 10);
   }
-  // Date(year, monthIndex, day, hours, minutes)
   const dt = new Date(y, (m || 1) - 1, d || 1, hh, mm);
   return isNaN(dt.getTime()) ? null : dt;
 }
@@ -47,7 +48,6 @@ export function parseDateLocal(yyyy_mm_dd_hh_mm) {
 export function parseIsoWithMicrosSafe(isoStr) {
   if (!isoStr) return null;
   try {
-    // remove micros excedentes se houver
     const cleaned = String(isoStr).replace(/(\.\d{3})\d+$/, "$1");
     const d = new Date(cleaned);
     return isNaN(d.getTime()) ? null : d;
@@ -66,11 +66,9 @@ export function formatTimeHM(dateLike) {
 }
 
 function cryptoRandomId() {
-  // fallback simples
   return "id-" + Math.random().toString(36).slice(2) + Date.now().toString(36);
 }
 
-// ⬇️ ADICIONE isto perto das outras exports
 export function normalizeScheduledItem(item) {
   if (!item) return null;
 
@@ -81,18 +79,15 @@ export function normalizeScheduledItem(item) {
   const department = info?.department || {};
   const instance = info?.instance || {};
 
-  // data/hora (prioriza params.schedule.time e cai para next_execution_at)
   let dt = null;
   if (schedule?.time) dt = parseDateLocal(schedule.time);
   if (!dt && item?.next_execution_at)
     dt = parseIsoWithMicrosSafe(item.next_execution_at);
   if (!dt) return null;
 
-  // conteúdo de mensagem (se existir)
   const firstMsg = Array.isArray(params?.message) ? params.message[0] : null;
   const textMsg = (firstMsg && (firstMsg.content || firstMsg.text)) || "";
 
-  // função e título traduzido
   const funcName = item?.function || params?.function || "";
   const title = functionTitle(funcName);
   const content = (textMsg || "").trim();
@@ -124,8 +119,8 @@ export function normalizeScheduledResponseV2(list = []) {
   const items = Array.isArray(list)
     ? list
     : Array.isArray(list.results)
-      ? list.results
-      : [];
+    ? list.results
+    : [];
 
   const out = [];
   for (const item of items) {
@@ -136,9 +131,15 @@ export function normalizeScheduledResponseV2(list = []) {
   return out;
 }
 
+function coerceHttps(url) {
+  return url && url.startsWith("http://")
+    ? url.replace(/^http:\/\//i, "https://")
+    : url;
+}
+
 export async function fetchScheduledByMonth(
   baseUrl = "/crm_scheduled",
-  yearMonth,
+  yearMonth
 ) {
   try {
     const ym = yearMonth || yearMonthKey(new Date());
@@ -151,8 +152,8 @@ export async function fetchScheduledByMonth(
         ? res.data
         : res?.data?.results || [];
       allData = allData.concat(data);
-      // Atualiza a URL para a próxima página, se existir
-      url = res?.data?.next || null;
+
+      url = coerceHttps(res?.data?.next || null);
     }
 
     return normalizeScheduledResponseV2(allData);
@@ -164,7 +165,7 @@ export async function fetchScheduledByMonth(
 
 export async function eraseScheduledEvent(
   baseUrl = "/crm_scheduled",
-  eventOrId,
+  eventOrId
 ) {
   try {
     const id = eventOrId?.raw?.id ?? eventOrId?.id ?? eventOrId;
@@ -173,7 +174,7 @@ export async function eraseScheduledEvent(
     const url = `${String(baseUrl).replace(/\/$/, "")}/${id}/`;
     const res = await api.delete(url);
 
-    const ok = res?.status >= 200 && res.status < 300; // cobre 200..299 (inclui 204)
+    const ok = res?.status >= 200 && res.status < 300;
     return { ok, status: res?.status ?? 0 };
   } catch (error) {
     console.error("Error erasing scheduled event:", error);

@@ -1,25 +1,24 @@
 import { defineStore } from "pinia";
+import api from "~/utils/api";
 import {
   fetchScheduledByMonth,
   yearMonthKey,
   parseDateLocal,
   formatTimeHM,
-  normalizeScheduledItem, // normalizador de item único
+  normalizeScheduledItem,
+  normalizeScheduledResponseV2,
 } from "~/components/calendar/useScheduledEvents";
+import { crm_events } from "~/utils/systemUrls";
 
 // Coalescing global por baseUrl|YM (não reativo)
 const inFlight = new Map();
 
 export const useScheduledStore = defineStore("scheduled", {
   state: () => ({
-    baseUrl: "/crm_scheduled",
-    // cache por mês: { "YYYY-MM": Event[] }
-    monthCache: {},
-    // loading por mês
-    loadingYM: new Set(), // ex: "2025-09"
-    // erros por mês
+    baseUrl: crm_events,
+    monthCache: {}, // { "YYYY-MM": Event[] }
+    loadingYM: new Set(),
     errorByYM: {}, // { "YYYY-MM": "msg" }
-    // NEW: meses que já foram CARREGADOS via fetch (independe do cache existir)
     loadedYM: new Set(),
   }),
 
@@ -41,17 +40,32 @@ export const useScheduledStore = defineStore("scheduled", {
     _deleteMonth(ym) {
       const { [ym]: _drop, ...rest } = this.monthCache;
       this.monthCache = rest;
-      // também limpa status
       this.loadingYM.delete(ym);
       const { [ym]: _e, ...eRest } = this.errorByYM;
       this.errorByYM = eRest;
-      // NEW: se apagar o mês, deixa de estar "carregado"
       this.loadedYM.delete(ym);
+    },
+
+    coerceHttps(url) {
+      return url && url.startsWith("http://")
+        ? url.replace(/^http:\/\//i, "https://")
+        : url;
+    },
+
+    _appendMonth(ym, items) {
+      if (!items || items.length === 0) return;
+      if (!this.monthCache[ym]) this.monthCache[ym] = [];
+
+      const seen = new Set(this.monthCache[ym].map((e) => e?.id));
+      for (const it of items) {
+        if (!it) continue;
+        if (it.id && seen.has(it.id)) continue;
+        this.monthCache[ym].push(it);
+      }
     },
 
     async ensureMonthLoaded(ym) {
       if (!ym) ym = yearMonthKey(new Date());
-      // NEW: só retorna se JÁ FOI CARREGADO via fetch (não basta existir no cache)
       if (this.loadedYM.has(ym)) return;
 
       const key = `${this.baseUrl}|${ym}`;
@@ -60,24 +74,55 @@ export const useScheduledStore = defineStore("scheduled", {
       this.loadingYM.add(ym);
       this.errorByYM = { ...this.errorByYM, [ym]: "" };
 
-      const p = fetchScheduledByMonth(this.baseUrl, ym)
-        .then((data) => {
-          this._setMonth(ym, data);
-          // NEW: marca como carregado com sucesso
+      const p = (async () => {
+        try {
+          const firstUrl = `${this.baseUrl}?year_month=${encodeURIComponent(
+            ym
+          )}&page_size=10`;
+          const res = await api.get(firstUrl);
+          const page = Array.isArray(res?.data)
+            ? res.data
+            : res?.data?.results || [];
+          const firstBatch = normalizeScheduledResponseV2(page || []);
+
+          this._setMonth(ym, firstBatch);
           this.loadedYM.add(ym);
-        })
-        .catch((err) => {
+
+          let next = this.coerceHttps(res?.data?.next || null);
+
+          if (next) {
+            (async () => {
+              try {
+                let url = next;
+                while (url) {
+                  const r = await api.get(url);
+                  const data = Array.isArray(r?.data)
+                    ? r.data
+                    : r?.data?.results || [];
+                  const batch = normalizeScheduledResponseV2(data || []);
+                  this._appendMonth(ym, batch);
+                  url = this.coerceHttps(r?.data?.next || null);
+                }
+              } catch (bgErr) {
+                console.warn(
+                  "[scheduled] background paging error:",
+                  bgErr?.message || bgErr
+                );
+              }
+            })();
+          }
+        } catch (err) {
           const msg = String(err?.message || err);
           this.errorByYM = { ...this.errorByYM, [ym]: msg };
           console.error("[scheduled] fetch error", ym, msg);
-          this._setMonth(ym, []); // evita loop
-          // NEW: garante que NÃO fica como carregado
+          this._setMonth(ym, []);
           this.loadedYM.delete(ym);
-        })
-        .finally(() => {
+          throw err;
+        } finally {
           inFlight.delete(key);
           this.loadingYM.delete(ym);
-        });
+        }
+      })();
 
       inFlight.set(key, p);
       return p;
@@ -88,7 +133,6 @@ export const useScheduledStore = defineStore("scheduled", {
       const key = `${this.baseUrl}|${ym}`;
       inFlight.delete(key);
       this._deleteMonth(ym);
-      // NEW: redundante/seguro — força a perder o status de carregado
       this.loadedYM.delete(ym);
       await this.ensureMonthLoaded(ym);
     },
@@ -113,32 +157,25 @@ export const useScheduledStore = defineStore("scheduled", {
         ev.date = newDate;
         ev.time = formatTimeHM(newDate);
 
-        // conteúdo da mensagem (já existia)
         if (params?.message?.[0]?.content != null) {
           ev.content = params.message[0].content;
         }
 
-        // GARANTA raw/params
         ev.raw = ev.raw || { id };
         ev.raw.params = ev.raw.params || {};
-
-        // aplique schedule e message no raw
         ev.raw.params.schedule = {
           ...(ev.raw.params.schedule || {}),
           ...(params.schedule || {}),
         };
         if (params.message) ev.raw.params.message = params.message;
 
-        // >>> NOVO: aplique entity/info no raw e "achate" campos usados no UI
         if (params.entity) {
           ev.raw.params.entity = {
             ...(ev.raw.params.entity || {}),
             ...params.entity,
           };
           ev.contactName = params.entity.name ?? ev.contactName ?? "Cliente";
-          // telefone opcional
           ev.contactPhoto = params.entity.photo ?? ev.contactPhoto ?? null;
-          // foto (se vier)
           if (params.entity.photo) ev.photo = params.entity.photo;
         }
 
@@ -154,15 +191,12 @@ export const useScheduledStore = defineStore("scheduled", {
             params.info?.instance?.last_instance_status ?? ev.instanceStatus;
         }
 
-        // título padrão (se quiser manter/garantir)
         ev.title = ev.title || "Mensagem programada";
-
         return ev;
       };
 
       const hit = this.findEventById(id);
       if (!hit) {
-        // NÃO dispara fetch aqui — apenas insere
         const ev = patchFields({
           id,
           date: newDate,
@@ -172,8 +206,6 @@ export const useScheduledStore = defineStore("scheduled", {
           function: params?.function || "scheduled_messages",
           content: params?.message?.[0]?.content ?? "",
           raw: { id, params },
-
-          // >>> NOVO: achatar já na inserção inicial
           contactName: params?.entity?.name ?? "Cliente",
           contactPhoto: params?.entity?.photo ?? null,
           departmentName: params?.info?.department?.name ?? null,
@@ -200,7 +232,6 @@ export const useScheduledStore = defineStore("scheduled", {
         newArr.sort((a, b) => a.date - b.date);
         this._setMonth(oldYM, newArr);
       } else {
-        // mover entre meses — também NÃO busca aqui
         const newOldArr = oldArr.slice(0, idx).concat(oldArr.slice(idx + 1));
         const targetArr = this.monthCache[newYM]
           ? [...this.monthCache[newYM], evNew]
@@ -224,9 +255,6 @@ export const useScheduledStore = defineStore("scheduled", {
       return true;
     },
 
-    /**
-     * Insere ou atualiza um evento já normalizado.
-     */
     insertNormalizedEvent(ev) {
       if (!ev) return;
       const id = String(ev.id);
@@ -236,7 +264,6 @@ export const useScheduledStore = defineStore("scheduled", {
           : parseDateLocal(ev.date) || new Date();
       const ym = yearMonthKey(date);
 
-      // NÃO chama fetch aqui — só insere
       const normalized = {
         ...ev,
         id,
@@ -257,9 +284,6 @@ export const useScheduledStore = defineStore("scheduled", {
       this._setMonth(ym, arr);
     },
 
-    /**
-     * Insere a partir de um item cru da API (usa normalizeScheduledItem).
-     */
     insertFromApiItem(item) {
       const ev = normalizeScheduledItem(item);
       if (!ev) return;
@@ -273,13 +297,12 @@ export const useScheduledStore = defineStore("scheduled", {
       }
     },
 
-    insertFromApiPage(page /* array ou {results: [...]} */) {
+    insertFromApiPage(page) {
       const list = Array.isArray(page) ? page : page?.results || [];
       this.insertManyFromApi(list);
     },
 
-    /** Atalho para usar o mesmo fluxo do update */
-    insertFromParams(payload /* { id, params } */) {
+    insertFromParams(payload) {
       return this.applyUpdateToCache(payload);
     },
 
@@ -291,7 +314,7 @@ export const useScheduledStore = defineStore("scheduled", {
       this.monthCache = {};
       this.loadingYM = new Set();
       this.errorByYM = {};
-      this.loadedYM = new Set(); // NEW
+      this.loadedYM = new Set();
       inFlight.clear?.();
     },
   },
