@@ -7,7 +7,7 @@
       :class="['send-audio-button', { recording: recording }]"
       v-if="!recording && !base64Audio"
       :disabled="recording || !canSendMessage"
-      @click="startRecording(), (pausedTime = 0), (canceled = false)"
+      @click="(startRecording(), (pausedTime = 0), (canceled = false))"
     >
       <svg
         class="start-recording-icon"
@@ -287,7 +287,7 @@ const sendAudio = async () => {
     props.selectedAttendant.id,
     payload,
     props.attendant,
-    true
+    true,
   );
 
   emit("recording", false);

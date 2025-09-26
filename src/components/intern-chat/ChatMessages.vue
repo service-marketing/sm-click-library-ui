@@ -126,7 +126,7 @@
                       @click="
                         toggleDownloadFunctions(
                           msg.content.media,
-                          msg.content.media.name
+                          msg.content.media.name,
                         )
                       "
                     >
@@ -155,7 +155,7 @@
                   @download="
                     toggleDownloadFunctions(
                       msg.content.media,
-                      msg.content.media.name
+                      msg.content.media.name,
                     )
                   "
                   @open-mobile-pdf="openPdf(msg.content.media.data)"
@@ -329,7 +329,7 @@ const toggleDownloadFunctions = (file, name) => {
 };
 
 const hasNextPage = computed(() =>
-  props.hasNextPageForAtendente(props.selectedAtendente.id)
+  props.hasNextPageForAtendente(props.selectedAtendente.id),
 );
 const formatMessageTime = (dateStr) => {
   const date = new Date(dateStr);
@@ -421,7 +421,7 @@ const enviarMensagem = async () => {
       await props.sendMessageToAtendente(
         props.selectedAtendente.id,
         newMessage,
-        props.attendant
+        props.attendant,
       );
       await nextTick();
       scrollToBottom();
@@ -470,7 +470,7 @@ watch(
         }, 100);
       }
     }
-  }
+  },
 );
 
 function checkIsNearBottom() {
@@ -855,7 +855,9 @@ const downloadFiles = async (url, name = "undefined") => {
 
 /* Animação para as mensagens enviadas pelo usuário (vindo da esquerda) */
 .message-enter-active {
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
 }
 
 .message.me.new-message {

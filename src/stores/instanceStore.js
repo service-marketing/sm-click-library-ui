@@ -29,7 +29,7 @@ export const useInstanceStore = defineStore("instance", {
                 key.status = true;
               }
             } catch (err) {
-              console.log(err)
+              console.log(err);
               key.status = "Offline";
             }
             key.isLoading = false;
