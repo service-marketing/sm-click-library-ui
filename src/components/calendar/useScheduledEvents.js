@@ -142,7 +142,7 @@ export async function fetchScheduledByMonth(
 ) {
   try {
     const ym = yearMonth || yearMonthKey(new Date());
-    let url = `${baseUrl}?year_month=${encodeURIComponent(ym)}`;
+    let url = `${baseUrl}?year_month=${encodeURIComponent(ym)}&page_size=10`;
     let allData = [];
 
     while (url) {

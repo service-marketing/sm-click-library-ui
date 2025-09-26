@@ -109,20 +109,54 @@ export const useScheduledStore = defineStore("scheduled", {
     applyUpdateToCache({ id, params }) {
       const newDate = parseDateLocal(params?.schedule?.time) || new Date();
       const newYM = yearMonthKey(newDate);
-
       const patchFields = (ev) => {
         ev.date = newDate;
         ev.time = formatTimeHM(newDate);
+
+        // conteúdo da mensagem (já existia)
         if (params?.message?.[0]?.content != null) {
           ev.content = params.message[0].content;
         }
-        if (ev.raw?.params) {
-          ev.raw.params.message = params.message ?? ev.raw.params.message;
-          ev.raw.params.schedule = {
-            ...(ev.raw.params.schedule || {}),
-            ...(params.schedule || {}),
+
+        // GARANTA raw/params
+        ev.raw = ev.raw || { id };
+        ev.raw.params = ev.raw.params || {};
+
+        // aplique schedule e message no raw
+        ev.raw.params.schedule = {
+          ...(ev.raw.params.schedule || {}),
+          ...(params.schedule || {}),
+        };
+        if (params.message) ev.raw.params.message = params.message;
+
+        // >>> NOVO: aplique entity/info no raw e "achate" campos usados no UI
+        if (params.entity) {
+          ev.raw.params.entity = {
+            ...(ev.raw.params.entity || {}),
+            ...params.entity,
           };
+          ev.contactName = params.entity.name ?? ev.contactName ?? "Cliente";
+          // telefone opcional
+          ev.contactPhoto = params.entity.photo ?? ev.contactPhoto ?? null;
+          // foto (se vier)
+          if (params.entity.photo) ev.photo = params.entity.photo;
         }
+
+        if (params.info) {
+          ev.raw.params.info = {
+            ...(ev.raw.params.info || {}),
+            ...params.info,
+          };
+          ev.departmentName =
+            params.info?.department?.name ?? ev.departmentName;
+          ev.instanceName = params.info?.instance?.name ?? ev.instanceName;
+          ev.instanceStatus =
+            params.info?.instance?.last_instance_status ?? ev.instanceStatus;
+        }
+
+        // título padrão (se quiser manter/garantir)
+        ev.title = ev.title || "Mensagem programada";
+
         return ev;
       };
 
@@ -133,10 +167,20 @@ export const useScheduledStore = defineStore("scheduled", {
           id,
           date: newDate,
           time: formatTimeHM(newDate),
-          title: "Mensagem programada",
+          title: params?.title || "Mensagem programada",
+          type: params?.function || "scheduled_messages",
+          function: params?.function || "scheduled_messages",
           content: params?.message?.[0]?.content ?? "",
           raw: { id, params },
+
+          // >>> NOVO: achatar já na inserção inicial
+          contactName: params?.entity?.name ?? "Cliente",
+          contactPhoto: params?.entity?.photo ?? null,
+          departmentName: params?.info?.department?.name ?? null,
+          instanceName: params?.info?.instance?.name ?? null,
+          instanceStatus: params?.info?.instance?.last_instance_status ?? null,
         });
+
         const targetArr = this.monthCache[newYM]
           ? [...this.monthCache[newYM], ev]
           : [ev];
