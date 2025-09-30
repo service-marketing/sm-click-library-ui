@@ -51,7 +51,7 @@
             @reload="forceReloadCurrentMonth"
             @open-chat="(ev) => $emit('open-chat', ev)"
             @open-message="(ev) => $emit('open-message', ev)"
-            @delete-message="eraseEvent"
+            @delete-message="(ev, e) => askConfirmDelete(ev, e)"
           />
         </div>
       </template>
@@ -65,7 +65,7 @@
         :month-label-of="monthLabelOf"
         @open-chat="(ev) => $emit('open-chat', ev)"
         @open-message="(ev) => $emit('open-message', ev)"
-        @delete-message="eraseEvent"
+        @delete-message="(ev, e) => askConfirmDelete(ev, e)"
       />
     </div>
 
@@ -79,22 +79,49 @@
       @reload="forceReloadCurrentMonth"
       @open-chat="(ev) => $emit('open-chat', ev)"
       @open-message="(ev) => $emit('open-message', ev)"
-      @delete-message="eraseEvent"
+      @delete-message="(ev, e) => askConfirmDelete(ev, e)"
     />
   </div>
+
+  <confirmModal
+    v-model="confirmCtl.open"
+    :title="confirmCtl.title"
+    :description="confirmCtl.description"
+    :destructive="confirmCtl.destructive"
+    :confirm-label="confirmCtl.confirmLabel"
+    :cancel-label="confirmCtl.cancelLabel"
+    :loading="confirmCtl.loading"
+    :loading-label="confirmCtl.loadingLabel"
+    :context="confirmCtl.context"
+    :anchor-el="confirmCtl.anchorEl"
+    placement="auto"
+    align="center"
+    :offset="12"
+    @confirm="onConfirmModal"
+    @cancel="onCancelModal"
+  >
+    <template #details>
+      <div v-if="confirmCtl.context?.event">
+        <EventItem
+          :view-only="true"
+          :mode="'sidebar'"
+          :ev="confirmCtl.context.event"
+        />
+      </div>
+    </template>
+  </confirmModal>
 </template>
 
 <script setup>
+import confirmModal from "./components/confirmModal.vue";
 import { ref, computed, onMounted, watch } from "vue";
 import { crm_scheduled } from "../../utils/systemUrls";
 import {
   sameYMD,
   yearMonthKey,
-  parseDateLocal,
-  formatTimeHM,
   eraseScheduledEvent,
 } from "./useScheduledEvents";
-
+import EventItem from "./components/EventItem.vue";
 import { useScheduledStore } from "~/stores/useScheduledStore";
 
 import CalHeader from "./components/CalHeader.vue";
@@ -150,9 +177,8 @@ function isSelectedDay(d) {
 }
 function selectDay(d) {
   selectedDate.value = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  if (!isSameMonth(d, viewDate.value)) {
+  if (!isSameMonth(d, viewDate.value))
     viewDate.value = new Date(d.getFullYear(), d.getMonth(), 1);
-  }
 }
 function prevMonth() {
   viewDate.value = new Date(
@@ -202,7 +228,9 @@ const selectedLabelLong = computed(
   () => `${weekdayLongPt(selectedDate.value)} ${selectedDate.value.getDate()}`,
 );
 function formatDMY(d) {
-  return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
+  return `${String(d.getDate()).padStart(2, "0")}/${String(
+    d.getMonth() + 1,
+  ).padStart(2, "0")}/${d.getFullYear()}`;
 }
 function weekdayLongPt(d) {
   return ["DOMINGO", "SEGUNDA", "TERÇA", "QUARTA", "QUINTA", "SEXTA", "SÁBADO"][
@@ -317,6 +345,51 @@ const loading = computed(() => scheduled.isLoading(currentYM.value));
 const error = computed(() => scheduled.errorOf(currentYM.value));
 
 // ===== Ações =====
+const confirmCtl = ref({
+  open: false,
+  loading: false,
+  context: null,
+  title: "Confirmar exclusão",
+  description: "Tem certeza que deseja apagar este item?",
+  destructive: true,
+  anchorEl: null,
+  confirmLabel: "Apagar",
+  cancelLabel: "Cancelar",
+  loadingLabel: "Apagando…",
+});
+
+function askConfirmDelete(ev, e) {
+  confirmCtl.value.open = true;
+  confirmCtl.value.context = { action: "delete-message", event: ev };
+  confirmCtl.value.title = "Confirmar exclusão";
+  confirmCtl.value.description = "Tem certeza que deseja apagar este evento?";
+  confirmCtl.value.anchorEl =
+    (e && e.currentTarget) ||
+    (typeof document !== "undefined" && document.activeElement) ||
+    null;
+  confirmCtl.value.destructive = true;
+  confirmCtl.value.confirmLabel = "Apagar";
+  confirmCtl.value.loadingLabel = "Apagando…";
+}
+
+async function onConfirmModal(ctx) {
+  if (!ctx) return;
+  try {
+    confirmCtl.value.loading = true;
+    if (ctx.action === "delete-message") {
+      await eraseEvent(ctx.event);
+    }
+  } finally {
+    confirmCtl.value.loading = false;
+    confirmCtl.value.open = false;
+    confirmCtl.value.context = null;
+  }
+}
+
+function onCancelModal() {
+  confirmCtl.value.open = false;
+  confirmCtl.value.context = null;
+}
 async function forceReloadCurrentMonth() {
   await scheduled.forceReload(currentYM.value);
 }
@@ -331,9 +404,7 @@ async function eraseEvent(event) {
     if (!res?.ok) return res;
 
     const hitRemoved = scheduled.removeFromCache(String(eid));
-    if (!hitRemoved) {
-      await scheduled.forceReload(currentYM.value);
-    }
+    if (!hitRemoved) await scheduled.forceReload(currentYM.value);
     return res;
   } catch (error) {
     console.error(error);
@@ -404,9 +475,7 @@ watch(currentYM, async () => {
   }
 });
 
-defineExpose({
-  updateEvent: scheduled.applyUpdateToCache,
-});
+defineExpose({ updateEvent: scheduled.applyUpdateToCache });
 </script>
 
 <style scoped>
@@ -416,17 +485,14 @@ defineExpose({
   min-height: 0;
   width: 100%;
 }
-
 .calendar-main--compact {
   height: 100vh;
 }
-
 @media (min-width: 1280px) {
   .calendar-main {
     grid-template-columns: 1fr 340px;
   }
 }
-
 .calendar-content {
   position: relative;
   overflow: auto;
@@ -435,13 +501,11 @@ defineExpose({
   display: flex;
   flex-direction: column;
 }
-
 @media (min-width: 1024px) {
   .calendar-content {
     overflow: hidden;
   }
 }
-
 .cyber-glow-overlay {
   pointer-events: none;
   position: absolute;
@@ -469,25 +533,21 @@ defineExpose({
       transparent 70%
     );
 }
-
 .calendar-stage {
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
 }
-
 .calendar-stage--single {
   display: flex;
   flex-direction: column;
 }
-
 .calendar-stage--compact {
   display: flex;
   flex-direction: column;
   min-height: 0;
 }
-
 .calendar-stage-main {
   display: flex;
   flex-direction: column;
@@ -495,47 +555,38 @@ defineExpose({
   overflow: hidden;
   flex: 1;
 }
-
 .calendar-stage--compact .calendar-stage-main {
   flex: 1;
   min-height: 0;
   overflow: auto;
 }
-
 .calendar-daylist {
   min-height: 0;
   overflow: auto;
 }
-
 .calendar-daylist--mobile {
   flex: none;
   max-height: 40%;
 }
-
 .calendar-daylist--desktop {
   display: none;
 }
-
 @media (min-width: 1024px) {
   .calendar-daylist--desktop {
     display: block;
   }
-
   .calendar-daylist--mobile {
     display: none;
   }
 }
-
 .calendar-stage--compact .calendar-daylist--mobile {
   flex: none;
   max-height: 40%;
   overflow: auto;
 }
-
 .calendar-stage--compact .calendar-daylist--mobile.daylist--tight {
   max-height: 82px;
 }
-
 .nav-button {
   height: 32px;
   width: 32px;
@@ -546,16 +597,13 @@ defineExpose({
   transition: all 0.2s ease;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
-
 .nav-button:hover {
   background-color: var(--cyber-bg-light);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
-
 .nav-button:active {
   transform: scale(0.98);
 }
-
 .action-button {
   padding: 8px 12px;
   color: white;
@@ -565,21 +613,17 @@ defineExpose({
   transition: all 0.2s ease;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
-
 .action-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
-
 .action-button:active {
   transform: translateY(0);
 }
-
 .text-neo-muted {
   color: #79e3d9;
   opacity: 0.95;
 }
-
 .month-title {
   color: #d0fff6;
   text-shadow:
@@ -590,12 +634,10 @@ defineExpose({
   letter-spacing: 0.16em;
   text-align: center;
 }
-
 @media (prefers-color-scheme: dark) {
   .text-neo-muted {
     color: #7ecdc2;
   }
-
   .month-title {
     color: #71a49d;
     text-shadow:
@@ -603,40 +645,31 @@ defineExpose({
       0 0 20px rgba(113, 164, 157, 0.18);
   }
 }
-
 .flex {
   display: flex;
 }
-
 .flex-col {
   flex-direction: column;
 }
-
 .min-h-0 {
   min-height: 0;
 }
-
 .overflow-auto {
   overflow: auto;
 }
-
 .overflow-hidden {
   overflow: hidden;
 }
-
 .relative {
   position: relative;
 }
-
 .hidden {
   display: none;
 }
-
 @media (min-width: 1024px) {
   .lg-hidden {
     display: none;
   }
-
   .lg-block {
     display: block;
   }

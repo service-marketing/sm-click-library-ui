@@ -77,7 +77,7 @@ export const useScheduledStore = defineStore("scheduled", {
       const p = (async () => {
         try {
           const firstUrl = `${this.baseUrl}?year_month=${encodeURIComponent(
-            ym
+            ym,
           )}&page_size=10`;
           const res = await api.get(firstUrl);
           const page = Array.isArray(res?.data)
@@ -106,7 +106,7 @@ export const useScheduledStore = defineStore("scheduled", {
               } catch (bgErr) {
                 console.warn(
                   "[scheduled] background paging error:",
-                  bgErr?.message || bgErr
+                  bgErr?.message || bgErr,
                 );
               }
             })();
@@ -151,56 +151,155 @@ export const useScheduledStore = defineStore("scheduled", {
     },
 
     applyUpdateToCache({ id, params }) {
-      const newDate = parseDateLocal(params?.schedule?.time) || new Date();
-      const newYM = yearMonthKey(newDate);
-      const patchFields = (ev) => {
-        ev.date = newDate;
-        ev.time = formatTimeHM(newDate);
+      // 🔎 Parse de data SÓ se veio no payload
+      let newDateCandidate = null;
+      if (params?.schedule?.time) {
+        const rawTime = params.schedule.time;
 
+        // aceita "YYYY-MM-DD HH:mm" ou "YYYY-MM-DDTHH:mm"
+        const m = /^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?$/.exec(
+          rawTime,
+        );
+        if (m) {
+          const [, y, mo, d, hh = "00", mm = "00"] = m;
+          // cria no horário local preservando HH:mm
+          newDateCandidate = new Date(
+            Number(y),
+            Number(mo) - 1,
+            Number(d),
+            Number(hh),
+            Number(mm),
+            0,
+            0,
+          );
+        } else {
+          // fallback bem conservador
+          const normalized =
+            typeof rawTime === "string" && !rawTime.includes("T")
+              ? rawTime.replace(" ", "T")
+              : rawTime;
+          newDateCandidate = new Date(normalized);
+        }
+      }
+
+      // 🔧 Função que aplica APENAS os campos presentes no payload
+      const patchFields = (ev) => {
+        // data/hora: só muda se veio no payload
+        if (newDateCandidate instanceof Date && !isNaN(newDateCandidate)) {
+          ev.date = newDateCandidate;
+          ev.time = formatTimeHM(newDateCandidate);
+        }
+
+        // conteúdo: só se veio message[0].content
         if (params?.message?.[0]?.content != null) {
           ev.content = params.message[0].content;
         }
 
+        // raw.params: merge só do que veio
         ev.raw = ev.raw || { id };
         ev.raw.params = ev.raw.params || {};
-        ev.raw.params.schedule = {
-          ...(ev.raw.params.schedule || {}),
-          ...(params.schedule || {}),
-        };
-        if (params.message) ev.raw.params.message = params.message;
 
-        if (params.entity) {
+        if (params?.schedule) {
+          ev.raw.params.schedule = {
+            ...(ev.raw.params.schedule || {}),
+            ...params.schedule,
+          };
+        }
+
+        if (params?.message) {
+          ev.raw.params.message = params.message;
+        }
+
+        // chatId: só se veio no payload
+        if (Object.prototype.hasOwnProperty.call(params || {}, "chat_id")) {
+          ev.chatId = params.chat_id ?? ev.chatId ?? "";
+        }
+
+        // entity: atualiza apenas os campos enviados
+        if (params?.entity) {
           ev.raw.params.entity = {
             ...(ev.raw.params.entity || {}),
             ...params.entity,
           };
-          ev.contactName = params.entity.name ?? ev.contactName ?? "Cliente";
-          ev.contactPhoto = params.entity.photo ?? ev.contactPhoto ?? null;
-          if (params.entity.photo) ev.photo = params.entity.photo;
+          if (Object.prototype.hasOwnProperty.call(params.entity, "name")) {
+            ev.contactName = params.entity.name ?? ev.contactName ?? "Cliente";
+          }
+          if (Object.prototype.hasOwnProperty.call(params.entity, "photo")) {
+            ev.contactPhoto = params.entity.photo ?? ev.contactPhoto ?? null;
+            if (params.entity.photo) ev.photo = params.entity.photo;
+          }
         }
 
-        if (params.info) {
+        // info: atualiza apenas os campos enviados
+        if (params?.info) {
           ev.raw.params.info = {
             ...(ev.raw.params.info || {}),
             ...params.info,
           };
-          ev.departmentName =
-            params.info?.department?.name ?? ev.departmentName;
-          ev.instanceName = params.info?.instance?.name ?? ev.instanceName;
-          ev.instanceStatus =
-            params.info?.instance?.last_instance_status ?? ev.instanceStatus;
+          if (
+            params.info?.department &&
+            Object.prototype.hasOwnProperty.call(params.info.department, "name")
+          ) {
+            ev.departmentName =
+              params.info.department.name ?? ev.departmentName;
+          }
+          if (params.info?.instance) {
+            if (
+              Object.prototype.hasOwnProperty.call(params.info.instance, "name")
+            ) {
+              ev.instanceName = params.info.instance.name ?? ev.instanceName;
+            }
+            if (
+              Object.prototype.hasOwnProperty.call(
+                params.info.instance,
+                "last_instance_status",
+              )
+            ) {
+              ev.instanceStatus =
+                params.info.instance.last_instance_status ?? ev.instanceStatus;
+            }
+          }
         }
 
-        ev.title = ev.title || "Mensagem programada";
+        // título: só se veio; senão mantém
+        if (Object.prototype.hasOwnProperty.call(params || {}, "title")) {
+          ev.title = params.title ?? ev.title ?? "Mensagem programada";
+        } else {
+          ev.title = ev.title || "Mensagem programada";
+        }
+
+        // type/function: mantém se não vier; se vier, atualiza
+        if (Object.prototype.hasOwnProperty.call(params || {}, "function")) {
+          ev.function = params.function ?? ev.function ?? "scheduled_messages";
+          ev.type = params.function ?? ev.type ?? "scheduled_messages";
+        } else {
+          ev.function = ev.function || "scheduled_messages";
+          ev.type = ev.type || "scheduled_messages";
+        }
+
         return ev;
       };
 
+      // 🔎 Busca evento existente
       const hit = this.findEventById(id);
       if (!hit) {
+        // Criar novo evento (comportamento original, usando data do payload se veio)
+        const baseDate =
+          newDateCandidate instanceof Date && !isNaN(newDateCandidate)
+            ? newDateCandidate
+            : (() => {
+                const rt = params?.schedule?.time;
+                const nt =
+                  typeof rt === "string" && !rt.includes("T")
+                    ? rt.replace(" ", "T")
+                    : rt;
+                return parseDateLocal?.(nt) || (nt ? new Date(nt) : new Date());
+              })();
+
         const ev = patchFields({
           id,
-          date: newDate,
-          time: formatTimeHM(newDate),
+          date: baseDate,
+          time: formatTimeHM(baseDate),
           title: params?.title || "Mensagem programada",
           type: params?.function || "scheduled_messages",
           function: params?.function || "scheduled_messages",
@@ -211,8 +310,13 @@ export const useScheduledStore = defineStore("scheduled", {
           departmentName: params?.info?.department?.name ?? null,
           instanceName: params?.info?.instance?.name ?? null,
           instanceStatus: params?.info?.instance?.last_instance_status ?? null,
+          // chatId só se veio
+          ...(Object.prototype.hasOwnProperty.call(params || {}, "chat_id") && {
+            chatId: params.chat_id ?? "",
+          }),
         });
 
+        const newYM = yearMonthKey(ev.date);
         const targetArr = this.monthCache[newYM]
           ? [...this.monthCache[newYM], ev]
           : [ev];
@@ -221,10 +325,15 @@ export const useScheduledStore = defineStore("scheduled", {
         return;
       }
 
+      // Atualização de existente: só aplicar deltas do payload
       const { ym: oldYM, idx } = hit;
       const oldArr = this.monthCache[oldYM] || [];
       const evOld = { ...oldArr[idx] };
-      const evNew = patchFields(evOld);
+      const evNew = patchFields({ ...evOld });
+
+      // Se mudou o mês (só muda se veio data nova), realoca
+      const refDateForYM = evNew.date instanceof Date ? evNew.date : evOld.date;
+      const newYM = yearMonthKey(refDateForYM);
 
       if (newYM === oldYM) {
         const newArr = [...oldArr];

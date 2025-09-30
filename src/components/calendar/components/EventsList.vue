@@ -58,6 +58,7 @@
       name="list"
       move-class="list-move"
       tag="ul"
+      appear
       v-else
       :class="[
         mode === 'compact'
@@ -66,8 +67,9 @@
       ]"
     >
       <li
-        v-for="ev in events"
+        v-for="(ev, i) in events"
         :key="ev.id"
+        :style="{ '--i': i }"
         :class="
           mode === 'compact'
             ? 'item-compact hover:bg-base-100'
@@ -105,6 +107,7 @@ const headerLabel = computed(() =>
     : `Eventos em ${props.selectedLabel || "—"}`,
 );
 </script>
+
 <style src="../utils/calendarTheme.css"></style>
 <style scoped>
 :global(:root) {
@@ -166,8 +169,6 @@ const headerLabel = computed(() =>
   border-top-width: 1px;
 }
 
-/* Quando vazio no modo compacto, encolhe (mantém cabeçalho e a msg) */
-
 /* =========================
    HEADER
    ========================= */
@@ -205,10 +206,6 @@ const headerLabel = computed(() =>
   opacity: var(--muted-70);
   text-align: center;
 }
-.loading-text.is-sidebar,
-.empty-text {
-  text-align: center;
-}
 
 /* =========================
    LISTAS
@@ -235,18 +232,18 @@ const headerLabel = computed(() =>
   padding: 0.4rem var(--pad-x);
   gap: 10px;
   transition:
-    background-color 0.15s ease,
-    box-shadow 0.2s ease,
-    transform 0.08s ease;
+    background-color 0.12s ease,
+    box-shadow 0.16s ease,
+    transform 0.06s ease;
 }
 .item-sidebar {
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-sm);
   padding: 0.4rem;
   transition:
-    background-color 0.15s ease,
-    box-shadow 0.2s ease,
-    transform 0.08s ease;
+    background-color 0.12s ease,
+    box-shadow 0.16s ease,
+    transform 0.06s ease;
 }
 .item-sidebar:hover {
   box-shadow: var(--shadow);
@@ -356,9 +353,9 @@ const headerLabel = computed(() =>
   font-weight: 500;
   background: var(--chip-active);
   transition:
-    transform 0.08s ease,
-    box-shadow 0.2s ease,
-    background-color 0.15s ease;
+    transform 0.06s ease,
+    box-shadow 0.16s ease,
+    background-color 0.12s ease;
   box-shadow: var(--shadow-sm);
 }
 .reload-btn:hover {
@@ -382,10 +379,10 @@ const headerLabel = computed(() =>
   line-height: 0;
   cursor: pointer;
   transition:
-    transform 0.08s ease,
-    filter 0.15s ease,
-    background-color 0.15s ease,
-    box-shadow 0.2s ease;
+    transform 0.06s ease,
+    filter 0.12s ease,
+    background-color 0.12s ease,
+    box-shadow 0.16s ease;
   box-shadow: var(--shadow-sm);
 }
 .btn-xs {
@@ -399,7 +396,7 @@ const headerLabel = computed(() =>
 } /* px-3 h-8 */
 
 .btn-primary {
-  background: var(--primary, #2563eb); /* equivalente a um “primary” */
+  background: var(--primary, #2563eb);
   color: #fff;
 }
 .btn-primary:hover {
@@ -430,53 +427,99 @@ const headerLabel = computed(() =>
 }
 
 /* =========================
-   TRANSIÇÕES
+   TRANSIÇÕES — rápidas + sem “pulo” ao reduzir muito
    ========================= */
-.list-enter-from {
-  opacity: 0;
-  transform: translateY(6px) scale(0.98);
+
+/* Melhora render e evita thrash */
+.item-compact,
+.item-sidebar {
+  will-change: transform, opacity, box-shadow;
+  transform-origin: 20% 50%;
+  backface-visibility: hidden;
+  contain: content;
 }
-.list-enter-to {
+
+/* ENTRADA (inclui appear) */
+.list-enter-from,
+.list-appear-from {
+  opacity: 0;
+  transform: translateY(8px) scale(0.985);
+  filter: saturate(0.9);
+}
+.list-enter-to,
+.list-appear-to {
   opacity: 1;
   transform: translateY(0) scale(1);
+  filter: saturate(1);
 }
-.list-enter-active {
-  transition:
-    transform 160ms cubic-bezier(0.22, 0.8, 0.33, 1),
-    opacity 140ms linear;
+
+/* SAÍDA — itens ficam absolutos pra não colapsar layout ao remover muitos */
+.list-leave-active {
+  position: absolute;
+  left: 0;
+  right: 0;
+  /* garante que o item mantenha largura do container durante a animação */
 }
 .list-leave-from {
   opacity: 0.9;
   transform: translateY(0) scale(1);
 }
 .list-leave-to {
-  opacity: 0.7;
-  transform: translateY(-4px) scale(0.99);
-}
-.list-leave-active {
-  transition:
-    transform 140ms ease,
-    opacity 120ms linear;
-}
-.list-move {
-  transition: transform 180ms cubic-bezier(0.22, 0.8, 0.33, 1);
+  opacity: 0;
+  transform: translateY(-6px) scale(0.985);
 }
 
-.fade-enter-from {
-  opacity: 0;
+/* Timings mais rápidos + STAGGER com teto (min 180ms) */
+.list-enter-active,
+.list-appear-active {
+  animation: list-pop-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(min(var(--i, 0) * 18ms, 180ms));
 }
-.fade-enter-to {
-  opacity: 1;
+.list-leave-active {
+  animation: list-pop-out 160ms cubic-bezier(0.2, 0.6, 0.2, 1) both;
 }
-.fade-leave-from {
-  opacity: 1;
+
+/* FLIP para reordenação/movimentação */
+.list-move {
+  transition:
+    transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 140ms linear;
 }
-.fade-leave-to {
-  opacity: 0;
+
+/* Keyframes enxutos */
+@keyframes list-pop-in {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+    box-shadow: none;
+  }
+  60% {
+    /* transform: translateY(-1px) scale(1.006); */
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
+@keyframes list-pop-out {
+  0% {
+    opacity: 0.9;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.985);
+  }
+}
+
+/* Fades rápidos */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 180ms ease-out;
+  transition: opacity 140ms ease-out;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 
 /* motion reduzido */
@@ -486,7 +529,7 @@ const headerLabel = computed(() =>
   .list-move,
   .fade-enter-active,
   .fade-leave-active {
-    transition: opacity 120ms linear !important;
+    transition: opacity 100ms linear !important;
   }
   .list-enter-from,
   .list-leave-to {
@@ -504,5 +547,11 @@ const headerLabel = computed(() =>
   .itemsb-content {
     font-size: 0.8125rem;
   }
+}
+
+/* Toque extra no hover (sutil) */
+.item-sidebar:hover,
+.item-compact:hover {
+  transform: translateY(-1px);
 }
 </style>

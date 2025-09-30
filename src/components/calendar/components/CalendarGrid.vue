@@ -4,18 +4,23 @@
     move-class="cal-move"
     tag="div"
     class="cal-grid calendar-grid"
+    appear
+    ref="gridRef"
+    @before-leave="onBeforeLeave"
+    @after-leave="onAfterLeave"
   >
     <!-- vazios antes do dia 1 -->
     <div
       v-for="i in startOffset"
       :key="'x' + i"
       class="cal-cell day-empty bg-base-300 border border-base-100"
-    ></div>
+    />
 
     <!-- dias -->
     <div
-      v-for="cell in monthDays"
+      v-for="(cell, i) in monthDays"
       :key="cell.key"
+      :style="{ '--i': i }"
       class="cal-cell day-cell border border-base-100 bg-base-200 hover:bg-base-100"
       :class="[
         isSameMonthFn(cell.date, viewDate) ? '' : 'opacity-60',
@@ -33,7 +38,7 @@
         <span class="day-number">{{ cell.date.getDate() }}</span>
       </div>
 
-      <!-- +N badge cyberpunk -->
+      <!-- +N badge -->
       <span v-if="barsInfoFor(cell.key, cell.date).overflow > 0" class="more">
         +{{ barsInfoFor(cell.key, cell.date).overflow }}
       </span>
@@ -64,8 +69,6 @@
   </TransitionGroup>
 </template>
 
-<style src="../utils/calendarTheme.css"></style>
-
 <script setup>
 import { getEventColor } from "../utils/eventColors";
 import { ref, onBeforeUnmount } from "vue";
@@ -85,11 +88,11 @@ const props = defineProps({
   dayEventOverflowFn: Function,
 });
 
-/* Palitos */
-const VBAR_W = 4; // largura do palito (px)
-const VBAR_H = 8; // altura do palito (px)
-const H_GAP = 4; // gap horizontal (px)
-const V_GAP = 2; // gap vertical entre linhas (px)
+/* ===== Palitos ===== */
+const VBAR_W = 4;
+const VBAR_H = 8;
+const H_GAP = 4;
+const V_GAP = 2;
 const RESERVE_FOR_PLUS = 1;
 
 const capacities = ref({}); // key -> { cols, rows, widths[], sum }
@@ -100,7 +103,6 @@ function computeCapacity(el) {
   const h = el?.clientHeight || 0;
   if (!w || !h) return { cols: 0, rows: 0, widths: [], sum: 0 };
 
-  // quantas colunas e linhas cabem
   const cols = Math.max(0, Math.floor((w + H_GAP) / (VBAR_W + H_GAP)));
   const rows = Math.max(0, Math.floor((h + V_GAP) / (VBAR_H + V_GAP)));
 
@@ -147,11 +149,10 @@ onBeforeUnmount(() => {
   observers.clear();
 });
 
-// Larguras por linha para formar a pirâmide (topo menor, base maior)
 function pyramidRowWidths(cols, rows) {
   if (cols <= 0 || rows <= 0) return [];
   const widths = [];
-  const minFrac = 0.25; // topo tem pelo menos 25% da base (ajuste fino)
+  const minFrac = 0.25; // topo >= 25% da base
   for (let r = 0; r < rows; r++) {
     const t = r / Math.max(1, rows - 1); // 0 topo .. 1 base
     const frac = minFrac + (1 - minFrac) * t;
@@ -161,7 +162,6 @@ function pyramidRowWidths(cols, rows) {
   return widths;
 }
 
-// Total que cabe (todas as linhas) e overflow (+N)
 function barsInfoFor(key, date) {
   const total =
     (typeof props.dayEventCountFn === "function"
@@ -176,7 +176,6 @@ function barsInfoFor(key, date) {
   return { bars, overflow };
 }
 
-// Monta as LINHAS de baixo pra cima, centralizando os palitos
 function barsRowsFor(key, date) {
   const cap = capacities.value[key];
   if (!cap || cap.rows === 0 || cap.cols === 0) return [];
@@ -190,10 +189,7 @@ function barsRowsFor(key, date) {
       ? props.eventsByDayFn(date).slice(0, toShow)
       : []) || [];
 
-  // linhas vazias
   const rows = widths.map(() => []);
-
-  // preencher da base (última linha) pro topo
   let idx = 0;
   for (let r = widths.length - 1; r >= 0 && idx < events.length; r--) {
     const take = Math.min(widths[r], events.length - idx);
@@ -202,24 +198,68 @@ function barsRowsFor(key, date) {
   }
   return rows;
 }
+
+/* ===== FLIP para saída (sem “fantasma” no canto 0,0) ===== */
+const gridRef = ref(null);
+
+function isElement(n) {
+  return n && n.nodeType === 1 && typeof n.getBoundingClientRect === "function";
+}
+
+function onBeforeLeave(el) {
+  if (!isElement(el)) return;
+
+  const gridEl = gridRef.value;
+  const container = gridEl && isElement(gridEl) ? gridEl : el.offsetParent;
+  if (!isElement(container)) return;
+
+  let elBox, contBox;
+  try {
+    elBox = el.getBoundingClientRect();
+    contBox = container.getBoundingClientRect();
+  } catch {
+    return; // nó já pode estar saindo do DOM
+  }
+
+  const scrollLeft = container.scrollLeft || 0;
+  const scrollTop = container.scrollTop || 0;
+
+  el.style.position = "absolute";
+  el.style.zIndex = "0";
+  el.style.top = `${elBox.top - contBox.top + scrollTop}px`;
+  el.style.left = `${elBox.left - contBox.left + scrollLeft}px`;
+  el.style.width = `${elBox.width}px`;
+  el.style.height = `${elBox.height}px`;
+  el.style.pointerEvents = "none";
+}
+
+function onAfterLeave(el) {
+  if (!el || !el.style) return;
+  requestAnimationFrame(() => {
+    if (!el || !el.style) return;
+    el.style.position = "";
+    el.style.zIndex = "";
+    el.style.top = "";
+    el.style.left = "";
+    el.style.width = "";
+    el.style.height = "";
+    el.style.pointerEvents = "";
+  });
+}
 </script>
 
+<style src="../utils/calendarTheme.css"></style>
 <style scoped>
-/* =========================
-   VARS + DARK MODE
-   ========================= */
 :global(:root) {
   --neo-muted: #6b8c8a;
   --today-fg: #19e3a2;
   --today-glow: rgba(25, 227, 163, 0.57);
   --day-glow: rgba(31, 227, 158, 0.25);
 
-  /* cyber do +N */
   --badge-bg: rgba(0, 0, 0, 0.35);
   --badge-br: rgba(0, 255, 178, 0.7);
   --badge-glow: rgba(0, 255, 178, 0.45);
 
-  /* reserva vertical (número respira) */
   --bars-top-reserve: 22px;
 }
 :global(.dark) {
@@ -229,11 +269,9 @@ function barsRowsFor(key, date) {
   --day-glow: rgba(31, 227, 158, 0.25);
 }
 
-/* =========================
-   GRID / LAYOUT
-   ========================= */
+/* ===== GRID / LAYOUT ===== */
 .calendar-grid {
-  position: relative;
+  position: relative; /* ref. pro absolute do leave */
   z-index: 10;
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -272,9 +310,7 @@ function barsRowsFor(key, date) {
   opacity: 0.6;
 }
 
-/* =========================
-   TOPO DA CÉLULA / NÚMERO
-   ========================= */
+/* ===== TOPO / NÚMERO ===== */
 .cell-top {
   display: flex;
   align-items: center;
@@ -297,16 +333,12 @@ function barsRowsFor(key, date) {
   border-color: transparent !important;
 }
 
-/* =========================
-   PIRÂMIDE (múltiplas LINHAS)
-   ========================= */
+/* ===== PIRÂMIDE ===== */
 .bars-wrap {
   margin-top: 0.25rem;
   position: relative;
   flex: 1 1 auto;
 }
-
-/* ocupa a área útil entre o topo reservado e o bottom */
 .bars-vert {
   position: absolute;
   left: 50%;
@@ -314,35 +346,30 @@ function barsRowsFor(key, date) {
   bottom: 4px;
   top: var(--bars-top-reserve);
   display: flex;
-  flex-direction: column; /* agora empilhamos LINHAS */
-  justify-content: flex-end; /* base embaixo */
-  align-items: center; /* centraliza cada linha */
-  row-gap: 2px; /* == V_GAP */
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  row-gap: 2px; /* V_GAP */
   width: calc(100% - 8px);
   pointer-events: none;
   flex-shrink: 0;
 }
-
-/* cada linha */
 .vrow {
   display: flex;
-  flex-direction: row;
   align-items: flex-end;
   justify-content: center;
-  column-gap: 4px; /* == H_GAP */
-  height: 8px; /* == VBAR_H */
+  column-gap: 4px; /* H_GAP */
+  height: 8px; /* VBAR_H */
 }
-
-/* palitinho */
 .vbar {
-  width: 4px; /* == VBAR_W */
-  height: 8px; /* == VBAR_H */
+  width: 4px; /* VBAR_W */
+  height: 8px; /* VBAR_H */
   border-radius: 2px;
   box-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
   flex-shrink: 0;
 }
 
-/* +N cyberpunk (fica logo acima das linhas) */
+/* +N badge */
 .more {
   position: absolute;
   bottom: calc(var(--bars-top-reserve) + 4px + 6px);
@@ -356,23 +383,8 @@ function barsRowsFor(key, date) {
   text-shadow: 0 0 6px var(--cyber-accent-glow);
   pointer-events: none;
 }
-@keyframes badgePulse {
-  0%,
-  100% {
-    box-shadow:
-      0 0 10px var(--badge-glow),
-      inset 0 0 8px rgba(0, 255, 178, 0.12);
-  }
-  50% {
-    box-shadow:
-      0 0 14px var(--badge-glow),
-      inset 0 0 10px rgba(0, 255, 178, 0.18);
-  }
-}
 
-/* =========================
-   MOBILE
-   ========================= */
+/* ===== MOBILE ===== */
 @media (max-width: 480px) {
   .more {
     font-size: 10px;
@@ -431,7 +443,6 @@ function barsRowsFor(key, date) {
   pointer-events: none;
   user-select: none;
 }
-
 .show-lg {
   display: none;
 }
@@ -441,37 +452,70 @@ function barsRowsFor(key, date) {
   }
 }
 
-/* =========================
-   TRANSIÇÕES
-   ========================= */
-.cal-fade-enter-from {
+/* ===== TRANSIÇÕES: entrada com stagger + saída estável ===== */
+.cal-fade-enter-from,
+.cal-fade-appear-from {
   opacity: 0;
-  transform: translateY(6px) scale(0.995);
+  transform: translateY(8px) scale(0.985);
+  filter: saturate(0.9);
 }
-.cal-fade-enter-to {
+.cal-fade-enter-to,
+.cal-fade-appear-to {
   opacity: 1;
   transform: translateY(0) scale(1);
+  filter: saturate(1);
 }
-.cal-fade-enter-active {
-  transition:
-    transform 140ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    opacity 120ms linear;
+.cal-fade-enter-active,
+.cal-fade-appear-active {
+  animation: cal-pop-in 200ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(min(var(--i, 0) * 10ms, 120ms));
+}
+
+/* saída absoluta (posição definida no hook) */
+.cal-fade-leave-active {
+  position: absolute;
+  z-index: 0;
+  animation: cal-pop-out 150ms cubic-bezier(0.2, 0.6, 0.2, 1) both;
 }
 .cal-fade-leave-from {
-  opacity: 0.95;
+  opacity: 0.9;
   transform: translateY(0) scale(1);
 }
 .cal-fade-leave-to {
-  opacity: 0.75;
-  transform: translateY(-4px) scale(0.995);
+  opacity: 0;
+  transform: translateY(-6px) scale(0.985);
 }
-.cal-fade-leave-active {
-  transition:
-    transform 120ms ease,
-    opacity 100ms linear;
-}
+
+/* reorder suave */
 .cal-move {
-  transition: transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition:
+    transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 120ms linear;
+}
+
+/* keyframes */
+@keyframes cal-pop-in {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  60% {
+    transform: translateY(-2px) scale(1.006);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes cal-pop-out {
+  0% {
+    opacity: 0.9;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.985);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

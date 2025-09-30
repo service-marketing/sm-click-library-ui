@@ -125,14 +125,14 @@
     </div>
 
     <p class="itemsb-content">{{ ev.content || ev.title }}</p>
-    <div class="itemsb-actions">
+    <div v-if="!viewOnly" class="itemsb-actions">
       <button
         v-if="isSched"
         type="button"
         class="cyber-button cyber-button--sm cyber-button--primary"
         @click="$emit('open-message', ev)"
       >
-        Editar
+        {{ ev?.status === true ? "Editar" : "Visualizar" }}
       </button>
       <button
         v-if="isSched"
@@ -251,6 +251,7 @@ const props = defineProps({
   ev: { type: Object, required: true },
   mode: { type: String, default: "compact" }, // 'compact' | 'sidebar' | 'agenda'
   getEventColor: { type: Function, default: null },
+  viewOnly: { type: Boolean, default: false },
 });
 
 const color = computed(() => {
@@ -341,6 +342,7 @@ const isSched = computed(() => props.ev?.type === "scheduled_messages");
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-align: start;
 }
 .itemsb-sub {
   font-size: 0.75rem;

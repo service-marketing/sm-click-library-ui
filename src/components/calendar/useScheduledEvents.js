@@ -119,8 +119,8 @@ export function normalizeScheduledResponseV2(list = []) {
   const items = Array.isArray(list)
     ? list
     : Array.isArray(list.results)
-    ? list.results
-    : [];
+      ? list.results
+      : [];
 
   const out = [];
   for (const item of items) {
@@ -139,7 +139,7 @@ function coerceHttps(url) {
 
 export async function fetchScheduledByMonth(
   baseUrl = "/crm_scheduled",
-  yearMonth
+  yearMonth,
 ) {
   try {
     const ym = yearMonth || yearMonthKey(new Date());
@@ -165,7 +165,7 @@ export async function fetchScheduledByMonth(
 
 export async function eraseScheduledEvent(
   baseUrl = "/crm_scheduled",
-  eventOrId
+  eventOrId,
 ) {
   try {
     const id = eventOrId?.raw?.id ?? eventOrId?.id ?? eventOrId;
