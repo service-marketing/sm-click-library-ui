@@ -193,9 +193,3 @@ const sendSuggestions = () => {
   }
 }
 </style>
-
-
-
-
-
-

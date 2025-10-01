@@ -32,7 +32,7 @@ export default {
       const ctx = canvas.getContext("2d");
 
       const source = this.audioContext.createMediaStreamSource(
-        this.audioStream
+        this.audioStream,
       );
       source.connect(this.analyser);
       this.analyser.fftSize = 256;

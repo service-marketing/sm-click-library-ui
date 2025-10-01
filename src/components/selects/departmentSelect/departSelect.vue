@@ -24,12 +24,12 @@ const filteredDepartments = computed(() => {
   const departments = props.externalDepartments || departmentStore.departments;
   return departments
     .filter(
-      (dep) => !(props.hiddenDepartment && dep.id === props.hiddenDepartment)
+      (dep) => !(props.hiddenDepartment && dep.id === props.hiddenDepartment),
     )
     .filter(
       (dep) =>
         !searchInput.value ||
-        dep.name.toLowerCase().includes(searchInput.value.toLowerCase())
+        dep.name.toLowerCase().includes(searchInput.value.toLowerCase()),
     );
 });
 
@@ -46,13 +46,13 @@ watch(
     await nextTick();
     await fetchDepartments();
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 watch(
   () => props.attDel,
   (id) => id && deleteDepartmentById(id),
-  { immediate: true }
+  { immediate: true },
 );
 
 function deleteDepartmentById(departmentId) {
@@ -60,7 +60,7 @@ function deleteDepartmentById(departmentId) {
   const index = departments.findIndex((d) => d.id === departmentId);
   if (index !== -1) {
     departmentSelected.value = departmentSelected.value.filter(
-      (d) => d.id !== departmentId
+      (d) => d.id !== departmentId,
     );
     props.externalDepartments
       ? props.externalDepartments.splice(index, 1)
@@ -96,8 +96,8 @@ async function updateSelectedDepartments() {
   const incoming = Array.isArray(props.department)
     ? props.department
     : props.department
-    ? [props.department]
-    : [];
+      ? [props.department]
+      : [];
   incoming.forEach((depLike) => {
     const id = typeof depLike === "object" ? depLike.id : depLike;
     const permission =
@@ -268,10 +268,11 @@ watch(isSearching, (val) => {
 <style scoped>
 .shadow {
   --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color),
-    0 1px 2px -1px var(--tw-shadow-color);
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
-    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  --tw-shadow-colored:
+    0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);
+  box-shadow:
+    var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
+    var(--tw-shadow);
 }
 
 .depart-select-container {
@@ -323,7 +324,8 @@ watch(isSearching, (val) => {
     var(--tw-ring-offset-width) var(--tw-ring-offset-color);
   --tw-ring-shadow: var(--tw-ring-inset) 0 0 0
     calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color);
-  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
+  box-shadow:
+    var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
     var(--tw-shadow, 0 0 #0000);
 }
 

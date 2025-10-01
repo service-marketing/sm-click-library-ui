@@ -49,8 +49,8 @@ const pillFlagName = computed(() => {
   return props.flag === "improvement"
     ? "Melhorias"
     : props.flag === "new-feature"
-    ? "Novo Recurso"
-    : "correção de erros";
+      ? "Novo Recurso"
+      : "correção de erros";
 });
 
 const pillDateClass = computed(() => ({

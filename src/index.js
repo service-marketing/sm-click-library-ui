@@ -2,7 +2,7 @@ import primarySelect from "~/components/selects/primary_select/primary_select.vu
 import simpleModal from "~/components/modals/simple_modal/simple_modal.vue";
 import simpleCard from "~/components/cards/simple_card/simple_card.vue";
 import instanceSelect from "~/components/selects/instance_select/index.vue";
-import calendar from "./components/calendar/calendar.vue";
+import calendar from "./components/calendar/scheduledCalendar.vue";
 import MFA from "./components/mfa/mfa.vue";
 import MfaQrCode from "./components/mfa/MfaQrCode.vue";
 import chatWindow from "./components/intern-chat/chatWindow.vue";
@@ -20,6 +20,7 @@ import { useAttendantStore } from "./stores/attendantStore";
 import { useDepartmentStore } from "./stores/departmentStore";
 import { useInstanceStore } from "./stores/instanceStore";
 import {getContrastColor}  from "./utils/functions/getContrastColor";
+export { useScheduledStore } from "./stores/useScheduledStore";
 import api from "~/utils/api"; // Importa a instância personalizada do Axios
 
 function install(Vue) {
@@ -29,7 +30,7 @@ function install(Vue) {
   Vue.component("SimpleModal", simpleModal);
   Vue.component("simpleCard", simpleCard);
   Vue.component("instanceSelect", instanceSelect);
-  Vue.component("calendar", calendar);
+  Vue.component("calendarEvents", calendar);
   Vue.component("MFA", MFA);
   Vue.component("MfaQrCode", MfaQrCode);
   Vue.component("chatWindow", chatWindow);
@@ -90,7 +91,7 @@ export async function setupLibrary(
   rootUrl,
   attendances = [],
   departments = [],
-  instances = []
+  instances = [],
 ) {
   try {
     // Configuração do AuthStore
@@ -127,7 +128,6 @@ export async function setupLibrary(
     // Configuração do InstanceStore
     const instanceStore = useInstanceStore(piniaInstance);
     await instanceStore.fetchInstances();
-
     // if (instances.length) {
     //   instanceStore.setInstances(instances);
     // } else {

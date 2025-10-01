@@ -104,7 +104,7 @@ const submitFile = async (event) => {
     selectedFiles.map(async (file) => ({
       name: file.name,
       base64: await convertToB64(file),
-    }))
+    })),
   );
 
   selectedFileToPreview.value = b64files.value[0];
@@ -124,7 +124,7 @@ const onDrop = async (event) => {
     droppedFiles.map(async (file) => ({
       name: file.name,
       base64: await convertToB64(file),
-    }))
+    })),
   );
 
   b64files.value.push(...newB64Files);
@@ -172,7 +172,7 @@ const sendFiles = async () => {
         props.selectedAttendant.id,
         payload,
         props.attendant,
-        true
+        true,
       );
 
       filesSent.value++;
@@ -215,7 +215,7 @@ const handlePaste = async (event) => {
   if (fileItems.length > 0) {
     const existingNames = new Set(files.value.map((f) => f.name));
     const uniqueFileItems = fileItems.filter(
-      (file) => !existingNames.has(file.name)
+      (file) => !existingNames.has(file.name),
     );
 
     if (uniqueFileItems.length === 0) return;
@@ -226,7 +226,7 @@ const handlePaste = async (event) => {
       fileItems.map(async (file) => ({
         name: file.name,
         base64: await convertToB64(file),
-      }))
+      })),
     );
 
     b64files.value.push(...newB64Files);
