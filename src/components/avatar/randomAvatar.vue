@@ -214,5 +214,3 @@ const getAvatar = () => {
   background-color: #22c55e;
 }
 </style>
-
-

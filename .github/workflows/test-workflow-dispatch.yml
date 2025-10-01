@@ -22,7 +22,7 @@ jobs:
   exibir-origem:
     runs-on: ubuntu-latest
     steps:
-      - name: 
+      - name:
         run: |
           echo "Workflow acionado via: ${{ github.event_name }}"
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then

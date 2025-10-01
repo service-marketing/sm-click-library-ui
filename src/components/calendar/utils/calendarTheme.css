@@ -1,0 +1,347 @@
+:root {
+  /* Espaços/tokens base (dark padrão) */
+  --pad-x: 0.3rem;
+  --gap: 0.3rem;
+  --radius: 999px;
+
+  /* Chips / UI */
+  --chip-bg: rgba(17, 24, 39, 0.55);
+  --chip-brd: #078e7e8e;
+  --chip-hover: rgba(0, 255, 224, 0.12);
+  --chip-active: #04e8a3c5;
+
+  /* Cores base */
+  --primary: #3b82f6;
+  --success: #10b981;
+  --danger: #f87171;
+  --warning: #f59e0b;
+
+  /* Paleta cyber (mais harmônica) */
+  --cyber-primary: #60a5fa;
+  --cyber-primary-glow: rgba(58, 145, 252, 0.25);
+  --cyber-accent: #00ffb2;
+  --cyber-accent-glow: rgba(0, 255, 179, 0.252);
+  --cyber-success: #34d399;
+  --cyber-danger: #f87171;
+  --cyber-warning: #fbbf24;
+
+  /* BG / bordas */
+  --cyber-bg: rgba(14, 20, 26, 0.62);
+  --cyber-bg-light: rgba(255, 255, 255, 0.06);
+  --cyber-bg-dark: rgba(0, 0, 0, 0.22);
+  --cyber-border: rgba(0, 255, 178, 0.2);
+  --cyber-border-light: rgba(0, 255, 178, 0.28);
+  --cyber-border-dark: rgba(0, 255, 178, 0.14);
+
+  /* Efeitos e sombras */
+  --cyber-glow: rgba(0, 255, 178, 0.2);
+  --cyber-hover-glow: rgba(0, 255, 178, 0.26);
+  --cyber-active-glow: rgba(0, 255, 178, 0.3);
+  --cyber-shadow: 0 0 10px currentColor;
+  --cyber-shadow-sm: 0 0 6px currentColor;
+  --cyber-shadow-lg: 0 0 14px currentColor;
+
+  /* Ícones/botões */
+  --icon-4: 1rem;
+  --icon-5: 1.2rem;
+  --btn-h: 2.25rem;
+  --cyber-btn-xs: 24px;
+  --cyber-btn-sm: 30px;
+  --cyber-btn-md: 36px;
+  --cyber-btn-lg: 40px;
+
+  /* Padding dos botões */
+  --cyber-padding-xs: 0 0.4rem;
+  --cyber-padding-sm: 0 0.6rem;
+  --cyber-padding-md: 0 1rem;
+  --cyber-padding-lg: 0 1.25rem;
+
+  /* Raios e transições */
+  --cyber-radius: 999px;
+  --cyber-radius-sm: 8px;
+  --cyber-radius-md: 12px;
+  --cyber-radius-lg: 16px;
+  --cyber-blur: saturate(130%) blur(6px);
+  --cyber-transition: all 0.2s ease;
+
+  /* Status (cores mais vibrantes) */
+  --status-up: #34d399;
+  --status-down: #f87171;
+  --status-glow-up: rgba(52, 211, 153, 0.6);
+  --status-glow-down: rgba(248, 113, 113, 0.6);
+
+  /* Texto e barras */
+  --fg: #e2e8f0;
+  --fg-dim: rgba(226, 232, 240, 0.933);
+  --title-fg-light: #0aa0a0;
+  --bar-bg: linear-gradient(90deg, rgba(7, 11, 20, 0.9), rgba(9, 16, 28, 0.9));
+  --border: rgba(14, 234, 210, 0.12);
+}
+
+/* Modo Light (container recebe .dark) */
+.dark {
+  --fg: #1f2937;
+  --fg-dim: rgba(31, 41, 55, 0.75);
+
+  --chip-bg: rgba(240, 244, 248, 0.8);
+  --chip-brd: #17c1ad;
+  --chip-active: #00ca8d;
+
+  --cyber-bg: rgba(247, 251, 252, 0.82);
+  --cyber-bg-light: rgba(0, 0, 0, 0.04);
+  --cyber-bg-dark: rgba(0, 0, 0, 0.08);
+  --cyber-border: rgba(0, 178, 135, 0.22);
+
+  /* Cores mais suaves no light */
+  --cyber-primary: #3b82f6;
+  --cyber-primary-glow: rgba(59, 130, 246, 0.25);
+  --cyber-accent: #00b287;
+  --cyber-accent-glow: rgba(0, 178, 136, 0.32);
+  --cyber-success: #10b981;
+  --cyber-danger: #ef4444;
+
+  --bar-bg: linear-gradient(
+    90deg,
+    rgba(252, 252, 255, 0.9),
+    rgba(238, 242, 247, 0.9)
+  );
+  --border: rgba(0, 178, 135, 0.18);
+}
+
+/* ----------------- Botões Cyberpunk ----------------- */
+.cyber-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+
+  height: var(--btn-h);
+  padding: var(--cyber-padding-sm);
+  border-radius: var(--cyber-radius);
+
+  border: 1px solid var(--cyber-border);
+  background: var(--cyber-bg);
+  color: var(--fg, currentColor);
+
+  cursor: pointer;
+  transition: var(--cyber-transition);
+  backdrop-filter: var(--cyber-blur);
+  -webkit-backdrop-filter: var(--cyber-blur);
+
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 255, 178, 0.08),
+    0 1px 1px rgba(0, 0, 0, 0.08);
+
+  font-weight: 500;
+  line-height: 1;
+  user-select: none;
+}
+
+.cyber-button:hover {
+  transform: translateY(-1px);
+  border-color: var(--cyber-border-light);
+  box-shadow:
+    inset 0 0 0 1px var(--cyber-hover-glow),
+    0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.cyber-button:active {
+  transform: translateY(0);
+  box-shadow:
+    inset 0 0 0 1px var(--cyber-active-glow),
+    0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Tamanhos */
+.cyber-button--xs {
+  height: var(--cyber-btn-xs);
+  padding: var(--cyber-padding-xs);
+  font-size: 0.75rem;
+}
+
+.cyber-button--sm {
+  height: var(--cyber-btn-sm);
+  padding: var(--cyber-padding-sm);
+  font-size: 0.8rem;
+}
+
+.cyber-button--md {
+  height: var(--cyber-btn-md);
+  padding: var(--cyber-padding-md);
+  font-size: 0.875rem;
+}
+
+.cyber-button--lg {
+  height: var(--cyber-btn-lg);
+  padding: var(--cyber-padding-lg);
+  font-size: 0.9rem;
+}
+
+/* Variantes - AGORA MAIS HARMÔNICAS */
+.cyber-button--primary {
+  background: linear-gradient(
+    135deg,
+    rgba(96, 165, 250, 0.15),
+    rgba(59, 130, 246, 0.2)
+  );
+  border-color: rgba(96, 165, 250, 0.3);
+  color: var(--cyber-primary);
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 115, 255, 0.1),
+    0 0 4px var(--cyber-primary-glow);
+}
+
+.cyber-button--primary:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(96, 165, 250, 0.2),
+    rgba(59, 130, 246, 0.25)
+  );
+  box-shadow:
+    inset 0 0 0 1px rgba(96, 165, 250, 0.2),
+    0 0 10px var(--cyber-primary-glow);
+}
+
+.cyber-button--accent {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 255, 178, 0.12),
+    rgba(0, 255, 178, 0.18)
+  );
+  border-color: var(--cyber-border-light);
+  color: var(--cyber-accent);
+  box-shadow:
+    inset 0 0 0 1px rgba(48, 253, 191, 0.1),
+    0 0 4px var(--cyber-accent-glow);
+}
+
+.cyber-button--accent:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 255, 178, 0.18),
+    rgba(0, 255, 178, 0.24)
+  );
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 255, 178, 0.2),
+    0 0 10px var(--cyber-accent-glow);
+}
+
+.cyber-button--success {
+  background: linear-gradient(
+    135deg,
+    rgba(52, 211, 153, 0.12),
+    rgba(16, 185, 129, 0.18)
+  );
+  border-color: rgba(52, 211, 153, 0.3);
+  color: var(--cyber-success);
+  box-shadow:
+    inset 0 0 0 1px rgba(52, 211, 153, 0.1),
+    0 0 4px rgba(52, 211, 153, 0.25);
+}
+
+.cyber-button--success:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(52, 211, 153, 0.18),
+    rgba(16, 185, 129, 0.24)
+  );
+  box-shadow:
+    inset 0 0 0 1px rgba(52, 211, 153, 0.2),
+    0 0 10px rgba(52, 211, 153, 0.35);
+}
+
+.cyber-button--danger {
+  background: linear-gradient(
+    135deg,
+    rgba(248, 113, 113, 0.15),
+    rgba(239, 68, 68, 0.2)
+  );
+  border-color: rgba(248, 113, 113, 0.35);
+  color: var(--cyber-danger);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 28, 28, 0.1),
+    0 0 4px rgba(255, 93, 93, 0.3);
+}
+
+.cyber-button--danger:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(248, 113, 113, 0.2),
+    rgba(239, 68, 68, 0.25)
+  );
+  box-shadow:
+    inset 0 0 0 1px rgba(248, 113, 113, 0.2),
+    0 0 10px rgba(248, 113, 113, 0.4);
+}
+
+/* Ícones menores nos XS */
+.cyber-button--xs .icon-4 {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+/* ----------------- Status mais vibrantes ----------------- */
+.status-bar,
+.status-dot-avatar {
+  transition: var(--cyber-transition);
+}
+
+.status--up {
+  background: var(--status-up);
+  box-shadow: 0 0 8px var(--status-glow-up);
+}
+
+.status--down {
+  background: var(--status-down);
+  box-shadow: 0 0 8px var(--status-glow-down);
+}
+
+.status-bar:hover,
+.status-dot-avatar:hover {
+  transform: scale(1.1);
+  filter: brightness(1.2);
+}
+
+.text-dim {
+  color: var(--fg-dim);
+}
+
+.cyber-surface {
+  background: var(--cyber-bg);
+  border: 1px solid var(--cyber-border);
+  border-radius: var(--cyber-radius-md);
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 255, 178, 0.06),
+    0 1px 1px rgba(0, 0, 0, 0.06);
+}
+
+/* ----------------- Header específico ----------------- */
+.cpk-header .cyber-button {
+  border-color: var(--cyber-border);
+}
+
+.cpk-header .cyber-button:hover {
+  border-color: var(--cyber-border-light);
+  box-shadow:
+    0 0 0 1px var(--cyber-hover-glow),
+    0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.loading-spinner {
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top: 2px solid #fff;
+  border-radius: 50%;
+  width: 1rem;
+  height: 1rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}

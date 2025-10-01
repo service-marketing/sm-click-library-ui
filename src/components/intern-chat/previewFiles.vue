@@ -21,11 +21,13 @@ const currentTime = ref(0);
 
 const isPdf = computed(() => props.mimetype === "application/pdf");
 const isImage = computed(() =>
-  ["image/png", "image/jpeg", "image/svg+xml"].includes(props.mimetype)
+  ["image/png", "image/jpeg", "image/svg+xml"].includes(props.mimetype),
 );
 // const isVideo = computed(() => props.mimetype.startsWith('video/'))
 const isAudio = computed(() =>
-  ["audio/mpeg", "audio/mp4", "audio/mp3", "audio/aac"].includes(props.mimetype)
+  ["audio/mpeg", "audio/mp4", "audio/mp3", "audio/aac"].includes(
+    props.mimetype,
+  ),
 );
 
 const isVideo = (mimetype) => {

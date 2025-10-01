@@ -1,3 +1,16 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Custom border class */
+.bg-border-300 {
+  border-color: var(--bg-base-300);
+}
+
+.bg-border-100 {
+  border-color: var(--bg-base-100);
+}
+
+.bg-border-200 {
+  border-color: var(--bg-base-200);
+}

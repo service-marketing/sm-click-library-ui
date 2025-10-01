@@ -110,7 +110,7 @@ const onSendFiles = () => {
 const unreadMessagesCount = computed(() => {
   if (selectedAtendente.value) {
     const atendente = attendants.value.find(
-      (att) => att.id === selectedAtendente.value.id
+      (att) => att.id === selectedAtendente.value.id,
     );
     return atendente ? atendente.internal_chat.unread : 0;
   }
@@ -178,10 +178,10 @@ watch(
       addMessageToAtendente(
         newVal,
         isChatOpen.value,
-        selectedAtendente.value?.id
+        selectedAtendente.value?.id,
       );
     }
-  }
+  },
 );
 
 watch(isChatOpen, (newVal) => {
