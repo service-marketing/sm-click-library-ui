@@ -43,7 +43,6 @@
               class="cyber-button cyber-button--md"
               @click="onCancel"
               :disabled="loading"
-              style="border: none"
             >
               {{ cancelLabel }}
             </button>
@@ -366,7 +365,7 @@ const cardStyle = computed(() => ({
   pointer-events: auto;
   position: absolute;
   min-width: 320px;
-  max-width: min(560px, calc(100vw - 32px));
+  max-width: 380px;
   color: var(--fg);
   border-radius: var(--cyber-radius-lg);
   border: 1px solid var(--cyber-border);
@@ -381,59 +380,6 @@ const cardStyle = computed(() => ({
   will-change: transform, opacity;
 }
 
-.cpk-popover__header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--border);
-}
-.cpk-popover__icon {
-  width: 22px;
-  height: 22px;
-  display: grid;
-  place-items: center;
-  font-weight: 900;
-  border-radius: 999px;
-  color: var(--cyber-accent);
-  background: rgba(0, 255, 178, 0.12);
-  box-shadow: 0 0 8px var(--cyber-accent-glow);
-}
-.cpk-popover__title {
-  margin: 0;
-  font-size: 0.95rem;
-  font-weight: 700;
-  flex: 1;
-}
-
-.cpk-popover__close {
-  appearance: none;
-  background: transparent;
-  border: 0;
-  color: var(--fg-dim, #334155); /* contraste no claro */
-  font-size: 20px;
-  line-height: 1;
-  font-weight: 700;
-  cursor: pointer;
-  width: 32px;
-  height: 32px;
-  display: grid;
-  place-items: center;
-  border-radius: 999px;
-  transition:
-    background-color 0.15s ease,
-    color 0.15s ease,
-    opacity 0.15s ease;
-}
-.cpk-popover__close:hover {
-  color: var(--fg, #0f172a);
-  background: rgba(0, 0, 0, 0.06);
-}
-.cpk-popover__close:focus-visible {
-  outline: 2px solid rgba(56, 189, 248, 0.6);
-  outline-offset: 2px;
-}
-
 .cpk-popover__desc {
   margin: 12px 14px 0;
   color: var(--fg-dim);
@@ -441,14 +387,8 @@ const cardStyle = computed(() => ({
 }
 .cpk-popover__details {
   margin: 12px 14px 0;
-  padding: 10px;
+  padding: 7px;
   border-radius: 14px;
-}
-.cpk-popover__footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  padding: 12px 14px 14px;
 }
 
 .is-danger .cpk-popover__icon {

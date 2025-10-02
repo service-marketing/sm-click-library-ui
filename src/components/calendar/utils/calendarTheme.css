@@ -327,6 +327,109 @@
     0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
+.cpk-popover__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 7px;
+  border-bottom: 1px solid var(--border);
+}
+
+.cpk-popover__icon {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  border-radius: 999px;
+  color: var(--cyber-accent);
+  background: rgba(0, 255, 178, 0.12);
+  box-shadow: 0 0 8px var(--cyber-accent-glow);
+}
+
+.cpk-popover__title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  flex: 1;
+}
+
+.cpk-popover__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 7px;
+}
+
+.cpk-popover__close {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: var(--fg-dim, #334155);
+  /* contraste no claro */
+  font-size: 20px;
+  line-height: 1;
+  font-weight: 700;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.cpk-popover__close:hover {
+  color: var(--fg, #0f172a);
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.cpk-popover__close:focus-visible {
+  outline: 2px solid rgba(56, 189, 248, 0.6);
+  outline-offset: 2px;
+}
+
+/* === novo: popover do atendente (AGENDA) === */
+.sched-pop {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  margin-left: 2px;
+  /* colado na barra de status */
+  cursor: help;
+  outline: none;
+}
+
+.sched-pop__card {
+  position: absolute;
+  right: -50%;
+  top: calc(100% + 6px);
+  padding: 0.4rem 0.6rem;
+  font-size: 0.75rem;
+  line-height: 1.1;
+  white-space: nowrap;
+  border: 1px solid var(--popover-brd, rgba(255, 255, 255, 0.08));
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  transform: translate(-20%, -2px) scale(0.98);
+  pointer-events: none;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+  z-index: 40;
+}
+
+.sched-pop:focus .sched-pop__card,
+.sched-pop:hover .sched-pop__card {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
 .loading-spinner {
   border: 2px solid rgba(255, 255, 255, 0.2);
   border-top: 2px solid #fff;

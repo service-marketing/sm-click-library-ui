@@ -27,7 +27,7 @@
               {{ weekdayLong(d.date).toUpperCase() }} {{ d.date.getDate() }}
             </h3>
             <div class="month-header-text">
-              {{ monthLabelOf(d.date).toUpperCase() }}
+              {{ monthLabelOf(d.date).toUpperCase() }} {{ year }}
             </div>
           </div>
 
@@ -62,6 +62,7 @@ const props = defineProps({
   weekdayShort: Function,
   monthShort: Function,
   monthLabelOf: Function,
+  year: Number,
 });
 </script>
 

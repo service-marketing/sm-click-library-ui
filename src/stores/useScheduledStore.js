@@ -20,6 +20,7 @@ export const useScheduledStore = defineStore("scheduled", {
     loadingYM: new Set(),
     errorByYM: {}, // { "YYYY-MM": "msg" }
     loadedYM: new Set(),
+    filters: {}, // filtros globais aplicados (ex.: { scheduled_by: "uuid"
   }),
 
   getters: {
@@ -77,7 +78,7 @@ export const useScheduledStore = defineStore("scheduled", {
       const p = (async () => {
         try {
           const firstUrl = `${this.baseUrl}?year_month=${encodeURIComponent(
-            ym,
+            ym
           )}&page_size=10`;
           const res = await api.get(firstUrl);
           const page = Array.isArray(res?.data)
@@ -106,7 +107,7 @@ export const useScheduledStore = defineStore("scheduled", {
               } catch (bgErr) {
                 console.warn(
                   "[scheduled] background paging error:",
-                  bgErr?.message || bgErr,
+                  bgErr?.message || bgErr
                 );
               }
             })();
@@ -158,7 +159,7 @@ export const useScheduledStore = defineStore("scheduled", {
 
         // aceita "YYYY-MM-DD HH:mm" ou "YYYY-MM-DDTHH:mm"
         const m = /^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?$/.exec(
-          rawTime,
+          rawTime
         );
         if (m) {
           const [, y, mo, d, hh = "00", mm = "00"] = m;
@@ -170,7 +171,7 @@ export const useScheduledStore = defineStore("scheduled", {
             Number(hh),
             Number(mm),
             0,
-            0,
+            0
           );
         } else {
           // fallback bem conservador
@@ -181,6 +182,7 @@ export const useScheduledStore = defineStore("scheduled", {
           newDateCandidate = new Date(normalized);
         }
       }
+      console.log(params);
 
       // 🔧 Função que aplica APENAS os campos presentes no payload
       const patchFields = (ev) => {
@@ -205,7 +207,12 @@ export const useScheduledStore = defineStore("scheduled", {
             ...params.schedule,
           };
         }
-
+        if (params?.scheduled_by) {
+          ev.raw.params.scheduled_by = params.scheduled_by;
+        }
+        if (params.department) {
+          ev.raw.params.department = params.department;
+        }
         if (params?.message) {
           ev.raw.params.message = params.message;
         }
@@ -252,7 +259,7 @@ export const useScheduledStore = defineStore("scheduled", {
             if (
               Object.prototype.hasOwnProperty.call(
                 params.info.instance,
-                "last_instance_status",
+                "last_instance_status"
               )
             ) {
               ev.instanceStatus =
@@ -302,12 +309,15 @@ export const useScheduledStore = defineStore("scheduled", {
           time: formatTimeHM(baseDate),
           title: params?.title || "Mensagem programada",
           type: params?.function || "scheduled_messages",
+          status: params?.status || "true",
+          scheduled_by: params?.scheduled_by || null,
           function: params?.function || "scheduled_messages",
           content: params?.message?.[0]?.content ?? "",
           raw: { id, params },
           contactName: params?.entity?.name ?? "Cliente",
           contactPhoto: params?.entity?.photo ?? null,
           departmentName: params?.info?.department?.name ?? null,
+          departmentId: params?.info?.department?.id ?? null,
           instanceName: params?.info?.instance?.name ?? null,
           instanceStatus: params?.info?.instance?.last_instance_status ?? null,
           // chatId só se veio

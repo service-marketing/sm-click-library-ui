@@ -71,6 +71,38 @@
 
     <!-- DIREITA: toggle de visão + compacto -->
     <div class="right">
+      <button
+        type="button"
+        class="cyber-button cyber-button--sm btn-ghost filter-btn"
+        :title="'Filtro de eventos'"
+        @click="$emit('open-filter', $event)"
+      >
+        <svg
+          class="icon-5"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            d="M5.05 3C3.291 3 2.352 5.024 3.51 6.317l5.422 6.059v4.874c0 .472.227.917.613 1.2l3.069 2.25c1.01.742 2.454.036 2.454-1.2v-7.124l5.422-6.059C21.647 5.024 20.708 3 18.95 3H5.05Z"
+          />
+        </svg>
+
+        <!-- Badge de filtros aplicados -->
+        <span
+          v-if="filterCount > 0"
+          class="filter-badge"
+          :title="`${filterCount} filtro${filterCount > 1 ? 's' : ''} ativo${
+            filterCount > 1 ? 's' : ''
+          }`"
+        >
+          {{ filterCount }}
+        </span>
+      </button>
+
       <div class="toggle">
         <button
           type="button"
@@ -159,6 +191,7 @@ defineProps({
   year: [String, Number],
   isCompact: Boolean,
   viewMode: { type: String, default: "calendar" },
+  filterCount: { type: Number, default: 0 },
 });
 defineEmits([
   "prev",
@@ -167,6 +200,7 @@ defineEmits([
   "toggle-compact",
   "set-view-mode",
   "close-page",
+  "open-filter",
 ]);
 </script>
 
@@ -182,6 +216,7 @@ defineEmits([
   white-space: nowrap;
   overflow: hidden;
   flex-shrink: 0;
+  justify-content: space-between;
 }
 .left,
 .right {
@@ -263,6 +298,11 @@ defineEmits([
     display: inline-flex;
   }
 }
+@media (max-width: 640px) {
+  .month-title {
+    display: none;
+  }
+}
 
 /* ===== Responsividade progressiva priorizando o título ===== */
 @media (max-width: 1280px) {
@@ -336,5 +376,30 @@ defineEmits([
 .cpk-header .cyber-button:hover {
   /* mantém a mesma border-color e largura -> zero jiggle */
   border-color: var(--cyber-border);
+}
+/* Badge em cima do botão de filtro */
+.filter-btn {
+  position: relative; /* para o badge se posicionar dentro */
+}
+
+.filter-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 1rem;
+  height: 1rem;
+  padding: 0 0.3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #061512;
+  background: var(--chip-active);
+  box-shadow: 0 0 6px rgba(14, 234, 210, 0.25);
+  border: 1px solid var(--cyber-border);
+  pointer-events: none;
 }
 </style>

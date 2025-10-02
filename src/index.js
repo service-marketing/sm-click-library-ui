@@ -19,7 +19,7 @@ import { useAuthStore } from "~/stores/authStore";
 import { useAttendantStore } from "./stores/attendantStore";
 import { useDepartmentStore } from "./stores/departmentStore";
 import { useInstanceStore } from "./stores/instanceStore";
-import {getContrastColor}  from "./utils/functions/getContrastColor";
+import { getContrastColor } from "./utils/functions/getContrastColor";
 export { useScheduledStore } from "./stores/useScheduledStore";
 import api from "~/utils/api"; // Importa a instância personalizada do Axios
 

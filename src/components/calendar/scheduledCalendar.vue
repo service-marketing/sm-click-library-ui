@@ -7,24 +7,29 @@
     <div class="calendar-content">
       <!-- glow discreto -->
       <div class="cyber-glow-overlay"></div>
-
       <CalHeader
         :month="monthLabelPt"
         :year="currentYear"
         :is-compact="isCompact"
         :view-mode="viewMode"
+        :filter-count="Object.keys(filters).length"
         @prev="prevMonth"
         @next="nextMonth"
         @today="today"
         @toggle-compact="compact = !compact"
         @set-view-mode="viewMode = $event"
         @close-page="$emit('close-page')"
+        @open-filter="onOpenFilter"
       />
 
       <template v-if="viewMode === 'calendar'">
         <div class="calendar-stage" :class="stageClass">
           <div class="calendar-stage-main">
-            <WeekDays :week-days="weekDaysPt" />
+            <WeekDays
+              :week-days="weekDaysPt"
+              :month="monthLabelPt"
+              :year="currentYear"
+            />
             <CalendarGrid
               :start-offset="startOffset"
               :month-days="monthDays"
@@ -63,6 +68,7 @@
         :weekday-short="weekdayShortPt"
         :month-short="monthShortPt"
         :month-label-of="monthLabelOf"
+        :year="currentYear"
         @open-chat="(ev) => $emit('open-chat', ev)"
         @open-message="(ev) => $emit('open-message', ev)"
         @delete-message="(ev, e) => askConfirmDelete(ev, e)"
@@ -110,17 +116,26 @@
       </div>
     </template>
   </confirmModal>
+
+  <!-- Filtro: emite parâmetros e o pai aplica .filter(...) -->
+  <CalFilter
+    :open="filterUI.open"
+    :anchor-el="filterUI.anchorEl"
+    v-model:filters="filters"
+    @close="filterUI.open = false"
+  />
 </template>
 
 <script setup>
 import confirmModal from "./components/confirmModal.vue";
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, watch, reactive } from "vue";
 import { crm_scheduled } from "../../utils/systemUrls";
 import {
   sameYMD,
   yearMonthKey,
   eraseScheduledEvent,
 } from "./useScheduledEvents";
+import { storeToRefs } from "pinia";
 import EventItem from "./components/EventItem.vue";
 import { useScheduledStore } from "~/stores/useScheduledStore";
 
@@ -129,6 +144,8 @@ import WeekDays from "./components/WeekDays.vue";
 import CalendarGrid from "./components/CalendarGrid.vue";
 import AgendaList from "./components/AgendaList.vue";
 import EventsList from "./components/EventsList.vue";
+import CalFilter from "./components/CalFilter.vue";
+import { fi } from "date-fns/locale";
 
 const props = defineProps({
   sourceUrl: { type: String, default: "/crm_scheduled" },
@@ -278,9 +295,100 @@ const monthDays = computed(() => {
   });
 });
 
+// ===== Filtro =====
+const filterUI = ref({ open: false, anchorEl: null });
+function onOpenFilter(e) {
+  filterUI.value.open = true;
+  filterUI.value.anchorEl = e?.currentTarget || null;
+}
+// parâmetros que o FILHO controla (v-model)
+const { filters } = storeToRefs(scheduled);
 // ===== Cache via Store =====
 const currentYM = computed(() => yearMonthKey(viewDate.value));
-const currentMonthEvents = computed(() => scheduled.eventsOf(currentYM.value));
+const currentMonthEventsRaw = computed(() =>
+  scheduled.eventsOf(currentYM.value),
+);
+
+// ===== Lista ATIVA (aplica filtros locais) =====
+const FILTER_RESOLVERS = {
+  scheduled_by: (ev) => {
+    const sb =
+      ev?.scheduled_by ??
+      ev?.raw?.params?.scheduled_by ??
+      ev?.raw?.scheduled_by ??
+      ev?.created_by ??
+      ev?.attendant_id;
+    const id = typeof sb === "object" && sb ? (sb.id ?? sb.attendant_id) : sb;
+    return id != null ? String(id) : "";
+  },
+  // exemplo: status: (ev) => String(ev.status ?? ev.raw?.status ?? ""),
+};
+
+function matchesFilters(ev, f) {
+  const _f = f?.value ?? f;
+  if (!_f || typeof _f !== "object") return true;
+
+  return Object.entries(_f).every(([key, want]) => {
+    if (
+      want == null ||
+      want === "" ||
+      (Array.isArray(want) && want.length === 0)
+    ) {
+      return true;
+    }
+
+    const resolver = FILTER_RESOLVERS[key];
+    const gotRaw =
+      resolver?.(ev) ??
+      ev?.[key] ??
+      ev?.raw?.[key] ??
+      ev?.raw?.params?.[key] ??
+      null;
+
+    // normalizações leves
+    const got = typeof gotRaw === "string" ? gotRaw : (gotRaw ?? "");
+
+    // 1) função custom: (val, ev) => boolean
+    if (typeof want === "function") return !!want(got, ev);
+
+    // 2) array: IN
+    if (Array.isArray(want)) return want.map(String).includes(String(got));
+
+    // 3) objeto: operadores
+    if (typeof want === "object") {
+      const { in: inList, notIn, range, contains } = want;
+
+      if (inList && !inList.map(String).includes(String(got))) return false;
+      if (notIn && notIn.map(String).includes(String(got))) return false;
+
+      // range numérico: { range: [min, max] } (limites opcionais)
+      if (range && typeof got === "number") {
+        const [min, max] = range;
+        if ((min != null && got < min) || (max != null && got > max))
+          return false;
+      }
+
+      // contains para arrays/cadeias: { contains: "x" | ["x","y"] }
+      if (contains != null) {
+        const arr = Array.isArray(got) ? got : String(got).split(",");
+        const probe = Array.isArray(contains) ? contains : [contains];
+        if (!probe.some((p) => arr.map(String).includes(String(p))))
+          return false;
+      }
+
+      return true;
+    }
+
+    // 4) igualdade simples
+    return String(got) === String(want);
+  });
+}
+
+// ===== Lista ATIVA (aplica filtros genéricos) =====
+const currentMonthEvents = computed(() => {
+  const list = currentMonthEventsRaw.value || [];
+  return list.filter((ev) => matchesFilters(ev, filters));
+});
 
 // ===== Eventos atuais =====
 function eventsByDay(date) {
@@ -385,7 +493,6 @@ async function onConfirmModal(ctx) {
     confirmCtl.value.context = null;
   }
 }
-
 function onCancelModal() {
   confirmCtl.value.open = false;
   confirmCtl.value.context = null;

@@ -98,6 +98,7 @@ export function normalizeScheduledItem(item) {
     time: formatTimeHM(dt),
     type: item.function,
     status: item.status || null,
+    scheduled_by: params.scheduled_by,
 
     title,
     content,
@@ -109,6 +110,7 @@ export function normalizeScheduledItem(item) {
     contactName: entity?.name || "Contato",
     contactPhoto: entity?.photo || "",
     departmentName: department?.name || "",
+    departmentId: department?.id || null,
     instanceName: instance?.name || "",
 
     raw: item,

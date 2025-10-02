@@ -322,7 +322,7 @@ function onAfterLeave(el) {
   text-shadow: 0 0 6px var(--day-glow);
 }
 .is-today .day-number {
-  color: var(--accent);
+  color: var(--cyber-accent);
   text-shadow: 0 0 10px var(--today-glow);
 }
 .neon-selected {

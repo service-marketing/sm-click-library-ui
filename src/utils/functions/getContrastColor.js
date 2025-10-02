@@ -2,7 +2,7 @@
 export function getContrastColor(hex) {
   // Caso o valor hexadecimal seja inválido, retorna preto por padrão
   if (!hex) return "black";
-  
+
   // Remove o símbolo '#' se estiver presente
   const value = hex.replace("#", "");
 

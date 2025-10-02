@@ -4,9 +4,29 @@
     <header class="itemc-head">
       <span :style="{ background: color }" class="color-bar"></span>
       <div class="minw0">
-        <div class="itemc-title">{{ ev.title }}</div>
+        <div class="itemc-title">
+          {{ ev.contactName ? ev.contactName + " • " : "" }}
+          {{ ev.departmentName || "sem depto" }}
+        </div>
         <div class="itemc-sub">
-          {{ ev.contactName || "—" }} • {{ ev.departmentName || "sem depto" }}
+          <span class="flex items-center gap-1">
+            <svg
+              class="icon-3"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M12 2a7 7 0 0 0-7 7 3 3 0 0 0-3 3v2a3 3 0 0 0 3 3h1a1 1 0 0 0 1-1V9a5 5 0 1 1 10 0v7.083A2.919 2.919 0 0 1 14.083 19H14a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v1a2 2 0 0 0 2 2h1a2 2 0 0 0 1.732-1h.351a4.917 4.917 0 0 0 4.83-4H19a3 3 0 0 0 3-3v-2a3 3 0 0 0-3-3 7 7 0 0 0-7-7Zm1.45 3.275a4 4 0 0 0-4.352.976 1 1 0 0 0 1.452 1.376 2.001 2.001 0 0 1 2.836-.067 1 1 0 1 0 1.386-1.442 4 4 0 0 0-1.321-.843Z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            {{ attendantName(ev.scheduled_by) }}
+          </span>
         </div>
       </div>
     </header>
@@ -52,7 +72,7 @@
         >
           <path
             fill-rule="evenodd"
-            d="M4.998 7.78C6.729 6.345 9.198 5 12 5c2.802 0 5.27 1.345 7.002 2.78a12.713 12.713 0 0 1 2.096 2.183c.253.344.465.682.618.997.14.286.284.658.284 1.04s-.145.754-.284 1.04a6.6 6.6 0 0 1-.618.997 12.712 12.712 0 0 1-2.096 2.183C17.271 17.655 14.802 19 12 19c-2.802 0-5.27-1.345-7.002-2.78a12.712 12.712 0 0 1-2.096-2.183 6.6 6.6 0 0 1-.618-.997C2.144 12.754 2 12.382 2 12s.145-.754.284-1.04c.153-.315.365-.653.618-.997A12.714 12.714 0 0 1 4.998 7.78ZM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
+            d="M4.998 7.78C6.729 6.345 9.198 5 12 5c2.802 0 5.27 1.345 7.002 2.78a12.713 12.713 0 0 1 2.096 2.183c.253 .344 .465 .682 .618 .997 .14 .286 .284 .658 .284 1.04s-.145 .754 -.284 1.04a6.6 6.6 0 0 1-.618 .997 12.712 12.712 0 0 1-2.096 2.183C17.271 17.655 14.802 19 12 19c-2.802 0-5.27-1.345-7.002-2.78a12.712 12.712 0 0 1-2.096-2.183 6.6 6.6 0 0 1-.618-.997C2.144 12.754 2 12.382 2 12s.145-.754 .284-1.04c.153-.315 .365-.653 .618-.997A12.714 12.714 0 0 1 4.998 7.78ZM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
             clip-rule="evenodd"
           />
         </svg>
@@ -63,7 +83,7 @@
         @click="$emit('delete-message', ev)"
         class="cyber-button cyber-button--xs cyber-button--danger"
         aria-label="Apagar evento"
-        :disabled="ev.deleteLoading"
+        :disabled="ev.deleteLoading || ev?.status === false"
       >
         <svg
           v-if="!ev.deleteLoading"
@@ -85,7 +105,6 @@
       </button>
 
       <button
-        v-if="isSched"
         class="cyber-button cyber-button--xs cyber-button--accent"
         @click="$emit('open-chat', ev)"
         aria-label="Abrir conversa"
@@ -133,10 +152,33 @@
         />
       </div>
 
-      <div class="minw0">
-        <div class="itemsb-title">{{ ev.contactName }} — {{ ev.time }}</div>
+      <!-- bloco principal + horário fixo à direita -->
+      <div class="itemsb-main">
+        <div class="itemsb-row">
+          <span class="itemsb-title truncate">
+            {{ ev.contactName }} • {{ ev.departmentName || "sem depto" }}
+          </span>
+          <span class="itemsb-time">{{ ev.time }}</span>
+        </div>
+
         <div class="itemsb-sub">
-          {{ ev.title }} • {{ ev.departmentName || "sem depto" }}
+          <span class="items-attendant">
+            <svg
+              class="icon-3"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M12 2a7 7 0 0 0-7 7 3 3 0 0 0-3 3v2a3 3 0 0 0 3 3h1a1 1 0 0 0 1-1V9a5 5 0 1 1 10 0v7.083A2.919 2.919 0 0 1 14.083 19H14a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v1a2 2 0 0 0 2 2h1a2 2 0 0 0 1.732-1h.351a4.917 4.917 0 0 0 4.83-4H19a3 3 0 0 0 3-3v-2a3 3 0 0 0-3-3 7 7 0 0 0-7-7Zm1.45 3.275a4 4 0 0 0-4.352.976 1 1 0 0 0 1.452 1.376 2.001 2.001 0 0 1 2.836-.067 1 1 0 1 0 1.386-1.442 4 4 0 0 0-1.321-.843Z"
+              />
+            </svg>
+            {{ attendantName(ev.scheduled_by) }}
+          </span>
         </div>
       </div>
     </div>
@@ -156,7 +198,7 @@
         @click="$emit('delete-message', ev)"
         class="cyber-button cyber-button--sm cyber-button--danger"
         aria-label="Apagar evento"
-        :disabled="ev.deleteLoading"
+        :disabled="ev.deleteLoading || ev?.status === false"
       >
         <div v-if="ev.deleteLoading" class="loading-spinner"></div>
         Apagar
@@ -176,21 +218,45 @@
   <template v-else>
     <div class="event-left">
       <span :style="{ background: color }" class="event-color-bar"></span>
-      <div class="event-title">
-        <span class="show-md">{{ ev.title }} •</span>
-        <span class="event-sub" v-if="ev.contactName || ev.departmentName">
-          {{ ev.contactName ? ev.contactName + " • " : "" }}
-          {{ ev.departmentName || "sem depto" }}
-        </span>
+      <div class="event-line">
+        {{ agendaLine }}
       </div>
     </div>
 
     <footer class="event-actions">
+      <!-- SVG do atendente com popover: logo ao lado da barra de status -->
+      <div
+        class="sched-pop"
+        tabindex="0"
+        aria-haspopup="true"
+        aria-label="Agendado por"
+      >
+        <svg
+          class="icon-4"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M12 2a7 7 0 0 0-7 7 3 3 0 0 0-3 3v2a3 3 0 0 0 3 3h1a1 1 0 0 0 1-1V9a5 5 0 1 1 10 0v7.083A2.919 2.919 0 0 1 14.083 19H14a2 2 0 0 0-2-2h-1a2 2 0 0 0-2 2v1a2 2 0 0 0 2 2h1a2 2 0 0 0 1.732-1h.351a4.917 4.917 0 0 0 4.83-4H19a3 3 0 0 0 3-3v-2a3 3 0 0 0-3-3 7 7 0 0 0-7-7Zm1.45 3.275a4 4 0 0 0-4.352.976 1 1 0 0 0 1.452 1.376 2.001 2.001 0 0 1 2.836-.067 1 1 0 1 0 1.386-1.442 4 4 0 0 0-1.321-.843Z"
+            clip-rule="evenodd"
+          />
+        </svg>
+        <div class="sched-pop__card bg-base-300" role="dialog">
+          <strong>Agendado por</strong><br />
+          {{ attendantName(ev.scheduled_by) }}
+        </div>
+      </div>
       <span
         v-if="ev.status !== undefined"
         class="status-bar"
         :class="!ev?.status ? 'status--down' : 'status--up'"
       />
+
       <div class="event-time">{{ ev.time }}</div>
 
       <button
@@ -224,7 +290,7 @@
         >
           <path
             fill-rule="evenodd"
-            d="M4.998 7.78C6.729 6.345 9.198 5 12 5c2.802 0 5.27 1.345 7.002 2.78a12.713 12.713 0 0 1 2.096 2.183c.253.344.465.682.618.997.14.286.284.658.284 1.04s-.145.754-.284 1.04a6.6 6.6 0 0 1-.618.997 12.712 12.712 0 0 1-2.096 2.183C17.271 17.655 14.802 19 12 19c-2.802 0-5.27-1.345-7.002-2.78a12.712 12.712 0 0 1-2.096-2.183 6.6 6.6 0 0 1-.618-.997C2.144 12.754 2 12.382 2 12s.145-.754.284-1.04c.153-.315.365-.653.618-.997A12.714 12.714 0 0 1 4.998 7.78ZM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
+            d="M4.998 7.78C6.729 6.345 9.198 5 12 5c2.802 0 5.27 1.345 7.002 2.78a12.713 12.713 0 0 1 2.096 2.183c.253 .344 .465 .682 .618 .997 .14 .286 .284 .658 .284 1.04s-.145 .754 -.284 1.04a6.6 6.6 0 0 1-.618 .997 12.712 12.712 0 0 1-2.096 2.183C17.271 17.655 14.802 19 12 19c-2.802 0-5.27-1.345-7.002-2.78a12.712 12.712 0 0 1-2.096-2.183 6.6 6.6 0 0 1-.618-.997C2.144 12.754 2 12.382 2 12s.145-.754 .284-1.04c.153-.315 .365-.653 .618-.997A12.714 12.714 0 0 1 4.998 7.78ZM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
             clip-rule="evenodd"
           />
         </svg>
@@ -234,7 +300,7 @@
         @click="$emit('delete-message', ev)"
         class="cyber-button cyber-button--xs cyber-button--danger"
         aria-label="Apagar evento"
-        :disabled="ev.deleteLoading"
+        :disabled="ev.deleteLoading || ev?.status === false"
       >
         <svg
           v-if="!ev.deleteLoading"
@@ -256,8 +322,8 @@
       </button>
 
       <button
-        @click="$emit('open-chat', ev)"
         class="cyber-button cyber-button--xs cyber-button--accent"
+        @click="$emit('open-chat', ev)"
         aria-label="Abrir conversa"
       >
         <svg
@@ -280,6 +346,9 @@
 <script setup>
 import { computed } from "vue";
 import { getEventColor as utilGetEventColor } from "../utils/eventColors";
+import { useAttendantStore } from "~/stores/attendantStore";
+const attendantStore = useAttendantStore();
+
 const emits = defineEmits(["open-message", "open-chat", "delete-message"]);
 const props = defineProps({
   ev: { type: Object, required: true },
@@ -293,7 +362,26 @@ const color = computed(() => {
   return fn(props.ev);
 });
 const isSched = computed(() => props.ev?.type === "scheduled_messages");
+const isMe = computed(
+  () => attendantStore.attendants.find((a) => a.is_me) || {},
+);
+const attendantName = (id) => {
+  const att = attendantStore.attendants.find((a) => a.id === id);
+  if (!att) return "Desconhecido";
+  if (att.id === isMe.value.id) return "Você";
+  return att.name || "Desconhecido";
+};
+
+// Linha única da AGENDA: "Contato • Depto • Atendente"
+const agendaLine = computed(() => {
+  const parts = [];
+  if (props.ev?.contactName) parts.push(props.ev.contactName);
+  parts.push(props.ev?.departmentName || "sem depto");
+  // parts.push(attendantName(props.ev?.scheduled_by));
+  return parts.join(" • ");
+});
 </script>
+
 <style src="../utils/calendarTheme.css"></style>
 <style scoped>
 /* util */
@@ -314,6 +402,7 @@ const isSched = computed(() => props.ev?.type === "scheduled_messages");
   width: 0.25rem;
   border-radius: 0.25rem;
   box-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
+  flex-shrink: 0;
 }
 .itemc-title {
   font-size: 0.875rem;
@@ -328,6 +417,11 @@ const isSched = computed(() => props.ev?.type === "scheduled_messages");
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.items-attendant {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
 }
 .itemc-actions {
   display: flex;
@@ -345,6 +439,62 @@ const isSched = computed(() => props.ev?.type === "scheduled_messages");
   display: flex;
   align-items: center;
   gap: 0.4rem;
+  min-width: 0;
+}
+.itemsb-main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.itemsb-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.itemsb-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: start;
+}
+.itemsb-time {
+  flex: 0 0 auto;
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0.9;
+  white-space: nowrap;
+}
+.itemsb-sub {
+  font-size: 0.75rem;
+  opacity: 0.8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.itemsb-content {
+  margin-top: 0.4rem;
+  font-size: 0.875rem;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+
+  word-break: break-word; /* força quebra dentro da palavra */
+  overflow-wrap: anywhere; /* alternativa mais moderna */
+}
+
+.itemsb-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
 }
 
 .avatar-wrap {
@@ -353,6 +503,7 @@ const isSched = computed(() => props.ev?.type === "scheduled_messages");
   height: 2rem;
   border-radius: 9999px;
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
 }
 .avatar {
   width: 100%;
@@ -365,41 +516,14 @@ const isSched = computed(() => props.ev?.type === "scheduled_messages");
   place-items: center;
   border-radius: 9999px;
 }
-
 .icon-muted {
   opacity: 0.7;
-}
-
-.itemsb-title {
-  font-size: 0.875rem;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-align: start;
-}
-.itemsb-sub {
-  font-size: 0.75rem;
-  opacity: 0.8;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.itemsb-content {
-  margin-top: 0.4rem;
-  font-size: 0.875rem;
-}
-.itemsb-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.4rem;
-  margin-top: 0.4rem;
 }
 
 /* --- agenda --- */
 .event-left {
   min-width: 0;
+  flex: 1 1 auto; /* bloco da esquerda pode encolher */
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -412,20 +536,22 @@ const isSched = computed(() => props.ev?.type === "scheduled_messages");
   box-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
   flex-shrink: 0;
 }
-.event-title {
-  font-size: 0.875rem;
-  font-weight: 500;
+/* linha única com ellipsis */
+.event-line {
+  flex: 1 1 auto;
+  min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-.event-sub {
-  opacity: 0.75;
+  font-size: 0.875rem;
+  font-weight: 500;
+  opacity: 0.95;
 }
 .event-actions {
   display: flex;
   align-items: center;
   gap: 0.3rem;
+  flex: 0 0 auto;
 }
 .event-time {
   font-size: 12px;
@@ -481,6 +607,10 @@ const isSched = computed(() => props.ev?.type === "scheduled_messages");
 }
 
 /* ícones */
+.icon-3 {
+  width: 0.75rem;
+  height: 0.75rem;
+}
 .icon-4 {
   width: 1rem;
   height: 1rem;
@@ -489,6 +619,7 @@ const isSched = computed(() => props.ev?.type === "scheduled_messages");
   width: 1.25rem;
   height: 1.25rem;
 }
+
 .show-md {
   display: none;
 }
