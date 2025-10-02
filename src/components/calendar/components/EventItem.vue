@@ -35,10 +35,21 @@
       <div class="flex flex-col items-center">
         <div class="time-badge">{{ ev.time }}</div>
         <div
-          v-if="ev.status !== undefined"
-          class="status-bar"
-          :class="!ev?.status ? 'status--down' : 'status--up'"
-        />
+          class="sched-pop"
+          tabindex="0"
+          aria-haspopup="true"
+          aria-label="Agendado por"
+        >
+          <div
+            v-if="ev.status !== undefined"
+            class="status-bar"
+            :class="!ev?.status ? 'status--down' : 'status--up'"
+          />
+          <div class="sched-pop__card bg-base-300" role="dialog">
+            <strong>Status</strong><br />
+            {{ ev.status === true ? "Ativo" : "Executado" }}
+          </div>
+        </div>
       </div>
 
       <button
@@ -83,7 +94,7 @@
         @click="$emit('delete-message', ev)"
         class="cyber-button cyber-button--xs cyber-button--danger"
         aria-label="Apagar evento"
-        :disabled="ev.deleteLoading || ev?.status === false"
+        :disabled="ev.deleteLoading || !ev.status"
       >
         <svg
           v-if="!ev.deleteLoading"
@@ -144,12 +155,31 @@
             />
           </svg>
         </div>
-
-        <span
-          v-if="ev.status !== undefined"
-          class="status-dot-avatar"
-          :class="!ev?.status ? 'status--down' : 'status--up'"
-        />
+        <div
+          class="sched-pop"
+          style="position: absolute; bottom: -2px; right: -2px"
+          tabindex="0"
+          aria-haspopup="true"
+          aria-label="Agendado por"
+        >
+          <span
+            v-if="ev.status !== undefined"
+            class="status-dot-avatar"
+            :class="!ev?.status ? 'status--down' : 'status--up'"
+          />
+          <div
+            class="sched-pop__card bg-base-300"
+            style="
+              left: -100%;
+              right: auto;
+              transform: translate(10%, -50%) scale(0.98);
+            "
+            role="dialog"
+          >
+            <strong>Status</strong><br />
+            {{ ev.status === true ? "Ativo" : "Executado" }}
+          </div>
+        </div>
       </div>
 
       <!-- bloco principal + horário fixo à direita -->
@@ -198,7 +228,7 @@
         @click="$emit('delete-message', ev)"
         class="cyber-button cyber-button--sm cyber-button--danger"
         aria-label="Apagar evento"
-        :disabled="ev.deleteLoading || ev?.status === false"
+        :disabled="ev.deleteLoading || !ev.status"
       >
         <div v-if="ev.deleteLoading" class="loading-spinner"></div>
         Apagar
@@ -251,11 +281,22 @@
           {{ attendantName(ev.scheduled_by) }}
         </div>
       </div>
-      <span
-        v-if="ev.status !== undefined"
-        class="status-bar"
-        :class="!ev?.status ? 'status--down' : 'status--up'"
-      />
+      <div
+        class="sched-pop"
+        tabindex="0"
+        aria-haspopup="true"
+        aria-label="Agendado por"
+      >
+        <span
+          v-if="ev.status !== undefined"
+          class="status-bar"
+          :class="!ev?.status ? 'status--down' : 'status--up'"
+        />
+        <div class="sched-pop__card bg-base-300" role="dialog">
+          <strong>Status</strong><br />
+          {{ ev.status === true ? "Ativo" : "Executado" }}
+        </div>
+      </div>
 
       <div class="event-time">{{ ev.time }}</div>
 
@@ -300,7 +341,7 @@
         @click="$emit('delete-message', ev)"
         class="cyber-button cyber-button--xs cyber-button--danger"
         aria-label="Apagar evento"
-        :disabled="ev.deleteLoading || ev?.status === false"
+        :disabled="ev.deleteLoading || !ev.status"
       >
         <svg
           v-if="!ev.deleteLoading"

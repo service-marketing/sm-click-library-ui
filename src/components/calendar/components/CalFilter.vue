@@ -89,15 +89,20 @@
                     </span>
                     <div
                       class="sched-pop__card bg-base-300"
-                      style="--popover-brd: var(--cyber-border)"
+                      style="
+                        --popover-brd: var(--cyber-border);
+                        transform: translate(-5%, -50%) scale(0.98);
+                      "
                     >
                       <div>
-                        <strong>Pendentes</strong> = ainda não foram executados
+                        <span style="font-weight: 600">Ativos:</span> Eventos
+                        que estão programados para ocorrer
                       </div>
                       <div>
-                        <strong>Executados</strong> = já foram executados
+                        <span style="font-weight: 600">Executados:</span>
+                        Eventos que já ocorreram
                       </div>
-                      <div>Desmarcar as opções limpa o filtro.</div>
+                      <!-- <div>Desmarcar as opções limpa o filtro.</div> -->
                     </div>
                   </span>
                 </div>
@@ -110,7 +115,7 @@
                     @click="toggleStatus(true)"
                     aria-pressed="state.status === true"
                   >
-                    Pendentes
+                    Ativos
                   </button>
                   <button
                     type="button"
@@ -124,16 +129,6 @@
                 </div>
               </div>
             </div>
-          </div>
-
-          <!-- Rodapé -->
-          <div class="cpk-popover__footer">
-            <button
-              class="cyber-button cyber-button--sm"
-              @click="$emit('close')"
-            >
-              Fechar
-            </button>
           </div>
         </div>
       </Transition>
@@ -164,7 +159,7 @@ const emit = defineEmits(["close", "update:filters"]);
 
 const attendantStore = useAttendantStore();
 const me = computed(
-  () => attendantStore.attendants.find((a) => a.is_me) || null
+  () => attendantStore.attendants.find((a) => a.is_me) || null,
 );
 
 /* ======== UI local (derivada de props.filters) ======== */
@@ -191,7 +186,7 @@ watch(
 
     positionNow();
   },
-  { immediate: false }
+  { immediate: false },
 );
 
 /* ======== Emissão de parâmetros ======== */
@@ -297,7 +292,7 @@ function addScrollListeners() {
     p = p.parentElement;
   }
   scrollTargets.forEach((t) =>
-    t.addEventListener("scroll", positionNow, { passive: true })
+    t.addEventListener("scroll", positionNow, { passive: true }),
   );
 }
 function removeScrollListeners() {
@@ -329,7 +324,7 @@ watch(
       roAnchor.observe(el);
     }
     window.addEventListener("resize", positionNow);
-  }
+  },
 );
 watch(
   () => props.anchorEl,
@@ -338,7 +333,7 @@ watch(
     await nextTick();
     addScrollListeners();
     positionNow();
-  }
+  },
 );
 
 /* ======== Fechar fora / ESC ======== */
@@ -383,7 +378,8 @@ onBeforeUnmount(() => {
   border: 1px solid var(--cyber-border);
   backdrop-filter: var(--cyber-blur);
   -webkit-backdrop-filter: var(--cyber-blur);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45),
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.45),
     inset 0 0 0 1px rgba(255, 255, 255, 0.04),
     0 0 12px var(--cyber-primary-glow);
   z-index: 30;
@@ -415,7 +411,8 @@ onBeforeUnmount(() => {
   cursor: pointer;
 }
 .row:hover {
-  box-shadow: 0 0 0 1px var(--cyber-hover-glow) inset,
+  box-shadow:
+    0 0 0 1px var(--cyber-hover-glow) inset,
     0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
@@ -450,7 +447,8 @@ onBeforeUnmount(() => {
 }
 .switch:checked {
   border-color: var(--cyber-border-light);
-  box-shadow: inset 0 0 0 1px var(--cyber-hover-glow),
+  box-shadow:
+    inset 0 0 0 1px var(--cyber-hover-glow),
     0 0 8px var(--cyber-accent-glow);
 }
 .switch:checked::after {
@@ -475,7 +473,8 @@ onBeforeUnmount(() => {
 /* Marcado no "tema claro" (classe .dark) mantém teu accent, mas com glow mais suave */
 .dark .switch:checked {
   border-color: rgba(0, 0, 0, 0.18);
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06),
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.06),
     0 0 8px var(--cyber-accent-glow);
 }
 
@@ -491,7 +490,8 @@ onBeforeUnmount(() => {
 .dark .switch:focus-visible {
   outline: 2px solid rgba(0, 255, 178, 0.7);
   outline-offset: 2px;
-  box-shadow: 0 0 0 2px rgba(0, 255, 178, 0.35),
+  box-shadow:
+    0 0 0 2px rgba(0, 255, 178, 0.35),
     inset 0 0 0 1px rgba(0, 0, 0, 0.06);
 }
 
@@ -587,6 +587,8 @@ onBeforeUnmount(() => {
 }
 .cpk-card-enter-active,
 .cpk-card-leave-active {
-  transition: transform 160ms ease, opacity 160ms ease;
+  transition:
+    transform 160ms ease,
+    opacity 160ms ease;
 }
 </style>

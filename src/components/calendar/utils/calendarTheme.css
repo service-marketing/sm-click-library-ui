@@ -274,6 +274,11 @@
     0 0 10px rgba(248, 113, 113, 0.4);
 }
 
+.cyber-button--danger:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 /* Ícones menores nos XS */
 .cyber-button--xs .icon-4 {
   width: 0.95rem;
@@ -405,17 +410,19 @@
 
 .sched-pop__card {
   position: absolute;
-  right: -50%;
-  top: calc(100% + 6px);
+  right: 50%;
+  top: 50%;
   padding: 0.4rem 0.6rem;
   font-size: 0.75rem;
+  font-weight: 400;
   line-height: 1.1;
   white-space: nowrap;
   border: 1px solid var(--popover-brd, rgba(255, 255, 255, 0.08));
   border-radius: 0.5rem;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
   opacity: 0;
-  transform: translate(-20%, -2px) scale(0.98);
+  transform: translate(20%, -70%) scale(0.98);
+  /* ajustei o translateY */
   pointer-events: none;
   transition:
     opacity 0.15s ease,
@@ -423,10 +430,29 @@
   z-index: 40;
 }
 
+/* quando encostar no canto direito */
+.sched-pop[data-align="right"] .sched-pop__card {
+  right: auto;
+  left: -50%;
+  transform: translate(20%, -2px) scale(0.98);
+}
+
+/* quando encostar no topo (abre pra cima) */
+.sched-pop[data-align="top"] .sched-pop__card {
+  top: auto;
+  bottom: calc(100% + 6px);
+}
+
+/* quando encostar no topo (abre pra cima) */
+.sched-pop[data-align="bottom"] .sched-pop__card {
+  bottom: auto;
+  top: calc(100% + 6px);
+}
+
 .sched-pop:focus .sched-pop__card,
 .sched-pop:hover .sched-pop__card {
   opacity: 1;
-  transform: translateY(0) scale(1);
+  transform: translate(-20%, -50%) scale(1);
   pointer-events: auto;
 }
 

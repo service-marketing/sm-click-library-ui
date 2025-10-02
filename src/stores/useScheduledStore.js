@@ -78,7 +78,7 @@ export const useScheduledStore = defineStore("scheduled", {
       const p = (async () => {
         try {
           const firstUrl = `${this.baseUrl}?year_month=${encodeURIComponent(
-            ym
+            ym,
           )}&page_size=10`;
           const res = await api.get(firstUrl);
           const page = Array.isArray(res?.data)
@@ -107,7 +107,7 @@ export const useScheduledStore = defineStore("scheduled", {
               } catch (bgErr) {
                 console.warn(
                   "[scheduled] background paging error:",
-                  bgErr?.message || bgErr
+                  bgErr?.message || bgErr,
                 );
               }
             })();
@@ -159,7 +159,7 @@ export const useScheduledStore = defineStore("scheduled", {
 
         // aceita "YYYY-MM-DD HH:mm" ou "YYYY-MM-DDTHH:mm"
         const m = /^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?$/.exec(
-          rawTime
+          rawTime,
         );
         if (m) {
           const [, y, mo, d, hh = "00", mm = "00"] = m;
@@ -171,7 +171,7 @@ export const useScheduledStore = defineStore("scheduled", {
             Number(hh),
             Number(mm),
             0,
-            0
+            0,
           );
         } else {
           // fallback bem conservador
@@ -259,7 +259,7 @@ export const useScheduledStore = defineStore("scheduled", {
             if (
               Object.prototype.hasOwnProperty.call(
                 params.info.instance,
-                "last_instance_status"
+                "last_instance_status",
               )
             ) {
               ev.instanceStatus =
