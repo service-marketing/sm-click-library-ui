@@ -117,7 +117,7 @@ const selectedNames = computed(() => {
         ]"
         @click="toggleSelect(depart)"
       >
-        <span class="text-xs truncate max-w-44">{{ depart.name }}</span>
+        <span class="text-xs truncate max-w-32">{{ depart.name }}</span>
 
         <svg
           v-if="modelValue.some((d) => d.id === depart.id)"

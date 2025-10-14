@@ -63,7 +63,7 @@ const removePhoto = async () => {
       @click="chooseFiles"
     >
       <span
-        :class="`${sizeClass} p-3 rounded-xl text-gray-400 hover:scale-105 hover:text-primary hover:border-primary`"
+        :class="`p-3 rounded-xl text-gray-400 hover:scale-105 hover:text-primary hover:border-primary`"
         v-html="emptyPlaceholder"
       ></span>
     </section>
