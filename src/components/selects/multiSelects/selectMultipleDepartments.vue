@@ -48,11 +48,6 @@ const toggleSelect = (item) => {
   }
   emit("update:modelValue", selected);
 };
-
-// --- Mostra nomes selecionados ---
-const selectedNames = computed(() => {
-  return props.modelValue.map((d) => d.name).join(", ");
-});
 </script>
 
 <template>
