@@ -17,6 +17,8 @@ import btnNewUpdates from "./components/new-updates/btnNewUpdates.vue";
 import LibPhotoPicker from "./components/pickers/libPhotoPicker.vue";
 import selectMultipleDepartments from "./components/selects/multiSelects/selectMultipleDepartments.vue";
 import ProductInput from "./components/inputs/productInput.vue";
+import SimpleSelect from "./components/selects/simpleSelect/simpleSelect.vue";
+import FloatingDev from "./components/devHelpers/floating-dev.vue";
 import { useDebugStore } from "~/stores/debugStore";
 import { useAuthStore } from "~/stores/authStore";
 import { useAttendantStore } from "./stores/attendantStore";
@@ -46,6 +48,8 @@ function install(Vue) {
   Vue.component("LibPhotoPicker", LibPhotoPicker);
   Vue.component("SelectMultipleDepartments", selectMultipleDepartments);
   Vue.component("ProductInput", ProductInput);
+  Vue.component("SimpleSelect", SimpleSelect);
+  Vue.component("FloatingDev", FloatingDev);
 }
 
 export function attLibDeparts(department, action = "add") {
@@ -157,6 +161,8 @@ export default {
   simpleModal,
   simpleCard,
   instanceSelect,
+  SimpleSelect,
+  FloatingDev,
   calendar,
   MFA,
   chatWindow,
