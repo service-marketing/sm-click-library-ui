@@ -107,13 +107,13 @@ const displayLabel = computed(() => {
     <div
       @click="isOpen = !isOpen"
       :class="[
-        'flex flex-wrap items-center justify-between gap-2 p-3 rounded-md border cursor-pointer transition',
+        'flex flex-wrap items-center justify-between p-3 gap-2 rounded-md cursor-pointer transition',
         theme,
       ]"
     >
       <span
         :class="[
-          'text-sm truncate max-w-full',
+          'text-xs truncate max-w-full',
           displayLabel === placeholder ? 'text-gray-400' : 'text-white',
         ]"
       >
@@ -123,7 +123,7 @@ const displayLabel = computed(() => {
       <!-- Ícone -->
       <svg
         :class="[
-          'size-3.5 text-white transition-transform duration-300',
+          'size-3 text-white transition-transform duration-300',
           isOpen ? 'rotate-180' : '',
         ]"
         xmlns="http://www.w3.org/2000/svg"
