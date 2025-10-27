@@ -5,7 +5,7 @@
     "dist",
     "src/test-utils"
   ],
-  "version": "0.0.422",
+  "version": "0.0.423",
   "main": "dist/sm-click-library-ui.es.js",
   "module": "dist/sm-click-library-ui.umd.js",
   "private": false,
