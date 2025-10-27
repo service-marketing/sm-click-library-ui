@@ -154,7 +154,7 @@ function clearSelectedInstance() {
                     <button
                         :class="selectedInstance && selectedInstance.id === inst.id ? 'bg-base-100' : 'bg-base-200 hover:bg-base-100'"
                         @click="selectedInstance = inst, open = false, functionEmit(inst)"
-                        :disabled="selectedInstance && selectedInstance.id === inst.id || (type && inst.type !== type) || (webhooks !== undefined && webhooks !== inst.webhooks)"
+                        :disabled="selectedInstance && selectedInstance.id === inst.id || (type && inst.type !== type) || (webhooks !== undefined && webhooks !== inst.config?.webhooks)"
                         class="flex rounded-md justify-between items-center p-2 px-1 w-full">
                         <div class="flex w-full items-center pl-2 gap-3">
                             <svg v-if="inst.type === 'whatsapp-qrcode'" xmlns="http://www.w3.org/2000/svg"
