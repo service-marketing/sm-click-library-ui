@@ -1,4 +1,5 @@
 <script setup>
+import { computed } from "vue";
 /**
  * 📋 Descrição:
  * Componente que exibe as tags associadas a um cliente em formato de etiquetas coloridas.
