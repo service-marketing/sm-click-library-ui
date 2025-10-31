@@ -18,6 +18,7 @@ import LibPhotoPicker from "./components/pickers/libPhotoPicker.vue";
 import selectMultipleDepartments from "./components/selects/multiSelects/selectMultipleDepartments.vue";
 import ProductInput from "./components/inputs/productInput.vue";
 import SimpleSelect from "./components/selects/simpleSelect/simpleSelect.vue";
+import TagView from "./components/CRM+/tagView.vue";
 import FloatingDev from "./components/devHelpers/floating-dev.vue";
 import { useDebugStore } from "~/stores/debugStore";
 import { useAuthStore } from "~/stores/authStore";
@@ -25,7 +26,7 @@ import { useAttendantStore } from "./stores/attendantStore";
 import { useDepartmentStore } from "./stores/departmentStore";
 import { useInstanceStore } from "./stores/instanceStore";
 import { getContrastColor } from "./utils/functions/getContrastColor";
-export { useScheduledStore } from "./stores/useScheduledStore";
+import RaitingInput from "./components/inputs/raitingInput.vue";
 import api from "~/utils/api"; // Importa a instância personalizada do Axios
 
 function install(Vue) {
@@ -50,6 +51,8 @@ function install(Vue) {
   Vue.component("ProductInput", ProductInput);
   Vue.component("SimpleSelect", SimpleSelect);
   Vue.component("FloatingDev", FloatingDev);
+  Vue.component("RaitingInput", RaitingInput);
+  Vue.component("TagView", TagView);
 }
 
 export function attLibDeparts(department, action = "add") {
@@ -178,4 +181,6 @@ export default {
   selectMultipleDepartments,
   ProductInput,
   getWithContrastColor,
+  RaitingInput,
+  TagView,
 };
