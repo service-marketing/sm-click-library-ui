@@ -154,7 +154,7 @@ function clearSelectedInstance() {
                     <button
                         :class="selectedInstance && selectedInstance.id === inst.id ? 'bg-base-100' : 'bg-base-200 hover:bg-base-100'"
                         @click="selectedInstance = inst, open = false, functionEmit(inst)"
-                        :disabled="selectedInstance && selectedInstance.id === inst.id || (type && inst.type !== type) || (webhooks !== undefined && webhooks !== inst.webhooks)"
+                        :disabled="selectedInstance && selectedInstance.id === inst.id || (type && inst.type !== type) || (webhooks !== undefined && (webhooks !== inst.config?.webhooks))"
                         class="flex rounded-md justify-between items-center p-2 px-1 w-full">
                         <div class="flex w-full items-center pl-2 gap-3">
                             <svg v-if="inst.type === 'whatsapp-qrcode'" xmlns="http://www.w3.org/2000/svg"
@@ -180,7 +180,7 @@ function clearSelectedInstance() {
                                 <template #content>
                                     <span>{{ type && inst.type !== type ? 'Não é possível utilizar esse tipo de Instância neste recurso' : webhooks === true ? 'Essa instância está com o Atendimento desabilitado' : 'Essa aplicação é somente para instâncias sem atendimento habilitado.' }}</span>
                                 </template>
-                                <svg v-if="(type && inst.type !== type) || (webhooks !== undefined && webhooks !== inst.webhooks)"
+                                <svg v-if="(type && inst.type !== type) || (webhooks !== undefined && webhooks !== inst.config?.webhooks)"
                                     class="w-6 h-6 flex-shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                                     width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
                                     <path fill-rule="evenodd"
