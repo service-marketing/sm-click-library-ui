@@ -16,7 +16,7 @@ import libPatchNotes from "./components/new-updates/patchNotes.vue";
 import btnNewUpdates from "./components/new-updates/btnNewUpdates.vue";
 import LibPhotoPicker from "./components/pickers/libPhotoPicker.vue";
 import selectMultipleDepartments from "./components/selects/multiSelects/selectMultipleDepartments.vue";
-import ProductInput from "./components/inputs/productInput.vue";
+import PrimaryInput from "./components/inputs/primaryInput.vue";
 import SimpleSelect from "./components/selects/simpleSelect/simpleSelect.vue";
 import TagView from "./components/CRM+/tagView.vue";
 import FloatingDev from "./components/devHelpers/floating-dev.vue";
@@ -48,7 +48,7 @@ function install(Vue) {
   Vue.component("BtnNewUpdates", btnNewUpdates);
   Vue.component("LibPhotoPicker", LibPhotoPicker);
   Vue.component("SelectMultipleDepartments", selectMultipleDepartments);
-  Vue.component("ProductInput", ProductInput);
+  Vue.component("PrimaryInput", PrimaryInput);
   Vue.component("SimpleSelect", SimpleSelect);
   Vue.component("FloatingDev", FloatingDev);
   Vue.component("RaitingInput", RaitingInput);
@@ -179,7 +179,7 @@ export default {
   btnNewUpdates,
   LibPhotoPicker,
   selectMultipleDepartments,
-  ProductInput,
+  PrimaryInput,
   getWithContrastColor,
   RaitingInput,
   TagView,
