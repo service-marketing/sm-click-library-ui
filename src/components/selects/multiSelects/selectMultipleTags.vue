@@ -1,10 +1,11 @@
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import api from "~/utils/api.js";
 import { onClickOutside } from "@vueuse/core";
 import { contact_tag } from "~/utils/systemUrls";
 import InfiniteLoading from "v3-infinite-loading";
 import { getContrastColor } from "~/utils/functions/getContrastColor.js";
+import { useAuthStore } from "~/stores/authStore";
 
 const props = defineProps({
   // --- Lista que será exibida e já selecionada ---
@@ -70,6 +71,7 @@ const getTags = async () => {
 };
 
 const isLoading = ref(false);
+const authStore = useAuthStore();
 
 const loadMoreTags = async (state) => {
   if (isLoading.value) return; // impede chamadas duplicadas
@@ -92,8 +94,23 @@ const loadMoreTags = async (state) => {
   }
 };
 
+let tagsLoaded = false;
+watch(
+  () => authStore.jwtToken,
+  async (newToken) => {
+    if (newToken && !tagsLoaded) {
+      tagsLoaded = true;
+      await getTags();
+    }
+  },
+  { immediate: true }
+);
+
 onMounted(async () => {
-  await getTags();
+  if (authStore.jwtToken && !tagsLoaded) {
+    tagsLoaded = true;
+    await getTags();
+  }
 });
 </script>
 
