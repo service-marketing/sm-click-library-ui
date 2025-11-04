@@ -7,6 +7,7 @@ export const useAuthStore = defineStore("auth", {
   }),
   actions: {
     setToken(token) {
+      // console.log("Setting token:", token);
       this.jwtToken = token;
     },
     clearToken() {

@@ -44,7 +44,7 @@ const visibleTags = computed(() => props.clients?.tags?.slice(0, 4) || []);
           class="svg-list-tag"
           aria-hidden="true"
           viewBox="0 0 30 100"
-          :style="{ color: tag.color || '#1ceb5a' }"
+          :style="{ color: tag.color || '#fff' }"
         >
           <path
             d="M49.9,0a17.1,17.1,0,0,0-12,5L5,37.9A17,17,0,0,0,5,62L37.9,94.9a17.1,17.1,0,0,0,12,5ZM25.4,59.4a9.5,9.5,0,1,1,9.5-9.5A9.5,9.5,0,0,1,25.4,59.4Z"
@@ -53,7 +53,7 @@ const visibleTags = computed(() => props.clients?.tags?.slice(0, 4) || []);
         </svg>
         <!-- Primeira letra da tag -->
         <span
-          :style="{ backgroundColor: tag.color || '#ffff' }"
+          :style="{ backgroundColor: tag.color || '#fff' }"
           class="w-full ml-[-0.10rem] rounded-r-md inline-flex items-center justify-center px-1 py-0.5 border-b-2 border-gray-900"
         >
           <p class="text-[8px] font-bold">
@@ -97,7 +97,7 @@ const visibleTags = computed(() => props.clients?.tags?.slice(0, 4) || []);
 
       <!-- Lista de tags -->
       <template #content>
-        <section class="max-h-48 overflow-y-auto hide-scrollbar">
+        <section class="max-h-64 overflow-y-auto hide-scrollbar">
           <div class="flex flex-col gap-2">
             <div
               v-for="tag in clients.tags"
@@ -106,10 +106,10 @@ const visibleTags = computed(() => props.clients?.tags?.slice(0, 4) || []);
             >
               <!-- SVG da tag -->
               <svg
-                class="size-6 -ml-2"
+                class="size-6"
                 aria-hidden="true"
-                viewBox="0 0 65 100"
-                :style="{ color: tag.color || '#1ceb5a' }"
+                viewBox="0 0 65 90"
+                :style="{ color: tag.color || '#fff' }"
               >
                 <path
                   d="M49.9,0a17.1,17.1,0,0,0-12,5L5,37.9A17,17,0,0,0,5,62L37.9,94.9a17.1,17.1,0,0,0,12,5ZM25.4,59.4a9.5,9.5,0,1,1,9.5-9.5A9.5,9.5,0,0,1,25.4,59.4Z"
@@ -125,7 +125,6 @@ const visibleTags = computed(() => props.clients?.tags?.slice(0, 4) || []);
                   'max-width: 12rem',
                   { background: tag.color || '#fff' },
                 ]"
-                :title="tag.name"
               >
                 <p class="tag-view-popper-content-text">{{ tag.name }}</p>
               </span>
@@ -171,7 +170,19 @@ const visibleTags = computed(() => props.clients?.tags?.slice(0, 4) || []);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 0.875rem;
+  font-size: 0.675rem;
   line-height: 1.25rem;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE 10+ */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* --- Chrome, Edge (Blink), Safari, Opera --- */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 </style>

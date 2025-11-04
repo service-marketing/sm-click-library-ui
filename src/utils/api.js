@@ -10,17 +10,22 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const authStore = useAuthStore();
-    const token = authStore.getToken;
+    const token = authStore.jwtToken;
+    console.log("Using token in API request:", token);
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`; // Adiciona o token JWT no cabeçalho
+      console.log(
+        "Authorization header set in request:",
+        config.headers.Authorization
+      );
     }
 
     return config;
   },
   (error) => {
     return Promise.reject(error);
-  },
+  }
 );
 
 export default api;

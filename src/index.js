@@ -18,6 +18,7 @@ import LibPhotoPicker from "./components/pickers/libPhotoPicker.vue";
 import selectMultipleDepartments from "./components/selects/multiSelects/selectMultipleDepartments.vue";
 import PrimaryInput from "./components/inputs/primaryInput.vue";
 import SimpleSelect from "./components/selects/simpleSelect/simpleSelect.vue";
+import ClientsForm from "./components/CRM+/clientsForm.vue";
 import TagView from "./components/CRM+/tagView.vue";
 import FloatingDev from "./components/devHelpers/floating-dev.vue";
 import { useDebugStore } from "~/stores/debugStore";
@@ -53,6 +54,7 @@ function install(Vue) {
   Vue.component("FloatingDev", FloatingDev);
   Vue.component("RaitingInput", RaitingInput);
   Vue.component("TagView", TagView);
+  Vue.component("ClientsForm", ClientsForm);
 }
 
 export function attLibDeparts(department, action = "add") {
@@ -183,4 +185,5 @@ export default {
   getWithContrastColor,
   RaitingInput,
   TagView,
+  ClientsForm,
 };
