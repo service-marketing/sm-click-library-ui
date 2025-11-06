@@ -15,10 +15,12 @@ import MinModal from "./components/modals/min_modal/min_modal.vue";
 import libPatchNotes from "./components/new-updates/patchNotes.vue";
 import btnNewUpdates from "./components/new-updates/btnNewUpdates.vue";
 import LibPhotoPicker from "./components/pickers/libPhotoPicker.vue";
-import selectMultipleDepartments from "./components/selects/multiSelects/selectMultipleDepartments.vue";
+import SelectMultipleDepartments from "./components/selects/multiSelects/selectMultipleDepartments.vue";
+import SelectMultipleTags from "./components/selects/multiSelects/selectMultipleTags.vue";
 import PrimaryInput from "./components/inputs/primaryInput.vue";
 import SimpleSelect from "./components/selects/simpleSelect/simpleSelect.vue";
 import ClientsForm from "./components/CRM+/clientsForm.vue";
+import SimpleLoader from "./components/loaders/simpleLoader.vue";
 import TagView from "./components/CRM+/tagView.vue";
 import FloatingDev from "./components/devHelpers/floating-dev.vue";
 import { useDebugStore } from "~/stores/debugStore";
@@ -48,13 +50,15 @@ function install(Vue) {
   Vue.component("LibPatchNotes", libPatchNotes);
   Vue.component("BtnNewUpdates", btnNewUpdates);
   Vue.component("LibPhotoPicker", LibPhotoPicker);
-  Vue.component("SelectMultipleDepartments", selectMultipleDepartments);
+  Vue.component("SelectMultipleDepartments", SelectMultipleDepartments);
   Vue.component("PrimaryInput", PrimaryInput);
   Vue.component("SimpleSelect", SimpleSelect);
   Vue.component("FloatingDev", FloatingDev);
   Vue.component("RaitingInput", RaitingInput);
   Vue.component("TagView", TagView);
   Vue.component("ClientsForm", ClientsForm);
+  Vue.component("SelectMultipleTags", SelectMultipleTags);
+  Vue.component("SimpleLoader", SimpleLoader);
 }
 
 export function attLibDeparts(department, action = "add") {
@@ -169,6 +173,7 @@ export default {
   SimpleSelect,
   FloatingDev,
   calendar,
+  SimpleLoader,
   MFA,
   chatWindow,
   departSelect,
@@ -180,7 +185,8 @@ export default {
   libPatchNotes,
   btnNewUpdates,
   LibPhotoPicker,
-  selectMultipleDepartments,
+  SelectMultipleDepartments,
+  SelectMultipleTags,
   PrimaryInput,
   getWithContrastColor,
   RaitingInput,

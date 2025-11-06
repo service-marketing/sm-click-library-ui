@@ -1,11 +1,10 @@
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted } from "vue";
 import api from "~/utils/api.js";
 import { onClickOutside } from "@vueuse/core";
 import { contact_tag } from "~/utils/systemUrls";
 import InfiniteLoading from "v3-infinite-loading";
 import { getContrastColor } from "~/utils/functions/getContrastColor.js";
-import { useAuthStore } from "~/stores/authStore";
 
 const props = defineProps({
   // --- Lista que será exibida e já selecionada ---
@@ -33,14 +32,14 @@ const previousPage = ref(null);
 // --- Fecha o dropdown ao clicar fora ---
 onClickOutside(dropdownRef, () => (isOpen.value = false));
 
-// --- Filtra os departamentos conforme a busca ---
+// --- Filtra as Tags conforme a busca ---
 const filteredTags = computed(() =>
   internalTags.value.filter((d) =>
     d.name.toLowerCase().includes(search.value.toLowerCase())
   )
 );
 
-// --- Alterna seleção do departamento ---
+// --- Alterna seleção das tags ---
 const toggleSelect = (item) => {
   const selected = [...props.modelValue];
   const index = selected.findIndex((x) => x.id === item.id);
@@ -71,7 +70,6 @@ const getTags = async () => {
 };
 
 const isLoading = ref(false);
-const authStore = useAuthStore();
 
 const loadMoreTags = async (state) => {
   if (isLoading.value) return; // impede chamadas duplicadas
@@ -94,23 +92,8 @@ const loadMoreTags = async (state) => {
   }
 };
 
-let tagsLoaded = false;
-watch(
-  () => authStore.jwtToken,
-  async (newToken) => {
-    if (newToken && !tagsLoaded) {
-      tagsLoaded = true;
-      await getTags();
-    }
-  },
-  { immediate: true }
-);
-
 onMounted(async () => {
-  if (authStore.jwtToken && !tagsLoaded) {
-    tagsLoaded = true;
-    await getTags();
-  }
+  await getTags();
 });
 </script>
 
@@ -122,7 +105,7 @@ onMounted(async () => {
       class="flex flex-wrap items-center justify-between gap-2 bg-base-300 p-3 rounded-md border border-base-300 cursor-pointer"
     >
       <span v-if="!modelValue.length" class="text-gray-500 text-xs">
-        {{ placeholder }}
+        Selecione suas etiquetas
       </span>
 
       <span class="text-gray-300 text-xs" v-else>
@@ -154,7 +137,8 @@ onMounted(async () => {
     <!-- Dropdown -->
     <div
       v-if="isOpen"
-      class="absolute z-10 mt-1.5 w-full bg-base-300 shadow-sm shadow-base-100 border border-base-300 rounded-md max-h-44 overflow-y-auto hide-scrollbar"
+      style="max-height: 11rem"
+      class="absolute z-10 mt-1.5 w-full bg-base-300 shadow-sm shadow-base-100 border border-base-300 rounded-md overflow-y-auto hide-scrollbar"
     >
       <div class="p-2 sticky top-0 bg-base-300">
         <input
@@ -191,7 +175,7 @@ onMounted(async () => {
           <span
             :style="{ backgroundColor: depart.color || '#ffff' }"
             class="text-xs truncate max-w-32 p-1 rounded-r-md"
-            :class="getWithContrastColor(depart.color || '#ffff')"
+            :class="getContrastColor(depart.color || '#ffff')"
             >{{ depart.name }}</span
           >
         </section>

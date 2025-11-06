@@ -16,14 +16,14 @@ const props = defineProps({
 const emit = defineEmits(["update:outcome", "change"]);
 
 async function testBtn(value) {
-  //  Se clicar no mesmo valor, enviamos null (desmarcar)
+  // Se clicar no mesmo valor, enviamos null (desmarcar)
   const newValue = props.outcome === value ? null : value;
 
   emit("update:outcome", newValue);
   emit("change", newValue);
 }
 
-// ✅ Classe dinâmica para aplicar estilo condicional
+// Classe dinâmica para aplicar estilo condicional
 const isWon = computed(() => props.outcome === "won");
 const isLost = computed(() => props.outcome === "lost");
 </script>

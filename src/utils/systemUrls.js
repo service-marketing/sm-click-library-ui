@@ -6,4 +6,5 @@ export const getInstances = "v1/api/instances/instance/";
 export const stateInstance = (id) => `v1/api/instances/instance/${id}/state/`;
 export const crm_scheduled = "v1/api/crm/event/scheduled_message/";
 export const crm_events = "v1/api/crm/event/calendar";
-export const contact_tag = "v1/api/crm/contact/tag/";
+export const crm_products = "v1/api/crm/products/";
+export const contact_tag = "v1/api/contacts/tag/";

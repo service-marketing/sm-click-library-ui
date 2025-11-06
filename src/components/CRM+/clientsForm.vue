@@ -1,8 +1,13 @@
 <script setup>
 import { computed, onMounted, reactive, watch, toRaw, ref } from "vue";
+
 import SelectMultipleTags from "../selects/multiSelects/selectMultipleTags.vue";
 import OutcomeButton from "./clientsComponents/outcomeButton.vue";
 import PrimaryInput from "../inputs/primaryInput.vue";
+import RaitingInput from "../inputs/raitingInput.vue";
+
+import ListProducts from "./clientsComponents/listProducts.vue";
+import ListSegmentationsFields from "./clientsComponents/listSegmentationsFields.vue";
 
 const emit = defineEmits(["close", "save"]);
 const pageState = ref("data");
@@ -102,7 +107,7 @@ watch(
 
     <div class="modal_responsive">
       <div class="flex min-h-full items-center justify-center text-center">
-        <div class="z-50 w-[85%] lg:w-[45%] shadow rounded-2xl shadow-black">
+        <div class="z-50 w-full lg:w-1/2 shadow rounded-2xl shadow-black">
           <div class="modal_background">
             <!-- --- Header --- -->
             <div
@@ -195,9 +200,9 @@ watch(
             </div>
 
             <!-- --- Body --- -->
-            <div class="grid grid-cols-2 gap-2 p-2">
+            <div class="grid grid-cols-2">
               <section
-                class="w-full flex flex-col gap-3 justify-center items-center"
+                class="w-full flex flex-col gap-3 justify-center items-center p-2"
               >
                 <div v-if="hasCrmPlus" class="flex gap-2">
                   <OutcomeButton
@@ -206,7 +211,7 @@ watch(
                   />
                 </div>
 
-                <div class="flex items-center justify-center w-48">
+                <div class="flex items-center justify-center">
                   <button
                     v-if="form.photo"
                     @click="viewSingleImage(form.photo)"
@@ -215,11 +220,12 @@ watch(
                     <img
                       :src="form.photo"
                       alt=""
-                      class="size-10 object-cover rounded-md hover:brightness-75 transition cursor-pointer"
+                      class="size-24 object-cover rounded-md hover:brightness-75 transition cursor-pointer"
                     />
                   </button>
 
                   <span
+                    v-else
                     class="bg-base-300 p-2 rounded-xl size-24 flex items-center justify-center border border-base-100"
                     ><svg
                       class="size-14"
@@ -264,11 +270,7 @@ watch(
                         </Popper>
                       </header>
 
-                      <SelectMultipleTags
-                        :handlerGetTags="tagsFunctions"
-                        v-model="form.tags"
-                        placeholder="selectDepartmentsPlaceholder"
-                      />
+                      <SelectMultipleTags v-model="form.tags" />
                     </div>
 
                     <div class="w-full">
@@ -280,27 +282,27 @@ watch(
                         :content="configNameInput"
                       />
                     </div>
-
-                    <div v-if="hasCrmPlus">Add product</div>
                   </div>
                 </div>
               </section>
 
-              <section class="flex flex-col gap-3 justify-center">
-                <div class="flex gap-2 justify-between">
+              <section class="bg-base-300 flex flex-col gap-3 justify-center">
+                <div class="flex divide-x divide-x-white justify-between -mb-3">
                   <button
+                    :class="pageState === 'data' ? 'bg-green-900' : ''"
                     @click="pageState = 'data'"
-                    class="bg-base-300 p-1 w-full text-sm rounded-md"
+                    class="bg-base-300 p-1 w-full text-xs font-sans font-medium flex items-center justify-center hover:bg-base-200/70 transition"
                   >
                     Dados do cliente
                   </button>
 
                   <button
+                    :class="pageState === 'products' ? 'bg-green-900' : ''"
                     :disabled="!hasCrmPlus"
-                    @click="pageState = 'history'"
-                    class="bg-base-300 p-1 w-full text-sm rounded-md flex items-center justify-center"
+                    @click="pageState = 'products'"
+                    class="bg-base-300 p-1 w-full text-xs font-sans font-medium flex items-center justify-center hover:bg-base-200/70 transition"
                   >
-                    <p v-if="hasCrmPlus">Histórico</p>
+                    <p v-if="hasCrmPlus">Produtos</p>
 
                     <svg
                       v-else
@@ -323,7 +325,7 @@ watch(
 
                 <div
                   v-if="pageState === 'data'"
-                  class="bg-base-300 flex flex-col gap-2 justify-between h-full p-2 rounded-md overflow-auto"
+                  class="flex flex-col gap-2 justify-between h-full p-1.5"
                 >
                   <div class="test-style">
                     <h1
@@ -353,58 +355,19 @@ watch(
                     ></vue-tel-input>
                   </div>
 
-                  <div class="test-style p-2 h-full">
-                    <h1
-                      class="text-start w-full items-center justify-between flex mb-2 px-1"
-                    >
-                      <p class="text-xs font-semibold">Campos Personalizados</p>
-                    </h1>
-
-                    <div class="flex items-center justify-center h-full">
-                      <p class="text-gray-500 font-extralight text-xs">
-                        Nenhum campo personalizado adicionado
-                      </p>
-                    </div>
-                  </div>
-
-                  <div class="relative">
-                    <span
-                      v-if="!hasCrmPlus"
-                      class="absolute w-full h-full left-0 bg-base-300/80 z-20 rounded-md flex items-center justify-center border border-base-100"
-                    >
-                      <svg
-                        class="size-3.5 text-white"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          fill-rule="evenodd"
-                          d="M8 10V7a4 4 0 1 1 8 0v3h1a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h1Zm2-3a2 2 0 1 1 4 0v3h-4V7Zm2 6a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1Z"
-                          clip-rule="evenodd"
-                        />
-                      </svg>
-                    </span>
-
-                    <div class="test-style p-1.5 h-full">
-                      <PrimaryInput
-                        @update:content="
-                          (newContent) => console.log(newContent)
-                        "
-                        :content="configTextArea"
-                      />
-                    </div>
+                  <div class="h-[28vh] overflow-y-auto">
+                    <ListSegmentationsFields
+                      v-if="pageState === 'data'"
+                      v-model="form.segmentation_fields"
+                    />
                   </div>
                 </div>
 
                 <div
-                  v-else-if="pageState === 'history'"
-                  class="bg-base-300 flex flex-col h-full p-1.5 rounded-md overflow-auto"
+                  v-show="pageState === 'products'"
+                  class="bg-base-300 flex flex-col overflow-auto h-[40vh] overflow-y-auto"
                 >
-                  history
+                  <ListProducts v-model="form.products" />
                 </div>
               </section>
             </div>
@@ -412,6 +375,7 @@ watch(
             <!-- --- Rodapé (Botão de salvar) --- -->
             <div class="modal_end_button">
               <button
+                :disabled="loading"
                 class="bg-green-500 py-2 px-4 rounded-lg text-sm font-medium hover:bg-green-500/80 transition-colors flex gap-2 items-center justify-center min-w-32"
                 @click="saveClient()"
               >

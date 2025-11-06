@@ -13,7 +13,7 @@
  * />
  */
 
-import { ref, computed, defineProps, defineEmits } from "vue";
+import { ref, computed, defineProps, defineEmits, watch, onMounted, onUnmounted } from "vue";
 import { onClickOutside } from "@vueuse/core";
 
 const props = defineProps({
@@ -48,15 +48,58 @@ const props = defineProps({
     type: String,
     default: "bg-base-300 border-base-300",
   },
+  // --- Teleport do dropdown para fora do fluxo normal (ex: 'body') ---
+  // Use quando o select estiver dentro de um contêiner com overflow que corta o dropdown.
+  teleportTo: {
+    type: String,
+    default: null, // quando null mantém comportamento antigo (absolute dentro do container)
+  },
 });
 
 const emit = defineEmits(["update:modelValue"]);
 
 const isOpen = ref(false);
-const dropdownRef = ref(null);
+const dropdownRef = ref(null); // ref do container geral
+const triggerRef = ref(null); // ref da área clicável (campo principal)
+const dropdownStyle = ref({}); // estilos calculados quando usa teleport
 
 // --- Fecha dropdown ao clicar fora ---
 onClickOutside(dropdownRef, () => (isOpen.value = false));
+
+// --- Calcula posição absoluta (fixed) para o dropdown quando teletransportado ---
+const updatePosition = () => {
+  if (!props.teleportTo || !triggerRef.value) return;
+  const rect = triggerRef.value.getBoundingClientRect();
+  dropdownStyle.value = {
+    position: 'fixed', // evita ser afetado por scroll de ancestors
+    top: `${rect.bottom + 6}px`, // pequeno espaçamento
+    left: `${rect.left}px`,
+    width: `${rect.width}px`,
+    zIndex: 9999,
+  };
+};
+
+watch(isOpen, (open) => {
+  if (open) {
+    updatePosition();
+  }
+});
+
+const listeners = [];
+onMounted(() => {
+  if (props.teleportTo) {
+    const reposition = () => {
+      if (isOpen.value) updatePosition();
+    };
+    window.addEventListener('scroll', reposition, true); // true captura scroll em containers
+    window.addEventListener('resize', reposition);
+    listeners.push(['scroll', reposition], ['resize', reposition]);
+  }
+});
+
+onUnmounted(() => {
+  listeners.forEach(([evt, fn]) => window.removeEventListener(evt, fn, evt === 'scroll' ? true : undefined));
+});
 
 // --- Verifica se um item está selecionado ---
 const isSelected = (optionValue) => {
@@ -110,6 +153,7 @@ const displayLabel = computed(() => {
         'flex flex-wrap items-center justify-between p-3 gap-2 rounded-md cursor-pointer transition',
         theme,
       ]"
+      ref="triggerRef"
     >
       <span
         :class="[
@@ -140,11 +184,11 @@ const displayLabel = computed(() => {
       </svg>
     </div>
 
-    <!-- Dropdown -->
+    <!-- Dropdown (modo padrão dentro do fluxo) -->
     <div
-      v-if="isOpen"
+      v-if="isOpen && !teleportTo"
       :class="[
-        'absolute flex flex-col z-10 mt-1.5 w-full  shadow-sm border rounded-md max-h-64 overflow-y-auto hide-scrollbar',
+        'absolute flex flex-col z-10 mt-1.5 w-full shadow-sm border rounded-md max-h-64 overflow-y-auto hide-scrollbar',
         theme,
       ]"
     >
@@ -160,8 +204,6 @@ const displayLabel = computed(() => {
         @click="toggleSelect(option.value)"
       >
         <span>{{ option.name }}</span>
-
-        <!-- Indicador de seleção -->
         <svg
           v-if="isSelected(option.value)"
           xmlns="http://www.w3.org/2000/svg"
@@ -170,15 +212,45 @@ const displayLabel = computed(() => {
           viewBox="0 0 24 24"
           stroke="currentColor"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M5 13l4 4L19 7"
-          />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
         </svg>
       </button>
     </div>
+
+    <!-- Dropdown teletransportado para fora (evita clipping por overflow) -->
+    <Teleport v-if="isOpen && teleportTo" :to="teleportTo">
+      <div
+        :style="dropdownStyle"
+        :class="[
+          'flex flex-col shadow-sm border rounded-md max-h-64 overflow-y-auto hide-scrollbar',
+          theme,
+        ]"
+      >
+        <button
+          v-for="option in options"
+          :key="option.value"
+          :class="[
+            isSelected(option.value)
+              ? 'bg-green-500/30 hover:bg-green-500/50'
+              : 'hover:bg-base-200',
+            'flex items-center justify-between gap-2 px-3 py-2 text-left text-sm cursor-pointer transition w-full',
+          ]"
+          @click="toggleSelect(option.value)"
+        >
+          <span>{{ option.name }}</span>
+          <svg
+            v-if="isSelected(option.value)"
+            xmlns="http://www.w3.org/2000/svg"
+            class="size-4 text-green-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+        </button>
+      </div>
+    </Teleport>
   </div>
 </template>
 
