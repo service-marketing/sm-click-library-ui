@@ -29,10 +29,10 @@ watch(
     <header
       class="text-start w-full items-center justify-between flex mb-2 px-1"
     >
-      <p class="text-xs font-semibold">Campos Personalizados</p>
+      <p class="text-sm font-semibold">Campos Personalizados</p>
     </header>
 
-    <div class="flex flex-col gap-3">
+    <div class="flex flex-col gap-2">
       <section v-for="field in segmentationsFields" :key="field.id">
         <div
           :class="[
@@ -50,7 +50,7 @@ watch(
             />
           </template>
 
-          <p class="text-xs">{{ field.name }}:</p>
+          <p class="text-[10px] font-sans">{{ field.name }}:</p>
 
           <template v-if="field.type === 'string'">
             <input class="input_field" type="text" v-model="field.content" />

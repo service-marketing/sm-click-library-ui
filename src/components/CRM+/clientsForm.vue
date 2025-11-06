@@ -355,7 +355,10 @@ watch(
                     ></vue-tel-input>
                   </div>
 
-                  <div class="h-[28vh] overflow-y-auto">
+                  <div
+                    :class="{ noCrmPlus: !hasCrmPlus }"
+                    class="segmentation-section"
+                  >
                     <ListSegmentationsFields
                       v-if="pageState === 'data'"
                       v-model="form.segmentation_fields"
@@ -365,7 +368,7 @@ watch(
 
                 <div
                   v-show="pageState === 'products'"
-                  class="bg-base-300 flex flex-col overflow-auto h-[40vh] overflow-y-auto"
+                  class="products-list-section"
                 >
                   <ListProducts v-model="form.products" />
                 </div>
@@ -394,6 +397,24 @@ watch(
 </template>
 
 <style scoped>
+.products-list-section {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  height: 48vh;
+  overflow-y: auto;
+  background-color: #111b21;
+}
+
+.segmentation-section {
+  overflow-y: auto;
+  height: 34vh;
+}
+
+.segmentation-section.noCrmPlus {
+  height: 20vh;
+}
+
 .test-style {
   @apply flex flex-col rounded-md bg-base-200 border border-white/10 shadow-sm transition-shadow duration-200 hover:shadow-md;
 }
