@@ -1,7 +1,10 @@
 
 
 <script setup>
-import { ref, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
+import { segmentation_field } from "~/utils/systemUrls.js";
+import api from "~/utils/api.js";
+import SimpleLoader from "../../loaders/simpleLoader.vue";
 
 const props = defineProps({
   // --- Lista que será exibida e já selecionada ---
@@ -14,6 +17,25 @@ const props = defineProps({
 const emit = defineEmits(["update:modelValue"]);
 
 const segmentationsFields = ref([...props.modelValue]);
+const loading = ref(false);
+
+const getSegmentationsFields = async () => {
+  try {
+    loading.value = true;
+    const response = await api.get(segmentation_field);
+    segmentationsFields.value = response.data;
+  } catch (error) {
+    console.error("Error fetching segmentation fields:", error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+onMounted(() => {
+  if (props.modelValue.length === 0) {
+    getSegmentationsFields();
+  }
+});
 
 watch(
   segmentationsFields,
@@ -25,7 +47,9 @@ watch(
 </script>
 
 <template>
-  <div class="test-style p-2 h-full overflow-auto">
+  <SimpleLoader v-if="loading" />
+
+  <div v-else class="test-style p-1 h-full overflow-auto">
     <header
       class="text-start w-full items-center justify-between flex mb-2 px-1"
     >

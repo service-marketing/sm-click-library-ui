@@ -34,7 +34,7 @@ const isLost = computed(() => props.outcome === "lost");
       @click="testBtn('won')"
       :class="['button_outcome-base', { 'button_outcome-active-won': isWon }]"
     >
-      <p>Aceito</p>
+      <p>Ganho</p>
       <svg
         :class="{ 'svg_outcome-active-won': isWon }"
         class="text-white size-4"

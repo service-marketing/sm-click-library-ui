@@ -51,9 +51,19 @@ const toggleSelect = (item) => {
   emit("update:modelValue", selected);
 };
 
-const getTags = async () => {
+const mountUrl = (baseUrl, params) => {
+  const paramsSearch = new URLSearchParams();
+  const url = baseUrl;
+
+  Object.keys(params).forEach((key) => paramsSearch.append(key, params[key]));
+  return `${url}?${paramsSearch.toString()}`;
+};
+
+const getTags = async (params) => {
   try {
-    const res = await api.get(`${contact_tag}?page=${page.value}`);
+    const res = await api.get(
+      mountUrl(contact_tag, { page: page.value, ...params })
+    );
     const { results, next, previous } = res.data;
 
     nextPage.value = next;
@@ -91,6 +101,23 @@ const loadMoreTags = async (state) => {
     isLoading.value = false; // libera para a próxima chamada
   }
 };
+
+const filters = ref({ name: "" });
+const itsSearching = ref(false);
+
+let debounceTimer;
+watch(
+  filters,
+  () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(async () => {
+      const { name } = filters.value;
+      page.value = 1;
+      await getTags({ name: name.toString() });
+    }, 800); // 500ms de atraso após parar de digitar
+  },
+  { deep: true }
+);
 
 onMounted(async () => {
   await getTags();
@@ -137,12 +164,12 @@ onMounted(async () => {
     <!-- Dropdown -->
     <div
       v-if="isOpen"
-      style="max-height: 11rem"
+      style="max-height: 10rem"
       class="absolute z-10 mt-1.5 w-full bg-base-300 shadow-sm shadow-base-100 border border-base-300 rounded-md overflow-y-auto hide-scrollbar"
     >
       <div class="p-2 sticky top-0 bg-base-300">
         <input
-          v-model="search"
+          v-model="filters.name"
           type="text"
           placeholder="Buscar..."
           class="w-full text-[10px] bg-base-200 rounded-md p-2 outline-none border-none focus:outline-none focus:ring-0 focus:shadow-none placeholder:text-gray-500"

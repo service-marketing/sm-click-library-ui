@@ -146,11 +146,7 @@ const loadMoreProducts = async (state) => {
   }
 };
 
-const filters = ref({
-  query: "",
-  recurrence: "",
-  status: "",
-});
+const filters = ref({ query: "" });
 const itsSearching = ref(false);
 
 let debounceTimer;
@@ -159,11 +155,11 @@ watch(
   () => {
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(async () => {
-      const { query, recurrence, status } = filters.value;
+      const { query } = filters.value;
       page.value = 1;
-      itsSearching.value = !!(query || recurrence || status);
+      itsSearching.value = !!query;
       loading.value = true;
-      await getProducts({ query, recurrence, status });
+      await getProducts({ query });
       loading.value = false;
     }, 500); // 500ms de atraso após parar de digitar
   },
@@ -187,7 +183,7 @@ watch(
       />
 
       <section
-        class="sticky bottom-0 bg-green-900 p-1.5 text-[10px] rounded-md border border-green-500 w-full"
+        class="bg-green-900 p-1.5 text-[10px] rounded-md border border-green-500 w-full"
       >
         Valor total: R${{ totalPrice.toFixed(2) }}
       </section>

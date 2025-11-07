@@ -32,6 +32,7 @@ const props = defineProps({
       updated_at: "",
       client: "",
       products: [],
+      notes: "",
     }),
   },
   // --- Função que salva o formulário ---
@@ -43,15 +44,12 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  tagsFunctions: {
-    type: Function,
-    default: () => {},
-  },
 });
 
 // --- Estado principal do formulário ---
 const form = reactive({ ...props.form });
 const loading = ref(false);
+const erros = ref(false);
 
 const configTextArea = {
   title: "Anotações",
@@ -63,25 +61,42 @@ const configTextArea = {
   data: null,
 };
 
-const configNameInput = ref({
-  title: "Nome",
-  info: "Nome do contato",
-  type: "text",
-  placeholder: "Digite o nome do contato",
-  empty: false,
-  data: computed({
-    get: () => form.name,
-    set: (value) => (form.name = value),
-  }),
-});
+const configNameInput = ref([
+  {
+    title: "Nome",
+    info: "Nome do contato",
+    type: "text",
+    placeholder: "Digite o nome do contato",
+    empty: computed(() => erros.value),
+    data: computed({
+      get: () => form.name,
+      set: (value) => (form.name = value),
+    }),
+  },
+  {
+    title: "Descrição",
+    info: "Descreva o produto para facilitar a identificação",
+    type: "textArea",
+    placeholder:
+      "Automatize fluxos de trabalho com integração rápida e segura entre sistemas.",
+    empty: false,
+    data: computed({
+      get: () => form.notes,
+      set: (val) => (form.notes = val),
+    }),
+  },
+]);
 
 const modalTitle = computed(() =>
-  props.form.mode === "edit" ? `Editar ${form.name}` : "Adicionar Novo Cliente"
+  props.form.mode === "edit" ? "Editar cliente" : "Adicionar Novo Cliente"
 );
 
 // --- Função de salvar cliente ---
 const saveClient = async () => {
   try {
+    erros.value = form.name.trim() === "";
+    if (erros.value) return;
+
     loading.value = true;
     await props.save(form);
   } catch (e) {
@@ -139,43 +154,6 @@ watch(
               </span>
 
               <section class="flex gap-2 items-center">
-                <Popper hover arrow>
-                  <template #content>
-                    <div
-                      class="text-[10px] bg-base-100 p-2 rounded-md w-52 text-center"
-                    >
-                      Uma label explicativa sobre a funcionalidade do CRM+, CTA
-                      e etc.
-                    </div>
-                  </template>
-
-                  <span
-                    class="bg-green-500 rounded-full flex items-center justify-center p-1.5 group"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="size-3.5 text-white"
-                      viewBox="0 0 800 726"
-                      fill="none"
-                    >
-                      <path
-                        d="M208 195.556H8.88906C3.98125 195.556 0 199.535 0 204.445V698.667C0 713.393 11.9391 725.334 26.6672 725.334H208C212.908 725.334 216.889 721.354 216.889 716.445V204.445C216.889 199.535 212.908 195.556 208 195.556ZM140.452 616.888H76.4516C61.725 616.888 49.7844 604.949 49.7844 590.221C49.7844 575.493 61.7234 563.554 76.4516 563.554H140.452C155.178 563.554 167.119 575.493 167.119 590.221C167.119 604.949 155.18 616.888 140.452 616.888ZM140.452 487.11H76.4516C61.725 487.11 49.7844 475.171 49.7844 460.443C49.7844 445.717 61.7234 433.776 76.4516 433.776H140.452C155.178 433.776 167.119 445.715 167.119 460.443C167.119 475.171 155.18 487.11 140.452 487.11ZM140.452 357.334H76.4516C61.725 357.334 49.7844 345.395 49.7844 330.667C49.7844 315.938 61.7234 303.999 76.4516 303.999H140.452C155.178 303.999 167.119 315.938 167.119 330.667C167.119 345.395 155.18 357.334 140.452 357.334Z"
-                        fill="currentColor"
-                      ></path>
-                      <path
-                        d="M773.333 0H26.6672C11.9391 0 0 11.9406 0 26.6672V133.334C0 138.242 3.97969 142.223 8.88906 142.223H791.111C796.019 142.223 800 138.244 800 133.334V26.6672C800 11.9406 788.061 0 773.333 0ZM101.333 88.8891C91.5141 88.8891 83.5547 80.9297 83.5547 71.1109C83.5547 61.2922 91.5141 53.3328 101.333 53.3328C111.152 53.3328 119.111 61.2922 119.111 71.1109C119.111 80.9297 111.152 88.8891 101.333 88.8891ZM172.444 88.8891C162.625 88.8891 154.666 80.9297 154.666 71.1109C154.666 61.2922 162.625 53.3328 172.444 53.3328C182.262 53.3328 190.222 61.2922 190.222 71.1109C190.222 80.9297 182.262 88.8891 172.444 88.8891ZM243.556 88.8891C233.738 88.8891 225.778 80.9297 225.778 71.1109C225.778 61.2922 233.738 53.3328 243.556 53.3328C253.375 53.3328 261.334 61.2922 261.334 71.1109C261.333 80.9297 253.373 88.8891 243.556 88.8891Z"
-                        fill="currentColor"
-                      ></path>
-                      <path
-                        fill-rule="evenodd"
-                        clip-rule="evenodd"
-                        d="M791.111 195.556C796.021 195.556 800.001 199.535 800.001 204.444V698.667C800.001 713.395 788.06 725.334 773.334 725.334H279.111C274.202 725.334 270.223 721.352 270.223 716.444V204.444C270.223 199.535 274.204 195.556 279.111 195.556H791.111ZM558.521 358.955C550.005 339.015 520.995 339.015 512.479 358.955L490.642 410.056L433.968 414.482C411.869 416.199 402.905 443.068 419.75 457.122L462.928 493.14L449.73 546.999C444.589 568.006 468.057 584.61 486.981 573.353L535.5 544.498L584.019 573.365C602.943 584.623 626.411 568.018 621.27 546.999L608.072 493.164L651.25 457.135C668.095 443.081 659.131 416.224 637.032 414.495L580.358 410.08L558.521 358.955Z"
-                        fill="currentColor"
-                      ></path>
-                    </svg>
-                  </span>
-                </Popper>
-
                 <button
                   class="bg-base-200 p-1.5 rounded-md hover:bg-base-200/70 transition"
                   @click="emit('close')"
@@ -204,57 +182,78 @@ watch(
               <section
                 class="w-full flex flex-col gap-3 justify-center items-center p-2"
               >
-                <div v-if="hasCrmPlus" class="flex gap-2">
-                  <OutcomeButton
-                    :outcome="form.outcome"
-                    @update:outcome="form.outcome = $event"
-                  />
-                </div>
-
-                <div class="flex items-center justify-center">
-                  <button
-                    v-if="form.photo"
-                    @click="viewSingleImage(form.photo)"
-                    class="cursor-pointer"
+                <div class="flex gap-2">
+                  <div
+                    title="Não é possível alterar a foto do cliente neste momento"
+                    class="flex items-center justify-center w-full"
                   >
-                    <img
-                      :src="form.photo"
-                      alt=""
-                      class="size-24 object-cover rounded-md hover:brightness-75 transition cursor-pointer"
-                    />
-                  </button>
-
-                  <span
-                    v-else
-                    class="bg-base-300 p-2 rounded-xl size-24 flex items-center justify-center border border-base-100"
-                    ><svg
-                      class="size-14"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
+                    <button
+                      v-if="form.photo"
+                      @click="viewSingleImage(form.photo)"
                     >
-                      <path
-                        fill-rule="evenodd"
-                        d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4h-4Z"
-                        clip-rule="evenodd"
-                      /></svg
-                  ></span>
-                </div>
+                      <img
+                        :src="form.photo"
+                        alt=""
+                        class="size-24 object-cover rounded-md cursor-not-allowed"
+                      />
+                    </button>
 
-                <RaitingInput v-if="hasCrmPlus" v-model="form.rating" />
+                    <span
+                      v-else
+                      class="bg-base-300 p-2 rounded-xl size-24 flex items-center justify-center border border-base-100 cursor-not-allowed"
+                      ><svg
+                        class="size-14"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4h-4Z"
+                          clip-rule="evenodd"
+                        /></svg
+                    ></span>
+                  </div>
+
+                  <div
+                    v-if="hasCrmPlus"
+                    class="flex flex-col w-full items-center justify-between py-2"
+                  >
+                    <OutcomeButton
+                      :outcome="form.outcome"
+                      @update:outcome="form.outcome = $event"
+                    />
+                    <RaitingInput v-model="form.rating" />
+                  </div>
+                </div>
 
                 <div class="flex flex-col w-full gap-2">
                   <div class="flex flex-col gap-2 w-full">
+                    <div class="w-full">
+                      <PrimaryInput
+                        @update:content="
+                          (newContent) =>
+                            (configNameInput[0].data = newContent.data)
+                        "
+                        :content="configNameInput[0]"
+                      />
+                    </div>
+
                     <div class="flex flex-col gap-2 w-full">
                       <header class="flex items-center justify-between px-1">
                         <p class="text-xs font-medium text-left">
-                          Nome da etiqueta
+                          Escolha suas etiquetas
                         </p>
 
-                        <Popper hover content="teste" placement="top" arrow>
+                        <Popper
+                          hover
+                          content="Etiquetas que estão atribuídas ao cliente"
+                          placement="top"
+                          arrow
+                        >
                           <svg
                             class="size-4 text-white"
                             xmlns="http://www.w3.org/2000/svg"
@@ -273,53 +272,76 @@ watch(
                       <SelectMultipleTags v-model="form.tags" />
                     </div>
 
-                    <div class="w-full">
-                      <PrimaryInput
-                        @update:content="
-                          (newContent) =>
-                            (configNameInput.data = newContent.data)
-                        "
-                        :content="configNameInput"
-                      />
+                    <div v-if="hasCrmPlus" class="flex flex-col gap-2">
+                      <header class="flex items-center justify-between px-1">
+                        <p class="text-xs font-medium text-left">
+                          Anotações sobre o cliente
+                        </p>
+
+                        <Popper
+                          hover
+                          content="Etiquetas que estão atribuídas ao cliente"
+                          placement="top"
+                          arrow
+                        >
+                          <svg
+                            class="size-4 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              fill-rule="evenodd"
+                              clip-rule="evenodd"
+                              d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm9.408-5.5a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2h-.01ZM10 10a1 1 0 1 0 0 2h1v3h-1a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2h-1v-4a1 1 0 0 0-1-1h-2Z"
+                            />
+                          </svg>
+                        </Popper>
+                      </header>
+
+                      <div class="w-full bg-base-300 rounded-lg">
+                        <textarea
+                          style="padding: 0.5rem; resize: none"
+                          class="w-full bg-base-300 text-xs rounded-md outline-none border-none focus:outline-none focus:ring-0 focus:shadow-none h-32 p-2 resize-none"
+                          v-model="form.notes"
+                          maxlength="1000"
+                        ></textarea>
+
+                        <div
+                          class="text-right pr-2 pb-1 text-[10px]"
+                          :class="
+                            form.notes?.length > 900
+                              ? 'text-red-500'
+                              : form.notes?.length > 700
+                              ? 'text-yellow-500'
+                              : 'text-gray-400'
+                          "
+                        >
+                          {{ form.notes?.length || 0 }}/1000
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </section>
 
-              <section class="bg-base-300 flex flex-col gap-3 justify-center">
-                <div class="flex divide-x divide-x-white justify-between -mb-3">
+              <section class="bg-base-300 flex flex-col justify-cente">
+                <div v-if="hasCrmPlus" class="flex gap-1 px-1.5">
                   <button
-                    :class="pageState === 'data' ? 'bg-green-900' : ''"
+                    :class="pageState === 'data' ? 'bg-gray-700/50' : ''"
                     @click="pageState = 'data'"
-                    class="bg-base-300 p-1 w-full text-xs font-sans font-medium flex items-center justify-center hover:bg-base-200/70 transition"
+                    class="bg-base-200 p-1.5 w-full text-xs font-sans font-medium flex items-center justify-center hover:bg-base-200/70 transition rounded-md"
                   >
                     Dados do cliente
                   </button>
 
                   <button
-                    :class="pageState === 'products' ? 'bg-green-900' : ''"
+                    :class="pageState === 'products' ? 'bg-gray-700/50' : ''"
                     :disabled="!hasCrmPlus"
                     @click="pageState = 'products'"
-                    class="bg-base-300 p-1 w-full text-xs font-sans font-medium flex items-center justify-center hover:bg-base-200/70 transition"
+                    class="bg-base-200 p-1.5 w-full text-xs font-sans font-medium flex items-center justify-center hover:bg-base-200/70 transition rounded-md"
                   >
-                    <p v-if="hasCrmPlus">Produtos</p>
-
-                    <svg
-                      v-else
-                      class="size-3.5 text-white"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M8 10V7a4 4 0 1 1 8 0v3h1a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h1Zm2-3a2 2 0 1 1 4 0v3h-4V7Zm2 6a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1Z"
-                        clip-rule="evenodd"
-                      />
-                    </svg>
+                    <p>Produtos</p>
                   </button>
                 </div>
 
@@ -334,25 +356,43 @@ watch(
                       <p class="text-xs font-semibold">Contatos</p>
                     </h1>
 
-                    <vue-tel-input
-                      class="z-50"
-                      @country-changed="(crt) => (form.country = crt.iso2)"
-                      :mode="'national'"
-                      :validCharactersOnly="true"
-                      :defaultCountry="form.country"
-                      :inputOptions="{
-                        placeholder: 'Coloque seu telefone',
-                        showDialCode: false,
-                        required: true,
-                        searchBoxPlaceholder: 'Brazil',
-                      }"
-                      :dropdownOptions="{
-                        showSearchBox: true,
-                        showFlags: true,
-                        searchBoxPlaceholder: 'Brazil',
-                      }"
-                      v-model="form.telephone"
-                    ></vue-tel-input>
+                    <div class="flex w-full">
+                      <span
+                        style="border-bottom-left-radius: 0.4rem"
+                        class="bg-base-300 rounded-bl-lg rounded-t-none flex justify-center items-center w-8"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="currentColor"
+                          class="size-4 text-gray-500"
+                          viewBox="0 0 16 16"
+                        >
+                          <path
+                            d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"
+                          ></path>
+                        </svg>
+                      </span>
+
+                      <vue-tel-input
+                        class="z-50 w-full"
+                        @country-changed="(crt) => (form.country = crt.iso2)"
+                        :mode="'national'"
+                        :validCharactersOnly="true"
+                        :defaultCountry="form.country"
+                        :inputOptions="{
+                          placeholder: 'Coloque seu telefone',
+                          showDialCode: false,
+                          required: true,
+                          searchBoxPlaceholder: 'Brazil',
+                        }"
+                        :dropdownOptions="{
+                          showSearchBox: true,
+                          showFlags: true,
+                          searchBoxPlaceholder: 'Brazil',
+                        }"
+                        v-model="form.telephone"
+                      ></vue-tel-input>
+                    </div>
                   </div>
 
                   <div
@@ -408,7 +448,7 @@ watch(
 
 .segmentation-section {
   overflow-y: auto;
-  height: 34vh;
+  height: 50vh;
 }
 
 .segmentation-section.noCrmPlus {
@@ -424,7 +464,7 @@ watch(
 }
 
 ::v-deep(.vti__dropdown) {
-  @apply rounded-bl-lg rounded-t-none bg-base-300 border border-base-300 shadow-md;
+  @apply rounded-none bg-base-300 border border-base-300 shadow-md p-1;
 }
 
 ::v-deep(.vti__dropdown-item) {
