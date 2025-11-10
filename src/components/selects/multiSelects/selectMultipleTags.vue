@@ -1,7 +1,6 @@
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount, watch } from "vue";
 import api from "~/utils/api.js";
-import { onClickOutside } from "@vueuse/core";
 import { contact_tag } from "~/utils/systemUrls";
 import InfiniteLoading from "v3-infinite-loading";
 import { getContrastColor } from "~/utils/functions/getContrastColor.js";
@@ -12,20 +11,28 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
-  handlerGetTags: {
-    type: Function,
-    default: null,
+  // --- Define se permite múltiplas seleções. Quando false, funciona como single-select ---
+  multiple: {
+    type: Boolean,
+    default: true,
   },
+  // --- Em modo single, fecha o dropdown imediatamente após selecionar ---
+  closeOnSelectSingle: {
+    type: Boolean,
+    default: true,
+  },
+  // --- Define o seletor CSS do container onde o dropdown será teletransportado ---
+  // --- quando null mantém comportamento antigo (absolute dentro do container) ---
   teleportTo: {
     type: String,
-    default: null, // quando null mantém comportamento antigo (absolute dentro do container)
+    default: null,
   },
-  // Altura máxima do dropdown (aceita qualquer valor CSS ex: '16rem', '300px')
+  // --- Altura máxima do dropdown (aceita qualquer valor CSS ex: '16rem', '300px') ---
   maxHeight: {
     type: String,
     default: "10rem",
   },
-  // --- lista de todos as tags em geral ---
+  // --- lista de todas as tags em geral ---
   allTags: {
     type: Object,
     default: () => {},
@@ -36,18 +43,36 @@ const emit = defineEmits(["update:modelValue"]);
 
 const isOpen = ref(false);
 const search = ref("");
-const dropdownRef = ref(null);
-const internalTags = ref([]);
-const page = ref(1);
-
-const nextPage = ref(null);
-const previousPage = ref(null);
-
-// --- Fecha o dropdown ao clicar fora ---
-onClickOutside(dropdownRef, () => (isOpen.value = false));
-
+const dropdownRef = ref(null); // container original (não teleportado)
+const teleportedRef = ref(null); // container quando teleportado
 const triggerRef = ref(null); // ref da área clicável (campo principal)
 const dropdownStyle = ref({}); // estilos calculados quando usa teleport
+const internalTags = ref([]);
+const page = ref(1);
+const nextPage = ref(null);
+const previousPage = ref(null);
+const isLoading = ref(false);
+const listeners = [];
+const filters = ref({ name: "" });
+const itsSearching = ref(false);
+
+// --- Primeiro selecionado (modo single) ---
+const firstSelected = computed(() => props.modelValue[0] || null);
+
+// --- Fecha o dropdown ao clicar fora (custom p/ suportar teleport) ---
+const handleOutside = (e) => {
+  if (!isOpen.value) return;
+  const target = e.target;
+  // Se o clique está dentro de qualquer um dos containers, não fecha
+  if (
+    triggerRef.value?.contains(target) ||
+    dropdownRef.value?.contains(target) ||
+    teleportedRef.value?.contains(target)
+  ) {
+    return;
+  }
+  isOpen.value = false;
+};
 
 // --- Calcula posição absoluta (fixed) para o dropdown quando teletransportado ---
 const updatePosition = () => {
@@ -68,8 +93,6 @@ watch(isOpen, (open) => {
   }
 });
 
-const listeners = [];
-
 // --- Filtra as Tags conforme a busca ---
 const filteredTags = computed(() =>
   internalTags.value.filter((d) =>
@@ -79,6 +102,22 @@ const filteredTags = computed(() =>
 
 // --- Alterna seleção das tags ---
 const toggleSelect = (item) => {
+  // --- Modo single-select ---
+  if (!props.multiple) {
+    // --- Se já está selecionado, alterna para vazio ---
+    if (firstSelected.value?.id === item.id) {
+      emit("update:modelValue", []);
+      return;
+    }
+    emit("update:modelValue", [
+      { id: item.id, name: item.name, color: item.color },
+    ]);
+    if (props.closeOnSelectSingle) {
+      isOpen.value = false;
+    }
+    return;
+  }
+  // --- Modo múltiplo padrão ---
   const selected = [...props.modelValue];
   const index = selected.findIndex((x) => x.id === item.id);
   if (index === -1) {
@@ -92,7 +131,6 @@ const toggleSelect = (item) => {
 const mountUrl = (baseUrl, params) => {
   const paramsSearch = new URLSearchParams();
   const url = baseUrl;
-
   Object.keys(params).forEach((key) => paramsSearch.append(key, params[key]));
   return `${url}?${paramsSearch.toString()}`;
 };
@@ -117,10 +155,8 @@ const getTags = async (params) => {
   }
 };
 
-const isLoading = ref(false);
-
 const loadMoreTags = async (state) => {
-  if (isLoading.value) return; // impede chamadas duplicadas
+  if (isLoading.value) return;
   isLoading.value = true;
 
   try {
@@ -139,9 +175,6 @@ const loadMoreTags = async (state) => {
     isLoading.value = false; // libera para a próxima chamada
   }
 };
-
-const filters = ref({ name: "" });
-const itsSearching = ref(false);
 
 let debounceTimer;
 watch(
@@ -177,6 +210,12 @@ onMounted(async () => {
     window.addEventListener("resize", reposition);
     listeners.push(["scroll", reposition], ["resize", reposition]);
   }
+  // Listener global para clique fora (suporta ambos os modos)
+  document.addEventListener("mousedown", handleOutside);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener("mousedown", handleOutside);
 });
 </script>
 
@@ -188,13 +227,25 @@ onMounted(async () => {
       ref="triggerRef"
       class="flex flex-wrap items-center justify-between gap-2 bg-base-300 p-3 rounded-md border border-base-300 cursor-pointer"
     >
-      <span v-if="!modelValue.length" class="text-gray-500 text-xs">
-        Selecione suas etiquetas
-      </span>
-
-      <span class="text-gray-300 text-xs" v-else>
-        Selecionados: <a class="text-green-500">{{ modelValue.length }}</a>
-      </span>
+      <!-- Trigger adaptado para single ou múltiplo -->
+      <template v-if="multiple">
+        <span v-if="!modelValue.length" class="text-gray-500 text-xs">
+          Selecione suas etiquetas
+        </span>
+        <span class="text-gray-300 text-xs" v-else>
+          Selecionados: <a class="text-green-500">{{ modelValue.length }}</a>
+        </span>
+      </template>
+      <template v-else>
+        <span v-if="!modelValue.length" class="text-gray-500 text-xs">
+          Selecione a etiqueta
+        </span>
+        <section v-else class="inline-flex items-center gap-1">
+          <span class="text-xs truncate max-w-32 rounded-r-md">{{
+            modelValue[0]?.name
+          }}</span>
+        </section>
+      </template>
 
       <svg
         :class="[
@@ -305,6 +356,7 @@ onMounted(async () => {
 
     <Teleport v-if="isOpen && teleportTo" :to="teleportTo">
       <div
+        ref="teleportedRef"
         :style="{ ...dropdownStyle, maxHeight: props.maxHeight }"
         class="absolute z-10 mt-1.5 w-full bg-base-300 shadow-sm shadow-base-100 border border-base-300 rounded-md overflow-y-auto hide-scrollbar"
       >
