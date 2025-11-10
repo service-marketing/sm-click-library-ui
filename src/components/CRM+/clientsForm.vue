@@ -194,9 +194,12 @@ watch(
             <!-- --- Body --- -->
             <div class="grid grid-cols-2 flex-1 min-h-0 overflow-hidden">
               <section
-                class="w-full flex flex-col justify-between items-center p-1"
+                class="w-full flex flex-col items-center justify-between p-1 overflow-x-hidden overflow-y-auto"
               >
-                <div class="flex flex-col gap-2 justify-center items-center">
+                <div
+                  :class="hasCrmPlus ? 'justify-between ' : 'justify-center'"
+                  class="flex flex-col gap-2 h-full items-center"
+                >
                   <OutcomeButton
                     v-if="hasCrmPlus"
                     :outcome="form.outcome"
@@ -215,15 +218,15 @@ watch(
                       <img
                         :src="form.photo"
                         alt=""
-                        class="size-24 object-cover rounded-md cursor-not-allowed"
+                        class="size-24 xl:size-36 object-cover rounded-md cursor-not-allowed"
                       />
                     </button>
 
                     <span
                       v-else
-                      class="bg-base-300 p-2 rounded-xl size-24 flex items-center justify-center border border-base-100 cursor-not-allowed"
+                      class="bg-base-300 p-2 rounded-xl size-24 xl:size-36 flex items-center justify-center border border-base-100 cursor-not-allowed"
                       ><svg
-                        class="size-14"
+                        class="size-14 xl:size-24"
                         aria-hidden="true"
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
@@ -470,9 +473,9 @@ watch(
 
 .modal-form-container {
   z-index: 50;
-  width: 100%;
+  width: 90%;
   border-radius: 1rem;
-
+  overflow: auto;
   @apply shadow shadow-black;
 }
 
