@@ -1,13 +1,14 @@
-
-
 <script setup>
 import { onMounted, ref, watch } from "vue";
 import { segmentation_field } from "~/utils/systemUrls.js";
 import api from "~/utils/api.js";
 import SimpleLoader from "../../loaders/simpleLoader.vue";
 
+function deepClone(obj) {
+  return JSON.parse(JSON.stringify(obj));
+}
+
 const props = defineProps({
-  // --- Lista que será exibida e já selecionada ---
   modelValue: {
     type: Array,
     default: () => [],
@@ -16,7 +17,7 @@ const props = defineProps({
 
 const emit = defineEmits(["update:modelValue"]);
 
-const segmentationsFields = ref([...props.modelValue]);
+const segmentationsFields = ref(deepClone(props.modelValue));
 const loading = ref(false);
 
 const getSegmentationsFields = async () => {
@@ -37,19 +38,37 @@ onMounted(() => {
   }
 });
 
+// Sincroniza a cópia local se modelValue mudar externamente
+watch(
+  () => props.modelValue,
+  (newVal) => {
+    segmentationsFields.value = deepClone(newVal);
+  },
+  { deep: true }
+);
+
+// Emite para o pai sempre que segmentationsFields mudar
 watch(
   segmentationsFields,
   (newVal) => {
-    emit("update:modelValue", newVal);
+    emit("update:modelValue", deepClone(newVal));
   },
   { deep: true }
 );
 </script>
 
 <template>
-  <SimpleLoader v-if="loading" />
+  <div
+    v-if="loading"
+    class="flex items-center justify-center overflow-hidden h-svh"
+  >
+    <SimpleLoader />
+  </div>
 
-  <div v-else class="test-style p-1 h-full overflow-auto">
+  <div
+    v-else
+    class="rounded-md bg-base-200 border border-white/10 shadow-sm transition-shadow duration-200 hover:shadow-md p-1"
+  >
     <header
       class="text-start w-full items-center justify-between flex mb-2 px-1"
     >

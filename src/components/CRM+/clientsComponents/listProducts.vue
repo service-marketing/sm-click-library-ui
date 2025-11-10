@@ -170,7 +170,7 @@ watch(
 <template>
   <SimpleLoader v-if="loading" />
 
-  <main v-else class="flex flex-col w-full">
+  <main v-else class="flex flex-col">
     <header
       v-if="(productsList.length > 0 && !itsSearching) || itsSearching"
       class="sticky top-0 z-10 bg-base-300 p-1 flex gap-2"
@@ -182,9 +182,7 @@ watch(
         v-model="filters.query"
       />
 
-      <section
-        class="bg-green-900 p-1.5 text-[10px] rounded-md border border-green-500 w-full"
-      >
+      <section class="total-price-badge">
         Valor total: R${{ totalPrice.toFixed(2) }}
       </section>
     </header>
@@ -350,6 +348,16 @@ watch(
 }
 .products-and-services_badge.unique {
   @apply bg-[#3666f0]/50  text-blue-200 hover:text-blue-100;
+}
+
+.total-price-badge {
+  background-color: #14532d;
+  padding: 0.375rem;
+  font-size: 10px;
+  border-radius: 0.375rem;
+  border-color: #22c55e;
+  border-width: 1px;
+  width: 100%;
 }
 
 ::-webkit-scrollbar {

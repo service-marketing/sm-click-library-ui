@@ -16,6 +16,15 @@ const props = defineProps({
     type: Function,
     default: null,
   },
+  teleportTo: {
+    type: String,
+    default: null, // quando null mantém comportamento antigo (absolute dentro do container)
+  },
+  // Altura máxima do dropdown (aceita qualquer valor CSS ex: '16rem', '300px')
+  maxHeight: {
+    type: String,
+    default: '10rem',
+  },
 });
 
 const emit = defineEmits(["update:modelValue"]);
@@ -31,6 +40,30 @@ const previousPage = ref(null);
 
 // --- Fecha o dropdown ao clicar fora ---
 onClickOutside(dropdownRef, () => (isOpen.value = false));
+
+const triggerRef = ref(null); // ref da área clicável (campo principal)
+const dropdownStyle = ref({}); // estilos calculados quando usa teleport
+
+// --- Calcula posição absoluta (fixed) para o dropdown quando teletransportado ---
+const updatePosition = () => {
+  if (!props.teleportTo || !triggerRef.value) return;
+  const rect = triggerRef.value.getBoundingClientRect();
+  dropdownStyle.value = {
+    position: "fixed", // evita ser afetado por scroll de ancestors
+    top: `${rect.bottom + 3}px`, // pequeno espaçamento
+    left: `${rect.left}px`,
+    width: `${rect.width}px`,
+    zIndex: 9999,
+  };
+};
+
+watch(isOpen, (open) => {
+  if (open) {
+    updatePosition();
+  }
+});
+
+const listeners = [];
 
 // --- Filtra as Tags conforme a busca ---
 const filteredTags = computed(() =>
@@ -120,6 +153,15 @@ watch(
 );
 
 onMounted(async () => {
+  if (props.teleportTo) {
+    const reposition = () => {
+      if (isOpen.value) updatePosition();
+    };
+    window.addEventListener("scroll", reposition, true); // true captura scroll em containers
+    window.addEventListener("resize", reposition);
+    listeners.push(["scroll", reposition], ["resize", reposition]);
+  }
+
   await getTags();
 });
 </script>
@@ -129,6 +171,7 @@ onMounted(async () => {
     <!-- Div de seleção -->
     <div
       @click="isOpen = !isOpen"
+      ref="triggerRef"
       class="flex flex-wrap items-center justify-between gap-2 bg-base-300 p-3 rounded-md border border-base-300 cursor-pointer"
     >
       <span v-if="!modelValue.length" class="text-gray-500 text-xs">
@@ -163,8 +206,8 @@ onMounted(async () => {
 
     <!-- Dropdown -->
     <div
-      v-if="isOpen"
-      style="max-height: 10rem"
+      v-if="isOpen && !teleportTo"
+      :style="{ maxHeight: props.maxHeight }"
       class="absolute z-10 mt-1.5 w-full bg-base-300 shadow-sm shadow-base-100 border border-base-300 rounded-md overflow-y-auto hide-scrollbar"
     >
       <div class="p-2 sticky top-0 bg-base-300">
@@ -245,6 +288,91 @@ onMounted(async () => {
         </template>
       </InfiniteLoading>
     </div>
+
+    <Teleport v-if="isOpen && teleportTo" :to="teleportTo">
+      <div
+        :style="{ ...dropdownStyle, maxHeight: props.maxHeight }"
+        class="absolute z-10 mt-1.5 w-full bg-base-300 shadow-sm shadow-base-100 border border-base-300 rounded-md overflow-y-auto hide-scrollbar"
+      >
+        <div class="p-2 sticky top-0 bg-base-300">
+          <input
+            v-model="filters.name"
+            type="text"
+            placeholder="Buscar..."
+            class="w-full text-[10px] bg-base-200 rounded-md p-2 outline-none border-none focus:outline-none focus:ring-0 focus:shadow-none placeholder:text-gray-500"
+          />
+        </div>
+
+        <button
+          v-for="depart in filteredTags"
+          :key="depart.id"
+          :class="[
+            modelValue.some((d) => d.id === depart.id)
+              ? 'bg-green-500/30 hover:bg-green-500/50'
+              : 'hover:bg-base-200',
+            'flex items-center justify-between gap-2 px-3 py-2 cursor-pointer transition w-full',
+          ]"
+          @click="toggleSelect(depart)"
+        >
+          <section class="inline-flex">
+            <svg
+              class="size-6"
+              aria-hidden="true"
+              viewBox="0 0 3 97"
+              :style="{ color: depart.color || '#ffff' }"
+            >
+              <path
+                d="M49.9,0a17.1,17.1,0,0,0-12,5L5,37.9A17,17,0,0,0,5,62L37.9,94.9a17.1,17.1,0,0,0,12,5ZM25.4,59.4a9.5,9.5,0,1,1,9.5-9.5A9.5,9.5,0,0,1,25.4,59.4Z"
+                fill="currentColor"
+              />
+            </svg>
+            <span
+              :style="{ backgroundColor: depart.color || '#ffff' }"
+              class="text-xs truncate max-w-32 p-1 rounded-r-md"
+              :class="getContrastColor(depart.color || '#ffff')"
+              >{{ depart.name }}</span
+            >
+          </section>
+
+          <svg
+            v-if="modelValue.some((d) => d.id === depart.id)"
+            class="size-4 text-green-500"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 11.917 9.724 16.5 19 7.5"
+            />
+          </svg>
+        </button>
+
+        <div v-if="!filteredTags.length" class="text-center text-gray-400 py-2">
+          <span class="text-xs">Nenhum resultado encontrado</span>
+        </div>
+
+        <InfiniteLoading
+          v-if="nextPage"
+          @infinite="loadMoreTags"
+          class="p-3 bg-slate-800"
+        >
+          <template #spinner>
+            <section class="w-full justify-center items-center flex">
+              <div
+                class="size-4 animate-spin rounded-full border-4 border-solid border-white border-t-transparent"
+              />
+            </section>
+          </template>
+        </InfiniteLoading>
+      </div>
+    </Teleport>
   </div>
 </template>
 

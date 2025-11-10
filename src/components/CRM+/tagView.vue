@@ -33,12 +33,7 @@ const visibleTags = computed(() => props.clients?.tags?.slice(0, 4) || []);
       v-for="(tag, index) in clients.tags.slice(0, 4)"
       :key="index"
     >
-      <div
-        :class="[
-          'flex hover:scale-105 ease-in-out transition-all',
-          getContrastColor(tag.color),
-        ]"
-      >
+      <div :class="['flex', getContrastColor(tag.color)]">
         <!-- SVG da tag -->
         <svg
           class="svg-list-tag"
@@ -70,7 +65,7 @@ const visibleTags = computed(() => props.clients?.tags?.slice(0, 4) || []);
 
     <!-- Layout secundário - exibe a lista de tags -->
     <Popper arrow hover class="tag-view-theme" v-if="clients.tags.length > 4">
-      <div class="flex hover:scale-105 ease-in-out transition-all">
+      <div class="flex">
         <!-- SVG da tag -->
         <svg
           class="svg-list-tag"
@@ -108,7 +103,7 @@ const visibleTags = computed(() => props.clients?.tags?.slice(0, 4) || []);
               <svg
                 class="size-6"
                 aria-hidden="true"
-                viewBox="0 0 65 90"
+                viewBox="0 0 75 100"
                 :style="{ color: tag.color || '#fff' }"
               >
                 <path
@@ -172,6 +167,7 @@ const visibleTags = computed(() => props.clients?.tags?.slice(0, 4) || []);
   white-space: nowrap;
   font-size: 0.675rem;
   line-height: 1.25rem;
+  @apply hover:scale-105 ease-in-out transition-all;
 }
 
 .hide-scrollbar {
