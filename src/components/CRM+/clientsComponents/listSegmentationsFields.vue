@@ -38,20 +38,12 @@ onMounted(() => {
   }
 });
 
-// Sincroniza a cópia local se modelValue mudar externamente
-watch(
-  () => props.modelValue,
-  (newVal) => {
-    segmentationsFields.value = deepClone(newVal);
-  },
-  { deep: true }
-);
-
-// Emite para o pai sempre que segmentationsFields mudar
 watch(
   segmentationsFields,
   (newVal) => {
-    emit("update:modelValue", deepClone(newVal));
+    if (JSON.stringify(newVal) !== JSON.stringify(props.modelValue)) {
+      emit("update:modelValue", deepClone(newVal));
+    }
   },
   { deep: true }
 );
