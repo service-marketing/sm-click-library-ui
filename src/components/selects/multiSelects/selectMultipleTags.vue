@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import api from "~/utils/api.js";
 import { onClickOutside } from "@vueuse/core";
 import { contact_tag } from "~/utils/systemUrls";
@@ -23,7 +23,12 @@ const props = defineProps({
   // Altura máxima do dropdown (aceita qualquer valor CSS ex: '16rem', '300px')
   maxHeight: {
     type: String,
-    default: '10rem',
+    default: "10rem",
+  },
+  // --- lista de todos as tags em geral ---
+  allTags: {
+    type: Object,
+    default: () => {},
   },
 });
 
@@ -153,6 +158,17 @@ watch(
 );
 
 onMounted(async () => {
+  // Se allProducts já veio com dados, usamos ele direto
+  if (props.allTags && props.allTags.results?.length > 0) {
+    internalTags.value = props.allTags.results;
+    nextPage.value = props.allTags.next || null;
+    previousPage.value = props.allTags.previous || null;
+    page.value = 2; // assume que já carregamos a primeira página
+  } else {
+    // Caso contrário, faz o fetch inicial
+    await getTags();
+  }
+
   if (props.teleportTo) {
     const reposition = () => {
       if (isOpen.value) updatePosition();
@@ -161,8 +177,6 @@ onMounted(async () => {
     window.addEventListener("resize", reposition);
     listeners.push(["scroll", reposition], ["resize", reposition]);
   }
-
-  await getTags();
 });
 </script>
 

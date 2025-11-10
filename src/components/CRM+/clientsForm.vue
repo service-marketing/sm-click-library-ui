@@ -44,6 +44,14 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  allProducts: {
+    type: Object,
+    default: () => {},
+  },
+  allTags: {
+    type: Object,
+    default: () => {},
+  },
 });
 
 // --- Estado principal do formulário ---
@@ -118,11 +126,14 @@ watch(
 
 <template>
   <div class="modal_head">
-    <div class="modal-overlay absolute h-full bg-gray-600 w-full opacity-70" />
+    <div class="modal-form-background" />
 
     <div class="modal_responsive">
-      <div class="flex min-h-full items-center justify-center text-center">
-        <div class="z-50 w-full lg:w-1/2 shadow rounded-2xl shadow-black">
+      <div
+        style="min-height: 100%"
+        class="flex min-h-full items-center justify-center text-center"
+      >
+        <div class="modal-form-container">
           <div
             :class="{ noCrmPlus: !hasCrmPlus }"
             class="clients-form-background relative rounded-2xl bg-base-200 backdrop-blur-lg"
@@ -190,6 +201,7 @@ watch(
                     v-if="hasCrmPlus"
                     :outcome="form.outcome"
                     @update:outcome="form.outcome = $event"
+                    G
                   />
 
                   <div
@@ -272,6 +284,7 @@ watch(
                       <SelectMultipleTags
                         teleportTo="body"
                         maxHeight="10rem"
+                        :allTags="allTags"
                         v-model="form.tags"
                       />
                     </div>
@@ -417,7 +430,10 @@ watch(
                   v-show="pageState === 'products'"
                   class="products-list-section flex-1 min-h-0"
                 >
-                  <ListProducts v-model="form.products" />
+                  <ListProducts
+                    :allProducts="allProducts"
+                    v-model="form.products"
+                  />
                 </div>
               </section>
             </div>
@@ -444,6 +460,28 @@ watch(
 </template>
 
 <style scoped>
+.modal-form-background {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background-color: #000000;
+  opacity: 0.2;
+}
+
+.modal-form-container {
+  z-index: 50;
+  width: 100%;
+  border-radius: 1rem;
+
+  @apply shadow shadow-black;
+}
+
+@media (min-width: 1280px) {
+  .modal-form-container {
+    width: 50%;
+  }
+}
+
 .clients-form-background {
   display: flex;
   flex-direction: column;

@@ -4,10 +4,6 @@ import { segmentation_field } from "~/utils/systemUrls.js";
 import api from "~/utils/api.js";
 import SimpleLoader from "../../loaders/simpleLoader.vue";
 
-function deepClone(obj) {
-  return JSON.parse(JSON.stringify(obj));
-}
-
 const props = defineProps({
   modelValue: {
     type: Array,
@@ -19,6 +15,10 @@ const emit = defineEmits(["update:modelValue"]);
 
 const segmentationsFields = ref(deepClone(props.modelValue));
 const loading = ref(false);
+
+function deepClone(obj) {
+  return JSON.parse(JSON.stringify(obj));
+}
 
 const getSegmentationsFields = async () => {
   try {

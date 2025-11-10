@@ -29,6 +29,7 @@ import { useAttendantStore } from "./stores/attendantStore";
 import { useDepartmentStore } from "./stores/departmentStore";
 import { useInstanceStore } from "./stores/instanceStore";
 import { getContrastColor } from "./utils/functions/getContrastColor";
+export { useScheduledStore } from "./stores/useScheduledStore";
 import RaitingInput from "./components/inputs/raitingInput.vue";
 import api from "~/utils/api"; // Importa a instância personalizada do Axios
 

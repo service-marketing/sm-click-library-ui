@@ -10,6 +10,11 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  // --- lista de todos os produtos em geral ---
+  allProducts: {
+    type: Object,
+    default: () => {},
+  },
 });
 
 const emit = defineEmits(["update:modelValue"]);
@@ -104,11 +109,18 @@ const getProducts = async (params) => {
   }
 };
 
-onMounted(() => {
-  // Carrega primeira página e já prepara a próxima (getProducts incrementa se houver next)
-  getProducts();
+onMounted(async () => {
+  // Se allProducts já veio com dados, usamos ele direto
+  if (props.allProducts && props.allProducts.results?.length > 0) {
+    productsList.value = props.allProducts.results;
+    nextPage.value = props.allProducts.next || null;
+    previousPage.value = props.allProducts.previous || null;
+    page.value = 2; // assume que já carregamos a primeira página
+  } else {
+    // Caso contrário, faz o fetch inicial
+    await getProducts();
+  }
 });
-
 watch(
   selectedProducts,
   (newVal) => {
@@ -168,7 +180,12 @@ watch(
 </script>
 
 <template>
-  <SimpleLoader v-if="loading" />
+  <div
+    v-if="loading"
+    class="flex items-center justify-center overflow-hidden h-svh"
+  >
+    <SimpleLoader />
+  </div>
 
   <main v-else class="flex flex-col">
     <header
