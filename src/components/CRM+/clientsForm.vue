@@ -258,7 +258,7 @@ watch(
                     />
                   </div>
 
-                  <div class="flex flex-col gap-1 w-full">
+                  <div class="flex flex-col gap-2 w-full">
                     <header class="flex items-center justify-between px-1">
                       <p class="text-xs font-medium text-left">
                         Escolha suas etiquetas
