@@ -1,13 +1,21 @@
 <template>
-  <main class="flex select-none" :style="{ gap: `${gap}px` }">
+  <main
+    :disabled="props.readonly"
+    class="flex select-none"
+    :style="{ gap: `${gap}px` }"
+  >
     <div
       v-for="star in 5"
       :key="star"
-      class="relative cursor-pointer"
+      class="relative"
+      :class="{
+        'cursor-pointer': !props.readonly,
+        'cursor-default': props.readonly,
+      }"
       :style="{ width: `${size}px`, height: `${size}px` }"
-      @mousemove="onHover($event, star)"
-      @mouseleave="hoverRating = 0"
-      @click="setRating($event, star)"
+      @mousemove="!props.readonly && onHover($event, star)"
+      @mouseleave="!props.readonly && (hoverRating = 0)"
+      @click="!props.readonly && setRating($event, star)"
     >
       <!-- Base (cinza) -->
       <svg
@@ -24,7 +32,11 @@
 
       <!-- Preenchida (dinâmica) -->
       <div
-        class="absolute top-0 left-0 h-full overflow-hidden text-primary transition-all duration-150"
+        class="absolute top-0 left-0 h-full overflow-hidden transition-all duration-150"
+        :class="{
+          'text-primary': !hoverRating,
+          'text-hover': hoverRating > 0,
+        }"
         :style="{ width: fillWidth(star), height: `${size}px` }"
       >
         <svg
@@ -50,6 +62,7 @@ const props = defineProps({
   size: { type: Number, default: 24 }, // tamanho das estrelas (px)
   gap: { type: Number, default: 4 }, // espaçamento entre estrelas (px)
   onRate: { type: Function, default: null }, // função opcional a ser executada no clique
+  readonly: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(["update:modelValue"]);
@@ -84,14 +97,11 @@ function setRating(e, star) {
   const rect = e.currentTarget.getBoundingClientRect();
   const isHalf = e.offsetX < rect.width / 2;
   const newRating = star - (isHalf ? 0.5 : 0);
-
   rating.value = rating.value === newRating ? 0 : newRating;
   emit("update:modelValue", rating.value);
 
   // Executa ação customizada se a função existir
-  if (typeof props.onRate === "function") {
-    props.onRate(rating.value);
-  }
+  if (typeof props.onRate === "function") props.onRate(rating.value);
 }
 </script>
 
@@ -101,5 +111,8 @@ function setRating(e, star) {
 }
 .text-primary {
   color: #eab308;
+}
+.text-hover {
+  color: #ad840b;
 }
 </style>

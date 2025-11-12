@@ -281,14 +281,19 @@ watch(
                   }}
                 </p>
 
-                <p v-if="getQuantity(prd) > 0" class="font-sans text-primary">
-                  - x{{ getQuantity(prd) }} =
-                  {{
-                    (prd.price * getQuantity(prd)).toLocaleString("pt-BR", {
-                      style: "currency",
-                      currency: "BRL",
-                    })
-                  }}
+                <p
+                  v-if="getQuantity(prd) > 0"
+                  class="font-sans text-primary text-white font-semibold"
+                >
+                  - x {{ getQuantity(prd) }} =
+                  <a class="text-primary">
+                    {{
+                      (prd.price * getQuantity(prd)).toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                      })
+                    }}
+                  </a>
                 </p>
               </span>
             </section>

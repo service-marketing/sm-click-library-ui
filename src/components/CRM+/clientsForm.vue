@@ -72,7 +72,7 @@ const configTextArea = {
 const configNameInput = ref([
   {
     title: "Nome",
-    info: "Nome do contato",
+    info: false,
     type: "text",
     placeholder: "Digite o nome do contato",
     empty: computed(() => erros.value),
@@ -194,17 +194,16 @@ watch(
             <!-- --- Body --- -->
             <div class="grid grid-cols-2 h-full min-h-0">
               <!-- Coluna Esquerda -->
-              <section class="flex flex-col h-full min-h-0 p-1">
+              <section class="flex flex-col h-full min-h-0 px-1 py-2">
                 <!-- Bloco fixo (avatar / outcome / rating) -->
                 <div
                   :class="hasCrmPlus ? 'justify-between' : 'justify-center'"
-                  class="flex flex-col gap-3 items-center"
+                  class="flex flex-col gap-2 items-center"
                 >
                   <OutcomeButton
                     v-if="hasCrmPlus"
                     :outcome="form.outcome"
                     @update:outcome="form.outcome = $event"
-                    G
                   />
 
                   <div
@@ -500,13 +499,12 @@ watch(
 .clients-form-background {
   display: flex;
   flex-direction: column;
-  height: 85vh; /* altura consistente para evitar jump */
+  height: 85vh;
   max-height: 85vh;
 }
 
 .clients-form-background.noCrmPlus {
-  height: 55vh;
-  max-height: 55vh;
+  max-height: 361px;
 }
 
 @media (min-width: 1920px) {

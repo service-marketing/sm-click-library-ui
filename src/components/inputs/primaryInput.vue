@@ -65,7 +65,13 @@ const isEmpty = computed(() => contentHandler.empty && !model.value);
     <header class="flex items-center justify-between px-1">
       <p class="text-xs font-medium text-left">{{ contentHandler.title }}</p>
 
-      <Popper hover :content="contentHandler.info" placement="top" arrow>
+      <Popper
+        v-if="contentHandler.info"
+        hover
+        :content="contentHandler.info"
+        placement="top"
+        arrow
+      >
         <svg
           class="size-4 text-white"
           xmlns="http://www.w3.org/2000/svg"
