@@ -58,8 +58,8 @@ watch(
   </div>
 
   <div
-    v-else
-    class="rounded-md bg-base-200 border border-white/10 shadow-sm transition-shadow duration-200 hover:shadow-md p-1"
+    v-else-if="segmentationsFields.length > 0"
+    class="rounded-md h-svh bg-base-200 border border-white/10 shadow-sm transition-shadow duration-200 hover:shadow-md p-1"
   >
     <header
       class="text-start w-full items-center justify-between flex mb-2 px-1"
@@ -113,6 +113,18 @@ watch(
       </section>
     </div>
   </div>
+
+  <section
+    v-else
+    class="rounded-md h-svh bg-base-200 border border-white/10 shadow-sm transition-shadow duration-200 hover:shadow-md p-1 flex flex-col items-center justify-center gap-2"
+  >
+    <p class="text-gray-200 text-xs md:text-base font-sans">
+      Nenhum item encontrado
+    </p>
+    <p class="text-gray-200 text-[10px] md:text-xs font-sans">
+      Comece criando seu primeiro na aba <strong>Campos Personalizados</strong>
+    </p>
+  </section>
 </template>
     
 

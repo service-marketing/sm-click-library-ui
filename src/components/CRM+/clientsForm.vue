@@ -192,13 +192,13 @@ watch(
             </div>
 
             <!-- --- Body --- -->
-            <div class="grid grid-cols-2 flex-1 min-h-0 overflow-hidden">
-              <section
-                class="w-full flex flex-col items-center justify-between p-1 overflow-x-hidden overflow-y-auto"
-              >
+            <div class="grid grid-cols-2 h-full min-h-0">
+              <!-- Coluna Esquerda -->
+              <section class="flex flex-col h-full min-h-0 p-1">
+                <!-- Bloco fixo (avatar / outcome / rating) -->
                 <div
-                  :class="hasCrmPlus ? 'justify-between ' : 'justify-center'"
-                  class="flex flex-col gap-2 h-full items-center"
+                  :class="hasCrmPlus ? 'justify-between' : 'justify-center'"
+                  class="flex flex-col gap-3 items-center"
                 >
                   <OutcomeButton
                     v-if="hasCrmPlus"
@@ -218,15 +218,15 @@ watch(
                       <img
                         :src="form.photo"
                         alt=""
-                        class="size-24 xl:size-36 object-cover rounded-md cursor-not-allowed"
+                        class="size-24 object-cover rounded-md cursor-not-allowed"
                       />
                     </button>
 
                     <span
                       v-else
-                      class="bg-base-300 p-2 rounded-xl size-24 xl:size-36 flex items-center justify-center border border-base-100 cursor-not-allowed"
+                      class="bg-base-300 p-2 rounded-xl size-24 flex items-center justify-center border border-base-100 cursor-not-allowed"
                       ><svg
-                        class="size-14 xl:size-24"
+                        class="size-14"
                         aria-hidden="true"
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
@@ -244,108 +244,116 @@ watch(
 
                   <RaitingInput v-if="hasCrmPlus" v-model="form.rating" />
                 </div>
+                <!-- Área rolável -->
+                <div
+                  class="flex flex-col gap-1.5 w-full h-full overflow-y-auto overflow-x-hidden"
+                >
+                  <div class="w-full">
+                    <PrimaryInput
+                      @update:content="
+                        (newContent) =>
+                          (configNameInput[0].data = newContent.data)
+                      "
+                      :content="configNameInput[0]"
+                    />
+                  </div>
 
-                <div class="flex flex-col w-full gap-2">
-                  <div class="flex flex-col gap-2 w-full">
-                    <div class="w-full">
-                      <PrimaryInput
-                        @update:content="
-                          (newContent) =>
-                            (configNameInput[0].data = newContent.data)
+                  <div class="flex flex-col gap-1 w-full">
+                    <header class="flex items-center justify-between px-1">
+                      <p class="text-xs font-medium text-left">
+                        Escolha suas etiquetas
+                      </p>
+
+                      <Popper
+                        hover
+                        content="Etiquetas que estão atribuídas ao cliente"
+                        placement="top"
+                        arrow
+                      >
+                        <svg
+                          class="size-4 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            fill-rule="evenodd"
+                            clip-rule="evenodd"
+                            d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm9.408-5.5a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2h-.01ZM10 10a1 1 0 1 0 0 2h1v3h-1a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2h-1v-4a1 1 0 0 0-1-1h-2Z"
+                          />
+                        </svg>
+                      </Popper>
+                    </header>
+
+                    <SelectMultipleTags
+                      teleportTo="body"
+                      maxHeight="10rem"
+                      :allTags="allTags"
+                      v-model="form.tags"
+                    />
+                  </div>
+
+                  <div
+                    v-if="hasCrmPlus"
+                    class="flex flex-1 min-h-0 flex-col gap-2"
+                  >
+                    <header class="flex items-center justify-between px-1">
+                      <p class="text-xs font-medium text-left">
+                        Anotações sobre o cliente
+                      </p>
+
+                      <Popper
+                        hover
+                        content="Anotações adicionais sobre o cliente"
+                        placement="top"
+                        arrow
+                      >
+                        <svg
+                          class="size-4 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            fill-rule="evenodd"
+                            clip-rule="evenodd"
+                            d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm9.408-5.5a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2h-.01ZM10 10a1 1 0 1 0 0 2h1v3h-1a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2h-1v-4a1 1 0 0 0-1-1h-2Z"
+                          />
+                        </svg>
+                      </Popper>
+                    </header>
+
+                    <div
+                      class="w-full h-full bg-base-300 rounded-lg flex flex-col min-h-0"
+                    >
+                      <textarea
+                        class="form-text-area flex-1 h-full min-h-0"
+                        v-model="form.notes"
+                        maxlength="1000"
+                        aria-label="Anotações do cliente"
+                      ></textarea>
+
+                      <div
+                        class="text-[10px] bg-base-300 px-1 rounded-md text-right mb-1 mr-1"
+                        :class="
+                          form.notes?.length > 900
+                            ? 'text-red-500'
+                            : form.notes?.length > 700
+                            ? 'text-yellow-500'
+                            : 'text-gray-400'
                         "
-                        :content="configNameInput[0]"
-                      />
-                    </div>
-
-                    <div class="flex flex-col gap-2 w-full">
-                      <header class="flex items-center justify-between px-1">
-                        <p class="text-xs font-medium text-left">
-                          Escolha suas etiquetas
-                        </p>
-
-                        <Popper
-                          hover
-                          content="Etiquetas que estão atribuídas ao cliente"
-                          placement="top"
-                          arrow
-                        >
-                          <svg
-                            class="size-4 text-white"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              fill-rule="evenodd"
-                              clip-rule="evenodd"
-                              d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm9.408-5.5a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2h-.01ZM10 10a1 1 0 1 0 0 2h1v3h-1a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2h-1v-4a1 1 0 0 0-1-1h-2Z"
-                            />
-                          </svg>
-                        </Popper>
-                      </header>
-
-                      <SelectMultipleTags
-                        teleportTo="body"
-                        maxHeight="10rem"
-                        :allTags="allTags"
-                        v-model="form.tags"
-                      />
-                    </div>
-
-                    <div v-if="hasCrmPlus" class="flex flex-col gap-2">
-                      <header class="flex items-center justify-between px-1">
-                        <p class="text-xs font-medium text-left">
-                          Anotações sobre o cliente
-                        </p>
-
-                        <Popper
-                          hover
-                          content="Anotações adicionais sobre o cliente"
-                          placement="top"
-                          arrow
-                        >
-                          <svg
-                            class="size-4 text-white"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              fill-rule="evenodd"
-                              clip-rule="evenodd"
-                              d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm9.408-5.5a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2h-.01ZM10 10a1 1 0 1 0 0 2h1v3h-1a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2h-1v-4a1 1 0 0 0-1-1h-2Z"
-                            />
-                          </svg>
-                        </Popper>
-                      </header>
-
-                      <div class="w-full bg-base-300 rounded-lg">
-                        <textarea
-                          style="padding: 0.5rem; resize: none"
-                          class="w-full bg-base-300 text-xs rounded-md outline-none border-none focus:outline-none focus:ring-0 focus:shadow-none h-24 p-2 resize-none"
-                          v-model="form.notes"
-                          maxlength="1000"
-                        ></textarea>
-
-                        <div
-                          class="text-right pr-2 pb-1 text-[10px]"
-                          :class="
-                            form.notes?.length > 900
-                              ? 'text-red-500'
-                              : form.notes?.length > 700
-                              ? 'text-yellow-500'
-                              : 'text-gray-400'
-                          "
-                        >
-                          {{ form.notes?.length || 0 }}/1000
-                        </div>
+                      >
+                        {{ form.notes?.length || 0 }}/1000
                       </div>
                     </div>
                   </div>
                 </div>
               </section>
 
-              <section class="bg-base-300 flex flex-col flex-1 min-h-0">
+              <!-- Coluna Direita -->
+              <section
+                class="bg-base-300 flex flex-col h-full min-h-0 overflow-hidden"
+              >
                 <div v-if="hasCrmPlus" class="flex gap-1 px-1.5">
                   <button
                     :class="[
@@ -354,7 +362,7 @@ watch(
                     ]"
                     @click="pageState = 'data'"
                   >
-                    Dados do cliente
+                    Informações
                   </button>
 
                   <button
@@ -370,7 +378,7 @@ watch(
                 </div>
 
                 <div
-                  v-if="pageState === 'data'"
+                  v-show="pageState === 'data'"
                   class="flex flex-col gap-2 flex-1 min-h-0 px-1.5 pt-1.5 overflow-hidden"
                 >
                   <div
@@ -390,7 +398,7 @@ watch(
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           fill="currentColor"
-                          class="size-4 text-gray-500"
+                          class="size-4 text-gray-500 ml-1.5"
                           viewBox="0 0 17 17"
                         >
                           <path
@@ -423,7 +431,6 @@ watch(
 
                   <div class="segmentation-section">
                     <ListSegmentationsFields
-                      v-if="pageState === 'data'"
                       v-model="form.segmentation_fields"
                     />
                   </div>
@@ -431,7 +438,7 @@ watch(
 
                 <div
                   v-show="pageState === 'products'"
-                  class="products-list-section flex-1 min-h-0"
+                  class="products-list-section flex-1 min-h-0 overflow-y-auto"
                 >
                   <ListProducts
                     :allProducts="allProducts"
@@ -463,6 +470,11 @@ watch(
 </template>
 
 <style scoped>
+.form-text-area {
+  @apply resize-none w-full bg-base-300 text-xs rounded-md outline-none border-none focus:outline-none focus:ring-0 focus:shadow-none p-2 min-h-20 max-h-full;
+  height: 100%;
+}
+
 .modal-form-background {
   position: absolute;
   height: 100%;
@@ -481,18 +493,27 @@ watch(
 
 @media (min-width: 1280px) {
   .modal-form-container {
-    width: 50%;
+    width: 55%;
   }
 }
 
 .clients-form-background {
   display: flex;
   flex-direction: column;
-  max-height: 90vh; /* Limita a altura total do modal */
+  height: 85vh; /* altura consistente para evitar jump */
+  max-height: 85vh;
 }
 
 .clients-form-background.noCrmPlus {
+  height: 55vh;
   max-height: 55vh;
+}
+
+@media (min-width: 1920px) {
+  .clients-form-background {
+    height: 65vh;
+    max-height: 65vh;
+  }
 }
 
 .toggle-page-button {

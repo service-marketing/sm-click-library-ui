@@ -187,26 +187,37 @@ watch(
     <SimpleLoader />
   </div>
 
-  <main v-else class="flex flex-col">
+  <main v-else class="flex flex-col overflow-hidden">
     <header
-      v-if="(productsList.length > 0 && !itsSearching) || itsSearching"
-      class="sticky top-0 z-10 bg-base-300 p-1 flex gap-2"
+      v-if="
+        (productsList.length === 0 && itsSearching) ||
+        (!itsSearching && productsList.length > 0)
+      "
+      class="sticky top-0 z-50 bg-base-300 py-1 px-1.5 flex gap-2"
     >
       <input
-        class="w-full text-xs bg-base-300 rounded-md p-1 outline-none border-none focus:outline-none focus:ring-0 focus:shadow-none"
+        class="w-full text-xs bg-base-300 rounded-md pt-1.5 outline-none border-none focus:outline-none focus:ring-0 focus:shadow-none"
         type="text"
         placeholder="Buscar..."
         v-model="filters.query"
       />
 
       <section class="total-price-badge">
-        Valor total: R${{ totalPrice.toFixed(2) }}
+        Valor total:
+        {{
+          totalPrice.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          })
+        }}
       </section>
     </header>
 
-    <div class="flex-1 overflow-y-auto flex flex-col gap-2 px-2">
+    <div
+      v-if="productsList.length > 0"
+      class="flex-1 overflow-y-auto flex flex-col gap-2 px-2"
+    >
       <ul
-        v-if="(productsList.length > 0 && !itsSearching) || itsSearching"
         class="w-full text-gray-500 list-none list-inside dark:text-gray-400 divide-y divide-base-200"
       >
         <li
@@ -252,19 +263,38 @@ watch(
 
             <section class="flex flex-col items-start">
               <p
-                class="text-xs font-semibold"
+                :title="prd.name"
+                class="text-xs text-start font-semibold truncate max-w-32"
                 :class="getQuantity(prd) > 0 ? 'text-white' : ''"
               >
                 {{ prd.name }}
               </p>
 
-              <p class="text-xs font-semibold font-sans">
-                R$ {{ prd.price.toFixed(2) }}
-              </p>
+              <span class="text-[10px] flex gap-1 items-center">
+                <p class="text-xs font-semibold font-sans">
+                  R$
+                  {{
+                    prd.price.toLocaleString("pt-BR", {
+                      style: "currency",
+                      currency: "BRL",
+                    })
+                  }}
+                </p>
+
+                <p v-if="getQuantity(prd) > 0" class="font-sans text-primary">
+                  - x{{ getQuantity(prd) }} =
+                  {{
+                    (prd.price * getQuantity(prd)).toLocaleString("pt-BR", {
+                      style: "currency",
+                      currency: "BRL",
+                    })
+                  }}
+                </p>
+              </span>
             </section>
           </div>
 
-          <section class="flex gap-1">
+          <section class="flex flex-col gap-1">
             <p
               :class="[
                 'text-xs font-semibold font-sans products-and-services_badge',
@@ -300,19 +330,6 @@ watch(
         </li>
       </ul>
 
-      <section
-        v-if="
-          (itsSearching && productsList.length === 0) ||
-          productsList.length === 0
-        "
-        class="flex flex-col gap-1 w-full justify-center items-center"
-      >
-        <p class="text-gray-600 text-base font-sans">Nenhum item encontrado</p>
-        <p class="text-gray-600 text-xs font-sans">
-          Comece criando seu primeiro na aba <strong>Produtos</strong>
-        </p>
-      </section>
-
       <InfiniteLoading
         v-if="nextPage"
         @infinite="loadMoreProducts"
@@ -328,11 +345,26 @@ watch(
       </InfiniteLoading>
     </div>
   </main>
+
+  <section
+    v-if="!loading && productsList.length <= 0"
+    class="h-full flex flex-col items-center justify-center"
+  >
+    <p class="text-gray-200 text-xs md:text-base font-sans">
+      Nenhum item encontrado
+    </p>
+    <p
+      v-if="!itsSearching"
+      class="text-gray-200 text-[10px] md:text-xs font-sans"
+    >
+      Comece criando seu primeiro na aba <strong>Produtos</strong>
+    </p>
+  </section>
 </template>
 
 <style scoped>
 .products-and-services_badge {
-  @apply inline-flex w-12 justify-center items-center rounded-md px-1 py-1 text-[10px] font-medium hover:scale-105 transition-all;
+  @apply inline-flex w-full justify-center items-center rounded-md px-1 py-1 text-[10px] font-medium hover:scale-105 transition-all;
 }
 .products-and-services_badge.monthly {
   @apply bg-green-600/20  text-green-400 hover:text-green-200;
@@ -349,6 +381,7 @@ watch(
   border-color: #22c55e;
   border-width: 1px;
   width: 100%;
+  margin-left: 0.125rem;
 }
 
 ::-webkit-scrollbar {
