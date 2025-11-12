@@ -305,10 +305,7 @@ watch(
             </p>
 
             <div class="flex gap-1">
-              <button
-                class="bg-base-200 size-6 rounded-md flex items-center justify-center"
-                @click="decreaseQuantity(prd)"
-              >
+              <button class="action-list-button" @click="decreaseQuantity(prd)">
                 -
               </button>
 
@@ -319,10 +316,7 @@ watch(
                 {{ getQuantity(prd) }}
               </p>
 
-              <button
-                class="bg-base-200 size-6 rounded-md flex items-center justify-center"
-                @click="increaseQuantity(prd)"
-              >
+              <button class="action-list-button" @click="increaseQuantity(prd)">
                 +
               </button>
             </div>
@@ -363,6 +357,22 @@ watch(
 </template>
 
 <style scoped>
+.action-list-button {
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  border-radius: 0.375rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  background-color: #26343d;
+  font-weight: 600;
+  @apply hover:bg-base-200  font-semibold;
+}
+.action-list-button:hover {
+  background-color: #26343d;
+  color: white;
+}
+
 .products-and-services_badge {
   @apply inline-flex w-full justify-center items-center rounded-md px-1 py-1 text-[10px] font-medium hover:scale-105 transition-all;
 }
