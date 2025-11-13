@@ -57,7 +57,7 @@ const props = defineProps({
 // --- Estado principal do formulário ---
 const form = reactive({ ...props.form });
 const loading = ref(false);
-const erros = ref(false);
+const errors = ref(false);
 
 const configTextArea = {
   title: "Anotações",
@@ -75,7 +75,9 @@ const configNameInput = ref([
     info: false,
     type: "text",
     placeholder: "Digite o nome do contato",
-    empty: computed(() => erros.value),
+    empty: computed(() =>
+      errors.value ? errors.value.some((e) => e.startsWith("name")) : false
+    ),
     data: computed({
       get: () => form.name,
       set: (value) => (form.name = value),
@@ -99,13 +101,26 @@ const modalTitle = computed(() =>
   props.form.mode === "edit" ? "Editar cliente" : "Adicionar Novo Cliente"
 );
 
+const validateClient = (client) => {
+  const missing = [];
+  if (!client.name?.trim()) missing.push("name");
+  if (!client.telephone?.trim()) missing.push("telephone");
+  return missing;
+};
+
+const isEmptyNumber = computed(() => {
+  return errors.value
+    ? errors.value.some((e) => e.startsWith("telephone"))
+    : false;
+});
+
 // --- Função de salvar cliente ---
 const saveClient = async () => {
   try {
-    erros.value = form.name.trim() === "";
-    if (erros.value) return;
-
     loading.value = true;
+    errors.value = validateClient(form);
+    if (errors.value.length > 0) return;
+
     await props.save(form);
   } catch (e) {
     console.error(e);
@@ -381,7 +396,12 @@ watch(
                   class="flex flex-col gap-2 flex-1 min-h-0 px-1.5 pt-1.5 overflow-hidden"
                 >
                   <div
-                    class="rounded-md bg-base-200 border border-white/10 shadow-sm transition-shadow duration-200 hover:shadow-md"
+                    :class="
+                      isEmptyNumber && !form.telephone
+                        ? 'border-red-500'
+                        : 'border-white/10'
+                    "
+                    class="rounded-md bg-base-200 border shadow-sm transition-shadow duration-200 hover:shadow-md"
                   >
                     <h1
                       class="text-start w-full items-center justify-between flex p-2"
@@ -389,7 +409,7 @@ watch(
                       <p class="text-xs font-semibold">Contatos</p>
                     </h1>
 
-                    <div class="flex w-full">
+                    <div class="flex w-full relative">
                       <span
                         style="border-bottom-left-radius: 0.4rem"
                         class="bg-base-300 rounded-bl-lg rounded-t-none flex justify-center items-center w-8"
@@ -407,7 +427,7 @@ watch(
                       </span>
 
                       <vue-tel-input
-                        class="z-50 w-full"
+                        class="z-40 w-full"
                         @country-changed="(crt) => (form.country = crt.iso2)"
                         :mode="'national'"
                         :validCharactersOnly="true"
@@ -425,6 +445,13 @@ watch(
                         }"
                         v-model="form.telephone"
                       ></vue-tel-input>
+
+                      <span
+                        v-if="isEmptyNumber && !form.telephone"
+                        class="text-xs absolute z-50 -bottom-2 left-1 bg-base-300 px-2 py-0.5 rounded-lg text-red-500 select-none shadow-sm shadow-base-100"
+                      >
+                        Campo obrigatorio
+                      </span>
                     </div>
                   </div>
 
