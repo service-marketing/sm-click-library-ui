@@ -4,7 +4,7 @@ import { computed, onMounted, reactive, watch, toRaw, ref } from "vue";
 import SelectMultipleTags from "../selects/multiSelects/selectMultipleTags.vue";
 import OutcomeButton from "./clientsComponents/outcomeButton.vue";
 import PrimaryInput from "../inputs/primaryInput.vue";
-import RaitingInput from "../inputs/raitingInput.vue";
+import RatingInput from "../inputs/ratingInput.vue";
 
 import ListProducts from "./clientsComponents/listProducts.vue";
 import ListSegmentationsFields from "./clientsComponents/listSegmentationsFields.vue";
@@ -140,7 +140,7 @@ watch(
 </script>
 
 <template>
-  <div class="modal_head">
+  <div class="modal-form-head">
     <div class="modal-form-background" />
 
     <div class="modal_responsive">
@@ -256,7 +256,7 @@ watch(
                     ></span>
                   </div>
 
-                  <RaitingInput v-if="hasCrmPlus" v-model="form.rating" />
+                  <RatingInput v-if="hasCrmPlus" v-model="form.rating" />
                 </div>
                 <!-- Área rolável -->
                 <div
@@ -499,6 +499,14 @@ watch(
 .form-text-area {
   @apply resize-none w-full bg-base-300 text-xs rounded-md outline-none border-none focus:outline-none focus:ring-0 focus:shadow-none p-2 min-h-20 max-h-full;
   height: 100%;
+}
+.modal-form-head {
+  @apply my_modal-form backdrop-blur-[2px] z-50 fixed w-full h-full top-0 left-0 flex items-center justify-center;
+}
+
+.my_modal-form {
+  animation: 0.1s ease-out 0s 1 modalani;
+  transition: opacity 0.2s ease-in-out;
 }
 
 .modal-form-background {

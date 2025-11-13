@@ -59,7 +59,7 @@ watch(
 
   <div
     v-else-if="segmentationsFields.length > 0"
-    class="rounded-md h-svh bg-base-200 border border-white/10 shadow-sm transition-shadow duration-200 hover:shadow-md p-1"
+    class="rounded-md lg:h-svh bg-base-200 border border-white/10 shadow-sm transition-shadow duration-200 hover:shadow-md p-1"
   >
     <header
       class="text-start w-full items-center justify-between flex mb-2 px-1"
@@ -85,7 +85,7 @@ watch(
             />
           </template>
 
-          <p class="text-[10px] font-sans">{{ field.name }}:</p>
+          <p class="text-[10px] font-sans">{{ field.name }}</p>
 
           <template v-if="field.type === 'string'">
             <input class="input_field" type="text" v-model="field.content" />

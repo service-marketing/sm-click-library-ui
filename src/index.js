@@ -23,6 +23,7 @@ import ClientsForm from "./components/CRM+/clientsForm.vue";
 import SimpleLoader from "./components/loaders/simpleLoader.vue";
 import TagView from "./components/CRM+/tagView.vue";
 import FloatingDev from "./components/devHelpers/floating-dev.vue";
+import OutcomeButton from "./components/CRM+/clientsComponents/outcomeButton.vue";
 import { useDebugStore } from "~/stores/debugStore";
 import { useAuthStore } from "~/stores/authStore";
 import { useAttendantStore } from "./stores/attendantStore";
@@ -30,7 +31,7 @@ import { useDepartmentStore } from "./stores/departmentStore";
 import { useInstanceStore } from "./stores/instanceStore";
 import { getContrastColor } from "./utils/functions/getContrastColor";
 export { useScheduledStore } from "./stores/useScheduledStore";
-import RaitingInput from "./components/inputs/raitingInput.vue";
+import RatingInput from "./components/inputs/ratingInput.vue";
 import api from "~/utils/api"; // Importa a instância personalizada do Axios
 
 function install(Vue) {
@@ -55,11 +56,12 @@ function install(Vue) {
   Vue.component("PrimaryInput", PrimaryInput);
   Vue.component("SimpleSelect", SimpleSelect);
   Vue.component("FloatingDev", FloatingDev);
-  Vue.component("RaitingInput", RaitingInput);
+  Vue.component("RatingInput", RatingInput);
   Vue.component("TagView", TagView);
   Vue.component("ClientsForm", ClientsForm);
   Vue.component("SelectMultipleTags", SelectMultipleTags);
   Vue.component("SimpleLoader", SimpleLoader);
+  Vue.component("OutcomeButton", OutcomeButton);
 }
 
 export function attLibDeparts(department, action = "add") {
@@ -190,7 +192,8 @@ export default {
   SelectMultipleTags,
   PrimaryInput,
   getWithContrastColor,
-  RaitingInput,
+  RatingInput,
   TagView,
   ClientsForm,
+  OutcomeButton,
 };
