@@ -57,21 +57,19 @@ watch(
     <SimpleLoader />
   </div>
 
-  <div
-    v-else-if="segmentationsFields.length > 0"
-    class="rounded-md lg:h-svh bg-base-200 border border-white/10 shadow-sm transition-shadow duration-200 hover:shadow-md p-1"
-  >
+  <div v-else-if="segmentationsFields.length > 0">
     <header
-      class="text-start w-full items-center justify-between flex mb-2 px-1"
+      style="z-index: 9999"
+      class="sticky bg-base-200 top-0 text-start w-full items-center justify-between flex mb-2 px-2 py-2"
     >
-      <p class="text-sm font-semibold">Campos Personalizados</p>
+      <p class="text-xs font-semibold">Campos Personalizados</p>
     </header>
 
-    <div class="flex flex-col gap-2">
+    <div class="flex flex-col gap-2 p-2">
       <section v-for="field in segmentationsFields" :key="field.id">
         <div
           :class="[
-            'flex gap-1  rounded-md',
+            'flex w-full gap-1.5 rounded-md',
             field.type === 'bool'
               ? 'flex-row items-center'
               : 'flex-col items-start',
@@ -79,20 +77,49 @@ watch(
         >
           <template v-if="field.type === 'bool'">
             <input
+              :id="'seg-label-' + field.id"
               class="checkbox size-4 rounded-sm"
               type="checkbox"
               v-model="field.content"
             />
           </template>
 
-          <p class="text-[10px] font-sans">{{ field.name }}</p>
+          <label
+            :for="'seg-label-' + field.id"
+            class="text-xs text-[12px] font-sans font-semibold"
+            :title="
+              field.type === 'string'
+                ? 'texto'
+                : field.type === 'bool'
+                ? 'verdadeiro/falso'
+                : field.type === 'float'
+                ? 'número'
+                : field.type === 'list'
+                ? 'lista'
+                : 'Desconhecido'
+            "
+          >
+            {{ field.name }}
+          </label>
 
           <template v-if="field.type === 'string'">
-            <input class="input_field" type="text" v-model="field.content" />
+            <textarea
+              :id="'seg-label-' + field.id"
+              placeholder="campo do tipo texto"
+              class="input_field"
+              type="text"
+              v-model="field.content"
+            />
           </template>
 
           <template v-if="field.type === 'float'">
-            <input class="input_field" type="number" v-model="field.content" />
+            <input
+              :id="'seg-label-' + field.id"
+              placeholder="campo do tipo número"
+              class="input_field"
+              type="number"
+              v-model="field.content"
+            />
           </template>
 
           <template v-if="field.type === 'list'">
@@ -130,7 +157,7 @@ watch(
 
 <style scoped>
 .input_field {
-  @apply w-full text-xs bg-base-300 rounded-md p-3 outline-none border-none focus:outline-none focus:ring-0 focus:shadow-none placeholder:text-gray-500;
+  @apply w-full text-xs bg-base-300 rounded-md outline-none border-none focus:outline-none focus:ring-0 focus:shadow-none placeholder:text-gray-400 h-10 p-3;
 }
 
 ::-webkit-scrollbar {
@@ -156,5 +183,16 @@ watch(
 * {
   scrollbar-width: thin;
   scrollbar-color: #334155 transparent;
+}
+
+/* Remove as setinhas do input type=number */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield; /* Remove no Firefox */
 }
 </style>

@@ -366,7 +366,7 @@ watch(
 
               <!-- Coluna Direita -->
               <section
-                class="bg-base-300 flex flex-col h-full min-h-0 overflow-hidden"
+                class="bg-base-300 rounded-l-md px-0.5 py-1 flex flex-col h-full min-h-0 overflow-hidden"
               >
                 <div v-if="hasCrmPlus" class="flex gap-1 px-1.5">
                   <button
@@ -393,7 +393,10 @@ watch(
 
                 <div
                   v-show="pageState === 'data'"
-                  class="flex flex-col gap-2 flex-1 min-h-0 px-1.5 pt-1.5 overflow-hidden"
+                  :class="[
+                    hasCrmPlus ? 'pt-1.5' : 'pt-0',
+                    'flex flex-col gap-2 flex-1 min-h-0 px-1.5 overflow-hidden',
+                  ]"
                 >
                   <div
                     :class="
@@ -455,7 +458,9 @@ watch(
                     </div>
                   </div>
 
-                  <div class="segmentation-section">
+                  <div
+                    class="flex-1 min-h-0 overflow-y-auto bg-base-200 rounded-md border border-white/10 shadow-sm transition-shadow duration-200 hover:shadow-md"
+                  >
                     <ListSegmentationsFields
                       v-model="form.segmentation_fields"
                     />
@@ -464,7 +469,7 @@ watch(
 
                 <div
                   v-show="pageState === 'products'"
-                  class="products-list-section flex-1 min-h-0 overflow-y-auto"
+                  class="flex-1 min-h-0 overflow-y-auto"
                 >
                   <ListProducts
                     :allProducts="allProducts"
@@ -576,13 +581,6 @@ watch(
 }
 .toggle-page-button.selected:hover {
   background-color: #16a34a;
-}
-
-.products-list-section,
-.segmentation-section {
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
 }
 
 ::v-deep(.vti__phone) {
