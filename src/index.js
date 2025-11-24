@@ -24,6 +24,7 @@ import SimpleLoader from "./components/loaders/simpleLoader.vue";
 import TagView from "./components/CRM+/tagView.vue";
 import FloatingDev from "./components/devHelpers/floating-dev.vue";
 import OutcomeButton from "./components/CRM+/clientsComponents/outcomeButton.vue";
+import ListProducts from "./components/CRM+/clientsComponents/listProducts.vue";
 import { useDebugStore } from "~/stores/debugStore";
 import { useAuthStore } from "~/stores/authStore";
 import { useAttendantStore } from "./stores/attendantStore";
@@ -62,6 +63,7 @@ function install(Vue) {
   Vue.component("SelectMultipleTags", SelectMultipleTags);
   Vue.component("SimpleLoader", SimpleLoader);
   Vue.component("OutcomeButton", OutcomeButton);
+  Vue.component("ListProducts", ListProducts);
 }
 
 export function attLibDeparts(department, action = "add") {
@@ -196,4 +198,5 @@ export default {
   TagView,
   ClientsForm,
   OutcomeButton,
+  ListProducts,
 };
