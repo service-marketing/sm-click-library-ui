@@ -42,7 +42,7 @@ watch(
   (newVal) => {
     emit("update:content", { ...contentHandler, data: newVal });
   },
-  { immediate: true, deep: true }
+  { immediate: true, deep: true },
 );
 
 watch(
@@ -52,7 +52,7 @@ watch(
     if (newVal.empty !== contentHandler.empty)
       contentHandler.empty = newVal.empty;
   },
-  { deep: true }
+  { deep: true },
 );
 
 // --- Computed de erro/estado visual ---
@@ -124,7 +124,6 @@ const isEmpty = computed(() => contentHandler.empty && !model.value);
     </div>
   </section>
 </template>
-
 
 <style scoped>
 /* --- Container Principal do Input --- */

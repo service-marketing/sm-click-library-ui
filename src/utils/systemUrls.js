@@ -9,3 +9,4 @@ export const crm_events = "v1/api/crm/event/calendar";
 export const crm_products = "v1/api/crm/products/";
 export const contact_tag = "v1/api/contacts/tag/";
 export const segmentation_field = "/v1/api/contacts/segmentation_field/";
+export const callsUrl = "v1/api/attendances/calls/";

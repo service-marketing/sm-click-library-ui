@@ -96,8 +96,8 @@ watch(isOpen, (open) => {
 // --- Filtra as Tags conforme a busca ---
 const filteredTags = computed(() =>
   internalTags.value.filter((d) =>
-    d.name.toLowerCase().includes(search.value.toLowerCase())
-  )
+    d.name.toLowerCase().includes(search.value.toLowerCase()),
+  ),
 );
 
 // --- Alterna seleção das tags ---
@@ -138,7 +138,7 @@ const mountUrl = (baseUrl, params) => {
 const getTags = async (params) => {
   try {
     const res = await api.get(
-      mountUrl(contact_tag, { page: page.value, ...params })
+      mountUrl(contact_tag, { page: page.value, ...params }),
     );
     const { results, next, previous } = res.data;
 
@@ -187,7 +187,7 @@ watch(
       await getTags({ name: name.toString() });
     }, 800); // 500ms de atraso após parar de digitar
   },
-  { deep: true }
+  { deep: true },
 );
 
 onMounted(async () => {
@@ -465,13 +465,19 @@ onBeforeUnmount(() => {
 }
 @keyframes l6 {
   0% {
-    box-shadow: 15px 0, -25px 0;
+    box-shadow:
+      15px 0,
+      -25px 0;
   }
   50% {
-    box-shadow: 15px 0, -15px 0;
+    box-shadow:
+      15px 0,
+      -15px 0;
   }
   100% {
-    box-shadow: 25px 0, -15px 0;
+    box-shadow:
+      25px 0,
+      -15px 0;
   }
 }
 </style>

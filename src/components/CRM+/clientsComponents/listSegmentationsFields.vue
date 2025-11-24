@@ -45,7 +45,7 @@ watch(
       emit("update:modelValue", deepClone(newVal));
     }
   },
-  { deep: true }
+  { deep: true },
 );
 </script>
 
@@ -91,12 +91,12 @@ watch(
               field.type === 'string'
                 ? 'texto'
                 : field.type === 'bool'
-                ? 'verdadeiro/falso'
-                : field.type === 'float'
-                ? 'número'
-                : field.type === 'list'
-                ? 'lista'
-                : 'Desconhecido'
+                  ? 'verdadeiro/falso'
+                  : field.type === 'float'
+                    ? 'número'
+                    : field.type === 'list'
+                      ? 'lista'
+                      : 'Desconhecido'
             "
           >
             {{ field.name }}
@@ -153,7 +153,6 @@ watch(
     </p>
   </section>
 </template>
-    
 
 <style scoped>
 .input_field {

@@ -33,8 +33,8 @@ onClickOutside(dropdownRef, () => (isOpen.value = false));
 // --- Filtra os departamentos conforme a busca ---
 const filteredDepartments = computed(() =>
   props.departments.filter((d) =>
-    d.name.toLowerCase().includes(search.value.toLowerCase())
-  )
+    d.name.toLowerCase().includes(search.value.toLowerCase()),
+  ),
 );
 
 // --- Alterna seleção do departamento ---

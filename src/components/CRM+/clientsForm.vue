@@ -76,7 +76,7 @@ const configNameInput = ref([
     type: "text",
     placeholder: "Digite o nome do contato",
     empty: computed(() =>
-      errors.value ? errors.value.some((e) => e.startsWith("name")) : false
+      errors.value ? errors.value.some((e) => e.startsWith("name")) : false,
     ),
     data: computed({
       get: () => form.name,
@@ -98,7 +98,7 @@ const configNameInput = ref([
 ]);
 
 const modalTitle = computed(() =>
-  props.form.mode === "edit" ? "Editar cliente" : "Adicionar Novo Cliente"
+  props.form.mode === "edit" ? "Editar cliente" : "Adicionar Novo Cliente",
 );
 
 const validateClient = (client) => {
@@ -135,7 +135,7 @@ watch(
   (newForm) => {
     Object.assign(form, toRaw(newForm));
   },
-  { deep: true, immediate: true }
+  { deep: true, immediate: true },
 );
 </script>
 
@@ -353,8 +353,8 @@ watch(
                           form.notes?.length > 900
                             ? 'text-red-500'
                             : form.notes?.length > 700
-                            ? 'text-yellow-500'
-                            : 'text-gray-400'
+                              ? 'text-yellow-500'
+                              : 'text-gray-400'
                         "
                       >
                         {{ form.notes?.length || 0 }}/1000
@@ -564,11 +564,12 @@ watch(
   font-size: 0.75rem;
   line-height: 1rem;
   font-weight: 500;
-  font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
-    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  transition-property: color, background-color, border-color,
-    text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter,
-    backdrop-filter;
+  font-family:
+    ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol", "Noto Color Emoji";
+  transition-property:
+    color, background-color, border-color, text-decoration-color, fill, stroke,
+    opacity, box-shadow, transform, filter, backdrop-filter;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
   border-radius: 0.375rem /* 6px */;

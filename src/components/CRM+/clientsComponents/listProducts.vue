@@ -82,7 +82,7 @@ const mountUrl = (baseUrl, params) => {
 const getProducts = async (params) => {
   try {
     const { data } = await api.get(
-      mountUrl(crm_products, { page: page.value, ...params })
+      mountUrl(crm_products, { page: page.value, ...params }),
     );
     const { results, next, previous } = data;
 
@@ -126,7 +126,7 @@ watch(
   (newVal) => {
     emit("update:modelValue", newVal);
   },
-  { deep: true }
+  { deep: true },
 );
 
 const isLoading = ref(false);
@@ -175,7 +175,7 @@ watch(
       loading.value = false;
     }, 500); // 500ms de atraso após parar de digitar
   },
-  { deep: true }
+  { deep: true },
 );
 </script>
 
