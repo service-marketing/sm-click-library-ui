@@ -13,7 +13,15 @@
  * />
  */
 
-import { ref, computed, defineProps, defineEmits, watch, onMounted, onUnmounted } from "vue";
+import {
+  ref,
+  computed,
+  defineProps,
+  defineEmits,
+  watch,
+  onMounted,
+  onUnmounted,
+} from "vue";
 import { onClickOutside } from "@vueuse/core";
 
 const props = defineProps({
@@ -71,7 +79,7 @@ const updatePosition = () => {
   if (!props.teleportTo || !triggerRef.value) return;
   const rect = triggerRef.value.getBoundingClientRect();
   dropdownStyle.value = {
-    position: 'fixed', // evita ser afetado por scroll de ancestors
+    position: "fixed", // evita ser afetado por scroll de ancestors
     top: `${rect.bottom + 6}px`, // pequeno espaçamento
     left: `${rect.left}px`,
     width: `${rect.width}px`,
@@ -91,14 +99,16 @@ onMounted(() => {
     const reposition = () => {
       if (isOpen.value) updatePosition();
     };
-    window.addEventListener('scroll', reposition, true); // true captura scroll em containers
-    window.addEventListener('resize', reposition);
-    listeners.push(['scroll', reposition], ['resize', reposition]);
+    window.addEventListener("scroll", reposition, true); // true captura scroll em containers
+    window.addEventListener("resize", reposition);
+    listeners.push(["scroll", reposition], ["resize", reposition]);
   }
 });
 
 onUnmounted(() => {
-  listeners.forEach(([evt, fn]) => window.removeEventListener(evt, fn, evt === 'scroll' ? true : undefined));
+  listeners.forEach(([evt, fn]) =>
+    window.removeEventListener(evt, fn, evt === "scroll" ? true : undefined),
+  );
 });
 
 // --- Verifica se um item está selecionado ---
@@ -138,7 +148,7 @@ const displayLabel = computed(() => {
   }
 
   const selectedOption = props.options.find(
-    (opt) => opt.value === props.modelValue
+    (opt) => opt.value === props.modelValue,
   );
   return selectedOption?.name || props.placeholder;
 });
@@ -212,7 +222,12 @@ const displayLabel = computed(() => {
           viewBox="0 0 24 24"
           stroke="currentColor"
         >
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M5 13l4 4L19 7"
+          />
         </svg>
       </button>
     </div>
@@ -246,7 +261,12 @@ const displayLabel = computed(() => {
             viewBox="0 0 24 24"
             stroke="currentColor"
           >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"
+            />
           </svg>
         </button>
       </div>

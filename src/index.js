@@ -33,6 +33,7 @@ import { useInstanceStore } from "./stores/instanceStore";
 import { getContrastColor } from "./utils/functions/getContrastColor";
 export { useScheduledStore } from "./stores/useScheduledStore";
 import RatingInput from "./components/inputs/ratingInput.vue";
+import CallHistory from "./components/chat/CallHistory.vue";
 import api from "~/utils/api"; // Importa a instância personalizada do Axios
 
 function install(Vue) {
@@ -63,6 +64,7 @@ function install(Vue) {
   Vue.component("SelectMultipleTags", SelectMultipleTags);
   Vue.component("SimpleLoader", SimpleLoader);
   Vue.component("OutcomeButton", OutcomeButton);
+  Vue.component("CallHistory", CallHistory);
   Vue.component("ListProducts", ListProducts);
 }
 
@@ -115,7 +117,7 @@ export async function setupLibrary(
   rootUrl,
   attendances = [],
   departments = [],
-  instances = []
+  instances = [],
 ) {
   try {
     // Configuração do AuthStore
@@ -198,5 +200,6 @@ export default {
   TagView,
   ClientsForm,
   OutcomeButton,
+  CallHistory,
   ListProducts,
 };

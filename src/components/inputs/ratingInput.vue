@@ -74,7 +74,7 @@ watch(
   () => props.modelValue,
   (val) => {
     rating.value = val;
-  }
+  },
 );
 
 const displayRating = computed(() => hoverRating.value || rating.value);

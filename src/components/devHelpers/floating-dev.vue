@@ -196,7 +196,9 @@ onBeforeUnmount(stopDrag);
   cursor: pointer;
   font-size: 1.4rem;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  transition: transform 0.2s, background 0.2s;
+  transition:
+    transform 0.2s,
+    background 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
