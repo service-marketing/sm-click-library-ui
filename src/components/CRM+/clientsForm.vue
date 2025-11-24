@@ -31,6 +31,7 @@ const props = defineProps({
       created_at: "",
       updated_at: "",
       client: "",
+      segmentation_fields: [],
       products: [],
       notes: "",
     }),
@@ -40,17 +41,25 @@ const props = defineProps({
     type: Function,
     default: () => {},
   },
+  // --- Checa o estado do modulo de CRM ---
   hasCrmPlus: {
     type: Boolean,
     default: false,
   },
+  // --- Lista de todos os produtos disponíveis e bloqueia o fetch na lista de produtos ---
   allProducts: {
     type: Object,
     default: () => {},
   },
+  // --- Lista de todas as tags disponíveis e bloqueia o fetch na lista de tags ---
   allTags: {
     type: Object,
     default: () => {},
+  },
+  // --- ID do departamento para ignorar bloqueio de produtos ---
+  departmentBypass: {
+    type: String,
+    default: "",
   },
 });
 
@@ -135,12 +144,12 @@ watch(
   (newForm) => {
     Object.assign(form, toRaw(newForm));
   },
-  { deep: true, immediate: true },
+  { immediate: true }
 );
 </script>
 
 <template>
-  <div class="modal-form-head">
+  <div class="modal-form-container-wrapper">
     <div class="modal-form-background" />
 
     <div class="modal_responsive">
@@ -154,9 +163,7 @@ watch(
             class="clients-form-background relative rounded-2xl bg-base-200 backdrop-blur-lg"
           >
             <!-- --- Header --- -->
-            <div
-              class="flex justify-between p-2.5 rounded-t-2xl bg-base-300 items-center text-current"
-            >
+            <div class="modal-form-header">
               <span class="flex items-center gap-2">
                 <svg
                   class="size-6 text-green-500"
@@ -175,7 +182,7 @@ watch(
                 </svg>
 
                 <span class="flex flex-col items-start">
-                  <p class="text-lg font-semibold">{{ modalTitle }}</p>
+                  <p class="text-lg">{{ modalTitle }}</p>
                   <p v-if="form.id" class="text-xs text-gray-400">
                     ID: {{ form.id }}
                   </p>
@@ -207,9 +214,9 @@ watch(
             </div>
 
             <!-- --- Body --- -->
-            <div class="grid grid-cols-2 h-full min-h-0">
+            <div class="modal-form-body">
               <!-- Coluna Esquerda -->
-              <section class="flex flex-col h-full min-h-0 px-1 py-2">
+              <section class="left-column">
                 <!-- Bloco fixo (avatar / outcome / rating) -->
                 <div
                   :class="hasCrmPlus ? 'justify-between' : 'justify-center'"
@@ -258,10 +265,8 @@ watch(
 
                   <RatingInput v-if="hasCrmPlus" v-model="form.rating" />
                 </div>
-                <!-- Área rolável -->
-                <div
-                  class="flex flex-col gap-1.5 w-full h-full overflow-y-auto overflow-x-hidden"
-                >
+
+                <div class="modal-form-left-column-body">
                   <div class="w-full">
                     <PrimaryInput
                       @update:content="
@@ -365,9 +370,7 @@ watch(
               </section>
 
               <!-- Coluna Direita -->
-              <section
-                class="bg-base-300 rounded-l-md px-0.5 py-1 flex flex-col h-full min-h-0 overflow-hidden"
-              >
+              <section class="right-column">
                 <div v-if="hasCrmPlus" class="flex gap-1 px-1.5">
                   <button
                     :class="[
@@ -458,9 +461,7 @@ watch(
                     </div>
                   </div>
 
-                  <div
-                    class="flex-1 min-h-0 overflow-y-auto bg-base-200 rounded-md border border-white/10 shadow-sm transition-shadow duration-200 hover:shadow-md"
-                  >
+                  <div class="segmentation-fields-container">
                     <ListSegmentationsFields
                       v-model="form.segmentation_fields"
                     />
@@ -469,21 +470,22 @@ watch(
 
                 <div
                   v-show="pageState === 'products'"
-                  class="flex-1 min-h-0 overflow-y-auto"
+                  class="list-products-container"
                 >
                   <ListProducts
-                    :allProducts="allProducts"
                     v-model="form.products"
+                    :allProducts="allProducts"
+                    :departmentBypass="departmentBypass"
                   />
                 </div>
               </section>
             </div>
 
             <!-- --- Rodapé (Botão de salvar) --- -->
-            <div class="modal_end_button">
+            <div class="modal-form-end-button">
               <button
                 :disabled="loading"
-                class="bg-green-500 py-2 px-4 rounded-lg text-sm font-medium hover:bg-green-500/80 transition-colors flex gap-2 items-center justify-center min-w-32"
+                class="button-save-clients"
                 @click="saveClient()"
               >
                 <div
@@ -501,11 +503,99 @@ watch(
 </template>
 
 <style scoped>
+.modal-form-left-column-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.modal-form-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.625rem;
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+  background-color: #111b21;
+  align-items: center;
+  color: currentColor;
+}
+.button-save-clients {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  background-color: rgb(34 197 94 / 0.8);
+  transition-property: color, background-color, border-color,
+    text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+  min-width: 8rem;
+}
+
+.right-column {
+  min-height: 0px;
+  height: 100%;
+  flex-direction: column;
+  display: flex;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  padding-left: 0.125rem;
+  padding-right: 0.125rem;
+  border-top-left-radius: 0.375rem;
+  border-bottom-left-radius: 0.375rem;
+  background-color: #111b21;
+}
+
+.left-column {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0px;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.segmentation-fields-container {
+  flex: 1 1 0%;
+  min-height: 0px;
+  overflow-y: auto;
+  background-color: #26343d;
+  border-radius: 0.375rem;
+  border-width: 1px;
+  border-color: rgb(255 255 255 / 0.1);
+}
+
+.list-products-container {
+  flex: 1 1 0%;
+  min-height: 0px;
+  background-color: #111b21;
+}
+
+.modal-form-body {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  height: 100%;
+  min-height: 0px;
+}
+
 .form-text-area {
   @apply resize-none w-full bg-base-300 text-xs rounded-md outline-none border-none focus:outline-none focus:ring-0 focus:shadow-none p-2 min-h-20 max-h-full;
   height: 100%;
 }
-.modal-form-head {
+.modal-form-container-wrapper {
   @apply my_modal-form backdrop-blur-[2px] z-50 fixed w-full h-full top-0 left-0 flex items-center justify-center;
 }
 
@@ -526,8 +616,15 @@ watch(
   z-index: 50;
   width: 90%;
   border-radius: 1rem;
-  overflow: auto;
   @apply shadow shadow-black;
+}
+.modal-form-end-button {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.5rem;
+  border-bottom-right-radius: 1rem;
+  border-bottom-left-radius: 1rem;
+  background-color: #111b21;
 }
 
 @media (min-width: 1280px) {
@@ -540,7 +637,6 @@ watch(
   display: flex;
   flex-direction: column;
   height: 85vh;
-  max-height: 85vh;
 }
 
 .clients-form-background.noCrmPlus {
