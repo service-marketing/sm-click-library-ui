@@ -36,6 +36,12 @@ onMounted(() => {
   if (props.modelValue.length === 0) {
     getSegmentationsFields();
   }
+
+  segmentationsFields.value.forEach((field) => {
+    if (field.type === "bool") {
+      field.content = field.content === "True" ? true : false;
+    }
+  });
 });
 
 watch(
@@ -52,16 +58,13 @@ watch(
 <template>
   <div
     v-if="loading"
-    class="flex items-center justify-center overflow-hidden h-svh"
+    class="flex items-center justify-center overflow-hidden h-full"
   >
     <SimpleLoader />
   </div>
 
   <div v-else-if="segmentationsFields.length > 0">
-    <header
-      style="z-index: 9999"
-      class="sticky bg-base-200 top-0 text-start w-full items-center justify-between flex mb-2 px-2 py-2"
-    >
+    <header style="z-index: 9999" class="header-segmentation-fields">
       <p class="text-xs font-semibold">Campos Personalizados</p>
     </header>
 
@@ -132,7 +135,7 @@ watch(
                 }))
               "
               placeholder="Selecione uma opção"
-              theme="bg-base-300 border-base-100"
+              theme="bg-base-300 border-base-100 text-white"
               teleport-to="body"
             />
           </template>
@@ -143,7 +146,7 @@ watch(
 
   <section
     v-else
-    class="rounded-md h-svh bg-base-200 border border-white/10 shadow-sm transition-shadow duration-200 hover:shadow-md p-1 flex flex-col items-center justify-center gap-2"
+    class="flex-1 justify-center items-center flex flex-col gap-2 h-full"
   >
     <p class="text-gray-200 text-xs md:text-base font-sans">
       Nenhum item encontrado
@@ -155,6 +158,21 @@ watch(
 </template>
 
 <style scoped>
+.header-segmentation-fields {
+  position: sticky;
+  background-color: #26343d;
+  top: 0px;
+  text-align: start;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  display: flex;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
 .input_field {
   @apply w-full text-xs bg-base-300 rounded-md outline-none border-none focus:outline-none focus:ring-0 focus:shadow-none placeholder:text-gray-400 h-10 p-3;
 }

@@ -15,13 +15,50 @@ const props = defineProps({
     type: Object,
     default: () => {},
   },
+  // --- caso o mouse saia do componente executa uma ação ---
+  onMouseLeave: {
+    type: Function,
+    required: false,
+  },
+  // --- departamento que pode acessar os produtos ---
+  departmentBypass: {
+    type: String,
+    default: "",
+  },
 });
 
 const emit = defineEmits(["update:modelValue"]);
 
 const loading = ref(false);
 const productsList = ref([]);
-const selectedProducts = ref([...props.modelValue]);
+
+// --- Organiza a lista de produtos para exibir bloqueados ao final ---
+const sortedProducts = computed(() => {
+  return [...productsList.value].sort((a, b) => {
+    const blockedA = shouldShowDepartmentBlocked(a);
+    const blockedB = shouldShowDepartmentBlocked(b);
+    if (blockedA === blockedB) return 0;
+    return blockedA - blockedB;
+  });
+});
+
+// --- Normaliza itens do parent para sempre ter { product, quantity } ---
+function normalizeProducts(list) {
+  if (!Array.isArray(list)) return [];
+  return list.map((item) => {
+    if (item && item.product) {
+      return {
+        product: { ...item.product },
+        quantity: item.quantity ?? 0,
+      };
+    }
+    return {
+      product: { ...item },
+      quantity: item.quantity ?? 0,
+    };
+  });
+}
+const selectedProducts = ref(normalizeProducts(props.modelValue));
 const page = ref(1);
 const nextPage = ref(null);
 const previousPage = ref(null);
@@ -34,20 +71,26 @@ const totalPrice = computed(() => {
   }, 0);
 });
 
-// Obtém a quantidade de um produto
+function getProductId(p) {
+  return p?.product?.id ?? p?.id;
+}
+
+// --- Obtém a quantidade de um produto ---
 const quantityMap = computed(() => {
   const map = {};
   selectedProducts.value.forEach((p) => {
-    map[p.product.id] = p.quantity;
+    const id = getProductId(p);
+    if (id != null) map[id] = p.quantity;
   });
   return map;
 });
 
 const getQuantity = (prd) => quantityMap.value[prd.id] || 0;
 
-// Incrementa
+// --- Incrementa ---
 const increaseQuantity = (prd) => {
-  const found = selectedProducts.value.find((p) => p.product.id === prd.id);
+  if (shouldShowDepartmentBlocked(prd)) return;
+  const found = selectedProducts.value.find((p) => getProductId(p) === prd.id);
   if (found) {
     found.quantity++;
   } else {
@@ -58,16 +101,15 @@ const increaseQuantity = (prd) => {
   }
 };
 
-// Decrementa (sem deixar ir abaixo de 0)
+// --- Decrementa (sem deixar ir abaixo de 0) ---
 const decreaseQuantity = (prd) => {
-  const found = selectedProducts.value.find((p) => p.product.id === prd.id);
+  if (shouldShowDepartmentBlocked(prd)) return;
+  const found = selectedProducts.value.find((p) => getProductId(p) === prd.id);
   if (!found) return;
-
-  // Se ainda não existe, nada a fazer
   if (found.quantity > 0) {
     found.quantity--;
   } else {
-    found.quantity = 0; // garante que nunca fique negativo
+    found.quantity = 0;
   }
 };
 
@@ -86,11 +128,11 @@ const getProducts = async (params) => {
     );
     const { results, next, previous } = data;
 
-    // Atualiza ponteiros de paginação
+    // --- Atualiza ponteiros de paginação ---
     nextPage.value = next;
     previousPage.value = previous;
 
-    // Concatena somente em páginas > 1. Evita reset + duplicação.
+    // --- Concatena somente em páginas > 1. Evita reset + duplicação ---
     if (page.value === 1) {
       productsList.value = results;
     } else {
@@ -100,7 +142,7 @@ const getProducts = async (params) => {
       productsList.value = [...productsList.value, ...newOnes];
     }
 
-    // Prepara a próxima página (incrementa apenas se há próximo)
+    // --- Prepara a próxima página (incrementa apenas se há próximo) ---
     if (nextPage.value) {
       page.value += 1;
     }
@@ -110,21 +152,40 @@ const getProducts = async (params) => {
 };
 
 onMounted(async () => {
-  // Se allProducts já veio com dados, usamos ele direto
+  // --- Se allProducts já veio com dados, usamos ele direto ---
   if (props.allProducts && props.allProducts.results?.length > 0) {
     productsList.value = props.allProducts.results;
     nextPage.value = props.allProducts.next || null;
     previousPage.value = props.allProducts.previous || null;
     page.value = 2; // assume que já carregamos a primeira página
   } else {
-    // Caso contrário, faz o fetch inicial
+    // --- Caso contrário, faz o fetch inicial ---
+    loading.value = true;
     await getProducts();
+    loading.value = false;
   }
 });
+
+// --- Sempre que selectedProducts mudar, emitimos o evento para o parent ---
 watch(
   selectedProducts,
   (newVal) => {
-    emit("update:modelValue", newVal);
+    // Emite sempre normalizado
+    emit(
+      "update:modelValue",
+      newVal.map((i) => ({
+        product: i.product,
+        quantity: i.quantity,
+      }))
+    );
+  },
+  { deep: true }
+);
+// --- Quando o parent atualizar v-model, normaliza novamente ---
+watch(
+  () => props.modelValue,
+  (newVal) => {
+    selectedProducts.value = normalizeProducts(newVal);
   },
   { deep: true },
 );
@@ -132,11 +193,11 @@ watch(
 const isLoading = ref(false);
 
 const loadMoreProducts = async (state) => {
-  if (isLoading.value) return; // impede chamadas duplicadas
+  if (isLoading.value) return;
   isLoading.value = true;
 
   try {
-    // Se não há próxima página já finaliza
+    // --- Se não há próxima página já finaliza ---
     if (!nextPage.value) {
       state.complete();
       return;
@@ -144,7 +205,7 @@ const loadMoreProducts = async (state) => {
 
     await getProducts();
 
-    // Depois de carregar, verifica novamente se ainda há próxima
+    // --- Depois de carregar, verifica novamente se ainda há próxima ---
     if (nextPage.value) {
       state.loaded();
     } else {
@@ -154,8 +215,26 @@ const loadMoreProducts = async (state) => {
     console.error("Erro ao carregar produtos:", error);
     state.complete();
   } finally {
-    isLoading.value = false; // libera para a próxima chamada
+    isLoading.value = false;
   }
+};
+
+function handleMouseLeave() {
+  if (typeof props.onMouseLeave === "function") {
+    props.onMouseLeave();
+  }
+}
+
+// --- Verifica se deve mostrar bloqueio por departamento ---
+const shouldShowDepartmentBlocked = (prd) => {
+  const bypassId = props.departmentBypass;
+  if (!bypassId) return false;
+
+  const departments = Array.isArray(prd?.department) ? prd.department : [];
+  if (departments.length === 0) return false;
+
+  const hasBypass = departments.some((d) => d && d.id === bypassId);
+  return !hasBypass;
 };
 
 const filters = ref({ query: "" });
@@ -169,34 +248,25 @@ watch(
     debounceTimer = setTimeout(async () => {
       const { query } = filters.value;
       page.value = 1;
-      itsSearching.value = !!query;
+      itsSearching.value = query !== null && query !== undefined;
+      console.log("Buscando por:", itsSearching.value);
       loading.value = true;
       await getProducts({ query });
       loading.value = false;
-    }, 500); // 500ms de atraso após parar de digitar
+    }, 500); // --- 500ms de atraso após parar de digitar ---
   },
   { deep: true },
 );
 </script>
 
 <template>
-  <div
-    v-if="loading"
-    class="flex items-center justify-center overflow-hidden h-svh"
-  >
-    <SimpleLoader />
-  </div>
-
-  <main v-else class="flex flex-col overflow-hidden">
+  <div class="list-products-wrapper" @mouseleave="handleMouseLeave">
     <header
-      v-if="
-        (productsList.length === 0 && itsSearching) ||
-        (!itsSearching && productsList.length > 0)
-      "
-      class="sticky top-0 z-50 bg-base-300 py-1 px-1.5 flex gap-2"
+      v-if="(productsList.length > 0 && !itsSearching) || itsSearching"
+      class="header-products-list"
     >
       <input
-        class="w-full text-xs bg-base-300 rounded-md pt-1.5 outline-none border-none focus:outline-none focus:ring-0 focus:shadow-none"
+        class="search-products-input"
         type="text"
         placeholder="Buscar..."
         v-model="filters.query"
@@ -214,154 +284,275 @@ watch(
     </header>
 
     <div
-      v-if="productsList.length > 0"
-      class="flex-1 overflow-y-auto flex flex-col gap-2 px-2"
+      v-if="loading"
+      class="flex items-center justify-center overflow-hidden h-full"
     >
-      <ul
-        class="w-full text-gray-500 list-none list-inside dark:text-gray-400 divide-y divide-base-200"
-      >
-        <li
-          class="flex w-full justify-between items-center py-2"
-          v-for="(prd, index) in productsList"
-          :key="prd.id"
+      <SimpleLoader />
+    </div>
+
+    <main v-else class="list-products-list">
+      <div v-if="productsList.length > 0">
+        <ul
+          class="w-full text-gray-500 list-none list-inside dark:text-gray-400 divide-y divide-base-200"
         >
-          <div class="flex gap-2 items-center">
-            <section>
-              <img
-                class="size-8 rounded-md"
-                v-if="prd.photo"
-                :src="prd.photo"
-                alt=""
-              />
-
-              <div
-                class="size-8 rounded-md flex items-center justify-center border border-base-200"
-                v-else
+          <li
+            class="flex w-full justify-between items-center py-1.5 relative"
+            v-for="(prd, index) in sortedProducts"
+            :key="prd.id"
+          >
+            <span
+              v-if="shouldShowDepartmentBlocked(prd)"
+              class="department-blocked"
+            >
+              <svg
+                class="size-5 text-white"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="currentColor"
+                viewBox="0 0 24 24"
               >
-                <svg
-                  class="w-6 h-6"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    fill="currentColor"
-                    d="M4 19v2c0 .5523.44772 1 1 1h14c.5523 0 1-.4477 1-1v-2H4Z"
-                  ></path>
-                  <path
-                    fill="currentColor"
-                    fill-rule="evenodd"
-                    d="M9 3c0-.55228.44772-1 1-1h8c.5523 0 1 .44772 1 1v3c0 .55228-.4477 1-1 1h-2v1h2c.5096 0 .9376.38314.9939.88957L19.8951 17H4.10498l.90116-8.11043C5.06241 8.38314 5.49047 8 6.00002 8H12V7h-2c-.55228 0-1-.44772-1-1V3Zm1.01 8H8.00002v2.01H10.01V11Zm.99 0h2.01v2.01H11V11Zm5.01 0H14v2.01h2.01V11Zm-8.00998 3H10.01v2.01H8.00002V14ZM13.01 14H11v2.01h2.01V14Zm.99 0h2.01v2.01H14V14ZM11 4h6v1h-6V4Z"
-                    clip-rule="evenodd"
-                  ></path>
-                </svg>
-              </div>
-            </section>
+                <path
+                  fill-rule="evenodd"
+                  d="M8 10V7a4 4 0 1 1 8 0v3h1a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h1Zm2-3a2 2 0 1 1 4 0v3h-4V7Zm2 6a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1Z"
+                  clip-rule="evenodd"
+                />
+              </svg>
 
-            <section class="flex flex-col items-start">
-              <p
-                :title="prd.name"
-                class="text-xs text-start font-semibold truncate max-w-32"
-                :class="getQuantity(prd) > 0 ? 'text-white' : ''"
-              >
-                {{ prd.name }}
+              <p class="text-xs text-white/80">
+                Este produto não faz parte do seu departamento
               </p>
+            </span>
 
-              <span class="text-[10px] flex gap-1 items-center">
-                <p class="text-xs font-semibold font-sans">
-                  R$
-                  {{
-                    prd.price.toLocaleString("pt-BR", {
-                      style: "currency",
-                      currency: "BRL",
-                    })
-                  }}
+            <div class="flex gap-2 items-center pl-2">
+              <section>
+                <img
+                  class="size-8 rounded-md"
+                  v-if="prd.photo"
+                  :src="prd.photo"
+                />
+
+                <div class="empty-product-photo" v-else>
+                  <svg
+                    class="size-4"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M4 19v2c0 .5523.44772 1 1 1h14c.5523 0 1-.4477 1-1v-2H4Z"
+                    ></path>
+                    <path
+                      fill="currentColor"
+                      fill-rule="evenodd"
+                      d="M9 3c0-.55228.44772-1 1-1h8c.5523 0 1 .44772 1 1v3c0 .55228-.4477 1-1 1h-2v1h2c.5096 0 .9376.38314.9939.88957L19.8951 17H4.10498l.90116-8.11043C5.06241 8.38314 5.49047 8 6.00002 8H12V7h-2c-.55228 0-1-.44772-1-1V3Zm1.01 8H8.00002v2.01H10.01V11Zm.99 0h2.01v2.01H11V11Zm5.01 0H14v2.01h2.01V11Zm-8.00998 3H10.01v2.01H8.00002V14ZM13.01 14H11v2.01h2.01V14Zm.99 0h2.01v2.01H14V14ZM11 4h6v1h-6V4Z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
+                </div>
+              </section>
+
+              <section class="flex flex-col items-start">
+                <p
+                  :title="prd.name"
+                  class="label-product-name"
+                  :class="getQuantity(prd) > 0 ? 'text-white' : ''"
+                >
+                  {{ prd.name }}
                 </p>
 
-                <p
-                  v-if="getQuantity(prd) > 0"
-                  class="font-sans text-primary text-white font-semibold"
-                >
-                  - x {{ getQuantity(prd) }} =
-                  <a class="text-primary">
+                <span class="text-[10px] flex gap-1 items-center">
+                  <p class="text-xs font-semibold font-sans">
+                    R$
                     {{
-                      (prd.price * getQuantity(prd)).toLocaleString("pt-BR", {
+                      prd.price.toLocaleString("pt-BR", {
                         style: "currency",
                         currency: "BRL",
                       })
                     }}
-                  </a>
-                </p>
-              </span>
-            </section>
-          </div>
+                  </p>
 
-          <section class="flex flex-col gap-1">
-            <p
-              :class="[
-                'text-xs font-semibold font-sans products-and-services_badge',
-                prd.recurrence,
-              ]"
-            >
-              {{ prd.recurrence === "monthly" ? "Mensal" : "Único" }}
-            </p>
+                  <p
+                    v-if="getQuantity(prd) > 0"
+                    class="font-sans text-primary text-white font-semibold"
+                  >
+                    - x {{ getQuantity(prd) }} =
+                    <a class="text-green-400 font-semibold">
+                      {{
+                        (prd.price * getQuantity(prd)).toLocaleString("pt-BR", {
+                          style: "currency",
+                          currency: "BRL",
+                        })
+                      }}
+                    </a>
+                  </p>
+                </span>
+              </section>
+            </div>
 
-            <div class="flex gap-1">
-              <button class="action-list-button" @click="decreaseQuantity(prd)">
-                -
-              </button>
-
+            <section class="flex flex-col gap-1 pr-2">
               <p
-                class="w-5 text-xs flex items-center justify-center font-semibold font-sans"
-                :class="getQuantity(prd) > 0 ? 'text-white' : ''"
+                :class="[
+                  'text-xs font-semibold font-sans products-and-services_badge',
+                  prd.recurrence,
+                ]"
               >
-                {{ getQuantity(prd) }}
+                {{ prd.recurrence === "monthly" ? "Mensal" : "Único" }}
               </p>
 
-              <button class="action-list-button" @click="increaseQuantity(prd)">
-                +
-              </button>
-            </div>
-          </section>
-        </li>
-      </ul>
+              <div class="flex gap-1">
+                <button
+                  :disabled="shouldShowDepartmentBlocked(prd)"
+                  class="action-list-button"
+                  @click="decreaseQuantity(prd)"
+                >
+                  -
+                </button>
 
-      <InfiniteLoading
-        v-if="nextPage"
-        @infinite="loadMoreProducts"
-        class="p-3 bg-base-300"
+                <p
+                  class="w-5 text-xs flex items-center justify-center font-semibold font-sans"
+                  :class="getQuantity(prd) > 0 ? 'text-white' : ''"
+                >
+                  {{ getQuantity(prd) }}
+                </p>
+
+                <button
+                  :disabled="shouldShowDepartmentBlocked(prd)"
+                  class="action-list-button"
+                  @click="increaseQuantity(prd)"
+                >
+                  +
+                </button>
+              </div>
+            </section>
+          </li>
+        </ul>
+
+        <InfiniteLoading
+          v-if="nextPage"
+          @infinite="loadMoreProducts"
+          class="p-3 bg-base-300"
+        >
+          <template #spinner>
+            <section class="w-full justify-center items-center flex">
+              <div
+                class="size-4 animate-spin rounded-full border-4 border-solid border-white border-t-transparent"
+              />
+            </section>
+          </template>
+        </InfiniteLoading>
+      </div>
+
+      <section
+        v-if="!loading && productsList.length <= 0"
+        class="flex flex-col flex-1 gap-2 items-center justify-center"
       >
-        <template #spinner>
-          <section class="w-full justify-center items-center flex">
-            <div
-              class="size-4 animate-spin rounded-full border-4 border-solid border-white border-t-transparent"
-            />
-          </section>
-        </template>
-      </InfiniteLoading>
-    </div>
-  </main>
-
-  <section
-    v-if="!loading && productsList.length <= 0"
-    class="h-full flex flex-col items-center justify-center"
-  >
-    <p class="text-gray-200 text-xs md:text-base font-sans">
-      Nenhum item encontrado
-    </p>
-    <p
-      v-if="!itsSearching"
-      class="text-gray-200 text-[10px] md:text-xs font-sans"
-    >
-      Comece criando seu primeiro na aba <strong>Produtos</strong>
-    </p>
-  </section>
+        <p class="text-gray-200 text-xs md:text-base font-sans">
+          Nenhum item encontrado
+        </p>
+        <p
+          v-if="!itsSearching"
+          class="text-gray-200 text-[10px] md:text-xs font-sans"
+        >
+          Comece criando seu primeiro na aba <strong>Produtos</strong>
+        </p>
+      </section>
+    </main>
+  </div>
 </template>
 
 <style scoped>
+.department-blocked {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background-color: rgba(47, 51, 57, 0.67);
+  gap: 0.5rem;
+}
+
+.list-products-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.empty-product-photo {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.375rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-width: 1px;
+  border-color: #26343d;
+}
+
+.header-products-list {
+  position: sticky;
+  top: 0px;
+  z-index: 50;
+  background-color: #111b21;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  padding-left: 0.375rem;
+  padding-right: 0.375rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.search-products-input {
+  width: 100%;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  background-color: #111b21;
+  border-radius: 0.375rem;
+  padding-top: 0.375rem;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  border-style: none;
+}
+.search-products-input:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0
+    var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0
+    calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
+    var(--tw-shadow, 0 0 #0000);
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
+    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.list-products-list {
+  flex: 1 1 0%;
+  min-height: 0px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.label-product-name {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  text-align: start;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 8rem;
+}
+
 .action-list-button {
   justify-content: center;
   align-items: center;

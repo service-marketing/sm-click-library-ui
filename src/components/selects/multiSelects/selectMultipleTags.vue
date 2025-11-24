@@ -373,10 +373,8 @@ onBeforeUnmount(() => {
           v-for="depart in filteredTags"
           :key="depart.id"
           :class="[
-            modelValue.some((d) => d.id === depart.id)
-              ? 'bg-green-500/30 hover:bg-green-500/50'
-              : 'hover:bg-base-200',
-            'flex items-center justify-between gap-2 px-3 py-2 cursor-pointer transition w-full',
+            'select-tag-btn',
+            { selected: modelValue.some((d) => d.id === depart.id) },
           ]"
           @click="toggleSelect(depart)"
         >
@@ -394,7 +392,7 @@ onBeforeUnmount(() => {
             </svg>
             <span
               :style="{ backgroundColor: depart.color || '#ffff' }"
-              class="text-xs truncate max-w-32 p-1 rounded-r-md"
+              class="viewTag"
               :class="getContrastColor(depart.color || '#ffff')"
               >{{ depart.name }}</span
             >
@@ -454,6 +452,39 @@ onBeforeUnmount(() => {
   display: none;
   width: 0;
   height: 0;
+}
+
+.select-tag-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  width: 100%;
+  background: transparent;
+}
+.select-tag-btn:hover {
+  background-color: #26343d;
+}
+.select-tag-btn.selected {
+  background-color: rgba(34, 197, 94, 0.3);
+}
+.select-tag-btn.selected:hover {
+  background-color: rgba(34, 197, 94, 0.5);
+}
+
+.viewTag {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 8rem;
+  padding: 0.25rem;
+  border-top-right-radius: 0.375rem;
+  border-bottom-right-radius: 0.375rem;
 }
 
 .loader-select-tags {
