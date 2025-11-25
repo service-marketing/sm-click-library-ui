@@ -181,19 +181,15 @@ watch(
   },
   { deep: true }
 );
+
 // --- Quando o parent atualizar v-model, normaliza novamente ---
 watch(
   () => props.modelValue,
   (newVal) => {
-    selectedProducts.value = normalizeProducts(newVal);
-  },
-  { deep: true }
-);
-// --- Quando o parent atualizar v-model, normaliza novamente ---
-watch(
-  () => props.modelValue,
-  (newVal) => {
-    selectedProducts.value = normalizeProducts(newVal);
+    const normalized = normalizeProducts(newVal);
+    if (JSON.stringify(normalized) !== JSON.stringify(selectedProducts.value)) {
+      selectedProducts.value = normalized;
+    }
   },
   { deep: true }
 );
