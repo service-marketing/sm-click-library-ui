@@ -117,7 +117,7 @@ export async function setupLibrary(
   rootUrl,
   attendances = [],
   departments = [],
-  instances = []
+  instances = [],
 ) {
   try {
     // Configuração do AuthStore

@@ -90,7 +90,7 @@ const isEmpty = computed(() => contentHandler.empty && !model.value);
     <!-- Campo de entrada -->
     <div
       :class="[
-        'input__container',
+        'input__container bg-base-300',
         isEmpty ? 'input__container--error' : '',
         contentHandler.type === 'textArea' ? 'textArea' : '',
       ]"
@@ -109,12 +109,15 @@ const isEmpty = computed(() => contentHandler.empty && !model.value);
         :key="contentHandler.type"
         :placeholder="contentHandler.placeholder"
         v-model="model"
-        :class="[isEmpty ? 'empty' : null, 'input__field']"
+        :class="[isEmpty ? 'empty' : null, 'input__field bg-base-300']"
       />
       <!-- text-area  -->
       <textarea
         v-else
-        :class="[isEmpty ? 'empty' : null, 'input__field h-full resize-y']"
+        :class="[
+          isEmpty ? 'empty' : null,
+          'input__field bg-base-300 h-full resize-y',
+        ]"
         v-model="model"
         :placeholder="contentHandler.placeholder"
       />
@@ -128,7 +131,7 @@ const isEmpty = computed(() => contentHandler.empty && !model.value);
 <style scoped>
 /* --- Container Principal do Input --- */
 .input__container {
-  @apply flex items-center relative bg-base-300 rounded-md px-3 transition-all duration-150;
+  @apply flex items-center relative  rounded-md px-3 transition-all duration-150;
 }
 
 /* --- Container Principal ajustado para o text-area --- */
@@ -143,7 +146,7 @@ const isEmpty = computed(() => contentHandler.empty && !model.value);
 
 /* --- Campo de texto --- */
 .input__field {
-  @apply w-full text-xs bg-base-300 rounded-md p-3 outline-none border-none focus:outline-none focus:ring-0 focus:shadow-none placeholder:text-gray-500;
+  @apply w-full text-xs  rounded-md p-3 outline-none border-none focus:outline-none focus:ring-0 focus:shadow-none placeholder:text-gray-500;
 }
 
 /* Campo de input vazio */

@@ -32,7 +32,10 @@ const isLost = computed(() => props.outcome === "lost");
   <div class="flex gap-2">
     <button
       @click="testBtn('won')"
-      :class="['button_outcome-base', { 'button_outcome-active-won': isWon }]"
+      :class="[
+        'button_outcome-base bg-base-300 dark:bg-base-100',
+        { 'button_outcome-active-won': isWon },
+      ]"
     >
       <p>Ganho</p>
       <svg
@@ -55,7 +58,10 @@ const isLost = computed(() => props.outcome === "lost");
 
     <button
       @click="testBtn('lost')"
-      :class="['button_outcome-base', { 'button_outcome-active-lost': isLost }]"
+      :class="[
+        'button_outcome-base bg-base-300 dark:bg-base-100',
+        { 'button_outcome-active-lost': isLost },
+      ]"
     >
       <svg
         :class="{ 'svg_outcome-active-lost': isLost }"
@@ -80,7 +86,7 @@ const isLost = computed(() => props.outcome === "lost");
 
 <style scoped>
 .button_outcome-base {
-  @apply bg-base-300 p-2 text-sm min-w-24 flex justify-between items-center gap-1 rounded-md transition border-b-2 border-gray-500;
+  @apply p-2 text-sm min-w-24 flex justify-between items-center gap-1 rounded-md transition border-b-2 border-gray-500;
 }
 .button_outcome-base:hover {
   @apply bg-base-100;

@@ -144,7 +144,7 @@ watch(
   (newForm) => {
     Object.assign(form, toRaw(newForm));
   },
-  { immediate: true }
+  { immediate: true },
 );
 </script>
 
@@ -163,7 +163,7 @@ watch(
             class="clients-form-background relative rounded-2xl bg-base-200 backdrop-blur-lg"
           >
             <!-- --- Header --- -->
-            <div class="modal-form-header">
+            <div class="modal-form-header bg-base-300">
               <span class="flex items-center gap-2">
                 <svg
                   class="size-6 text-green-500"
@@ -191,11 +191,11 @@ watch(
 
               <section class="flex gap-2 items-center">
                 <button
-                  class="bg-base-200 p-1.5 rounded-md hover:bg-base-200/70 transition"
+                  class="bg-base-200 p-1.5 rounded-md hover:bg-base-100 transition"
                   @click="emit('close')"
                 >
                   <svg
-                    class="size-4 text-white"
+                    class="size-4 text-white dark:text-black"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -290,7 +290,7 @@ watch(
                         arrow
                       >
                         <svg
-                          class="size-4 text-white"
+                          class="size-4 text-white dark:text-black"
                           xmlns="http://www.w3.org/2000/svg"
                           fill="currentColor"
                           viewBox="0 0 24 24"
@@ -328,7 +328,7 @@ watch(
                         arrow
                       >
                         <svg
-                          class="size-4 text-white"
+                          class="size-4 text-white dark:text-black"
                           xmlns="http://www.w3.org/2000/svg"
                           fill="currentColor"
                           viewBox="0 0 24 24"
@@ -346,7 +346,7 @@ watch(
                       class="w-full h-full bg-base-300 rounded-lg flex flex-col min-h-0"
                     >
                       <textarea
-                        class="form-text-area flex-1 h-full min-h-0"
+                        class="form-text-area bg-base-300 flex-1 h-full min-h-0"
                         v-model="form.notes"
                         maxlength="1000"
                         aria-label="Anotações do cliente"
@@ -370,11 +370,11 @@ watch(
               </section>
 
               <!-- Coluna Direita -->
-              <section class="right-column">
+              <section class="right-column bg-base-300">
                 <div v-if="hasCrmPlus" class="flex gap-1 px-1.5">
                   <button
                     :class="[
-                      'toggle-page-button',
+                      'toggle-page-button bg-base-200',
                       { selected: pageState === 'data' },
                     ]"
                     @click="pageState = 'data'"
@@ -384,7 +384,7 @@ watch(
 
                   <button
                     :class="[
-                      'toggle-page-button',
+                      'toggle-page-button bg-base-200',
                       { selected: pageState === 'products' },
                     ]"
                     :disabled="!hasCrmPlus"
@@ -415,7 +415,7 @@ watch(
                       <p class="text-xs font-semibold">Contatos</p>
                     </h1>
 
-                    <div class="flex w-full relative">
+                    <div class="flex w-full relative bg-base-300">
                       <span
                         style="border-bottom-left-radius: 0.4rem"
                         class="bg-base-300 rounded-bl-lg rounded-t-none flex justify-center items-center w-8"
@@ -461,7 +461,7 @@ watch(
                     </div>
                   </div>
 
-                  <div class="segmentation-fields-container">
+                  <div class="segmentation-fields-container bg-base-200">
                     <ListSegmentationsFields
                       v-model="form.segmentation_fields"
                     />
@@ -482,7 +482,7 @@ watch(
             </div>
 
             <!-- --- Rodapé (Botão de salvar) --- -->
-            <div class="modal-form-end-button">
+            <div class="modal-form-end-button bg-base-300">
               <button
                 :disabled="loading"
                 class="button-save-clients"
@@ -518,7 +518,7 @@ watch(
   padding: 0.625rem;
   border-top-left-radius: 1rem;
   border-top-right-radius: 1rem;
-  background-color: #111b21;
+  /* background-color: #111b21; */
   align-items: center;
   color: currentColor;
 }
@@ -532,8 +532,8 @@ watch(
   line-height: 1.25rem;
   font-weight: 500;
   background-color: rgb(34 197 94 / 0.8);
-  transition-property: color, background-color, border-color,
-    text-decoration-color, fill, stroke;
+  transition-property:
+    color, background-color, border-color, text-decoration-color, fill, stroke;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
   display: flex;
@@ -554,7 +554,7 @@ watch(
   padding-right: 0.125rem;
   border-top-left-radius: 0.375rem;
   border-bottom-left-radius: 0.375rem;
-  background-color: #111b21;
+  /* background-color: #111b21; */
 }
 
 .left-column {
@@ -572,7 +572,6 @@ watch(
   flex: 1 1 0%;
   min-height: 0px;
   overflow-y: auto;
-  background-color: #26343d;
   border-radius: 0.375rem;
   border-width: 1px;
   border-color: rgb(255 255 255 / 0.1);
@@ -581,7 +580,6 @@ watch(
 .list-products-container {
   flex: 1 1 0%;
   min-height: 0px;
-  background-color: #111b21;
 }
 
 .modal-form-body {
@@ -592,7 +590,7 @@ watch(
 }
 
 .form-text-area {
-  @apply resize-none w-full bg-base-300 text-xs rounded-md outline-none border-none focus:outline-none focus:ring-0 focus:shadow-none p-2 min-h-20 max-h-full;
+  @apply resize-none w-full text-xs rounded-md outline-none border-none focus:outline-none focus:ring-0 focus:shadow-none p-2 min-h-20 max-h-full;
   height: 100%;
 }
 .modal-form-container-wrapper {
@@ -624,7 +622,7 @@ watch(
   padding: 0.5rem;
   border-bottom-right-radius: 1rem;
   border-bottom-left-radius: 1rem;
-  background-color: #111b21;
+  /* background-color: #111b21; */
 }
 
 @media (min-width: 1280px) {
@@ -654,7 +652,6 @@ watch(
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #26343d;
   padding: 0.375rem;
   width: 100%;
   font-size: 0.75rem;
@@ -685,15 +682,14 @@ watch(
 }
 
 ::v-deep(.vti__dropdown) {
-  @apply rounded-none bg-base-300 border border-base-300 shadow-md p-1;
+  @apply rounded-none shadow-none bg-transparent;
 }
 
 ::v-deep(.vti__dropdown-item) {
-  @apply flex items-center gap-2 px-2  hover:bg-base-200/50 transition text-xs justify-between hover:scale-105 truncate;
 }
 
 ::v-deep(.vti__input) {
-  @apply w-full text-xs bg-base-300 outline-none border-none focus:outline-none focus:ring-0 focus:shadow-none placeholder:text-gray-500 rounded-br-lg rounded-t-none h-10;
+  @apply w-full text-xs outline-none border-none focus:outline-none focus:ring-0 focus:shadow-none placeholder:text-gray-500 rounded-br-lg rounded-t-none h-10 shadow-none bg-transparent;
 }
 
 ::v-deep(.vti__flag) {
@@ -701,8 +697,6 @@ watch(
 }
 
 ::v-deep(.vti__dropdown-list) {
-  @apply rounded-none  bg-base-300 rounded-b-md border border-base-200 shadow-lg shadow-green-500/20 overflow-x-hidden text-xs max-h-32;
-
   /* Scroll personalizado dentro do dropdown */
   scrollbar-width: thin;
   scrollbar-color: #334155 transparent;

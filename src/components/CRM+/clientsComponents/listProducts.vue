@@ -124,7 +124,7 @@ const mountUrl = (baseUrl, params) => {
 const getProducts = async (params) => {
   try {
     const { data } = await api.get(
-      mountUrl(crm_products, { page: page.value, ...params })
+      mountUrl(crm_products, { page: page.value, ...params }),
     );
     const { results, next, previous } = data;
 
@@ -176,10 +176,10 @@ watch(
       newVal.map((i) => ({
         product: i.product,
         quantity: i.quantity,
-      }))
+      })),
     );
   },
-  { deep: true }
+  { deep: true },
 );
 
 // --- Quando o parent atualizar v-model, normaliza novamente ---
@@ -191,7 +191,7 @@ watch(
       selectedProducts.value = normalized;
     }
   },
-  { deep: true }
+  { deep: true },
 );
 
 const isLoading = ref(false);
@@ -231,6 +231,7 @@ function handleMouseLeave() {
 
 // --- Verifica se deve mostrar bloqueio por departamento ---
 const shouldShowDepartmentBlocked = (prd) => {
+  if (isLoading.value) return false;
   const bypassId = props.departmentBypass;
   if (!bypassId) return false;
 
@@ -259,7 +260,7 @@ watch(
       loading.value = false;
     }, 500); // --- 500ms de atraso após parar de digitar ---
   },
-  { deep: true }
+  { deep: true },
 );
 </script>
 
@@ -270,13 +271,15 @@ watch(
       class="header-products-list"
     >
       <input
-        class="search-products-input"
+        class="search-products-input text-white dark:text-black"
         type="text"
         placeholder="Buscar..."
         v-model="filters.query"
       />
 
-      <section class="total-price-badge">
+      <section
+        class="total-price-badge bg-green-900 dark:bg-green-200 dark:text-green-600"
+      >
         Valor total:
         {{
           totalPrice.toLocaleString("pt-BR", {
@@ -365,7 +368,9 @@ watch(
                 <p
                   :title="prd.name"
                   class="label-product-name"
-                  :class="getQuantity(prd) > 0 ? 'text-white' : ''"
+                  :class="
+                    getQuantity(prd) > 0 ? 'text-white dark:text-primary' : ''
+                  "
                 >
                   {{ prd.name }}
                 </p>
@@ -383,10 +388,10 @@ watch(
 
                   <p
                     v-if="getQuantity(prd) > 0"
-                    class="font-sans text-primary text-white font-semibold"
+                    class="font-sans text-primary text-white dark:text-primary font-semibold"
                   >
                     - x {{ getQuantity(prd) }} =
-                    <a class="text-green-400 font-semibold">
+                    <a class="text-green-400 dark:text-[#14532d] font-semibold">
                       {{
                         (prd.price * getQuantity(prd)).toLocaleString("pt-BR", {
                           style: "currency",
@@ -402,7 +407,7 @@ watch(
             <section class="flex flex-col gap-1 pr-2">
               <p
                 :class="[
-                  'text-xs font-semibold font-sans products-and-services_badge',
+                  'text-xs font-semibold font-sans products-and-services_badge dark:text-white',
                   prd.recurrence,
                 ]"
               >
@@ -412,7 +417,7 @@ watch(
               <div class="flex gap-1">
                 <button
                   :disabled="shouldShowDepartmentBlocked(prd)"
-                  class="action-list-button"
+                  class="action-list-button bg-base-200"
                   @click="decreaseQuantity(prd)"
                 >
                   -
@@ -420,14 +425,16 @@ watch(
 
                 <p
                   class="w-5 text-xs flex items-center justify-center font-semibold font-sans"
-                  :class="getQuantity(prd) > 0 ? 'text-white' : ''"
+                  :class="
+                    getQuantity(prd) > 0 ? 'text-white dark:text-black' : ''
+                  "
                 >
                   {{ getQuantity(prd) }}
                 </p>
 
                 <button
                   :disabled="shouldShowDepartmentBlocked(prd)"
-                  class="action-list-button"
+                  class="action-list-button bg-base-200"
                   @click="increaseQuantity(prd)"
                 >
                   +
@@ -440,12 +447,12 @@ watch(
         <InfiniteLoading
           v-if="nextPage"
           @infinite="loadMoreProducts"
-          class="p-3 bg-base-300"
+          class="p-3"
         >
           <template #spinner>
             <section class="w-full justify-center items-center flex">
               <div
-                class="size-4 animate-spin rounded-full border-4 border-solid border-white border-t-transparent"
+                class="size-4 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"
               />
             </section>
           </template>
@@ -456,7 +463,9 @@ watch(
         v-if="!loading && productsList.length <= 0"
         class="flex flex-col flex-1 gap-2 items-center justify-center"
       >
-        <p class="text-gray-200 text-xs md:text-base font-sans">
+        <p
+          class="text-gray-200 dark:text-gray-900 text-xs md:text-base font-sans"
+        >
           Nenhum item encontrado
         </p>
         <p
@@ -503,7 +512,7 @@ watch(
   position: sticky;
   top: 0px;
   z-index: 50;
-  background-color: #111b21;
+  /* background-color: #111b21; */
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
   padding-left: 0.375rem;
@@ -516,7 +525,7 @@ watch(
   width: 100%;
   font-size: 0.75rem;
   line-height: 1rem;
-  background-color: #111b21;
+  background-color: transparent;
   border-radius: 0.375rem;
   padding-top: 0.375rem;
   outline: 2px solid transparent;
@@ -530,12 +539,14 @@ watch(
     var(--tw-ring-offset-width) var(--tw-ring-offset-color);
   --tw-ring-shadow: var(--tw-ring-inset) 0 0 0
     calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color);
-  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
+  box-shadow:
+    var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
     var(--tw-shadow, 0 0 #0000);
   --tw-shadow: 0 0 #0000;
   --tw-shadow-colored: 0 0 #0000;
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
-    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  box-shadow:
+    var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
+    var(--tw-shadow);
 }
 
 .list-products-list {
@@ -564,9 +575,7 @@ watch(
   border-radius: 0.375rem;
   width: 1.5rem;
   height: 1.5rem;
-  background-color: #26343d;
   font-weight: 600;
-  @apply hover:bg-base-200  font-semibold;
 }
 .action-list-button:hover {
   background-color: #26343d;
@@ -584,7 +593,7 @@ watch(
 }
 
 .total-price-badge {
-  background-color: #14532d;
+  /* background-color: #14532d; */
   padding: 0.375rem;
   font-size: 10px;
   border-radius: 0.375rem;

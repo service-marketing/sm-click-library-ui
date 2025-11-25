@@ -64,7 +64,7 @@ watch(
   </div>
 
   <div v-else-if="segmentationsFields.length > 0">
-    <header style="z-index: 9999" class="header-segmentation-fields">
+    <header class="header-segmentation-fields bg-base-200">
       <p class="text-xs font-semibold">Campos Personalizados</p>
     </header>
 
@@ -109,7 +109,7 @@ watch(
             <textarea
               :id="'seg-label-' + field.id"
               placeholder="campo do tipo texto"
-              class="input_field"
+              class="input_field bg-base-300"
               type="text"
               v-model="field.content"
             />
@@ -119,7 +119,7 @@ watch(
             <input
               :id="'seg-label-' + field.id"
               placeholder="campo do tipo número"
-              class="input_field"
+              class="input_field bg-base-300"
               type="number"
               v-model="field.content"
             />
@@ -160,7 +160,7 @@ watch(
 <style scoped>
 .header-segmentation-fields {
   position: sticky;
-  background-color: #26343d;
+  /* background-color: #26343d; */
   top: 0px;
   text-align: start;
   width: 100%;
@@ -174,7 +174,7 @@ watch(
 }
 
 .input_field {
-  @apply w-full text-xs bg-base-300 rounded-md outline-none border-none focus:outline-none focus:ring-0 focus:shadow-none placeholder:text-gray-400 h-10 p-3;
+  @apply w-full text-xs rounded-md outline-none border-none focus:outline-none focus:ring-0 focus:shadow-none placeholder:text-gray-400 h-10 p-3;
 }
 
 ::-webkit-scrollbar {
