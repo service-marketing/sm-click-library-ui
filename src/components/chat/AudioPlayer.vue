@@ -89,7 +89,7 @@
     <!-- Download button -->
     <button
       @click.stop="downloadAudio"
-      class="audio-download-btn hover:bg-primary_alt"
+      class="audio-download-btn hover:bg-base-300"
       title="Baixar"
     >
       <svg
@@ -304,6 +304,7 @@ onUnmounted(() => {
   padding: 0.25rem;
   padding-right: 0.25rem;
   transition: background-color 0.2s;
+  border-radius: 6px;
 }
 
 .audio-play-btn {
@@ -396,7 +397,6 @@ onUnmounted(() => {
   padding: 0.25rem;
   border-radius: 0.25rem;
   transition: background-color 0.2s;
-  background-color: transparent;
   border: none;
   cursor: pointer;
 }
