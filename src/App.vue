@@ -24,5 +24,7 @@ import ClientsForm from "./components/CRM+/clientsForm.vue";
 </script>
 
 <template>
-  <ClientsForm />
+  <div class="flex w-screen h-screen">
+    <ClientsForm :hasCrmPlus="true" />
+  </div>
 </template>

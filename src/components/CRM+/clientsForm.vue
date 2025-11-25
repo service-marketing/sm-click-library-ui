@@ -11,6 +11,7 @@ import ListSegmentationsFields from "./clientsComponents/listSegmentationsFields
 
 const emit = defineEmits(["close", "save"]);
 const pageState = ref("data");
+const teleportContainerId = "selectTags-portal-container";
 
 const props = defineProps({
   // --- Estado atual do formulário caso preenchido ---
@@ -162,6 +163,8 @@ watch(
             :class="{ noCrmPlus: !hasCrmPlus }"
             class="clients-form-background relative rounded-2xl bg-base-200 backdrop-blur-lg"
           >
+            <!-- --- Container para teleport --- -->
+            <div :id="teleportContainerId" class="relative"></div>
             <!-- --- Header --- -->
             <div class="modal-form-header bg-base-300">
               <span class="flex items-center gap-2">
@@ -305,7 +308,7 @@ watch(
                     </header>
 
                     <SelectMultipleTags
-                      teleportTo="body"
+                      :teleportTo="`#${teleportContainerId}`"
                       maxHeight="10rem"
                       :allTags="allTags"
                       v-model="form.tags"

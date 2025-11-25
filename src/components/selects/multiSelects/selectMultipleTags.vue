@@ -342,12 +342,12 @@ onBeforeUnmount(() => {
       <InfiniteLoading
         v-if="nextPage"
         @infinite="loadMoreTags"
-        class="p-3 bg-slate-800"
+        class="p-3 bg-base-300"
       >
         <template #spinner>
           <section class="w-full justify-center items-center flex">
             <div
-              class="size-4 animate-spin rounded-full border-4 border-solid border-white border-t-transparent"
+              class="size-4 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"
             />
           </section>
         </template>
@@ -425,12 +425,12 @@ onBeforeUnmount(() => {
         <InfiniteLoading
           v-if="nextPage"
           @infinite="loadMoreTags"
-          class="p-3 bg-slate-800"
+          class="p-3 bg-base-300"
         >
           <template #spinner>
             <section class="w-full justify-center items-center flex">
               <div
-                class="size-4 animate-spin rounded-full border-4 border-solid border-white border-t-transparent"
+                class="size-4 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"
               />
             </section>
           </template>
