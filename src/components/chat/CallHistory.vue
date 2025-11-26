@@ -279,66 +279,66 @@ function getLastEventType(call) {
 function getEventStatusColor(eventType) {
   switch (eventType) {
     case "offer":
-      return "text-blue-400";
+      return "event-status-offer";
     case "answer":
-      return "text-blue-400";
+      return "event-status-answer";
     case "accepted":
-      return "text-green-400";
+      return "event-status-accepted";
     case "ringing":
-      return "text-orange-300/80";
+      return "event-status-ringing";
     case "rejected":
     case "error":
-      return "text-red-400";
+      return "event-status-rejected";
     case "terminated":
-      return "text-gray-300 dark:bg-text-gray-500";
+      return "event-status-terminated";
     case "update":
-      return "text-blue-400";
+      return "event-status-update";
     default:
-      return "text-gray-400";
+      return "event-status-unknown";
   }
 }
 
 function getEventStatusBgColor(eventType) {
   switch (eventType) {
     case "offer":
-      return "bg-blue-500";
+      return "event-bg-offer";
     case "answer":
-      return "bg-blue-400";
+      return "event-bg-answer";
     case "accepted":
-      return "bg-green-500";
+      return "event-bg-accepted";
     case "ringing":
-      return "bg-blue-500";
+      return "event-bg-ringing";
     case "rejected":
     case "error":
-      return "bg-red-500";
+      return "event-bg-rejected";
     case "terminated":
-      return "bg-gray-500";
+      return "bg-primary";
     case "update":
-      return "bg-blue-500";
+      return "event-bg-update";
     default:
-      return "bg-gray-500";
+      return "event-bg-unknown";
   }
 }
 
 function getEventStatusDotColor(eventType) {
   switch (eventType) {
     case "offer":
-      return "bg-blue-400";
+      return "event-dot-offer";
     case "answer":
-      return "bg-blue-400";
+      return "event-dot-answer";
     case "accepted":
-      return "bg-green-400";
+      return "event-dot-accepted";
     case "ringing":
-      return "bg-orange-300/80";
+      return "event-dot-ringing";
     case "rejected":
     case "error":
-      return "bg-red-400";
+      return "event-dot-rejected";
     case "terminated":
-      return "bg-gray-400";
+      return "event-dot-terminated";
     case "update":
-      return "bg-blue-400";
+      return "event-dot-update";
     default:
-      return "bg-gray-400";
+      return "event-dot-unknown";
   }
 }
 
@@ -615,5 +615,115 @@ function hasRecordMetadata(call) {
 .fade-leave-to {
   opacity: 0;
   transform: translateY(-10px);
+}
+
+/* Event Status Colors */
+.event-status-offer {
+  color: rgb(96, 165, 250);
+}
+
+.event-status-answer {
+  color: rgb(96, 165, 250);
+}
+
+.event-status-accepted {
+  color: rgb(74, 222, 128);
+}
+
+.event-status-ringing {
+  color: rgb(255, 139, 57);
+}
+
+.event-status-rejected,
+.event-status-error {
+  color: rgb(248, 113, 113);
+}
+
+.event-status-terminated {
+  color: rgb(209, 213, 219);
+}
+
+.dark .event-status-terminated {
+  color: rgb(55, 65, 81);
+}
+
+.event-status-update {
+  color: rgb(96, 165, 250);
+}
+
+.event-status-unknown {
+  color: rgb(156, 163, 175);
+}
+
+/* Event Status Background Colors */
+.event-bg-offer {
+  background-color: rgb(59, 130, 246);
+}
+
+.event-bg-answer {
+  background-color: rgb(96, 165, 250);
+}
+
+.event-bg-accepted {
+  background-color: rgb(34, 197, 94);
+}
+
+.event-bg-ringing {
+  background-color: rgb(59, 130, 246);
+}
+
+.event-bg-rejected,
+.event-bg-error {
+  background-color: rgb(239, 68, 68);
+}
+
+.event-bg-terminated {
+  background-color: rgb(107, 114, 128);
+}
+
+.event-bg-update {
+  background-color: rgb(59, 130, 246);
+}
+
+.event-bg-unknown {
+  background-color: rgb(107, 114, 128);
+}
+
+/* Event Status Dot Colors */
+.event-dot-offer {
+  background-color: rgb(96, 165, 250);
+}
+
+.event-dot-answer {
+  background-color: rgb(96, 165, 250);
+}
+
+.event-dot-accepted {
+  background-color: rgb(74, 222, 128);
+}
+
+.event-dot-ringing {
+  background-color: rgb(255, 139, 57);;
+}
+
+.event-dot-rejected,
+.event-dot-error {
+  background-color: rgb(248, 113, 113);
+}
+
+.event-dot-terminated {
+  background-color: rgb(107, 114, 128);
+}
+
+.dark .event-dot-terminated {
+  background-color: rgb(55, 65, 81);
+}
+
+.event-dot-update {
+  background-color: rgb(96, 165, 250);
+}
+
+.event-dot-unknown {
+  background-color: rgb(107, 114, 128);
 }
 </style>
