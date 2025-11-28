@@ -25,8 +25,9 @@ export default {
   },
   methods: {
     initializeAudio() {
-      this.audioContext = new (window.AudioContext ||
-        window.webkitAudioContext)();
+      this.audioContext = new (
+        window.AudioContext || window.webkitAudioContext
+      )();
       this.analyser = this.audioContext.createAnalyser();
       const canvas = this.$refs.canvas;
       const ctx = canvas.getContext("2d");
