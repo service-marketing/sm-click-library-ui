@@ -33,7 +33,7 @@ const products = defineModel("products", { type: Array, default: () => [] });
 
 <template>
   <ToggleListButtons
-    v-if="isLargeScreen"
+    v-if="isLargeScreen && hasCrmPlus"
     :buttons="props.handlerToggleButtons"
     v-model="pageState"
   />
