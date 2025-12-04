@@ -34,6 +34,7 @@ import { getContrastColor } from "./utils/functions/getContrastColor";
 export { useScheduledStore } from "./stores/useScheduledStore";
 import RatingInput from "./components/inputs/ratingInput.vue";
 import CallHistory from "./components/chat/CallHistory.vue";
+import CallMessage from "./components/chat/CallMessage.vue";
 import api from "~/utils/api"; // Importa a instância personalizada do Axios
 
 function install(Vue) {
@@ -65,6 +66,7 @@ function install(Vue) {
   Vue.component("SimpleLoader", SimpleLoader);
   Vue.component("OutcomeButton", OutcomeButton);
   Vue.component("CallHistory", CallHistory);
+  Vue.component("CallMessage", CallMessage);
   Vue.component("ListProducts", ListProducts);
 }
 
@@ -201,5 +203,6 @@ export default {
   ClientsForm,
   OutcomeButton,
   CallHistory,
+  CallMessage,
   ListProducts,
 };
