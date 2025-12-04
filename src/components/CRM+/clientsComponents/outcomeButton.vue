@@ -86,7 +86,7 @@ const isLost = computed(() => props.outcome === "lost");
 
 <style scoped>
 .button_outcome-base {
-  @apply p-2 text-sm min-w-24 flex justify-between items-center gap-1 rounded-md transition border-b-2 border-gray-500;
+  @apply py-1 px-2 text-sm min-w-24 flex justify-between items-center gap-1 rounded-md transition border-b-2 border-gray-500;
 }
 .button_outcome-base:hover {
   @apply bg-base-100;

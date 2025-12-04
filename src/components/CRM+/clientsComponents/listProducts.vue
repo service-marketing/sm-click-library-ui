@@ -1,4 +1,9 @@
 <script setup>
+/**
+ * 📋 Descrição:
+ * Componente de exibição e seleção de produtos.
+ */
+
 import { computed, onMounted, reactive, watch, toRaw, ref } from "vue";
 import { crm_products } from "~/utils/systemUrls";
 import InfiniteLoading from "v3-infinite-loading";
@@ -24,6 +29,11 @@ const props = defineProps({
   departmentBypass: {
     type: String,
     default: "",
+  },
+  // --- desabilita os botões de incremento/decremento ---
+  readonly: {
+    type: Boolean,
+    default: false,
   },
 });
 
@@ -89,6 +99,7 @@ const getQuantity = (prd) => quantityMap.value[prd.id] || 0;
 
 // --- Incrementa ---
 const increaseQuantity = (prd) => {
+  if (props.readonly) return;
   if (shouldShowDepartmentBlocked(prd)) return;
   const found = selectedProducts.value.find((p) => getProductId(p) === prd.id);
   if (found) {
@@ -103,6 +114,7 @@ const increaseQuantity = (prd) => {
 
 // --- Decrementa (sem deixar ir abaixo de 0) ---
 const decreaseQuantity = (prd) => {
+  if (props.readonly) return;
   if (shouldShowDepartmentBlocked(prd)) return;
   const found = selectedProducts.value.find((p) => getProductId(p) === prd.id);
   if (!found) return;
@@ -277,9 +289,7 @@ watch(
         v-model="filters.query"
       />
 
-      <section
-        class="total-price-badge bg-green-900 dark:bg-green-200 dark:text-green-600"
-      >
+      <section class="total-price-badge text-white">
         Valor total:
         {{
           totalPrice.toLocaleString("pt-BR", {
@@ -416,7 +426,7 @@ watch(
 
               <div class="flex gap-1">
                 <button
-                  :disabled="shouldShowDepartmentBlocked(prd)"
+                  :disabled="shouldShowDepartmentBlocked(prd) || readonly"
                   class="action-list-button bg-base-200"
                   @click="decreaseQuantity(prd)"
                 >
@@ -433,7 +443,7 @@ watch(
                 </p>
 
                 <button
-                  :disabled="shouldShowDepartmentBlocked(prd)"
+                  :disabled="shouldShowDepartmentBlocked(prd) || readonly"
                   class="action-list-button bg-base-200"
                   @click="increaseQuantity(prd)"
                 >
@@ -593,7 +603,7 @@ watch(
 }
 
 .total-price-badge {
-  /* background-color: #14532d; */
+  background-color: #14532d;
   padding: 0.375rem;
   font-size: 10px;
   border-radius: 0.375rem;

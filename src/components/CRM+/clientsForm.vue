@@ -1,16 +1,27 @@
 <script setup>
-import { computed, onMounted, reactive, watch, toRaw, ref } from "vue";
+/**
+ * 📋 Descrição:
+ * Componente de botões para definir o resultado de uma oportunidade (Ganho ou Perdido).
+ */
 
+import {
+  computed,
+  onMounted,
+  onUnmounted,
+  reactive,
+  watch,
+  toRaw,
+  ref,
+} from "vue";
 import SelectMultipleTags from "../selects/multiSelects/selectMultipleTags.vue";
 import OutcomeButton from "./clientsComponents/outcomeButton.vue";
 import PrimaryInput from "../inputs/primaryInput.vue";
 import RatingInput from "../inputs/ratingInput.vue";
-
-import ListProducts from "./clientsComponents/listProducts.vue";
-import ListSegmentationsFields from "./clientsComponents/listSegmentationsFields.vue";
+import ToggleListButtons from "./clientsComponents/toggleListButtons.vue";
+import ContactSection from "./clientsComponents/contactSection.vue";
 
 const emit = defineEmits(["close", "save"]);
-const pageState = ref("data");
+const pageState = ref("contact");
 const teleportContainerId = "selectTags-portal-container";
 
 const props = defineProps({
@@ -147,6 +158,55 @@ watch(
   },
   { immediate: true },
 );
+
+const width = ref(window.innerWidth);
+
+// Atualiza width quando a tela mudar
+const updateWidth = () => {
+  width.value = window.innerWidth;
+};
+
+onMounted(() => {
+  window.addEventListener("resize", updateWidth);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("resize", updateWidth);
+});
+
+const isLargeScreen = computed(() => width.value >= 640);
+
+watch(
+  isLargeScreen,
+  (oldvalue, newVal) => {
+    if (newVal) {
+      pageState.value = "contact";
+    } else if (!newVal && oldvalue) {
+      pageState.value = "data";
+    }
+  },
+  { immediate: true },
+);
+
+const toggleButtons = [
+  { label: "Informações", value: "data" },
+  { label: "Produtos", value: "products", disabled: !props.hasCrmPlus },
+];
+
+const handlerToggleButtons = computed(() => {
+  const contactItem = { label: "Contato", value: "contact" };
+
+  const baseList = toggleButtons.filter((item) => item.value !== "contact");
+
+  if (!props.hasCrmPlus) {
+    return [
+      contactItem,
+      ...baseList.filter((item) => item.value !== "products"),
+    ];
+  }
+
+  return isLargeScreen.value ? [...baseList] : [contactItem, ...baseList];
+});
 </script>
 
 <template>
@@ -186,7 +246,7 @@ watch(
 
                 <span class="flex flex-col items-start">
                   <p class="text-lg">{{ modalTitle }}</p>
-                  <p v-if="form.id" class="text-xs text-gray-400">
+                  <p v-if="form.id" class="id-label-clients">
                     ID: {{ form.id }}
                   </p>
                 </span>
@@ -217,12 +277,27 @@ watch(
             </div>
 
             <!-- --- Body --- -->
-            <div class="modal-form-body">
+            <div
+              :class="isLargeScreen ? 'grid grid-cols-2' : 'flex'"
+              class="modal-form-body"
+            >
               <!-- Coluna Esquerda -->
-              <section class="left-column">
+              <section
+                :class="
+                  pageState !== 'contact' && !isLargeScreen ? 'pt-1.5' : 'p-1.5'
+                "
+                class="left-column"
+              >
                 <!-- Bloco fixo (avatar / outcome / rating) -->
+
+                <ToggleListButtons
+                  :buttons="handlerToggleButtons"
+                  v-model="pageState"
+                  v-if="!isLargeScreen"
+                />
+
                 <div
-                  :class="hasCrmPlus ? 'justify-between' : 'justify-center'"
+                  v-if="isLargeScreen || pageState === 'contact'"
                   class="flex flex-col gap-2 items-center"
                 >
                   <OutcomeButton
@@ -235,20 +310,14 @@ watch(
                     title="Não é possível alterar a foto do cliente neste momento"
                     class="flex items-center justify-center w-full"
                   >
-                    <button
+                    <img
                       v-if="form.photo"
-                      @click="viewSingleImage(form.photo)"
-                    >
-                      <img
-                        :src="form.photo"
-                        alt=""
-                        class="size-24 object-cover rounded-md cursor-not-allowed"
-                      />
-                    </button>
+                      :src="form.photo"
+                      alt=""
+                      class="avatar-client"
+                    />
 
-                    <span
-                      v-else
-                      class="bg-base-300 p-2 rounded-xl size-24 flex items-center justify-center border border-base-100 cursor-not-allowed"
+                    <span v-else class="no-avatar-client"
                       ><svg
                         class="size-14"
                         aria-hidden="true"
@@ -269,7 +338,10 @@ watch(
                   <RatingInput v-if="hasCrmPlus" v-model="form.rating" />
                 </div>
 
-                <div class="modal-form-left-column-body">
+                <div
+                  v-if="isLargeScreen || pageState === 'contact'"
+                  class="modal-form-left-column-body"
+                >
                   <div class="w-full">
                     <PrimaryInput
                       @update:content="
@@ -317,7 +389,7 @@ watch(
 
                   <div
                     v-if="hasCrmPlus"
-                    class="flex flex-1 min-h-0 flex-col gap-2"
+                    class="h-full flex flex-col gap-2 w-full"
                   >
                     <header class="flex items-center justify-between px-1">
                       <p class="text-xs font-medium text-left">
@@ -349,7 +421,7 @@ watch(
                       class="w-full h-full bg-base-300 rounded-lg flex flex-col min-h-0"
                     >
                       <textarea
-                        class="form-text-area bg-base-300 flex-1 h-full min-h-0"
+                        class="form-text-area bg-base-300 min-h-0 flex-1"
                         v-model="form.notes"
                         maxlength="1000"
                         aria-label="Anotações do cliente"
@@ -370,117 +442,42 @@ watch(
                     </div>
                   </div>
                 </div>
+
+                <section
+                  v-show="!isLargeScreen && pageState !== 'contact'"
+                  class="right-column bg-base-300"
+                >
+                  <ContactSection
+                    :hasCrmPlus="hasCrmPlus"
+                    :handlerToggleButtons="handlerToggleButtons"
+                    :allProducts="allProducts"
+                    :departmentBypass="departmentBypass"
+                    :isEmptyNumber="isEmptyNumber"
+                    :isLargeScreen="isLargeScreen"
+                    v-model:pageState="pageState"
+                    v-model:telephone="form.telephone"
+                    v-model:country="form.country"
+                    v-model:segmentationFields="form.segmentation_fields"
+                    v-model:products="form.products"
+                  />
+                </section>
               </section>
 
               <!-- Coluna Direita -->
-              <section class="right-column bg-base-300">
-                <div v-if="hasCrmPlus" class="flex gap-1 px-1.5">
-                  <button
-                    :class="[
-                      'toggle-page-button bg-base-200',
-                      { selected: pageState === 'data' },
-                    ]"
-                    @click="pageState = 'data'"
-                  >
-                    Informações
-                  </button>
-
-                  <button
-                    :class="[
-                      'toggle-page-button bg-base-200',
-                      { selected: pageState === 'products' },
-                    ]"
-                    :disabled="!hasCrmPlus"
-                    @click="pageState = 'products'"
-                  >
-                    <p>Produtos</p>
-                  </button>
-                </div>
-
-                <div
-                  v-show="pageState === 'data'"
-                  :class="[
-                    hasCrmPlus ? 'pt-1.5' : 'pt-0',
-                    'flex flex-col gap-2 flex-1 min-h-0 px-1.5 overflow-hidden',
-                  ]"
-                >
-                  <div
-                    :class="
-                      isEmptyNumber && !form.telephone
-                        ? 'border-red-500'
-                        : 'border-white/10'
-                    "
-                    class="rounded-md bg-base-200 border shadow-sm transition-shadow duration-200 hover:shadow-md"
-                  >
-                    <h1
-                      class="text-start w-full items-center justify-between flex p-2"
-                    >
-                      <p class="text-xs font-semibold">Contatos</p>
-                    </h1>
-
-                    <div class="flex w-full relative bg-base-300">
-                      <span
-                        style="border-bottom-left-radius: 0.4rem"
-                        class="bg-base-300 rounded-bl-lg rounded-t-none flex justify-center items-center w-8"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="currentColor"
-                          class="size-4 text-gray-500 ml-1.5"
-                          viewBox="0 0 17 17"
-                        >
-                          <path
-                            d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"
-                          ></path>
-                        </svg>
-                      </span>
-
-                      <vue-tel-input
-                        class="z-40 w-full"
-                        @country-changed="(crt) => (form.country = crt.iso2)"
-                        :mode="'national'"
-                        :validCharactersOnly="true"
-                        :defaultCountry="form.country"
-                        :inputOptions="{
-                          placeholder: 'Coloque seu telefone',
-                          showDialCode: false,
-                          required: true,
-                          searchBoxPlaceholder: 'Brazil',
-                        }"
-                        :dropdownOptions="{
-                          showSearchBox: true,
-                          showFlags: true,
-                          searchBoxPlaceholder: 'Brazil',
-                        }"
-                        v-model="form.telephone"
-                      ></vue-tel-input>
-
-                      <span
-                        v-if="isEmptyNumber && !form.telephone"
-                        class="text-xs absolute z-50 -bottom-2 left-1 bg-base-300 px-2 py-0.5 rounded-lg text-red-500 select-none shadow-sm shadow-base-100"
-                      >
-                        Campo obrigatorio
-                      </span>
-                    </div>
-                  </div>
-
-                  <div class="segmentation-fields-container bg-base-200">
-                    <ListSegmentationsFields
-                      v-model="form.segmentation_fields"
-                    />
-                  </div>
-                </div>
-
-                <div
-                  v-show="pageState === 'products'"
-                  class="list-products-container"
-                >
-                  <ListProducts
-                    v-model="form.products"
-                    :allProducts="allProducts"
-                    :departmentBypass="departmentBypass"
-                  />
-                </div>
+              <section v-show="isLargeScreen" class="right-column bg-base-300">
+                <ContactSection
+                  :hasCrmPlus="hasCrmPlus"
+                  :handlerToggleButtons="handlerToggleButtons"
+                  :allProducts="allProducts"
+                  :departmentBypass="departmentBypass"
+                  :isEmptyNumber="isEmptyNumber"
+                  :isLargeScreen="isLargeScreen"
+                  v-model:pageState="pageState"
+                  v-model:telephone="form.telephone"
+                  v-model:country="form.country"
+                  v-model:segmentationFields="form.segmentation_fields"
+                  v-model:products="form.products"
+                />
               </section>
             </div>
 
@@ -506,22 +503,64 @@ watch(
 </template>
 
 <style scoped>
+.avatar-client {
+  cursor: not-allowed;
+  border-radius: 0.375rem /* 6px */;
+  object-fit: cover;
+  width: 4rem;
+  height: 4rem;
+}
+
+.no-avatar-client {
+  cursor: not-allowed;
+  border-width: 1px;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  width: 4rem /* 64px */;
+  height: 4rem /* 64px */;
+  border-radius: 0.75rem /* 12px */;
+  padding: 0.5rem /* 8px */;
+  @apply bg-base-300 p-2 border-base-100;
+}
+
+.id-label-clients {
+  color: #9ca3af;
+  font-size: 10px;
+}
+
+@media (min-width: 864px) {
+  .avatar-client {
+    width: 5rem;
+    height: 5rem;
+  }
+  .no-avatar-client {
+    width: 5rem;
+    height: 5rem;
+  }
+}
+
+@media (min-width: 640px) {
+  .id-label-clients {
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+}
+
 .modal-form-left-column-body {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
   width: 100%;
   height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
 }
+
 .modal-form-header {
   display: flex;
   justify-content: space-between;
   padding: 0.625rem;
   border-top-left-radius: 1rem;
   border-top-right-radius: 1rem;
-  /* background-color: #111b21; */
   align-items: center;
   color: currentColor;
 }
@@ -557,39 +596,21 @@ watch(
   padding-right: 0.125rem;
   border-top-left-radius: 0.375rem;
   border-bottom-left-radius: 0.375rem;
-  /* background-color: #111b21; */
 }
 
 .left-column {
   display: flex;
+  gap: 0.5rem;
   flex-direction: column;
   height: 100%;
   min-height: 0px;
-  padding-left: 0.25rem;
-  padding-right: 0.25rem;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-}
-
-.segmentation-fields-container {
-  flex: 1 1 0%;
-  min-height: 0px;
-  overflow-y: auto;
-  border-radius: 0.375rem;
-  border-width: 1px;
-  border-color: rgb(255 255 255 / 0.1);
-}
-
-.list-products-container {
-  flex: 1 1 0%;
-  min-height: 0px;
+  @apply overflow-y-auto overflow-x-hidden w-full;
 }
 
 .modal-form-body {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
   height: 100%;
   min-height: 0px;
+  @apply flex sm:grid sm:grid-cols-2;
 }
 
 .form-text-area {
@@ -649,35 +670,6 @@ watch(
     height: 65vh;
     max-height: 65vh;
   }
-}
-
-.toggle-page-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.375rem;
-  width: 100%;
-  font-size: 0.75rem;
-  line-height: 1rem;
-  font-weight: 500;
-  font-family:
-    ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
-    "Segoe UI Symbol", "Noto Color Emoji";
-  transition-property:
-    color, background-color, border-color, text-decoration-color, fill, stroke,
-    opacity, box-shadow, transform, filter, backdrop-filter;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
-  border-radius: 0.375rem /* 6px */;
-}
-.toggle-page-button:hover {
-  background-color: rgb(38 52 61 / 0.7);
-}
-.toggle-page-button.selected {
-  background-color: #16a34ad6;
-}
-.toggle-page-button.selected:hover {
-  background-color: #16a34a;
 }
 
 ::v-deep(.vti__phone) {

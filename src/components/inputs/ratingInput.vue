@@ -1,8 +1,14 @@
 <template>
   <main
+    ref="containerRef"
     :disabled="props.readonly"
     class="flex select-none"
     :style="{ gap: `${gap}px` }"
+    @mouseleave="!props.readonly && (hoverRating = 0)"
+    @touchstart="handleTouchStart"
+    @touchmove="handleTouchMove"
+    @touchend="handleTouchMoveEnd"
+    @touchcancel="handleTouchEnd"
   >
     <div
       v-for="star in 5"
@@ -55,6 +61,11 @@
 </template>
 
 <script setup>
+/**
+ * 📋 Descrição:
+ * Componente para atualizar a avaliação dos clientes.
+ */
+
 import { ref, computed, defineEmits, watch } from "vue";
 
 const props = defineProps({
@@ -69,6 +80,8 @@ const emit = defineEmits(["update:modelValue"]);
 
 const rating = ref(props.modelValue);
 const hoverRating = ref(0);
+const isDragging = ref(false);
+const containerRef = ref(null);
 
 watch(
   () => props.modelValue,
@@ -100,8 +113,53 @@ function setRating(e, star) {
   rating.value = rating.value === newRating ? 0 : newRating;
   emit("update:modelValue", rating.value);
 
-  // Executa ação customizada se a função existir
   if (typeof props.onRate === "function") props.onRate(rating.value);
+}
+
+// --- Funções para suporte a touch/drag no mobile ---
+function handleTouchStart() {
+  if (!props.readonly) {
+    isDragging.value = true;
+  }
+}
+
+function handleTouchEnd() {
+  isDragging.value = false;
+  hoverRating.value = 0;
+}
+
+function handleTouchMove(e) {
+  if (!isDragging.value || !containerRef.value || props.readonly) return;
+
+  const touch = e.touches[0];
+  const containerRect = containerRef.value.getBoundingClientRect();
+
+  // --- Calcula a posição relativa do toque dentro do container ---
+  const touchX = touch.clientX - containerRect.left;
+
+  // --- Calcula qual estrela foi tocada baseado na largura total ---
+  const starWidth = props.size + props.gap;
+  const starIndex = Math.floor(touchX / starWidth) + 1;
+
+  if (starIndex >= 1 && starIndex <= 5) {
+    const starElement = containerRef.value.children[starIndex - 1];
+    if (starElement) {
+      const starRect = starElement.getBoundingClientRect();
+      const isHalf = touch.clientX - starRect.left < starRect.width / 2;
+      hoverRating.value = starIndex - (isHalf ? 0.5 : 0);
+    }
+  }
+}
+
+function handleTouchMoveEnd() {
+  if (isDragging.value && hoverRating.value > 0) {
+    rating.value = rating.value === hoverRating.value ? 0 : hoverRating.value;
+    emit("update:modelValue", rating.value);
+
+    if (typeof props.onRate === "function") props.onRate(rating.value);
+  }
+  isDragging.value = false;
+  hoverRating.value = 0;
 }
 </script>
 
