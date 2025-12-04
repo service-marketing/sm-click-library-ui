@@ -39,6 +39,7 @@ config.global.stubs = {
   Popper: { template: "<div><slot /></div>" },
   putVideo: { template: "<div></div>" },
   VueAwesomePaginate: { template: "<div></div>" },
+  SimpleLoader: { template: "<div></div>" },
 };
 
 config.global.directives = {

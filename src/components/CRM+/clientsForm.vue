@@ -190,7 +190,12 @@ watch(
 
 const toggleButtons = [
   { label: "Informações", value: "data" },
-  { label: "Produtos", value: "products", disabled: !props.hasCrmPlus },
+  {
+    label: "Produtos",
+    value: "products",
+    disabled:
+      props.form.status === "screening" || props.form.status === "finished",
+  },
 ];
 
 const handlerToggleButtons = computed(() => {
@@ -289,7 +294,6 @@ const handlerToggleButtons = computed(() => {
                 class="left-column"
               >
                 <!-- Bloco fixo (avatar / outcome / rating) -->
-
                 <ToggleListButtons
                   :buttons="handlerToggleButtons"
                   v-model="pageState"
@@ -298,7 +302,7 @@ const handlerToggleButtons = computed(() => {
 
                 <div
                   v-if="isLargeScreen || pageState === 'contact'"
-                  class="flex flex-col gap-2 items-center"
+                  class="flex flex-col gap-1 items-center"
                 >
                   <OutcomeButton
                     v-if="hasCrmPlus"
@@ -505,10 +509,10 @@ const handlerToggleButtons = computed(() => {
 <style scoped>
 .avatar-client {
   cursor: not-allowed;
-  border-radius: 0.375rem /* 6px */;
+  border-radius: 0.375rem;
   object-fit: cover;
-  width: 4rem;
-  height: 4rem;
+  width: 3.5rem;
+  height: 3.5rem;
 }
 
 .no-avatar-client {
@@ -517,10 +521,10 @@ const handlerToggleButtons = computed(() => {
   justify-content: center;
   align-items: center;
   display: flex;
-  width: 4rem /* 64px */;
-  height: 4rem /* 64px */;
-  border-radius: 0.75rem /* 12px */;
-  padding: 0.5rem /* 8px */;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 0.75rem;
+  padding: 0.5rem;
   @apply bg-base-300 p-2 border-base-100;
 }
 
@@ -531,12 +535,12 @@ const handlerToggleButtons = computed(() => {
 
 @media (min-width: 864px) {
   .avatar-client {
-    width: 5rem;
-    height: 5rem;
+    width: 4.5rem;
+    height: 4.5rem;
   }
   .no-avatar-client {
-    width: 5rem;
-    height: 5rem;
+    width: 4.5rem;
+    height: 4.5rem;
   }
 }
 
@@ -553,6 +557,7 @@ const handlerToggleButtons = computed(() => {
   gap: 0.25rem;
   width: 100%;
   height: 100%;
+  justify-content: space-between;
 }
 
 .modal-form-header {
