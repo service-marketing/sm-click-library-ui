@@ -106,7 +106,6 @@ function handleMessageClick(call) {
     props.onMessageClick(call);
   }
 }
-
 </script>
 
 <style scoped>

@@ -170,11 +170,6 @@ onMounted(async () => {
     nextPage.value = props.allProducts.next || null;
     previousPage.value = props.allProducts.previous || null;
     page.value = 2; // assume que já carregamos a primeira página
-  } else {
-    // --- Caso contrário, faz o fetch inicial ---
-    loading.value = true;
-    await getProducts();
-    loading.value = false;
   }
 });
 

@@ -48,10 +48,7 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     // Trata erros 5xx
-    if (
-      error.response &&
-      error.response.status.toString()[0] === "5"
-    ) {
+    if (error.response && error.response.status.toString()[0] === "5") {
       console.error("Erro inesperado no servidor:", error);
       return Promise.reject(error);
     }
@@ -60,7 +57,7 @@ api.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       const store = getAuthStore();
       const refreshToken = store.refreshToken;
-      
+
       if (refreshToken) {
         try {
           // Faz refresh do token usando instância sem interceptores

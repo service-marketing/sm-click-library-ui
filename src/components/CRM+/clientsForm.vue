@@ -125,7 +125,8 @@ const modalTitle = computed(() =>
 const validateClient = (client) => {
   const missing = [];
   if (!client.name?.trim()) missing.push("name");
-  if (!client.telephone?.trim()) missing.push("telephone");
+  if (form.viewContactNumber && !client.telephone?.trim())
+    missing.push("telephone");
   return missing;
 };
 
@@ -167,6 +168,7 @@ const updateWidth = () => {
 };
 
 onMounted(() => {
+  console.log(props.allTags);
   window.addEventListener("resize", updateWidth);
 });
 
@@ -385,7 +387,6 @@ const handlerToggleButtons = computed(() => {
 
                     <SelectMultipleTags
                       :teleportTo="`#${teleportContainerId}`"
-                      maxHeight="10rem"
                       :allTags="allTags"
                       v-model="form.tags"
                     />
@@ -452,6 +453,7 @@ const handlerToggleButtons = computed(() => {
                   class="right-column bg-base-300"
                 >
                   <ContactSection
+                    :viewContactNumber="form.viewContactNumber"
                     :hasCrmPlus="hasCrmPlus"
                     :handlerToggleButtons="handlerToggleButtons"
                     :allProducts="allProducts"
@@ -468,8 +470,9 @@ const handlerToggleButtons = computed(() => {
               </section>
 
               <!-- Coluna Direita -->
-              <section v-show="isLargeScreen" class="right-column bg-base-300">
+              <section v-if="isLargeScreen" class="right-column bg-base-300">
                 <ContactSection
+                  :viewContactNumber="form.viewContactNumber"
                   :hasCrmPlus="hasCrmPlus"
                   :handlerToggleButtons="handlerToggleButtons"
                   :allProducts="allProducts"
@@ -557,7 +560,7 @@ const handlerToggleButtons = computed(() => {
   gap: 0.25rem;
   width: 100%;
   height: 100%;
-  justify-content: space-between;
+  /* justify-content: space-between; */
 }
 
 .modal-form-header {
@@ -591,8 +594,8 @@ const handlerToggleButtons = computed(() => {
 }
 
 .right-column {
-  min-height: 0px;
   height: 100%;
+  min-height: 0px;
   flex-direction: column;
   display: flex;
   padding-top: 0.25rem;
@@ -667,7 +670,7 @@ const handlerToggleButtons = computed(() => {
 }
 
 .clients-form-background.noCrmPlus {
-  max-height: 361px;
+  max-height: 350px;
 }
 
 @media (min-width: 1920px) {

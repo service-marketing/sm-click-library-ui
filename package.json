@@ -47,6 +47,7 @@
     "vite-plugin-static-copy": "^2.2.0",
     "vue": "^3.4.29",
     "vue-debounce": "^5.0.1",
+    "vue-tel-input": "^9.5.0",
     "vue3-avataaars": "^1.0.15",
     "vue3-carousel": "^0.16.0",
     "vue3-lottie": "^3.3.1",

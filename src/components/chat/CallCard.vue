@@ -461,7 +461,9 @@ function getEventTypeField(event) {
 .call-expand-btn {
   padding: 0.25rem;
   border-radius: 0.25rem;
-  transition: background-color 0.2s, transform 0.2s;
+  transition:
+    background-color 0.2s,
+    transform 0.2s;
   border: none;
   cursor: pointer;
 }

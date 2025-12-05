@@ -81,7 +81,7 @@ watch(
           <template v-if="field.type === 'bool'">
             <input
               :id="'seg-label-' + field.id"
-              class="checkbox size-4 rounded-sm"
+              class="peer size-4 cursor-pointer appearance-none rounded bg-gray-400 transition-all duration-200 checked:scale-75 checked:bg-teal-400"
               type="checkbox"
               v-model="field.content"
             />
@@ -108,7 +108,6 @@ watch(
           <template v-if="field.type === 'string'">
             <textarea
               :id="'seg-label-' + field.id"
-              placeholder="campo do tipo texto"
               class="input_field bg-base-300"
               type="text"
               v-model="field.content"
@@ -118,7 +117,6 @@ watch(
           <template v-if="field.type === 'float'">
             <input
               :id="'seg-label-' + field.id"
-              placeholder="campo do tipo número"
               class="input_field bg-base-300"
               type="number"
               v-model="field.content"

@@ -11,7 +11,7 @@ export const useAuthStore = defineStore("auth", {
       if (refreshToken) {
         this.refreshToken = refreshToken;
       }
-      
+
       // Sincroniza com localStorage se disponível (pra aplicações que usam)
       this._syncToLocalStorage();
     },
@@ -39,7 +39,7 @@ export const useAuthStore = defineStore("auth", {
               data.refresh_token = this.refreshToken;
             }
             localStorage.setItem("userData", JSON.stringify(data));
-          } 
+          }
           // Gestor
           else if (accessToken !== null) {
             if (this.jwtToken) {
