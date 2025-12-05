@@ -32,10 +32,13 @@ import { useDepartmentStore } from "./stores/departmentStore";
 import { useInstanceStore } from "./stores/instanceStore";
 import { getContrastColor } from "./utils/functions/getContrastColor";
 export { useScheduledStore } from "./stores/useScheduledStore";
+export { useAuthStore };
 import RatingInput from "./components/inputs/ratingInput.vue";
 import CallHistory from "./components/chat/CallHistory.vue";
 import CallMessage from "./components/chat/CallMessage.vue";
-import api from "~/utils/api"; // Importa a instância personalizada do Axios
+import api, { setApiBaseURL } from "~/utils/api";
+
+export { api };
 
 function install(Vue) {
   Vue.component("primarySelect", primarySelect);
@@ -130,7 +133,7 @@ export async function setupLibrary(
 
     // Configuração da baseURL para API
     if (rootUrl) {
-      api.defaults.baseURL = rootUrl;
+      setApiBaseURL(rootUrl);
     }
 
     // Configuração do DepartmentStore

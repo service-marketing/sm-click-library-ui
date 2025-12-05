@@ -2,18 +2,61 @@ import { defineStore } from "pinia";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
-    jwtToken: null, // Inicialmente vazio
+    jwtToken: null, // Token de acesso
+    refreshToken: null, // Token de refresh
   }),
   actions: {
-    setToken(token) {
-      // console.log("Setting token:", token);
+    setToken(token, refreshToken = null) {
       this.jwtToken = token;
+      if (refreshToken) {
+        this.refreshToken = refreshToken;
+      }
+      
+      // Sincroniza com localStorage se disponível (pra aplicações que usam)
+      this._syncToLocalStorage();
+    },
+    setRefreshToken(token) {
+      this.refreshToken = token;
+      this._syncToLocalStorage();
     },
     clearToken() {
       this.jwtToken = null;
+      this.refreshToken = null;
+    },
+    _syncToLocalStorage() {
+      if (typeof window !== "undefined" && window.localStorage) {
+        try {
+          // Tenta sincronizar com o local
+          const userData = localStorage.getItem("userData");
+          const accessToken = localStorage.getItem("access_token");
+          // Atendente
+          if (userData) {
+            const data = JSON.parse(userData);
+            if (this.jwtToken) {
+              data.access_token = this.jwtToken;
+            }
+            if (this.refreshToken) {
+              data.refresh_token = this.refreshToken;
+            }
+            localStorage.setItem("userData", JSON.stringify(data));
+          } 
+          // Gestor
+          else if (accessToken !== null) {
+            if (this.jwtToken) {
+              localStorage.setItem("access_token", this.jwtToken);
+            }
+            if (this.refreshToken) {
+              localStorage.setItem("refresh_token", this.refreshToken);
+            }
+          }
+        } catch (error) {
+          console.error("Erro ao sincronizar token com localStorage:", error);
+        }
+      }
     },
   },
   getters: {
     getToken: (state) => state.jwtToken,
+    getRefreshToken: (state) => state.refreshToken,
   },
 });
