@@ -30,14 +30,21 @@ function toggleCallEvents(callId) {
   }
 }
 
+function hasHistory(call) {
+  return getEventsArray(call).length > 0;
+}
+
+function maybeToggle(call) {
+  if (hasHistory(call)) {
+    toggleCallEvents(call.id);
+  }
+}
+
 function toggleRecordings(callId) {
   showRecordings.value[callId] = !showRecordings.value[callId];
 }
 
 function handleRecordingsClick(callId) {
-  if (!expandedCalls.value.includes(callId)) {
-    expandedCalls.value.push(callId);
-  }
   toggleRecordings(callId);
 }
 
@@ -209,7 +216,7 @@ function getEventTypeField(event) {
   <div
     :key="call.id"
     data-test="call-card"
-    @click.stop="toggleCallEvents(call.id)"
+    @click.stop="maybeToggle(call)"
     class="call-card bg-base-300 border hover:bg-base-300 border-base-300"
   >
     <!-- Call header - compact -->
@@ -304,7 +311,8 @@ function getEventTypeField(event) {
           </svg>
         </button>
         <button
-          @click.stop="toggleCallEvents(call.id)"
+          v-if="hasHistory(call)"
+          @click.stop="maybeToggle(call)"
           class="call-expand-btn hover:bg-base-100"
           :class="{ rotated: expandedCalls.includes(call.id) }"
         >
