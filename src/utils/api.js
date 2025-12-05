@@ -12,6 +12,7 @@ axiosPlain.defaults.baseURL = api.defaults.baseURL;
 
 // Armazena a referência da store para evitar instâncias múltiplas
 let authStore = null;
+let refreshTokenUrl = null;
 
 const getAuthStore = () => {
   if (!authStore) {
@@ -19,6 +20,11 @@ const getAuthStore = () => {
   }
   return authStore;
 };
+
+// Define a URL de refresh do token dinamicamente
+export function setRefreshTokenUrl(url) {
+  refreshTokenUrl = url;
+}
 
 // Interceptor de REQUEST - adiciona o token JWT
 api.interceptors.request.use(
@@ -67,8 +73,8 @@ api.interceptors.response.use(
 
       if (refreshToken) {
         try {
-          // Faz refresh do token usando instância sem interceptores
-          const refreshUrl = `${axiosPlain.defaults.baseURL}v1/api/attendances/token/refresh/`;
+          // Usa a URL de refresh configurada ou padrão do atendente
+          const refreshUrl = refreshTokenUrl || `${axiosPlain.defaults.baseURL}v1/api/attendances/token/refresh/`;
           const response = await axiosPlain.post(refreshUrl, {
             refresh: refreshToken,
           });

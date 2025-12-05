@@ -36,9 +36,9 @@ export { useAuthStore };
 import RatingInput from "./components/inputs/ratingInput.vue";
 import CallHistory from "./components/chat/CallHistory.vue";
 import CallMessage from "./components/chat/CallMessage.vue";
-import api, { setApiBaseURL } from "~/utils/api";
+import api, { setApiBaseURL, setRefreshTokenUrl } from "~/utils/api";
 
-export { api };
+export { api, setRefreshTokenUrl };
 
 function install(Vue) {
   Vue.component("primarySelect", primarySelect);
@@ -123,6 +123,7 @@ export async function setupLibrary(
   attendances = [],
   departments = [],
   instances = [],
+  refreshTokenUrl = null,
 ) {
   try {
     // Configuração do AuthStore
@@ -134,6 +135,11 @@ export async function setupLibrary(
     // Configuração da baseURL para API
     if (rootUrl) {
       setApiBaseURL(rootUrl);
+    }
+
+    // Configuração da URL de refresh do token
+    if (refreshTokenUrl) {
+      setRefreshTokenUrl(refreshTokenUrl);
     }
 
     // Configuração do DepartmentStore
