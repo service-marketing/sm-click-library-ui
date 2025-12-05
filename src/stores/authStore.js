@@ -11,7 +11,7 @@ export const useAuthStore = defineStore("auth", {
       if (refreshToken) {
         this.refreshToken = refreshToken;
       }
-      
+
       // Sincroniza com localStorage se disponível (pra aplicações que usam)
       this._syncToLocalStorage();
     },

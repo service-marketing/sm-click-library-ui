@@ -11,13 +11,14 @@ import ToggleListButtons from "./toggleListButtons.vue";
 const props = defineProps({
   hasCrmPlus: { type: Boolean, default: false },
   handlerToggleButtons: { type: Array, default: () => [] },
-  allProducts: { type: Array, default: () => [] },
+  allProducts: { type: Object, default: () => ({}) },
   departmentBypass: {
     type: [String, Number, Boolean, Object],
     default: undefined,
   },
   isEmptyNumber: { type: Boolean, default: false },
   isLargeScreen: { type: Boolean, default: true },
+  viewContactNumber: { type: Boolean, default: false },
 });
 
 // --- v-model separados para atualizar o form ---
@@ -76,6 +77,7 @@ const products = defineModel("products", { type: Array, default: () => [] });
         </span>
 
         <vue-tel-input
+          v-if="viewContactNumber"
           class="z-40 w-full"
           @country-changed="(crt) => (country = crt.iso2)"
           :mode="'national'"
@@ -95,9 +97,17 @@ const products = defineModel("products", { type: Array, default: () => [] });
           v-model="telephone"
         ></vue-tel-input>
 
+        <div
+          class="text-xs font-medium font-sans py-3 blur-sm select-none"
+          v-else
+        >
+          +55 00000-0000
+        </div>
+
         <span
+          style="bottom: -0.5rem"
           v-if="props.isEmptyNumber && !telephone"
-          class="text-xs absolute z-50 -bottom-2 left-1 bg-base-300 px-2 py-0.5 rounded-lg text-red-500 select-none shadow-sm shadow-base-100"
+          class="text-xs absolute z-50 left-1 bg-base-300 px-2 py-0.5 rounded-lg text-red-500 select-none shadow-sm shadow-base-100"
         >
           Campo obrigatorio
         </span>

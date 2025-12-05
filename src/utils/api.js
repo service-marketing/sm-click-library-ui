@@ -64,7 +64,7 @@ api.interceptors.response.use(
     if (status === 401) {
       const store = getAuthStore();
       const refreshToken = store.refreshToken;
-      
+
       if (refreshToken) {
         try {
           // Faz refresh do token usando instância sem interceptores

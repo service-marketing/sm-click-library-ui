@@ -27,15 +27,11 @@ const props = defineProps({
     type: String,
     default: null,
   },
-  // --- Altura máxima do dropdown (aceita qualquer valor CSS ex: '16rem', '300px') ---
-  maxHeight: {
-    type: String,
-    default: "10rem",
-  },
   // --- lista de todas as tags em geral ---
   allTags: {
     type: Object,
-    default: () => {},
+    // Pode vir como objeto paginado { results, next, previous } ou como Array direto
+    default: () => ({}),
   },
 });
 
@@ -185,28 +181,19 @@ watch(
       const { name } = filters.value;
       page.value = 1;
       await getTags({ name: name.toString() });
-    }, 800); // 500ms de atraso após parar de digitar
+    }, 800);
   },
   { deep: true },
 );
 
 onMounted(async () => {
-  // Se allProducts já veio com dados, usamos ele direto
-  if (props.allTags && props.allTags.results?.length > 0) {
-    internalTags.value = props.allTags.results;
-    nextPage.value = props.allTags.next || null;
-    previousPage.value = props.allTags.previous || null;
-    page.value = 2; // assume que já carregamos a primeira página
-  } else {
-    // Caso contrário, faz o fetch inicial
-    await getTags();
-  }
+  console.log(props.allTags);
 
   if (props.teleportTo) {
     const reposition = () => {
       if (isOpen.value) updatePosition();
     };
-    window.addEventListener("scroll", reposition, true); // true captura scroll em containers
+    window.addEventListener("scroll", reposition, true);
     window.addEventListener("resize", reposition);
     listeners.push(["scroll", reposition], ["resize", reposition]);
   }
@@ -217,6 +204,21 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   document.removeEventListener("mousedown", handleOutside);
 });
+
+watch(
+  () => props.allTags,
+  (val) => {
+    if (!val) return;
+
+    if (Array.isArray(val.results)) {
+      internalTags.value = val.results;
+      nextPage.value = val.next || null;
+      previousPage.value = val.previous || null;
+      page.value = 2;
+    }
+  },
+  { deep: true, immediate: true },
+);
 </script>
 
 <template>
@@ -225,16 +227,46 @@ onBeforeUnmount(() => {
     <div
       @click="isOpen = !isOpen"
       ref="triggerRef"
-      class="flex flex-wrap items-center justify-between gap-2 bg-base-300 p-3 rounded-md border border-base-300 cursor-pointer"
+      class="flex items-center justify-between gap-2 p-2 bg-base-300 rounded-md border border-base-300 cursor-pointer"
     >
       <!-- Trigger adaptado para single ou múltiplo -->
       <template v-if="multiple">
-        <span v-if="!modelValue.length" class="text-gray-500 text-xs">
+        <span v-if="modelValue.length === 0" class="text-gray-500 text-xs p-1">
           Selecione suas etiquetas
         </span>
-        <span class="text-gray-300 text-xs" v-else>
-          Selecionados: <a class="text-green-500">{{ modelValue.length }}</a>
-        </span>
+        <div
+          class="text-xs flex-wrap w-full flex items-center gap-1 h-6 overflow-y-auto"
+          v-else
+        >
+          <section v-for="tag in modelValue" :key="tag.id" class="inline-flex">
+            <svg
+              class="size-6 -ml-2"
+              aria-hidden="true"
+              viewBox="0 0 3 97"
+              :style="{ color: tag.color || '#ffff' }"
+            >
+              <path
+                d="M49.9,0a17.1,17.1,0,0,0-12,5L5,37.9A17,17,0,0,0,5,62L37.9,94.9a17.1,17.1,0,0,0,12,5ZM25.4,59.4a9.5,9.5,0,1,1,9.5-9.5A9.5,9.5,0,0,1,25.4,59.4Z"
+                fill="currentColor"
+              />
+            </svg>
+            <span
+              :style="[
+                'max-width: 5.5rem;',
+                { backgroundColor: tag.color || '#ffff' },
+              ]"
+              class="text-xs rounded-r-md inline-flex gap-1 items-center"
+              :class="getContrastColor(tag.color || '#ffff')"
+            >
+              <p class="truncate">
+                {{ tag.name }}
+              </p>
+              <button class="px-2" @click.prevent.stop="toggleSelect(tag)">
+                x
+              </button>
+            </span>
+          </section>
+        </div>
       </template>
       <template v-else>
         <span v-if="!modelValue.length" class="text-gray-500 text-xs">
@@ -272,7 +304,6 @@ onBeforeUnmount(() => {
     <!-- Dropdown -->
     <div
       v-if="isOpen && !teleportTo"
-      :style="{ maxHeight: props.maxHeight }"
       class="absolute z-10 mt-1.5 w-full bg-base-300 shadow-sm shadow-base-100 border border-base-300 rounded-md overflow-y-auto hide-scrollbar"
     >
       <div class="p-2 sticky top-0 bg-base-300">
@@ -357,8 +388,8 @@ onBeforeUnmount(() => {
     <Teleport v-if="isOpen && teleportTo" :to="teleportTo">
       <div
         ref="teleportedRef"
-        :style="{ ...dropdownStyle, maxHeight: props.maxHeight }"
-        class="absolute z-10 mt-1.5 w-full bg-base-300 shadow-sm shadow-base-100 border border-base-300 rounded-md overflow-y-auto hide-scrollbar"
+        :style="{ ...dropdownStyle }"
+        class="absolute z-10 w-full bg-base-300 shadow-sm shadow-base-100 border border-base-300 rounded-md overflow-y-auto hide-scrollbar max-h-[200px]"
       >
         <div class="p-2 sticky top-0 bg-base-300">
           <input
