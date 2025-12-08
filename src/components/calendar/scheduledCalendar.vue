@@ -24,7 +24,18 @@
 
       <template v-if="viewMode === 'calendar'">
         <div class="calendar-stage" :class="stageClass">
-          <div class="calendar-stage-main">
+          <div
+            class="calendar-stage-main"
+            @pointerdown="onPointerDown"
+            @pointermove="onPointerMove"
+            @pointerup="onPointerUp"
+            @pointercancel="onPointerCancel"
+            @touchstart="onTouchStart"
+            @touchmove="onTouchMove"
+            @touchend="onTouchEnd"
+            @touchcancel="onTouchCancel"
+            :style="dragStyle"
+          >
             <WeekDays
               :week-days="weekDaysPt"
               :month="monthLabelPt"
@@ -128,7 +139,14 @@
 
 <script setup>
 import confirmModal from "./components/confirmModal.vue";
-import { ref, computed, onMounted, watch, reactive } from "vue";
+import {
+  ref,
+  computed,
+  onMounted,
+  watch,
+  reactive,
+  onBeforeUnmount,
+} from "vue";
 import { crm_scheduled } from "../../utils/systemUrls";
 import {
   sameYMD,
@@ -164,6 +182,83 @@ const selectedDate = ref(
   new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate()),
 );
 const viewMode = ref("calendar");
+
+const pointerActive = ref(false);
+const pointerStartX = ref(0);
+const pointerDeltaX = ref(0);
+const dragThreshold = 80; // pixels do drag pra ativar
+const dragStyle = computed(() => {
+  if (!pointerActive.value) return {};
+  // gentle translate while dragging horizontally
+  return { transform: `translateX(${pointerDeltaX.value}px)` };
+});
+
+function resetPointer() {
+  pointerActive.value = false;
+  pointerStartX.value = 0;
+  pointerDeltaX.value = 0;
+}
+
+function onPointerDown(e) {
+  if (e.pointerType === "mouse" && e.button !== 0) return;
+  pointerActive.value = true;
+  pointerStartX.value = e.clientX;
+  try {
+    e.target.setPointerCapture?.(e.pointerId);
+  } catch {}
+}
+
+function onPointerMove(e) {
+  if (!pointerActive.value) return;
+  pointerDeltaX.value = e.clientX - pointerStartX.value;
+}
+
+function onPointerUp(e) {
+  if (!pointerActive.value) return;
+  const delta = pointerDeltaX.value;
+  try {
+    e.target.releasePointerCapture?.(e.pointerId);
+  } catch {}
+  resetPointer();
+  if (delta < -dragThreshold) {
+    nextMonth();
+  } else if (delta > dragThreshold) {
+    prevMonth();
+  }
+}
+
+function onPointerCancel(e) {
+  try {
+    e.target.releasePointerCapture?.(e.pointerId);
+  } catch {}
+  resetPointer();
+}
+function onTouchStart(e) {
+  const t = e.touches && e.touches[0];
+  if (!t) return;
+  pointerActive.value = true;
+  pointerStartX.value = t.clientX;
+  pointerDeltaX.value = 0;
+}
+
+function onTouchMove(e) {
+  if (!pointerActive.value) return;
+  const t = e.touches && e.touches[0];
+  if (!t) return;
+  pointerDeltaX.value = t.clientX - pointerStartX.value;
+}
+
+function onTouchEnd(e) {
+  if (!pointerActive.value) return;
+  const delta = pointerDeltaX.value;
+  resetPointer();
+  if (delta < -dragThreshold) nextMonth();
+  else if (delta > dragThreshold) prevMonth();
+}
+
+function onTouchCancel(e) {
+  resetPointer();
+}
 
 function normalizeToMonth(d) {
   if (d instanceof Date) return new Date(d.getFullYear(), d.getMonth(), 1);
@@ -661,6 +756,9 @@ defineExpose({ updateEvent: scheduled.applyUpdateToCache });
   min-height: 0;
   overflow: hidden;
   flex: 1;
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
 }
 .calendar-stage--compact .calendar-stage-main {
   flex: 1;
