@@ -30,7 +30,7 @@ export const useAuthStore = defineStore("auth", {
           if (!this.jwtToken && !this.refreshToken) {
             return;
           }
-          
+
           // Tenta sincronizar com o formato userData (attendance)
           const userData = localStorage.getItem("userData");
           if (userData) {
@@ -44,7 +44,7 @@ export const useAuthStore = defineStore("auth", {
             localStorage.setItem("userData", JSON.stringify(data));
             return;
           }
-          
+
           // Tenta sincronizar com o formato access_token direto (zap-front)
           const accessToken = localStorage.getItem("access_token");
           if (accessToken !== null) {

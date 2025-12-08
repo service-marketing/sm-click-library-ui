@@ -74,7 +74,9 @@ api.interceptors.response.use(
       if (refreshToken) {
         try {
           // Usa a URL de refresh configurada ou padrão do atendente
-          const refreshUrl = refreshTokenUrl || `${axiosPlain.defaults.baseURL}v1/api/attendances/token/refresh/`;
+          const refreshUrl =
+            refreshTokenUrl ||
+            `${axiosPlain.defaults.baseURL}v1/api/attendances/token/refresh/`;
           const response = await axiosPlain.post(refreshUrl, {
             refresh: refreshToken,
           });
@@ -91,7 +93,7 @@ api.interceptors.response.use(
           console.error("Erro ao fazer refresh do token:", refreshError);
           // Limpa a store e redireciona para login
           store.clearToken();
-          
+
           // Verifica se está em um ambiente browser antes de redirecionar
           if (typeof window !== "undefined" && window.location) {
             // Aguarda um pouco antes de redirecionar para evitar loops
@@ -104,7 +106,7 @@ api.interceptors.response.use(
       } else {
         // Não tem refresh token, limpa a store
         store.clearToken();
-        
+
         // Redireciona para login apenas se estiver em um browser
         if (typeof window !== "undefined" && window.location) {
           setTimeout(() => {
