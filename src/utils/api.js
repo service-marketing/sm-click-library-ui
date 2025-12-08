@@ -13,13 +13,19 @@ axiosPlain.defaults.baseURL = api.defaults.baseURL;
 // Armazena a referência da store para evitar instâncias múltiplas
 let authStore = null;
 let refreshTokenUrl = null;
+let piniaInstance = null;
 
 const getAuthStore = () => {
   if (!authStore) {
-    authStore = useAuthStore();
+    authStore = useAuthStore(piniaInstance);
   }
   return authStore;
 };
+
+// Define a instância do Pinia para uso nos interceptadores
+export function setPiniaInstance(pinia) {
+  piniaInstance = pinia;
+}
 
 // Define a URL de refresh do token dinamicamente
 export function setRefreshTokenUrl(url) {

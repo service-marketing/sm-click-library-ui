@@ -36,7 +36,7 @@ export { useAuthStore };
 import RatingInput from "./components/inputs/ratingInput.vue";
 import CallHistory from "./components/chat/CallHistory.vue";
 import CallMessage from "./components/chat/CallMessage.vue";
-import api, { setApiBaseURL, setRefreshTokenUrl } from "~/utils/api";
+import api, { setApiBaseURL, setRefreshTokenUrl, setPiniaInstance } from "~/utils/api";
 
 export { api, setRefreshTokenUrl };
 
@@ -126,6 +126,9 @@ export async function setupLibrary(
   refreshTokenUrl = null,
 ) {
   try {
+    // Define a instância do Pinia para uso nos interceptadores da API
+    setPiniaInstance(piniaInstance);
+
     // Configuração do AuthStore
     const authStore = await useAuthStore(piniaInstance);
     if (jwtToken) {
