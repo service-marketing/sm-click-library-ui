@@ -36,9 +36,9 @@ export { useAuthStore };
 import RatingInput from "./components/inputs/ratingInput.vue";
 import CallHistory from "./components/chat/CallHistory.vue";
 import CallMessage from "./components/chat/CallMessage.vue";
-import api, { setApiBaseURL } from "~/utils/api";
+import api, { setApiBaseURL, setRefreshTokenUrl, setPiniaInstance } from "~/utils/api";
 
-export { api };
+export { api, setRefreshTokenUrl };
 
 function install(Vue) {
   Vue.component("primarySelect", primarySelect);
@@ -123,8 +123,12 @@ export async function setupLibrary(
   attendances = [],
   departments = [],
   instances = [],
+  refreshTokenUrl = null,
 ) {
   try {
+    // Define a instância do Pinia para uso nos interceptadores da API
+    setPiniaInstance(piniaInstance);
+
     // Configuração do AuthStore
     const authStore = await useAuthStore(piniaInstance);
     if (jwtToken) {
@@ -134,6 +138,11 @@ export async function setupLibrary(
     // Configuração da baseURL para API
     if (rootUrl) {
       setApiBaseURL(rootUrl);
+    }
+
+    // Configuração da URL de refresh do token
+    if (refreshTokenUrl) {
+      setRefreshTokenUrl(refreshTokenUrl);
     }
 
     // Configuração do DepartmentStore

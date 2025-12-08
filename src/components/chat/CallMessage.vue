@@ -18,6 +18,11 @@ defineProps({
 <style scoped>
 .call-message-container {
   width: 100%;
-  min-width: 285px;
+}
+
+@media (min-width: 1024px) {
+  .call-message-container {
+    min-width: 285px;
+  }
 }
 </style>

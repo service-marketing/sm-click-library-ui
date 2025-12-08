@@ -26,10 +26,13 @@ export const useAuthStore = defineStore("auth", {
     _syncToLocalStorage() {
       if (typeof window !== "undefined" && window.localStorage) {
         try {
-          // Tenta sincronizar com o local
+          // Só sincroniza se há tokens para sincronizar
+          if (!this.jwtToken && !this.refreshToken) {
+            return;
+          }
+
+          // Tenta sincronizar com o formato userData (attendance)
           const userData = localStorage.getItem("userData");
-          const accessToken = localStorage.getItem("access_token");
-          // Atendente
           if (userData) {
             const data = JSON.parse(userData);
             if (this.jwtToken) {
@@ -39,9 +42,12 @@ export const useAuthStore = defineStore("auth", {
               data.refresh_token = this.refreshToken;
             }
             localStorage.setItem("userData", JSON.stringify(data));
+            return;
           }
-          // Gestor
-          else if (accessToken !== null) {
+
+          // Tenta sincronizar com o formato access_token direto (zap-front)
+          const accessToken = localStorage.getItem("access_token");
+          if (accessToken !== null) {
             if (this.jwtToken) {
               localStorage.setItem("access_token", this.jwtToken);
             }
@@ -50,7 +56,8 @@ export const useAuthStore = defineStore("auth", {
             }
           }
         } catch (error) {
-          console.error("Erro ao sincronizar token com localStorage:", error);
+          // Silencia erros de localStorage para não quebrar a aplicação
+          console.warn("Erro ao sincronizar token com localStorage:", error);
         }
       }
     },
