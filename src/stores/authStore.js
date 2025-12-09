@@ -22,6 +22,7 @@ export const useAuthStore = defineStore("auth", {
     clearToken() {
       this.jwtToken = null;
       this.refreshToken = null;
+      localStorage.clear();
     },
     _syncToLocalStorage() {
       if (typeof window !== "undefined" && window.localStorage) {
