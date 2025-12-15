@@ -80,9 +80,9 @@ const props = defineProps({
 const emit = defineEmits(["update:modelValue"]);
 
 const isOpen = ref(false);
-const dropdownRef = ref(null);
-const triggerRef = ref(null);
-const dropdownStyle = ref({});
+const dropdownRef = ref(null);  // ref do container geral
+const triggerRef = ref(null); // ref da área clicável (campo principal)
+const dropdownStyle = ref({}); // estilos calculados quando usa teleport
 
 // --- Fecha dropdown ao clicar fora ---
 onClickOutside(dropdownRef, () => (isOpen.value = false));
