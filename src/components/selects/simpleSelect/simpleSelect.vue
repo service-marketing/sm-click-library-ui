@@ -62,14 +62,27 @@ const props = defineProps({
     type: String,
     default: null, // quando null mantém comportamento antigo (absolute dentro do container)
   },
+
+  //--- Aceita um svg para ficar do lado esquerdo das ecolhas ---
+  //   (continua existindo para compatibilidade / fallback)
+  icon: {
+    type: [String, Object],
+    default: null,
+  },
+
+  // Ícone específico para o placeholder (usado via prop `icon-placeholder`) ---
+  iconPlaceholder: {
+    type: [String, Object],
+    default: null,
+  },
 });
 
 const emit = defineEmits(["update:modelValue"]);
 
 const isOpen = ref(false);
-const dropdownRef = ref(null); // ref do container geral
-const triggerRef = ref(null); // ref da área clicável (campo principal)
-const dropdownStyle = ref({}); // estilos calculados quando usa teleport
+const dropdownRef = ref(null);
+const triggerRef = ref(null);
+const dropdownStyle = ref({});
 
 // --- Fecha dropdown ao clicar fora ---
 onClickOutside(dropdownRef, () => (isOpen.value = false));
@@ -86,6 +99,32 @@ const updatePosition = () => {
     zIndex: 9999,
   };
 };
+
+// --- Verifica se há seleção válida ---
+const hasSelection = computed(() => {
+  if (props.multiple) {
+    return Array.isArray(props.modelValue) && props.modelValue.length > 0;
+  }
+  return props.options.some((opt) => opt.value === props.modelValue);
+});
+
+// --- Ícone que aparece quando há seleção ---
+const selectedIcon = computed(() => {
+  if (props.multiple) return null;
+
+  const selectedOption = props.options.find(
+    (opt) => opt.value === props.modelValue
+  );
+
+  // Ícone da opção; se não tiver, usa ícone de placeholder/icon como fallback
+  return selectedOption?.icon || props.iconPlaceholder || props.icon || null;
+});
+
+// --- Ícone para placeholder (usa o novo prop) ---
+const placeholderIcon = computed(() => {
+  // prioridade: iconPlaceholder → icon (compatibilidade antiga)
+  return props.iconPlaceholder || props.icon || null;
+});
 
 watch(isOpen, (open) => {
   if (open) {
@@ -107,7 +146,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   listeners.forEach(([evt, fn]) =>
-    window.removeEventListener(evt, fn, evt === "scroll" ? true : undefined),
+    window.removeEventListener(evt, fn, evt === "scroll" ? true : undefined)
   );
 });
 
@@ -148,7 +187,7 @@ const displayLabel = computed(() => {
   }
 
   const selectedOption = props.options.find(
-    (opt) => opt.value === props.modelValue,
+    (opt) => opt.value === props.modelValue
   );
   return selectedOption?.name || props.placeholder;
 });
@@ -167,10 +206,24 @@ const displayLabel = computed(() => {
     >
       <span
         :class="[
-          'text-xs truncate max-w-full',
-          displayLabel === placeholder ? 'text-gray-400' : 'text-white',
+          'text-xs truncate max-w-full flex gap-2 items-center',
+          hasSelection ? 'text-white' : 'text-gray-400',
         ]"
       >
+        <!-- Ícone da seleção -->
+        <span
+          v-if="hasSelection && selectedIcon"
+          class="flex-shrink-0"
+          v-html="selectedIcon"
+        />
+
+        <!-- Ícone do placeholder -->
+        <span
+          v-else-if="!hasSelection && placeholderIcon"
+          class="flex-shrink-0"
+          v-html="placeholderIcon"
+        />
+
         {{ displayLabel }}
       </span>
 
@@ -213,7 +266,10 @@ const displayLabel = computed(() => {
         ]"
         @click="toggleSelect(option.value)"
       >
-        <span>{{ option.name }}</span>
+        <div class="flex items-center gap-2">
+          <span v-if="option.icon" v-html="option.icon" class="flex-shrink-0" />
+          <span>{{ option.name }}</span>
+        </div>
         <svg
           v-if="isSelected(option.value)"
           xmlns="http://www.w3.org/2000/svg"
@@ -252,7 +308,14 @@ const displayLabel = computed(() => {
           ]"
           @click="toggleSelect(option.value)"
         >
-          <span>{{ option.name }}</span>
+          <div class="flex items-center gap-2">
+            <span
+              v-if="option.icon"
+              v-html="option.icon"
+              class="flex-shrink-0"
+            />
+            <span>{{ option.name }}</span>
+          </div>
           <svg
             v-if="isSelected(option.value)"
             xmlns="http://www.w3.org/2000/svg"
