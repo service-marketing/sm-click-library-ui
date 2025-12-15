@@ -36,7 +36,11 @@ export { useAuthStore };
 import RatingInput from "./components/inputs/ratingInput.vue";
 import CallHistory from "./components/chat/CallHistory.vue";
 import CallMessage from "./components/chat/CallMessage.vue";
-import api, { setApiBaseURL, setRefreshTokenUrl, setPiniaInstance } from "~/utils/api";
+import api, {
+  setApiBaseURL,
+  setRefreshTokenUrl,
+  setPiniaInstance,
+} from "~/utils/api";
 
 export { api, setRefreshTokenUrl };
 

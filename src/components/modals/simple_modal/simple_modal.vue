@@ -1,4 +1,8 @@
 <script setup>
+import { useSlots } from "vue";
+
+const slots = useSlots();
+
 const props = defineProps({
   isOpen: {
     type: Boolean,
@@ -41,23 +45,21 @@ const toggleModal = () => {
         <div
           class="flex min-h-full items-center justify-center text-center sm:p-0"
         >
-          <div
-            class="z-50 w-full shadow rounded-2xl shadow-black"
-            :class="size"
-          >
+          <div :class="[size, 'z-50 w-full shadow rounded-2xl shadow-black']">
             <!-- Modal content -->
             <div class="modal_tittle text-current bg-base-300 border-base-100">
-              <section class="flex items-center gap-3">
-                <div v-html="header?.svg"></div>
+              <section class="flex items-center w-full">
+                <template v-if="!$slots['header']">
+                  <span v-html="header?.svg"></span>
 
-                <div>
                   <h3 class="text-xl font-semibold flex items-center gap-2">
-                    <p>{{ header?.title }}</p>
+                    {{ header?.title }}
                   </h3>
-                  <div>
-                    <slot name="header" />
-                  </div>
-                </div>
+                </template>
+
+                <template v-else>
+                  <slot name="header" />
+                </template>
               </section>
 
               <button
