@@ -284,7 +284,7 @@ const sendAudio = async () => {
   };
 
   await props.sendAudioToAttendant(
-    props.selectedAttendant.id,
+    props.selectedAttendant?.internal_chat?.channel_id,
     payload,
     props.attendant,
     true,

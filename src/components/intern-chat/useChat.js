@@ -1,26 +1,50 @@
 import { computed } from "vue";
 import { useAttendantStore } from "~/stores/attendantStore";
+import { useChannelStore } from "~/stores/channelStore";
 import { v4 as uuidv4 } from "uuid";
 import api from "~/utils/api";
 import { internalChatUrl } from "~/utils/systemUrls";
 
 export function useChat() {
   const attendantStore = useAttendantStore();
+  const channelStore = useChannelStore();
 
-  const fetchMessagesForAtendente = async (atendenteId) => {
-    const attendant = attendantStore.attendants.find(
-      (att) => att.id === atendenteId,
+
+  function getValueByKey(object, key) {
+    return object[key];
+  }
+
+  // Busca a entidade (atendente ou grupo) pelo channel_id
+  const findEntityByChannelId = (channelId) => {
+    // Procura primeiro nos atendentes
+    let entity = attendantStore.attendants.find(
+      (att) => att.internal_chat?.channel_id === channelId
     );
-    if (!attendant) return;
+    
+    // Se não encontrar, procura nos canais (grupos)
+    if (!entity) {
+      entity = channelStore.channels.find(
+        (ch) => ch.internal_chat?.channel_id === channelId
+      );
+    }
+    
+    return entity;
+  };
+
+  const fetchMessagesByChannel = async (channelId) => {
+    const entity = findEntityByChannelId(channelId);
+    if (!entity) return;
 
     try {
       const response = await api.get(
-        `${internalChatUrl}?attendant=${atendenteId}&page=1`,
+        `${internalChatUrl}get_messages_by_channel/?channel_id=${channelId}&page=1`
       );
-      attendant.messages = response.data.results.reverse(); // Adiciona mensagens ao atendente
-      attendant.hasNextPage = response.data.next !== null;
-      attendant.currentPage = 2; // Próxima página para carregamento incremental
-      attendant.internal_chat = {
+
+      entity.messages = response.data.results.reverse();
+      entity.hasNextPage = response.data.next !== null;
+      entity.currentPage = 2; // Próxima página para carregamento incremental
+      entity.internal_chat = {
+        ...entity.internal_chat,
         channel_id: response.data.channel_id,
         unread: 0,
       };
@@ -29,73 +53,76 @@ export function useChat() {
     }
   };
 
-  const loadMessagesForAtendente = async (atendenteId) => {
-    const attendant = attendantStore.attendants.find(
-      (att) => att.id === atendenteId,
-    );
-    if (!attendant || !attendant.hasNextPage) return;
+  const loadMessagesByChannel = async (channelId) => {
+    const entity = findEntityByChannelId(channelId);
+    if (!entity || !entity.hasNextPage) return;
 
     try {
       const response = await api.get(
-        `${internalChatUrl}?attendant=${atendenteId}&page=${attendant.currentPage}`,
+        `${internalChatUrl}get_messages_by_channel/?channel_id=${channelId}&page=${entity.currentPage}`
       );
-      attendant.messages = [
+      entity.messages = [
         ...response.data.results.reverse(),
-        ...attendant.messages,
+        ...entity.messages,
       ];
-      attendant.hasNextPage = response.data.next !== null;
-      attendant.currentPage++;
+      entity.hasNextPage = response.data.next !== null;
+      entity.currentPage++;
     } catch (error) {
       console.error("Erro ao carregar mais mensagens:", error);
     }
   };
 
-  const addMessageToAtendente = (event, isChatOpen, selectedAtendenteId) => {
+  const addMessageToChannel = (event, isChatOpen, selectedChannelId) => {
+    console.log("evento:", event);
+    let entity = null;
     const message = event?.message;
     if (!message) return;
 
-    const attendant = attendantStore.attendants.find(
-      (att) => att.internal_chat?.channel_id === message.channel_id,
-    );
+  // Busca a entidade pelo channel_id da mensagem
+  entity = findEntityByChannelId(message.channel_id);
 
-    if (attendant) {
-      attendant.messages = attendant.messages || [];
-      const existingMessage = attendant.messages.find(
-        (msg) => msg.id === message.id,
+    // Se a entidade não existir e for um grupo, cria a partir do group_info
+    if (!entity && message.is_group && message.group_info) {
+      entity = message.group_info;
+      const logged_attendant = attendantStore.logged_attendant();
+      entity.internal_chat.unread = getValueByKey(
+        entity.internal_chat.unread,
+        logged_attendant.id
       );
-
-      if (!existingMessage) {
-        attendant.messages.push(message);
-
-        if (!isChatOpen || attendant.id !== selectedAtendenteId) {
-          attendant.internal_chat.unread =
-            (attendant.internal_chat.unread || 0) + 1;
-        }
-      }
-    } else {
-      console.error("Atendente não encontrado para o canal especificado.");
     }
-  };
 
-  const resetUnreadMessages = (atendenteId) => {
-    const attendant = attendantStore.attendants.find(
-      (att) => att.id === atendenteId,
+    if (!entity) return;
+
+    entity.messages = entity.messages || [];
+    const existingMessage = entity.messages.find(
+      (msg) => msg.id === message.id
     );
-    if (attendant) {
-      attendant.internal_chat.unread = 0;
+
+    if (!existingMessage) {
+      entity.messages.push(message);
+
+      if (!isChatOpen || entity.internal_chat?.channel_id !== selectedChannelId) {
+        entity.internal_chat.unread =
+          (entity.internal_chat.unread || 0) + 1;
+      }
     }
   };
 
-  const sendMessageToAtendente = async (
-    atendenteId,
+  const resetUnreadMessages = (channelId) => {
+    const entity = findEntityByChannelId(channelId);
+    if (entity) {
+      entity.internal_chat.unread = 0;
+    }
+  };
+
+  const sendMessageToChannel = async (
+    channelId,
     messageContent,
     sender,
-    sendFile = false,
+    sendFile = false
   ) => {
-    const attendant = attendantStore.attendants.find(
-      (att) => att.id === atendenteId,
-    );
-    if (!attendant || !attendant.internal_chat?.channel_id) return;
+    const entity = findEntityByChannelId(channelId);
+    if (!entity || !entity.internal_chat?.channel_id) return;
 
     let mountContent;
 
@@ -113,36 +140,35 @@ export function useChat() {
     };
 
     // Adiciona mensagem localmente
-    attendant.messages.push(newMessage);
+    entity.messages.push(newMessage);
 
     try {
       await api.post(
-        `${internalChatUrl}${attendant.internal_chat.channel_id}/message/`,
+        `${internalChatUrl}${entity.internal_chat.channel_id}/message/`,
         {
           id: newMessage.id,
           content: newMessage.content,
-        },
+        }
       );
     } catch (error) {
       console.error("Erro ao enviar mensagem:", error);
     }
   };
 
-  const hasNextPageForAtendente = (atendenteId) => {
-    const attendant = attendantStore.attendants.find(
-      (att) => att.id === atendenteId,
-    );
-    return attendant ? attendant.hasNextPage : false;
+  const hasNextPageForChannel = (channelId) => {
+    const entity = findEntityByChannelId(channelId);
+    return entity ? entity.hasNextPage : false;
   };
 
   return {
     attendants: computed(() => attendantStore.attendants),
     count: computed(() => attendantStore.count),
-    fetchMessagesForAtendente,
-    loadMessagesForAtendente,
-    addMessageToAtendente,
-    sendMessageToAtendente,
-    hasNextPageForAtendente,
+    fetchMessagesByChannel,
+    loadMessagesByChannel,
+    addMessageToChannel,
+    sendMessageToChannel,
+    hasNextPageForChannel,
     resetUnreadMessages,
+    findEntityByChannelId,
   };
 }

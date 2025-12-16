@@ -91,7 +91,7 @@
               ref="dropFilesRef"
               :attendant="attendant"
               :selectedAttendant="selectedAtendente"
-              :sendFilesToAttendant="sendMessageToAtendente"
+              :sendFilesToAttendant="sendMessageToChannel"
             >
               <ChatMessages
                 :isMobile="false"
@@ -99,9 +99,9 @@
                 :attendant="attendant"
                 :selectedAtendente="selectedAtendente"
                 @voltar="selectedAtendente = null"
-                :loadMessagesForAtendente="loadMessagesForAtendente"
-                :sendMessageToAtendente="sendMessageToAtendente"
-                :hasNextPageForAtendente="hasNextPageForAtendente"
+                :loadMessagesForAtendente="loadMessagesByChannel"
+                :sendMessageToAtendente="sendMessageToChannel"
+                :hasNextPageForAtendente="hasNextPageForChannel"
               />
             </DropFilesArea>
           </div>
@@ -128,6 +128,7 @@ import {
   onBeforeUnmount,
 } from "vue";
 import { useChat } from "./useChat"; // Importe o composable
+import { useChannelStore } from "~/stores/channelStore";
 import ChatList from "./ChatList.vue";
 import ChatMessages from "./ChatMessages.vue";
 import loading from "./loading.vue";
@@ -169,14 +170,17 @@ const props = defineProps({
 const {
   attendants,
   loadingMessages,
-  fetchMessagesForAtendente,
-  addMessageToAtendente,
-  hasNextPageForAtendente,
-  sendMessageToAtendente,
-  loadMessagesForAtendente,
+  fetchMessagesByChannel,
+  addMessageToChannel,
+  hasNextPageForChannel,
+  sendMessageToChannel,
+  loadMessagesByChannel,
   resetUnreadMessages,
   loadingAttendants,
+  findEntityByChannelId,
 } = useChat();
+
+const channelStore = useChannelStore();
 
 const isChatOpen = ref(false);
 const showContent = ref(false);
@@ -193,7 +197,7 @@ const onSendFiles = () => {
 const unreadMessagesCount = computed(() => {
   if (selectedAtendente.value) {
     const atendente = attendants.value.find(
-      (att) => att.id === selectedAtendente.value.id,
+      (att) => att.id === selectedAtendente.value.id
     );
     return atendente ? atendente.internal_chat.unread : 0;
   }
@@ -212,6 +216,11 @@ const handleClickOutside = (event) => {
 
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);
+  
+  // Busca os grupos ao inicializar a página
+  if (!channelStore.loaded) {
+    channelStore.fetchChannel("group");
+  }
 });
 
 onBeforeUnmount(() => {
@@ -269,16 +278,23 @@ const handleChatClick = () => {
 };
 
 const selecionarAtendente = async (atendente) => {
-  const atendent = attendants.value.find((att) => att.id === atendente.id);
-  const attendantCount = atendent ? atendent.internal_chat.unread : 0;
+  const channelId = atendente.internal_chat?.channel_id || atendente.id;
+  
+  if (!channelId) {
+    console.error("Canal sem channel_id:", atendente);
+    return;
+  }
+
+  const entity = findEntityByChannelId(channelId);
+  const attendantCount = entity ? entity.internal_chat.unread : 0;
   emit("unreadMessagesEmit", attendantCount);
 
   selectedAtendente.value = atendente;
-  resetUnreadMessages(atendente.id); // Reseta as mensagens não lidas ao selecionar o atendente
+  resetUnreadMessages(channelId);
 
-  // Verifica se o 'messages' é null, undefined ou um array vazio antes de buscar mensagens
+  // Verifica se precisa buscar mensagens
   if (!atendente.hasNextPage) {
-    await fetchMessagesForAtendente(atendente.id);
+    await fetchMessagesByChannel(channelId);
   }
 };
 
@@ -286,13 +302,13 @@ watch(
   () => props.socketMessage,
   (newVal, oldVal) => {
     if (newVal !== oldVal) {
-      addMessageToAtendente(
+      addMessageToChannel(
         newVal,
         isChatOpen.value,
-        selectedAtendente.value?.id,
+        selectedAtendente.value?.internal_chat?.channel_id,
       );
     }
-  },
+  }
 );
 
 watch(isChatOpen, (newVal) => {
@@ -315,7 +331,6 @@ watch(isChatOpen, (newVal) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
 }
 
 .chat-box.open {

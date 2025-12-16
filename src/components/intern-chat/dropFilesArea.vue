@@ -169,7 +169,7 @@ const sendFiles = async () => {
       }
 
       await props.sendFilesToAttendant(
-        props.selectedAttendant.id,
+        props.selectedAttendant.internal_chat.channel_id,
         payload,
         props.attendant,
         true,
