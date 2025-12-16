@@ -7,15 +7,15 @@
         isMobile
         :attendant="attendant"
         :selectedAttendant="selectedAtendente"
-        :sendFilesToAttendant="sendMessageToAtendente"
+        :sendFilesToAttendant="sendMessageToChannel"
       >
         <ChatMessages
           isMobile
           :attendant="attendant"
           :selectedAtendente="selectedAtendente"
-          :loadMessagesForAtendente="loadMessagesForAtendente"
-          :sendMessageToAtendente="sendMessageToAtendente"
-          :hasNextPageForAtendente="hasNextPageForAtendente"
+          :loadMessagesForAtendente="loadMessagesByChannel"
+          :sendMessageToAtendente="sendMessageToChannel"
+          :hasNextPageForAtendente="hasNextPageForChannel"
           :downloadFilesMobile="downloadFilesMobile"
           :openMobilePdf="openMobilePdf"
           @voltar="selectedAtendente = null"
@@ -86,13 +86,14 @@ const props = defineProps({
 const {
   attendants,
   loadingMessages,
-  fetchMessagesForAtendente,
-  addMessageToAtendente,
-  hasNextPageForAtendente,
-  sendMessageToAtendente,
-  loadMessagesForAtendente,
+  fetchMessagesByChannel,
+  addMessageToChannel,
+  hasNextPageForChannel,
+  sendMessageToChannel,
+  loadMessagesByChannel,
   resetUnreadMessages,
   loadingAttendants,
+  findEntityByChannelId,
 } = useChat();
 
 const isChatOpen = ref(false);
@@ -158,16 +159,23 @@ const handleChatClick = () => {
 };
 
 const selecionarAtendente = async (atendente) => {
-  const atendent = attendants.value.find((att) => att.id === atendente.id);
-  const attendantCount = atendent ? atendent.internal_chat.unread : 0;
+  const channelId = atendente?.internal_chat?.channel_id;
+  
+  if (!channelId) {
+    console.error("Canal sem channel_id:", atendente);
+    return;
+  }
+
+  const entity = findEntityByChannelId(channelId);
+  const attendantCount = entity ? entity.internal_chat.unread : 0;
   emit("unreadMessagesEmit", attendantCount);
 
   selectedAtendente.value = atendente;
-  resetUnreadMessages(atendente.id); // Reseta as mensagens não lidas ao selecionar o atendente
+  resetUnreadMessages(channelId);
 
-  // Verifica se o 'messages' é null, undefined ou um array vazio antes de buscar mensagens
+  // Verifica se precisa buscar mensagens
   if (!atendente.hasNextPage) {
-    await fetchMessagesForAtendente(atendente.id);
+    await fetchMessagesByChannel(channelId);
   }
 };
 
@@ -175,10 +183,10 @@ watch(
   () => props.socketMessage,
   (newVal, oldVal) => {
     if (newVal !== oldVal) {
-      addMessageToAtendente(
+      addMessageToChannel(
         newVal,
         isChatOpen.value,
-        selectedAtendente.value?.id,
+        selectedAtendente.value?.internal_chat?.channel_id,
       );
     }
   },

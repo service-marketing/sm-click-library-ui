@@ -8,6 +8,9 @@ export const useAttendantStore = defineStore("attendant", {
     count: null,
     loaded: false,
   }),
+  getters: {
+    logged_attendant: (state) => () => state.attendants.find((att) => att.is_me),
+  },
   actions: {
     async fetchAttendants() {
       try {
