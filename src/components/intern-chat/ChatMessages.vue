@@ -301,7 +301,12 @@ const isRecording = ref(false);
 
 const isLoading = ref(false);
 const mensagens = computed(() => {
-  return props.selectedAtendente?.messages || [];
+  if (!props.selectedAtendente) return [];
+  
+  // Se for um grupo, usa chat_info.messages, senão usa messages diretamente
+  return props.selectedAtendente.is_group 
+    ? props.selectedAtendente.chat_info?.messages || []
+    : props.selectedAtendente.messages || [];
 });
 
 const openPdf = (url) => {

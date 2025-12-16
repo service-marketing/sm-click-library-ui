@@ -33,16 +33,27 @@ export function useChat() {
 
   const fetchMessagesByChannel = async (channelId) => {
     const entity = findEntityByChannelId(channelId);
+    console.log("entidade real", entity)
     if (!entity) return;
 
     try {
       const response = await api.get(
-        `${internalChatUrl}get_messages_by_channel/?channel_id=${channelId}&page=1`
+        `${internalChatUrl}messages_by_channel/?channel_id=${channelId}&page=1`
       );
 
-      entity.messages = response.data.results.reverse();
-      entity.hasNextPage = response.data.next !== null;
-      entity.currentPage = 2; // Próxima página para carregamento incremental
+      // Inicializa chat_info se for um grupo ou messages se for atendente
+      if (entity.is_group) {
+        entity.chat_info = {
+          messages: response.data.results.reverse(),
+          hasNextPage: response.data.next !== null,
+          currentPage: 2,
+        };
+      } else {
+        entity.messages = response.data.results.reverse();
+        entity.hasNextPage = response.data.next !== null;
+        entity.currentPage = 2;
+      }
+      
       entity.internal_chat = {
         ...entity.internal_chat,
         channel_id: response.data.channel_id,
@@ -55,31 +66,50 @@ export function useChat() {
 
   const loadMessagesByChannel = async (channelId) => {
     const entity = findEntityByChannelId(channelId);
-    if (!entity || !entity.hasNextPage) return;
+    
+    // Determina se há próxima página baseado no tipo de entidade
+    const hasNext = entity?.is_group 
+      ? entity.chat_info?.hasNextPage 
+      : entity?.hasNextPage;
+    
+    if (!entity || !hasNext) return;
 
     try {
+      const currentPage = entity.is_group 
+        ? entity.chat_info.currentPage 
+        : entity.currentPage;
+        
       const response = await api.get(
-        `${internalChatUrl}get_messages_by_channel/?channel_id=${channelId}&page=${entity.currentPage}`
+        `${internalChatUrl}messages_by_channel/?channel_id=${channelId}&page=${currentPage}`
       );
-      entity.messages = [
-        ...response.data.results.reverse(),
-        ...entity.messages,
-      ];
-      entity.hasNextPage = response.data.next !== null;
-      entity.currentPage++;
+      
+      if (entity.is_group) {
+        entity.chat_info.messages = [
+          ...response.data.results.reverse(),
+          ...entity.chat_info.messages,
+        ];
+        entity.chat_info.hasNextPage = response.data.next !== null;
+        entity.chat_info.currentPage++;
+      } else {
+        entity.messages = [
+          ...response.data.results.reverse(),
+          ...entity.messages,
+        ];
+        entity.hasNextPage = response.data.next !== null;
+        entity.currentPage++;
+      }
     } catch (error) {
       console.error("Erro ao carregar mais mensagens:", error);
     }
   };
 
   const addMessageToChannel = (event, isChatOpen, selectedChannelId) => {
-    console.log("evento:", event);
     let entity = null;
     const message = event?.message;
     if (!message) return;
 
-  // Busca a entidade pelo channel_id da mensagem
-  entity = findEntityByChannelId(message.channel_id);
+    // Busca a entidade pelo channel_id da mensagem
+    entity = findEntityByChannelId(message.channel_id);
 
     // Se a entidade não existir e for um grupo, cria a partir do group_info
     if (!entity && message.is_group && message.group_info) {
@@ -93,19 +123,31 @@ export function useChat() {
 
     if (!entity) return;
 
-    entity.messages = entity.messages || [];
-    const existingMessage = entity.messages.find(
-      (msg) => msg.id === message.id
-    );
+    // Inicializa messages baseado no tipo de entidade
+    if (entity.is_group) {
+      if (!entity.chat_info) {
+        entity.chat_info = { messages: [], hasNextPage: false, currentPage: 1 };
+      }
+      entity.chat_info.messages = entity.chat_info.messages || [];
+    } else {
+      entity.messages = entity.messages || [];
+    }
+    
+    const messages = entity.is_group ? entity.chat_info.messages : entity.messages;
+    const existingMessage = messages.find((msg) => msg.id === message.id);
 
     if (!existingMessage) {
-      entity.messages.push(message);
+      messages.push(message);
 
       if (!isChatOpen || entity.internal_chat?.channel_id !== selectedChannelId) {
         entity.internal_chat.unread =
           (entity.internal_chat.unread || 0) + 1;
       }
     }
+  };
+
+  const addGroupParticipant = (event) => {
+    channelStore.channels.push(event.message)
   };
 
   const resetUnreadMessages = (channelId) => {
@@ -139,8 +181,18 @@ export function useChat() {
       sender,
     };
 
-    // Adiciona mensagem localmente
-    entity.messages.push(newMessage);
+    // Adiciona mensagem localmente baseado no tipo de entidade
+    if (entity.is_group) {
+      if (!entity.chat_info) {
+        entity.chat_info = { messages: [], hasNextPage: false, currentPage: 1 };
+      }
+      entity.chat_info.messages.push(newMessage);
+    } else {
+      if (!entity.messages) {
+        entity.messages = [];
+      }
+      entity.messages.push(newMessage);
+    }
 
     try {
       await api.post(
@@ -157,7 +209,11 @@ export function useChat() {
 
   const hasNextPageForChannel = (channelId) => {
     const entity = findEntityByChannelId(channelId);
-    return entity ? entity.hasNextPage : false;
+    if (!entity) return false;
+    
+    return entity.is_group 
+      ? entity.chat_info?.hasNextPage || false
+      : entity.hasNextPage || false;
   };
 
   return {
@@ -166,6 +222,7 @@ export function useChat() {
     fetchMessagesByChannel,
     loadMessagesByChannel,
     addMessageToChannel,
+    addGroupParticipant,
     sendMessageToChannel,
     hasNextPageForChannel,
     resetUnreadMessages,

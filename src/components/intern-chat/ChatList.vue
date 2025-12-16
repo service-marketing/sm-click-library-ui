@@ -49,9 +49,9 @@
         v-if="filteredAtendentes.length === 0"
         class="empty-message bg-base-200"
       >
-       <p v-if="filteredAtendentes.length === 0">
-        não há atendentes disponíveis
-       </p>
+        <p v-if="filteredAtendentes.length === 0">
+          não há atendentes disponíveis
+        </p>
       </li>
 
       <!-- Itens da lista de atendentes -->
@@ -83,7 +83,12 @@
       </li>
     </ul>
     <!-- LISTA DE GRUPOS -->
-    <ul v-if="currentList === 'grupos'" class="atendentes-list bg-base-300">
+    <ul
+      v-if="currentList === 'grupos'"
+      class="atendentes-list bg-base-300"
+      ref="groupsListRef"
+      @scroll="handleGroupsScroll"
+    >
       <li v-if="filteredGrupos.length === 0" class="empty-message bg-base-200">
         {{
           grupos.length === 0
@@ -101,63 +106,21 @@
         <main class="atendente-main">
           <Avatar>
             <svg
-              version="1.0"
+              class="text-white dark:text-gray-800"
+              aria-hidden="true"
               xmlns="http://www.w3.org/2000/svg"
-              width="1280.000000pt"
-              height="870.000000pt"
-              viewBox="0 0 1280.000000 870.000000"
-              preserveAspectRatio="xMidYMid meet"
+              width="24"
+              height="24"
+              fill="none"
+              viewBox="0 0 24 24"
+              style="width: 75%; height: 75%; display: block; margin: auto; margin-top: 15%"
             >
-              <g
-                transform="translate(0.000000,870.000000) scale(0.100000,-0.100000)"
-                fill="#000000"
-                stroke="none"
-              >
-                <path
-                  d="M2765 8694 c-16 -2 -66 -9 -110 -15 -590 -78 -1135 -462 -1418 -999
--317 -601 -293 -1314 63 -1895 252 -412 684 -729 1155 -849 256 -65 595 -73
-842 -22 299 63 585 195 810 374 43 35 52 48 58 84 70 461 256 851 575 1207
-102 114 104 122 90 334 -46 681 -444 1280 -1055 1585 -264 132 -505 190 -810
-197 -93 2 -183 1 -200 -1z"
-                />
-                <path
-                  d="M9715 8694 c-16 -2 -66 -9 -110 -15 -379 -50 -763 -237 -1054 -514
--274 -261 -478 -636 -551 -1010 -23 -124 -40 -343 -32 -425 5 -51 10 -60 86
--145 106 -118 171 -201 239 -305 165 -256 284 -557 331 -845 16 -94 19 -102
-54 -134 65 -59 243 -171 367 -232 143 -69 292 -120 458 -155 167 -35 437 -43
-617 -20 439 58 821 252 1130 572 678 704 716 1796 89 2549 -291 349 -703 583
--1159 660 -91 15 -402 28 -465 19z"
-                />
-                <path
-                  d="M6140 6944 c-762 -104 -1397 -670 -1590 -1420 -290 -1124 491 -2246
-1652 -2373 1024 -112 1966 636 2093 1662 47 383 -16 749 -192 1096 -286 568
--828 954 -1456 1036 -144 18 -365 18 -507 -1z"
-                />
-                <path
-                  d="M11300 5039 c-230 -188 -512 -337 -792 -418 -445 -128 -902 -120
--1340 26 -129 42 -348 143 -464 212 l-51 31 -7 -67 c-26 -268 -109 -548 -233
--793 -96 -187 -196 -331 -365 -523 -39 -44 -41 -49 -24 -59 126 -70 451 -373
-578 -538 247 -321 435 -707 578 -1187 l34 -113 1793 0 1793 0 0 75 c0 123 -19
-407 -41 600 -88 791 -320 1565 -610 2030 -190 305 -447 577 -719 762 l-45 31
--85 -69z"
-                />
-                <path
-                  d="M1354 5057 c-179 -123 -414 -346 -540 -512 -94 -124 -206 -298 -273
--425 -300 -572 -504 -1455 -537 -2323 l-7 -187 1794 2 1793 3 41 135 c228 745
-560 1254 1060 1627 55 41 101 78 103 82 1 4 -25 37 -58 74 -311 339 -517 792
--572 1256 l-12 101 -50 -31 c-116 -69 -335 -170 -464 -212 -655 -218 -1363
--126 -1937 251 -66 43 -154 106 -195 140 -41 34 -77 62 -80 61 -3 0 -32 -19
--66 -42z"
-                />
-                <path
-                  d="M7730 3229 c-156 -119 -405 -249 -609 -318 -388 -131 -832 -153
--1231 -60 -278 64 -565 194 -798 361 -51 37 -89 58 -98 54 -37 -14 -202 -135
--302 -221 -96 -83 -205 -199 -314 -336 -69 -86 -199 -294 -262 -419 -210 -414
--377 -1014 -461 -1662 -19 -151 -45 -469 -45 -559 l0 -69 2792 0 2791 0 -6
-148 c-30 686 -198 1451 -439 2002 -202 462 -488 823 -849 1070 -48 33 -91 60
--96 59 -4 0 -37 -23 -73 -50z"
-                />
-              </g>
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-width="2"
+                d="M4.5 17H4a1 1 0 0 1-1-1 3 3 0 0 1 3-3h1m0-3.05A2.5 2.5 0 1 1 9 5.5M19.5 17h.5a1 1 0 0 0 1-1 3 3 0 0 0-3-3h-1m0-3.05a2.5 2.5 0 1 0-2-4.45m.5 13.5h-7a1 1 0 0 1-1-1 3 3 0 0 1 3-3h3a3 3 0 0 1 3 3 1 1 0 0 1-1 1Zm-1-9.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Z"
+              />
             </svg>
           </Avatar>
           <span class="atendente-name">{{ grupo.name }}</span>
@@ -174,8 +137,8 @@
       </li>
     </ul>
 
-  <!-- Botão de criar grupo -->
-  <div class="create-group-button bg-base-300">
+    <!-- Botão de criar grupo -->
+    <div class="create-group-button bg-base-300">
       <button
         v-if="currentList === 'grupos'"
         class="popper-toggle"
@@ -197,7 +160,7 @@
           />
         </svg>
       </button>
-  <!-- Popper backdrop and panel -->
+      <!-- Popper backdrop and panel -->
       <div v-if="showPopper">
         <div class="popper-backdrop" @click="closePopper"></div>
 
@@ -237,23 +200,28 @@
           </div>
 
           <div class="popper-actions bg-base-300 border-t border-base-200">
-            <button class="btn-cancel" @click="closePopper">Cancelar</button>
+            <button class="btn-cancel" @click="closePopper" :disabled="isCreatingGroup">Cancelar</button>
             <button
               class="btn-create"
               :disabled="
                 selectedGroupParticipants.length === 0 ||
-                groupName.trim() === ''
+                groupName.trim() === '' ||
+                isCreatingGroup
               "
               @click="createGroupFromPopper"
             >
-              Criar Grupo
+              <span v-if="isCreatingGroup" class="loading-spinner"></span>
+              <span>{{ isCreatingGroup ? 'Criando...' : 'Criar Grupo' }}</span>
             </button>
           </div>
         </div>
       </div>
     </div>
     <!-- Footer fixo -->
-    <footer v-if="!mobile" class="chat-footer bg-base-200 flex justify-end"></footer>
+    <footer
+      v-if="!mobile"
+      class="chat-footer bg-base-200 flex justify-end"
+    ></footer>
   </div>
 </template>
 
@@ -270,9 +238,10 @@ const props = defineProps({
 const emit = defineEmits(["atendenteSelecionado"]);
 
 const grupos = ref([]);
+const groupsListRef = ref(null);
 
 const searchQueryAttendant = ref("");
-const searchQueryGroups = ref("")
+const searchQueryGroups = ref("");
 const currentList = ref("atendentes");
 
 const selectAtendente = (atendente) => {
@@ -301,28 +270,54 @@ const filteredAtendentes = computed(() => {
   }
   return props.atendentes.filter(
     (att) =>
-      att.name.toLowerCase().includes(searchQueryAttendant.value.toLowerCase()) &&
+      att.name
+        .toLowerCase()
+        .includes(searchQueryAttendant.value.toLowerCase()) &&
       att.id !== props.attendant.id
   );
 });
 
 // Computed property para filtrar os grupos (usa searchQueryGroups)
 const filteredGrupos = computed(() => {
-  const channels = useChannelStore().channels.filter((channel) => channel.is_group);
+  const channels = useChannelStore().channels.filter(
+    (channel) => channel.is_group
+  );
   if (!searchQueryGroups.value) return channels;
   const q = searchQueryGroups.value.toLowerCase();
-  return channels.filter((ch) => (ch.name || '').toLowerCase().includes(q));
+  return channels.filter((ch) => (ch.name || "").toLowerCase().includes(q));
 });
+
+// Função para detectar quando chegou ao final da lista de grupos
+const handleGroupsScroll = (event) => {
+  const element = event.target;
+  const scrollThreshold = 10; // pixels antes do final
+
+  // Verifica se chegou perto do final da lista
+  if (
+    element.scrollHeight - element.scrollTop - element.clientHeight <
+    scrollThreshold
+  ) {
+    const channelStore = useChannelStore();
+
+    // Se houver próxima página, carrega mais grupos
+    if (channelStore.nextPage) {
+      channelStore.loadMoreChannels();
+    }
+  }
+};
 
 // Popper para selecioinar grupos
 const showPopper = ref(false);
 const selectedParticipants = ref([]);
 const groupName = ref("");
+const isCreatingGroup = ref(false);
 // Clona e pega todos os atendentes menos o que está logado
 const groupParticipants = ref(
   JSON.parse(
     JSON.stringify(
-      props.atendentes.filter((att) => att.id !== (props.attendant && props.attendant.id))
+      props.atendentes.filter(
+        (att) => att.id !== (props.attendant && props.attendant.id)
+      )
     )
   )
 );
@@ -353,6 +348,7 @@ const closePopper = () => {
 const createGroupFromPopper = async () => {
   // reset previous errors
   errorMap.value = [];
+  isCreatingGroup.value = true;
 
   // helper to normalize various error shapes into errorMap
   const buildErrorMapFromData = (data) => {
@@ -393,6 +389,8 @@ const createGroupFromPopper = async () => {
     buildErrorMapFromData(data);
     console.error("Erro ao criar grupo via popper:", error);
     // keep popper open for user to correct
+  } finally {
+    isCreatingGroup.value = false;
   }
 };
 
@@ -754,5 +752,29 @@ const selectedGroupParticipants = computed(() => {
 .popper-toggle:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+/* Loading spinner */
+.loading-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  margin-right: 0.5rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.btn-create {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>

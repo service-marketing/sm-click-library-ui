@@ -172,6 +172,7 @@ const {
   loadingMessages,
   fetchMessagesByChannel,
   addMessageToChannel,
+  addGroupParticipant,
   hasNextPageForChannel,
   sendMessageToChannel,
   loadMessagesByChannel,
@@ -216,7 +217,7 @@ const handleClickOutside = (event) => {
 
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);
-  
+
   // Busca os grupos ao inicializar a página
   if (!channelStore.loaded) {
     channelStore.fetchChannel("group");
@@ -279,7 +280,7 @@ const handleChatClick = () => {
 
 const selecionarAtendente = async (atendente) => {
   const channelId = atendente.internal_chat?.channel_id || atendente.id;
-  
+
   if (!channelId) {
     console.error("Canal sem channel_id:", atendente);
     return;
@@ -292,8 +293,12 @@ const selecionarAtendente = async (atendente) => {
   selectedAtendente.value = atendente;
   resetUnreadMessages(channelId);
 
-  // Verifica se precisa buscar mensagens
-  if (!atendente.hasNextPage) {
+  // Verifica se precisa buscar mensagens baseado no tipo de entidade
+  const hasMessages = atendente.is_group
+    ? atendente.chat_info?.messages?.length > 0
+    : atendente.messages?.length > 0;
+
+  if (!hasMessages) {
     await fetchMessagesByChannel(channelId);
   }
 };
@@ -302,11 +307,18 @@ watch(
   () => props.socketMessage,
   (newVal, oldVal) => {
     if (newVal !== oldVal) {
-      addMessageToChannel(
-        newVal,
-        isChatOpen.value,
-        selectedAtendente.value?.internal_chat?.channel_id,
-      );
+      const event = newVal.message.event;
+      if (event === "new-chat-internal-message") {
+        addMessageToChannel(
+          newVal,
+          isChatOpen.value,
+          selectedAtendente.value?.internal_chat?.channel_id
+        );
+      } else if (event === "new-chat-internal-group") {
+        addGroupParticipant(
+          newVal,
+        );
+      }
     }
   }
 );
