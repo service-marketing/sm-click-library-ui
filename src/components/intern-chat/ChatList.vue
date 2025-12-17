@@ -113,7 +113,13 @@
               height="24"
               fill="none"
               viewBox="0 0 24 24"
-              style="width: 75%; height: 75%; display: block; margin: auto; margin-top: 15%"
+              style="
+                width: 75%;
+                height: 75%;
+                display: block;
+                margin: auto;
+                margin-top: 15%;
+              "
             >
               <path
                 stroke="currentColor"
@@ -187,7 +193,7 @@
               :key="att.id"
               class="popper-item"
               @click="selectAttendant(att)"
-              :class="{ 'bg-base-100': att.selected }"
+              :class="{ 'bg-base-200': att.selected }"
             >
               <!-- <input
                 type="checkbox"
@@ -195,12 +201,22 @@
                 v-model="selectedParticipants"
               /> -->
               <Avatar :url="att.photo" />
-              <span class="popper-item-name">{{ att.name }}</span>
+              <span
+                class="popper-item-name"
+                :class="{ 'font-bold': att.selected }"
+                >{{ att.name }}</span
+              >
             </div>
           </div>
 
           <div class="popper-actions bg-base-300 border-t border-base-200">
-            <button class="btn-cancel" @click="closePopper" :disabled="isCreatingGroup">Cancelar</button>
+            <button
+              class="btn-cancel"
+              @click="closePopper"
+              :disabled="isCreatingGroup"
+            >
+              Cancelar
+            </button>
             <button
               class="btn-create"
               :disabled="
@@ -211,7 +227,7 @@
               @click="createGroupFromPopper"
             >
               <span v-if="isCreatingGroup" class="loading-spinner"></span>
-              <span>{{ isCreatingGroup ? 'Criando...' : 'Criar Grupo' }}</span>
+              <span>{{ isCreatingGroup ? "Criando..." : "Criar Grupo" }}</span>
             </button>
           </div>
         </div>
@@ -238,7 +254,6 @@ const props = defineProps({
 const emit = defineEmits(["atendenteSelecionado"]);
 
 const grupos = ref([]);
-const groupsListRef = ref(null);
 
 const searchQueryAttendant = ref("");
 const searchQueryGroups = ref("");
@@ -346,11 +361,9 @@ const closePopper = () => {
 };
 
 const createGroupFromPopper = async () => {
-  // reset previous errors
   errorMap.value = [];
   isCreatingGroup.value = true;
 
-  // helper to normalize various error shapes into errorMap
   const buildErrorMapFromData = (data) => {
     if (!data) {
       errorMap.value.push({
@@ -361,7 +374,7 @@ const createGroupFromPopper = async () => {
     }
     if (typeof data === "object") {
       Object.entries(data).forEach(([key, value]) => {
-        if (String(key).toLowerCase() === "status") return; // skip status flags
+        if (String(key).toLowerCase() === "status") return; // pula flags de status
         const message = Array.isArray(value) ? value.join(", ") : String(value);
         errorMap.value.push({ key, message });
       });
@@ -370,25 +383,27 @@ const createGroupFromPopper = async () => {
     }
   };
 
-  // Pass participants (array of ids) and group name to existing handler
   const participantIds = selectedGroupParticipants.value.map((att) => att.id);
 
   try {
     const res = await createGroup(participantIds, groupName.value);
 
-    // If response indicates failure, extract messages
     if (!res || !(res.status >= 200 && res.status < 300)) {
       buildErrorMapFromData(res && res.data ? res.data : null);
-      return; // keep popper open so user can see errors
+      return;
     }
 
-    // success
+    // sucesso - limpa os atendentes selecionados
+    groupParticipants.value.forEach((att) => {
+      att.selected = false;
+    });
+
     closePopper();
   } catch (error) {
     const data = error?.response?.data ?? error?.message ?? null;
     buildErrorMapFromData(data);
     console.error("Erro ao criar grupo via popper:", error);
-    // keep popper open for user to correct
+    // mantém o modal aberto para o usuário corrigir
   } finally {
     isCreatingGroup.value = false;
   }
@@ -610,7 +625,7 @@ const selectedGroupParticipants = computed(() => {
   color: #3b82f6;
 }
 
-/* Popper styles */
+/* Estilos do Popper */
 .popper-backdrop {
   position: fixed;
   inset: 0;
@@ -621,7 +636,7 @@ const selectedGroupParticipants = computed(() => {
 .popper-panel {
   position: absolute;
   right: 0.5rem;
-  bottom: 3.25rem; /* above footer */
+  bottom: 3.25rem; /* acima do footer */
   width: 320px;
   max-height: 60vh;
   background: var(--base-100, rgb(17, 27, 37));
@@ -733,14 +748,14 @@ const selectedGroupParticipants = computed(() => {
   padding: 0.5rem;
 }
 
-/* Toggle button around popper trigger */
+/* Botão de alternar ao redor do gatilho do popper */
 .popper-toggle {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 0.35rem;
   border-radius: 9999px;
-  border: 2px solid #3b82f6; /* blue rounded border */
+  border: 2px solid #3b82f6; /* borda arredondada azul */
   background: transparent;
   cursor: pointer;
 }
@@ -754,7 +769,7 @@ const selectedGroupParticipants = computed(() => {
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
 }
 
-/* Loading spinner */
+/* Spinner de carregamento */
 .loading-spinner {
   display: inline-block;
   width: 14px;
