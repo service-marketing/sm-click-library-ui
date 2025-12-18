@@ -95,6 +95,7 @@
             >
               <ChatMessages
                 :isMobile="false"
+                :isLoadingMessages="loadingMessages"
                 @send-files="onSendFiles"
                 :attendant="attendant"
                 :selectedAtendente="selectedAtendente"
@@ -133,6 +134,7 @@ import ChatList from "./ChatList.vue";
 import ChatMessages from "./ChatMessages.vue";
 import loading from "./loading.vue";
 import DropFilesArea from "./dropFilesArea.vue";
+import { notify } from "notiwind";
 
 const props = defineProps({
   attendant: {
@@ -307,7 +309,8 @@ watch(
   () => props.socketMessage,
   (newVal, oldVal) => {
     if (newVal !== oldVal) {
-      const event = newVal.message.event;
+      const event = newVal?.message?.event;
+      if (!event) return;
       if (event === "new-chat-internal-message") {
         addMessageToChannel(
           newVal,
@@ -330,6 +333,29 @@ watch(isChatOpen, (newVal) => {
     }, 400);
   }
 });
+
+let loadingToastOpen = false;
+watch(
+  () => loadingMessages?.value ?? loadingMessages,
+  (isLoading) => {
+    // Evita empilhar toasts e só mostra enquanto estiver carregando.
+    if (isLoading && !loadingToastOpen) {
+      loadingToastOpen = true;
+      notify(
+        {
+          group: "info",
+          title: "Carregando",
+          text: "Carregando mensagens…",
+        },
+        2000
+      );
+    }
+
+    if (!isLoading) {
+      loadingToastOpen = false;
+    }
+  }
+);
 </script>
 
 <style scoped>

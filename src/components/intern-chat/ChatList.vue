@@ -89,12 +89,21 @@
       ref="groupsListRef"
       @scroll="handleGroupsScroll"
     >
+      <!-- loading leve (não ocupa o chat inteiro) -->
+      <li
+        v-if="groupStoreLoading"
+        class="px-3 py-2 text-sm text-center text-white/80"
+      >
+        <span class="inline-flex items-center gap-2">
+          <span class="mini-spinner" aria-hidden="true"></span>
+          Carregando grupos...
+        </span>
+      </li>
+
       <li v-if="filteredGrupos.length === 0" class="empty-message bg-base-200">
-        {{
-          grupos.length === 0
-            ? "Não há grupos disponíveis"
-            : "Não há grupos com esse nome"
-        }}
+        <p v-if="filteredGrupos.length === 0">
+          não há grupos disponíveis
+        </p>
       </li>
 
       <li
@@ -207,7 +216,7 @@
             <button
               class="btn-create"
               :disabled="
-                selectedGroupParticipants.length === 0 ||
+                selectedGroupParticipants.length <= 1 ||
                 groupName.trim() === '' ||
                 isCreatingGroup
               "
@@ -419,6 +428,11 @@ const handleGroups = () => {
   }
 };
 
+const groupStoreLoading = computed(() => {
+  const channelStore = useChannelStore();
+  return !!channelStore.loading;
+});
+
 const selectedGroupParticipants = computed(() => {
   return groupParticipants.value.filter((att) => att.selected === true);
 });
@@ -448,6 +462,22 @@ const selectedGroupParticipants = computed(() => {
   flex-direction: column;
   height: 100%;
   overflow: hidden;
+}
+
+.mini-spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-top-color: rgba(255, 255, 255, 0.9);
+  display: inline-block;
+  animation: mini-spin 0.8s linear infinite;
+}
+
+@keyframes mini-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .search-input {

@@ -203,8 +203,15 @@
         class="message-input bg-base-300 focus:ring-0"
         placeholder="Digite sua mensagem..."
         @keydown="handleKeydown"
+        :disabled="isLoadingMessages"
       />
-      <button @click="handleSendFilesClick" class="send-files-button">
+      <button
+        @click="handleSendFilesClick"
+        class="send-files-button"
+        :disabled="isLoadingMessages"
+        :class="{ disabled: isLoadingMessages }"
+        :title="isLoadingMessages ? 'Aguarde as mensagens carregarem' : ''"
+      >
         <svg
           class="size-5 text-white"
           aria-hidden="true"
@@ -228,6 +235,9 @@
         v-if="novaMensagem.length > 0"
         @click="handleButtonClick"
         class="send-button"
+        :disabled="isLoadingMessages"
+        :class="{ disabled: isLoadingMessages }"
+        :title="isLoadingMessages ? 'Aguarde as mensagens carregarem' : ''"
       >
         <svg
           class="size-5 text-white rotate-90"
@@ -260,7 +270,7 @@
         />
         <AudioRecorder
           v-else
-          :can-send-message="true"
+          :can-send-message="!isLoadingMessages"
           :attendant="attendant"
           :selectedAttendant="selectedAtendente"
           :sendAudioToAttendant="sendMessageToAtendente"
@@ -283,6 +293,7 @@ import MobileAudioRecorder from "../audio-misc/mobile/mobileAudioRecorder.vue";
 
 const props = defineProps({
   isMobile: { type: Boolean, default: false },
+  isLoadingMessages: { type: Boolean, default: false },
   selectedAtendente: { type: Object, required: true },
   attendant: { required: true },
   loadMessagesForAtendente: { type: Function, required: true }, // Recebe do pai
@@ -374,6 +385,7 @@ const shouldShowDateSeparator = (index) => {
 };
 
 const handleKeydown = (event) => {
+  if (props.isLoadingMessages) return;
   if (event.key === "Enter" && !event.shiftKey) {
     event.preventDefault();
     enviarMensagem();
@@ -421,6 +433,7 @@ const loadMoreMessages = async ($state) => {
 };
 
 const enviarMensagem = async () => {
+  if (props.isLoadingMessages) return;
   if (novaMensagem.value.trim() !== "") {
     try {
       const newMessage = JSON.parse(JSON.stringify(novaMensagem.value));
@@ -441,6 +454,7 @@ const enviarMensagem = async () => {
 };
 
 const handleButtonClick = () => {
+  if (props.isLoadingMessages) return;
   enviarMensagem();
   const button = document.querySelector(".send-button");
   button.classList.add("clicked");
@@ -450,6 +464,7 @@ const handleButtonClick = () => {
 };
 
 const handleSendFilesClick = () => {
+  if (props.isLoadingMessages) return;
   emits("send-files");
   const button = document.querySelector(".send-files-button");
   button.classList.add("clicked");
@@ -672,7 +687,8 @@ const downloadFiles = async (url, name = "undefined") => {
   margin-bottom: 0.25rem;
   /* max-width: 80%; */
   word-wrap: break-word;
-  @apply px-2;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 
 .message.me {
@@ -798,19 +814,6 @@ const downloadFiles = async (url, name = "undefined") => {
   font-size: 15px;
 }
 
-.send-audio-button {
-  /* position: absolute;
-  right: 0.5rem;
-  top: 0.65rem;
-  background-color: #3b82f6;
-  color: white;
-  padding: 0.3rem 0.7rem;
-  border-radius: 9999px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  font-size: 15px; */
-}
-
 .send-audio-button.recording {
   position: absolute;
   width: 100%;
@@ -821,7 +824,6 @@ const downloadFiles = async (url, name = "undefined") => {
   padding-left: 0.75rem;
   padding-right: 0.75rem;
   border-radius: 0.375rem;
-  @apply rounded-md;
 }
 
 .send-files-button {
@@ -841,10 +843,17 @@ const downloadFiles = async (url, name = "undefined") => {
   background-color: #2563eb;
 }
 
-/* Animação para a mensagem */
-.new-message {
-  /* animation: bounce-in 0.6s ease-in-out; */
+.send-button.disabled,
+.send-files-button.disabled,
+.send-button:disabled,
+.send-files-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
 }
+
+/* Animação para a mensagem */
+/* .new-message { animation: bounce-in 0.6s ease-in-out; } */
 
 @keyframes bounce-in {
   0% {
