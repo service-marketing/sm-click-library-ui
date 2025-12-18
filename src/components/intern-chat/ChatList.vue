@@ -188,7 +188,7 @@
               v-for="att in groupParticipants"
               :key="att.id"
               class="popper-item"
-              :class="{ 'selected': att.selected }"
+              :class="{ selected: att.selected }"
               @click="selectAttendant(att)"
             >
               <Avatar :url="att.photo" :style="'size-8'" />
@@ -671,7 +671,7 @@ const selectedGroupParticipants = computed(() => {
 
 :global(:root) {
   --popper-bg: rgba(59, 130, 246, 0.1);
-  --popper-even-bg: #26343D;
+  --popper-even-bg: #26343d;
   --popper-panel-bg: rgb(25, 42, 68);
   --popper-selected-color: rgb(31, 70, 128);
 }
