@@ -9,7 +9,6 @@ export function useChat() {
   const attendantStore = useAttendantStore();
   const channelStore = useChannelStore();
 
-
   function getValueByKey(object, key) {
     return object[key];
   }
@@ -20,20 +19,19 @@ export function useChat() {
     let entity = attendantStore.attendants.find(
       (att) => att.internal_chat?.channel_id === channelId
     );
-    
+
     // Se não encontrar, procura nos canais (grupos)
     if (!entity) {
       entity = channelStore.channels.find(
         (ch) => ch.internal_chat?.channel_id === channelId
       );
     }
-    
+
     return entity;
   };
 
   const fetchMessagesByChannel = async (channelId) => {
     const entity = findEntityByChannelId(channelId);
-    console.log("entidade real", entity)
     if (!entity) return;
 
     try {
@@ -53,7 +51,7 @@ export function useChat() {
         entity.hasNextPage = response.data.next !== null;
         entity.currentPage = 2;
       }
-      
+
       entity.internal_chat = {
         ...entity.internal_chat,
         channel_id: response.data.channel_id,
@@ -66,23 +64,23 @@ export function useChat() {
 
   const loadMessagesByChannel = async (channelId) => {
     const entity = findEntityByChannelId(channelId);
-    
+
     // Determina se há próxima página baseado no tipo de entidade
-    const hasNext = entity?.is_group 
-      ? entity.chat_info?.hasNextPage 
+    const hasNext = entity?.is_group
+      ? entity.chat_info?.hasNextPage
       : entity?.hasNextPage;
-    
+
     if (!entity || !hasNext) return;
 
     try {
-      const currentPage = entity.is_group 
-        ? entity.chat_info.currentPage 
+      const currentPage = entity.is_group
+        ? entity.chat_info.currentPage
         : entity.currentPage;
-        
+
       const response = await api.get(
         `${internalChatUrl}messages_by_channel/?channel_id=${channelId}&page=${currentPage}`
       );
-      
+
       if (entity.is_group) {
         entity.chat_info.messages = [
           ...response.data.results.reverse(),
@@ -132,22 +130,26 @@ export function useChat() {
     } else {
       entity.messages = entity.messages || [];
     }
-    
-    const messages = entity.is_group ? entity.chat_info.messages : entity.messages;
+
+    const messages = entity.is_group
+      ? entity.chat_info.messages
+      : entity.messages;
     const existingMessage = messages.find((msg) => msg.id === message.id);
 
     if (!existingMessage) {
       messages.push(message);
 
-      if (!isChatOpen || entity.internal_chat?.channel_id !== selectedChannelId) {
-        entity.internal_chat.unread =
-          (entity.internal_chat.unread || 0) + 1;
+      if (
+        !isChatOpen ||
+        entity.internal_chat?.channel_id !== selectedChannelId
+      ) {
+        entity.internal_chat.unread = (entity.internal_chat.unread || 0) + 1;
       }
     }
   };
 
   const addGroupParticipant = (event) => {
-    channelStore.channels.push(event.message)
+    channelStore.channels.unshift(event.message);
   };
 
   const resetUnreadMessages = (channelId) => {
@@ -210,8 +212,8 @@ export function useChat() {
   const hasNextPageForChannel = (channelId) => {
     const entity = findEntityByChannelId(channelId);
     if (!entity) return false;
-    
-    return entity.is_group 
+
+    return entity.is_group
       ? entity.chat_info?.hasNextPage || false
       : entity.hasNextPage || false;
   };

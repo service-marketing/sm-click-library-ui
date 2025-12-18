@@ -1,6 +1,7 @@
 <template>
   <div
     class="avatar bg-[#404857] shadow shadow-gray-900 dark:shadow-gray-700 dark:bg-gray-300 text-gray-100 dark:text-gray-500"
+    :class="style"
   >
     <!-- Se houver conteúdo slot, usa o slot -->
     <slot v-if="$slots.default"></slot>
@@ -28,13 +29,12 @@
 <script setup>
 const props = defineProps({
   url: { type: String },
+  style: { type: String, default: 'size-10' },
 });
 </script>
 
 <style scoped>
 .avatar {
-  width: 40px;
-  height: 40px;
   border-radius: 100%;
   overflow: hidden;
 }
