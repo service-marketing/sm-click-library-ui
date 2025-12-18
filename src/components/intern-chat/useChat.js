@@ -1,4 +1,4 @@
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useAttendantStore } from "~/stores/attendantStore";
 import { useChannelStore } from "~/stores/channelStore";
 import { v4 as uuidv4 } from "uuid";
@@ -8,6 +8,10 @@ import { internalChatUrl } from "~/utils/systemUrls";
 export function useChat() {
   const attendantStore = useAttendantStore();
   const channelStore = useChannelStore();
+
+  // Estados globais de carregamento usados pelo UI do chat interno
+  const loadingMessages = ref(false);
+  const loadingAttendants = ref(false);
 
   function getValueByKey(object, key) {
     return object[key];
@@ -35,6 +39,7 @@ export function useChat() {
     if (!entity) return;
 
     try {
+      loadingMessages.value = true;
       const response = await api.get(
         `${internalChatUrl}messages_by_channel/?channel_id=${channelId}&page=1`
       );
@@ -59,6 +64,8 @@ export function useChat() {
       };
     } catch (error) {
       console.error("Erro ao buscar mensagens:", error);
+    } finally {
+      loadingMessages.value = false;
     }
   };
 
@@ -73,6 +80,7 @@ export function useChat() {
     if (!entity || !hasNext) return;
 
     try {
+      loadingMessages.value = true;
       const currentPage = entity.is_group
         ? entity.chat_info.currentPage
         : entity.currentPage;
@@ -98,6 +106,19 @@ export function useChat() {
       }
     } catch (error) {
       console.error("Erro ao carregar mais mensagens:", error);
+    } finally {
+      loadingMessages.value = false;
+    }
+  };
+
+  const fetchAttendants = async () => {
+    try {
+      loadingAttendants.value = true;
+      // O attendantStore já possui sua rotina de fetch; aqui só encapsulamos
+      // para expor estado de loading pro UI.
+      await attendantStore.fetchAttendants();
+    } finally {
+      loadingAttendants.value = false;
     }
   };
 
@@ -221,6 +242,9 @@ export function useChat() {
   return {
     attendants: computed(() => attendantStore.attendants),
     count: computed(() => attendantStore.count),
+    loadingMessages,
+    loadingAttendants,
+    fetchAttendants,
     fetchMessagesByChannel,
     loadMessagesByChannel,
     addMessageToChannel,
