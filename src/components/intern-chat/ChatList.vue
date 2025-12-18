@@ -623,10 +623,10 @@ const selectedGroupParticipants = computed(() => {
 .popper-panel {
   position: absolute;
   right: 0.5rem;
-  bottom: 3.25rem; /* acima do footer */
+  bottom: 3.25rem;
   width: 320px;
   max-height: 60vh;
-  background: var(--base-100, rgb(17, 27, 37));
+  background: var(--popper-panel-bg);
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 8px;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.7);
@@ -634,6 +634,7 @@ const selectedGroupParticipants = computed(() => {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  overflow: hidden;
 }
 
 .popper-header {
@@ -665,11 +666,25 @@ const selectedGroupParticipants = computed(() => {
   padding: 0.5rem;
   border-radius: 6px;
   border: 1px solid transparent;
-  background-color: rgba(59, 130, 246, 0.1);
+  background-color: var(--popper-bg);
+}
+
+:global(:root) {
+  --popper-bg: rgba(59, 130, 246, 0.1);
+  --popper-even-bg: #26343D;
+  --popper-panel-bg: rgb(25, 42, 68);
+  --popper-selected-color: rgb(31, 70, 128);
+}
+
+:global(.dark) {
+  --popper-bg: rgb(255, 255, 255);
+  --popper-even-bg: #97d1f5;
+  --popper-panel-bg: rgb(196 214 226);
+  --popper-selected-color: #5bbefc;
 }
 
 .popper-item:nth-child(even) {
-  background-color: rgb(var(--base-200));
+  background-color: var(--popper-even-bg);
 }
 
 .popper-item:hover:not(.selected) {
@@ -677,7 +692,7 @@ const selectedGroupParticipants = computed(() => {
 }
 
 .popper-item.selected {
-  background-color: rgb(31, 70, 128);
+  background-color: var(--popper-selected-color);
 }
 
 .popper-item.selected .popper-item-name {
