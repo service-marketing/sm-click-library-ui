@@ -285,6 +285,9 @@ const props = defineProps({
 
 const emit = defineEmits(["atendenteSelecionado"]);
 
+// Keep a single store instance so Vue can track reactivity correctly
+const channelStore = useChannelStore();
+
 const grupos = ref([]);
 
 const searchQueryAttendant = ref("");
@@ -326,12 +329,12 @@ const filteredAtendentes = computed(() => {
 
 // Computed property para filtrar os grupos (usa searchQueryGroups)
 const filteredGrupos = computed(() => {
-  const channels = useChannelStore().channels.filter(
-    (channel) => channel.is_group
-  );
-  if (!searchQueryGroups.value) return channels;
-  const q = searchQueryGroups.value.toLowerCase();
-  return channels.filter((ch) => (ch.name || "").toLowerCase().includes(q));
+  const channels = (channelStore.channels || []).filter((ch) => ch?.is_group);
+
+  const q = (searchQueryGroups.value || "").trim().toLowerCase();
+  if (!q) return channels;
+
+  return channels.filter((ch) => (ch?.name || "").toLowerCase().includes(q));
 });
 
 // Função para detectar quando chegou ao final da lista de grupos
@@ -468,7 +471,6 @@ const createGroup = async (participants, chat_name) => {
 
 const handleGroups = () => {
   currentList.value = "grupos";
-  const channelStore = useChannelStore();
 
   if (!channelStore.loaded) {
     channelStore.fetchChannel("group");
@@ -476,7 +478,6 @@ const handleGroups = () => {
 };
 
 const groupStoreLoading = computed(() => {
-  const channelStore = useChannelStore();
   return !!channelStore.loading;
 });
 
@@ -492,7 +493,6 @@ const unreadAttendantsTotal = computed(() => {
 });
 
 const unreadGroupsTotal = computed(() => {
-  const channelStore = useChannelStore();
   return (channelStore.channels || [])
     .filter((ch) => ch.is_group)
     .reduce((sum, ch) => sum + (Number(ch?.internal_chat?.unread) || 0), 0);
