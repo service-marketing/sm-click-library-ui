@@ -7,7 +7,14 @@
         :class="{ active: currentList === 'atendentes' }"
         @click="currentList = 'atendentes'"
       >
-        Atendentes
+        <span class="selector-label">
+          <span class="selector-text">Atendentes</span>
+          <span
+            v-if="hasUnreadAttendants"
+            class="unread-dot"
+            aria-label="Há mensagens não lidas em atendentes"
+          ></span>
+        </span>
       </button>
 
       <button
@@ -15,7 +22,14 @@
         :class="{ active: currentList === 'grupos' }"
         @click="handleGroups"
       >
-        Grupos
+        <span class="selector-label">
+          <span class="selector-text">Grupos</span>
+          <span
+            v-if="hasUnreadGroups"
+            class="unread-dot"
+            aria-label="Há mensagens não lidas em grupos"
+          ></span>
+        </span>
       </button>
     </div>
 
@@ -177,12 +191,12 @@
 
         <div class="popper-panel" @click.stop>
           <header class="popper-header bg-base-300 border-b border-base-200">
-            <div class="popper-header pl-3">Criar Grupo</div>
-            <input
-              v-model="groupName"
-              class="group-name-input bg-base-100"
-              placeholder="Nome do grupo"
-            />
+            <div class="popper-title-row">
+              <div class="popper-title">Criar Grupo</div>
+              <div class="popper-counter">
+                {{ selectedGroupParticipants.length }} selecionado(s)
+              </div>
+            </div>
             <!-- Error map shown when createGroup fails -->
             <div v-if="errorMap.length" class="error-list">
               <div v-for="err in errorMap" :key="err.key" class="error-item">
@@ -194,7 +208,7 @@
 
           <div class="popper-list">
             <div
-              v-for="att in groupParticipants"
+              v-for="att in filteredGroupParticipants"
               :key="att.id"
               class="popper-item"
               :class="{ selected: att.selected }"
@@ -202,9 +216,31 @@
             >
               <Avatar :url="att.photo" :style="'size-8'" />
               <span class="popper-item-name">{{ att.name }}</span>
+
+              <span class="checkmark" aria-hidden="true">
+                <svg
+                  v-if="att.selected"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  class="size-4"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M2.25 12a9.75 9.75 0 1 1 19.5 0 9.75 9.75 0 0 1-19.5 0Zm13.36-1.814a.75.75 0 0 0-1.22-.872l-3.236 4.53-1.61-1.61a.75.75 0 1 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.736-5.264Z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </span>
             </div>
           </div>
-
+          <div class="popper-group-name bg-base-300 border-t border-base-200">
+            <input
+              v-model="groupName"
+              class="group-name-input bg-base-100"
+              placeholder="Nome do grupo"
+            />
+          </div>
           <div class="popper-actions bg-base-300 border-t border-base-200">
             <button
               class="btn-cancel"
@@ -322,6 +358,7 @@ const showPopper = ref(false);
 const selectedParticipants = ref([]);
 const groupName = ref("");
 const isCreatingGroup = ref(false);
+const participantsQuery = ref("");
 // Clona e pega todos os atendentes menos o que está logado
 const groupParticipants = ref(
   JSON.parse(
@@ -347,6 +384,7 @@ const togglePopper = () => {
   if (!showPopper.value) {
     selectedParticipants.value = [];
     groupName.value = "";
+    participantsQuery.value = "";
   }
 };
 
@@ -354,7 +392,16 @@ const closePopper = () => {
   showPopper.value = false;
   selectedParticipants.value = [];
   groupName.value = "";
+  participantsQuery.value = "";
 };
+
+const filteredGroupParticipants = computed(() => {
+  const q = participantsQuery.value.trim().toLowerCase();
+  if (!q) return groupParticipants.value;
+  return groupParticipants.value.filter((att) =>
+    (att.name || "").toLowerCase().includes(q)
+  );
+});
 
 const createGroupFromPopper = async () => {
   errorMap.value = [];
@@ -436,6 +483,23 @@ const groupStoreLoading = computed(() => {
 const selectedGroupParticipants = computed(() => {
   return groupParticipants.value.filter((att) => att.selected === true);
 });
+
+// Unread helpers (for the green dot in the list selector)
+const unreadAttendantsTotal = computed(() => {
+  return (props.atendentes || [])
+    .filter((att) => att.id !== props.attendant?.id)
+    .reduce((sum, att) => sum + (Number(att?.internal_chat?.unread) || 0), 0);
+});
+
+const unreadGroupsTotal = computed(() => {
+  const channelStore = useChannelStore();
+  return (channelStore.channels || [])
+    .filter((ch) => ch.is_group)
+    .reduce((sum, ch) => sum + (Number(ch?.internal_chat?.unread) || 0), 0);
+});
+
+const hasUnreadAttendants = computed(() => unreadAttendantsTotal.value > 0);
+const hasUnreadGroups = computed(() => unreadGroupsTotal.value > 0);
 </script>
 
 <style scoped>
@@ -634,6 +698,27 @@ const selectedGroupParticipants = computed(() => {
   text-align: center;
   cursor: pointer;
   border-bottom: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.selector-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.selector-text {
+  line-height: 2;
+}
+
+.unread-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  background-color: rgb(34 197 94);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.12);
 }
 
 .selector-button.active {
@@ -657,25 +742,73 @@ const selectedGroupParticipants = computed(() => {
   width: 320px;
   max-height: 60vh;
   background: var(--popper-panel-bg);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.7);
   z-index: 50;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
   overflow: hidden;
+}
+
+/* We want specific sections to control their own spacing so the
+   "nome do grupo" area stays glued to the action buttons. */
+.popper-header {
+  margin-bottom: 0.5rem;
+}
+
+.popper-list {
+  margin-bottom: 0.5rem;
 }
 
 .popper-header {
   font-weight: 700;
 }
 
+.popper-title-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 0.75rem 0.25rem;
+}
+
+.popper-title {
+  font-size: 0.95rem;
+}
+
+.popper-counter {
+  font-weight: 500;
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.popper-group-name {
+  padding: 0.5rem 0.75rem;
+}
+
+.popper-group-name + .popper-actions {
+  border-top: 0;
+}
+
 .group-name-input {
-  padding: 0.5rem;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 0.55rem 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   outline: none;
   width: 100%;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+:global(.dark) .group-name-input {
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+.hint-text {
+  padding: 0.25rem 0.75rem 0;
+  font-weight: 500;
+  font-size: 0.8rem;
+  opacity: 0.75;
 }
 
 .popper-list {
@@ -684,6 +817,7 @@ const selectedGroupParticipants = computed(() => {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+  padding: 0.25rem 0.5rem;
 }
 
 .popper-item {
@@ -702,7 +836,7 @@ const selectedGroupParticipants = computed(() => {
 :global(:root) {
   --popper-bg: rgba(59, 130, 246, 0.1);
   --popper-even-bg: #26343d;
-  --popper-panel-bg: rgb(25, 42, 68);
+  --popper-panel-bg: rgb(27, 30, 36);
   --popper-selected-color: rgb(31, 70, 128);
 }
 
@@ -711,6 +845,8 @@ const selectedGroupParticipants = computed(() => {
   --popper-even-bg: #97d1f5;
   --popper-panel-bg: rgb(196 214 226);
   --popper-selected-color: #5bbefc;
+  --border-color: rgba(0, 0, 0, 0.08);
+  --background-checkmark: rgba(0, 0, 0, 0.08);
 }
 
 .popper-item:nth-child(even) {
@@ -733,6 +869,18 @@ const selectedGroupParticipants = computed(() => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.checkmark {
+  margin-left: auto;
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.08);
+  flex: 0 0 auto;
 }
 
 .popper-actions {
