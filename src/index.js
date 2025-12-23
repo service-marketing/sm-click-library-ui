@@ -36,6 +36,9 @@ export { useAuthStore };
 import RatingInput from "./components/inputs/ratingInput.vue";
 import CallHistory from "./components/chat/CallHistory.vue";
 import CallMessage from "./components/chat/CallMessage.vue";
+import ReminderModal from "./components/CRM+/reminders/reminderModal/reminderModal.vue";
+import { moveReminderToCompleted } from "./components/CRM+/reminders/reminderFunctions.js";
+
 import api, {
   setApiBaseURL,
   setRefreshTokenUrl,
@@ -75,6 +78,7 @@ function install(Vue) {
   Vue.component("CallHistory", CallHistory);
   Vue.component("CallMessage", CallMessage);
   Vue.component("ListProducts", ListProducts);
+  Vue.component("ReminderModal", ReminderModal);
 }
 
 export function attLibDeparts(department, action = "add") {
@@ -127,7 +131,7 @@ export async function setupLibrary(
   attendances = [],
   departments = [],
   instances = [],
-  refreshTokenUrl = null,
+  refreshTokenUrl = null
 ) {
   try {
     // Define a instância do Pinia para uso nos interceptadores da API
@@ -185,6 +189,10 @@ export function getWithContrastColor(hex) {
   return getContrastColor(hex);
 }
 
+export function attReminderByLib(reminder) {
+  return moveReminderToCompleted(reminder);
+}
+
 export default {
   install,
   setupLibrary,
@@ -221,4 +229,6 @@ export default {
   CallHistory,
   CallMessage,
   ListProducts,
+  ReminderModal,
+  attReminderByLib,
 };
