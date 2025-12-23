@@ -99,7 +99,7 @@
                 @send-files="onSendFiles"
                 :attendant="attendant"
                 :selectedAtendente="selectedAtendente"
-                @voltar="selectedAtendente = null"
+                @voltar="handleVoltar"
                 :loadMessagesForAtendente="loadMessagesByChannel"
                 :sendMessageToAtendente="sendMessageToChannel"
                 :hasNextPageForAtendente="hasNextPageForChannel"
@@ -109,6 +109,7 @@
 
           <ChatList
             v-if="!selectedAtendente && !loadingAttendants"
+            v-model:currentList="currentList"
             :attendant="attendant"
             :atendentes="attendants"
             @atendenteSelecionado="selecionarAtendente"
@@ -188,6 +189,8 @@ const channelStore = useChannelStore();
 const isChatOpen = ref(false);
 const showContent = ref(false);
 const selectedAtendente = ref(null);
+const currentList = ref("atendentes");
+const lastSelectedList = ref("atendentes");
 const chatContainer = ref(null); // Ref para o contêiner do chat
 const emit = defineEmits(["unreadMessagesEmit"]);
 const dropFilesRef = ref(null);
@@ -280,6 +283,12 @@ const handleChatClick = () => {
   if (!isChatOpen.value) toggleChat();
 };
 
+const handleVoltar = () => {
+  // Ao sair do chat, volta para a lista correspondente ao último chat selecionado.
+  currentList.value = lastSelectedList.value;
+  selectedAtendente.value = null;
+};
+
 const selecionarAtendente = async (atendente) => {
   const channelId = atendente.internal_chat?.channel_id || atendente.id;
 
@@ -291,6 +300,10 @@ const selecionarAtendente = async (atendente) => {
   const entity = findEntityByChannelId(channelId);
   const attendantCount = entity ? entity.internal_chat.unread : 0;
   emit("unreadMessagesEmit", attendantCount);
+
+  // Garante que, ao sair do chat, o usuário volte para a lista correta.
+  lastSelectedList.value = atendente?.is_group ? "grupos" : "atendentes";
+  currentList.value = lastSelectedList.value;
 
   selectedAtendente.value = atendente;
   resetUnreadMessages(channelId);

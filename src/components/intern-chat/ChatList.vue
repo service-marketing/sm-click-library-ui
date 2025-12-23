@@ -281,15 +281,32 @@ const props = defineProps({
   atendentes: { type: Array, required: true },
   attendant: { required: true },
   mobile: { type: Boolean, default: false },
+  // v-model:currentList (opcional). Quando controlado pelo pai, o ChatList não reseta ao ser remontado.
+  currentList: { type: String, default: undefined },
 });
 
-const emit = defineEmits(["atendenteSelecionado"]);
+const emit = defineEmits(["atendenteSelecionado", "update:currentList"]);
 
-const grupos = ref([]);
+const channelStore = useChannelStore();
 
 const searchQueryAttendant = ref("");
 const searchQueryGroups = ref("");
-const currentList = ref("atendentes");
+
+// Se o pai não controlar a aba, mantém estado local.
+const uncontrolledCurrentList = ref(props.currentList ?? "atendentes");
+
+const currentList = computed({
+  get() {
+    return props.currentList ?? uncontrolledCurrentList.value;
+  },
+  set(value) {
+    if (props.currentList === undefined) {
+      uncontrolledCurrentList.value = value;
+      return;
+    }
+    emit("update:currentList", value);
+  },
+});
 
 const selectAtendente = (atendente) => {
   emit("atendenteSelecionado", atendente);
@@ -326,12 +343,12 @@ const filteredAtendentes = computed(() => {
 
 // Computed property para filtrar os grupos (usa searchQueryGroups)
 const filteredGrupos = computed(() => {
-  const channels = useChannelStore().channels.filter(
-    (channel) => channel.is_group
-  );
-  if (!searchQueryGroups.value) return channels;
-  const q = searchQueryGroups.value.toLowerCase();
-  return channels.filter((ch) => (ch.name || "").toLowerCase().includes(q));
+  const channels = (channelStore.channels || []).filter((ch) => ch?.is_group);
+
+  const q = (searchQueryGroups.value || "").trim().toLowerCase();
+  if (!q) return channels;
+
+  return channels.filter((ch) => (ch?.name || "").toLowerCase().includes(q));
 });
 
 // Função para detectar quando chegou ao final da lista de grupos
@@ -468,7 +485,6 @@ const createGroup = async (participants, chat_name) => {
 
 const handleGroups = () => {
   currentList.value = "grupos";
-  const channelStore = useChannelStore();
 
   if (!channelStore.loaded) {
     channelStore.fetchChannel("group");
@@ -476,7 +492,6 @@ const handleGroups = () => {
 };
 
 const groupStoreLoading = computed(() => {
-  const channelStore = useChannelStore();
   return !!channelStore.loading;
 });
 
@@ -492,7 +507,6 @@ const unreadAttendantsTotal = computed(() => {
 });
 
 const unreadGroupsTotal = computed(() => {
-  const channelStore = useChannelStore();
   return (channelStore.channels || [])
     .filter((ch) => ch.is_group)
     .reduce((sum, ch) => sum + (Number(ch?.internal_chat?.unread) || 0), 0);

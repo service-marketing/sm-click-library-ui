@@ -19,7 +19,7 @@
           :hasNextPageForAtendente="hasNextPageForChannel"
           :downloadFilesMobile="downloadFilesMobile"
           :openMobilePdf="openMobilePdf"
-          @voltar="selectedAtendente = null"
+          @voltar="handleVoltar"
           @send-files="onSendFiles"
         />
       </DropFilesArea>
@@ -28,6 +28,7 @@
     <ChatList
       :mobile="true"
       v-if="!selectedAtendente && !loadingAttendants"
+      v-model:currentList="currentList"
       :attendant="attendant"
       :atendentes="attendants"
       @atendenteSelecionado="selecionarAtendente"
@@ -41,7 +42,6 @@ import {
   onMounted,
   computed,
   watch,
-  nextTick,
   onBeforeUnmount,
 } from "vue";
 import { useChat } from "./useChat"; // Importe o composable
@@ -101,6 +101,8 @@ const {
 const isChatOpen = ref(false);
 const showContent = ref(false);
 const selectedAtendente = ref(null);
+const currentList = ref("atendentes");
+const lastSelectedList = ref("atendentes");
 const chatContainer = ref(null); // Ref para o contêiner do chat
 const emit = defineEmits(["unreadMessagesEmit"]);
 const dropFilesRef = ref(null);
@@ -160,6 +162,11 @@ const handleChatClick = () => {
   if (!isChatOpen.value) toggleChat();
 };
 
+const handleVoltar = () => {
+  currentList.value = lastSelectedList.value;
+  selectedAtendente.value = null;
+};
+
 const selecionarAtendente = async (atendente) => {
   const channelId = atendente?.internal_chat?.channel_id;
   
@@ -171,6 +178,9 @@ const selecionarAtendente = async (atendente) => {
   const entity = findEntityByChannelId(channelId);
   const attendantCount = entity ? entity.internal_chat.unread : 0;
   emit("unreadMessagesEmit", attendantCount);
+
+  lastSelectedList.value = atendente?.is_group ? "grupos" : "atendentes";
+  currentList.value = lastSelectedList.value;
 
   selectedAtendente.value = atendente;
   resetUnreadMessages(channelId);

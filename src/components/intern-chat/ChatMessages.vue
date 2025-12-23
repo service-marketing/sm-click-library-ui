@@ -198,6 +198,7 @@
     <!-- Área de input e botão de enviar -->
     <div class="input-area">
       <textarea
+        ref="messageInputRef"
         type="text"
         v-model="novaMensagem"
         class="message-input bg-base-300 focus:ring-0"
@@ -307,6 +308,7 @@ const emits = defineEmits(["send-files", "voltar"]);
 
 const novaMensagem = ref("");
 const chatArea = ref(null);
+const messageInputRef = ref(null);
 const mounted = ref(false);
 const isRecording = ref(false);
 
@@ -478,7 +480,35 @@ onMounted(async () => {
     scrollToBottom();
     mounted.value = true;
   });
+
+  // Ao abrir a conversa, já deixa o input pronto pra digitação.
+  focusMessageInput();
 });
+
+const focusMessageInput = async () => {
+  if (props.isLoadingMessages) return;
+  await nextTick();
+
+  // Pequeno delay ajuda quando há transições/scroll inicial.
+  setTimeout(() => {
+    if (props.isLoadingMessages) return;
+    messageInputRef.value?.focus?.();
+  }, 0);
+};
+
+watch(
+  () => props.selectedAtendente?.internal_chat?.channel_id,
+  () => {
+    focusMessageInput();
+  }
+);
+
+watch(
+  () => props.isLoadingMessages,
+  (isLoading) => {
+    if (!isLoading) focusMessageInput();
+  }
+);
 
 watch(
   () => mensagens.value?.length,
