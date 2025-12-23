@@ -127,6 +127,9 @@ export function useChat() {
     const message = event?.message;
     if (!message) return;
 
+    const loggedAttendant = attendantStore.logged_attendant?.();
+    const loggedAttendantId = loggedAttendant?.id;
+
     // Busca a entidade pelo channel_id da mensagem
     entity = findEntityByChannelId(message.channel_id);
 
@@ -162,7 +165,8 @@ export function useChat() {
 
       if (
         !isChatOpen ||
-        entity.internal_chat?.channel_id !== selectedChannelId
+        entity.internal_chat?.channel_id !== selectedChannelId ||
+        (loggedAttendantId != null && message.sender?.id !== loggedAttendantId)
       ) {
         entity.internal_chat.unread = (entity.internal_chat.unread || 0) + 1;
       }

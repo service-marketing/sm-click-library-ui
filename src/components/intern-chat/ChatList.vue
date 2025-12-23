@@ -281,18 +281,32 @@ const props = defineProps({
   atendentes: { type: Array, required: true },
   attendant: { required: true },
   mobile: { type: Boolean, default: false },
+  // v-model:currentList (opcional). Quando controlado pelo pai, o ChatList não reseta ao ser remontado.
+  currentList: { type: String, default: undefined },
 });
 
-const emit = defineEmits(["atendenteSelecionado"]);
+const emit = defineEmits(["atendenteSelecionado", "update:currentList"]);
 
-// Keep a single store instance so Vue can track reactivity correctly
 const channelStore = useChannelStore();
-
-const grupos = ref([]);
 
 const searchQueryAttendant = ref("");
 const searchQueryGroups = ref("");
-const currentList = ref("atendentes");
+
+// Se o pai não controlar a aba, mantém estado local.
+const uncontrolledCurrentList = ref(props.currentList ?? "atendentes");
+
+const currentList = computed({
+  get() {
+    return props.currentList ?? uncontrolledCurrentList.value;
+  },
+  set(value) {
+    if (props.currentList === undefined) {
+      uncontrolledCurrentList.value = value;
+      return;
+    }
+    emit("update:currentList", value);
+  },
+});
 
 const selectAtendente = (atendente) => {
   emit("atendenteSelecionado", atendente);
