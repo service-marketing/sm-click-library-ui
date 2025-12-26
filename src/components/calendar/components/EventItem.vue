@@ -5,8 +5,16 @@
       <span :style="{ background: color }" class="color-bar"></span>
       <div class="minw0">
         <div class="itemc-title">
-          {{ ev.contactName ? ev.contactName + " • " : "" }}
-          {{ ev.departmentName || "sem depto" }}
+          <template v-if="isReminder">
+            <div class="flex items-center">
+              <p>{{ ev.raw.params.message[0].title || "sem título" }}</p>
+              <span class="type-pill text-xs">Lembrete</span>
+            </div>
+          </template>
+          <template v-else>
+            {{ ev.contactName ? ev.contactName + " • " : "" }}
+            {{ ev.departmentName || "sem depto" }}
+          </template>
         </div>
         <div class="itemc-sub">
           <span class="flex items-center gap-1">
@@ -51,15 +59,13 @@
           </div>
         </div>
       </div>
-
       <button
-        v-if="isSched"
-        @click="$emit('open-message', ev)"
+        v-if="isSched || !isReminder"
+        @click="$emit('open-message', isReminder ? null : ev)"
         class="cyber-button cyber-button--xs cyber-button--primary"
-        aria-label="Editar mensagem programada"
       >
         <svg
-          v-if="ev?.status === true"
+          v-if="ev?.status === true && !isReminder"
           class="icon-4"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
@@ -90,10 +96,9 @@
       </button>
 
       <button
-        v-if="isSched"
+        v-if="isSched || !isReminder"
         @click="$emit('delete-message', ev)"
         class="cyber-button cyber-button--xs cyber-button--danger"
-        aria-label="Apagar evento"
         :disabled="ev.deleteLoading || !ev.status"
       >
         <svg
@@ -116,6 +121,7 @@
       </button>
 
       <button
+        v-if="isSched"
         class="cyber-button cyber-button--xs cyber-button--accent"
         @click="$emit('open-chat', ev)"
         aria-label="Abrir conversa"
@@ -139,7 +145,11 @@
   <!-- SIDEBAR (status = bolinha maior no avatar) -->
   <template v-else-if="mode === 'sidebar'">
     <div class="itemsb-head">
-      <div class="avatar-wrap" :style="{ boxShadow: `0 0 0 1px ${color}` }">
+      <div
+        v-if="isSched"
+        class="avatar-wrap"
+        :style="{ boxShadow: `0 0 0 1px ${color}` }"
+      >
         <img
           v-if="ev.contactPhoto"
           :src="ev.contactPhoto"
@@ -186,7 +196,15 @@
       <div class="itemsb-main">
         <div class="itemsb-row">
           <span class="itemsb-title truncate">
-            {{ ev.contactName }} • {{ ev.departmentName || "sem depto" }}
+            <template v-if="isReminder">
+              <div class="flex items-center">
+                <p>{{ ev.raw.params.message[0].title || "sem título" }}</p>
+                <span class="type-pill text-xs">Lembrete</span>
+              </div>
+            </template>
+            <template v-else>
+              {{ ev.contactName }} • {{ ev.departmentName || "sem depto" }}
+            </template>
           </span>
           <span class="itemsb-time">{{ ev.time }}</span>
         </div>
@@ -213,10 +231,16 @@
       </div>
     </div>
 
-    <p class="itemsb-content">{{ ev.content || ev.title }}</p>
+    <template v-if="isReminder">
+      <p class="itemsb-content">{{ ev.raw.params.message[0].content }}</p>
+    </template>
+    <template v-else>
+      <p class="itemsb-content">{{ ev.content }}</p>
+    </template>
+
     <div v-if="!viewOnly" class="itemsb-actions">
       <button
-        v-if="isSched"
+        v-if="isSched || !isReminder"
         type="button"
         class="cyber-button cyber-button--sm cyber-button--primary"
         @click="$emit('open-message', ev)"
@@ -249,7 +273,17 @@
     <div class="event-left">
       <span :style="{ background: color }" class="event-color-bar"></span>
       <div class="event-line">
-        {{ agendaLine }}
+        <template v-if="isReminder">
+          <div class="flex items-center">
+            <p>{{ ev.raw.params.message[0].title || "sem título" }}</p>
+            <span @click="console.log(ev)" class="type-pill text-xs"
+              >Lembrete</span
+            >
+          </div>
+        </template>
+        <template v-else>
+          {{ agendaLine }}
+        </template>
       </div>
     </div>
 
@@ -300,42 +334,48 @@
 
       <div class="event-time">{{ ev.time }}</div>
 
-      <button
-        v-if="isSched"
-        @click="$emit('open-message', ev)"
-        class="cyber-button cyber-button--xs cyber-button--primary"
-        aria-label="Editar mensagem programada"
-      >
-        <svg
-          v-if="ev?.status === true"
-          class="icon-4"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
+      <Popper :disabled="isSched" placement="top">
+        <template #content>
+          <div>{{ ev.raw.params.message[0].content }}</div>
+        </template>
+
+        <button
+          v-if="isSched || isReminder"
+          @click="isReminder ? null : $emit('open-message', ev)"
+          class="cyber-button cyber-button--xs cyber-button--primary"
+          aria-label="Editar mensagem programada"
         >
-          <path
+          <svg
+            v-if="ev?.status === true && !isReminder"
+            class="icon-4"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              fill-rule="evenodd"
+              d="M14 4.182A4.136 4.136 0 0 1 16.9 3c1.087 0 2.13.425 2.899 1.182A4.01 4.01 0 0 1 21 7.037c0 1.068-.43 2.092-1.194 2.849L18.5 11.214l-5.8-5.71 1.287-1.31.012-.012Zm-2.717 2.763L6.186 12.13l2.175 2.141 5.063-5.218-2.141-2.108Zm-6.25 6.886-1.98 5.849a.992.992 0 0 0 .245 1.026 1.03 1.03 0 0 0 1.043.242L10.282 19l-5.25-5.168Zm6.954 4.01 5.096-5.186-2.218-2.183-5.063 5.218 2.185 2.15Z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          <svg
+            v-else
+            class="icon-4"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
             fill="currentColor"
-            fill-rule="evenodd"
-            d="M14 4.182A4.136 4.136 0 0 1 16.9 3c1.087 0 2.13.425 2.899 1.182A4.01 4.01 0 0 1 21 7.037c0 1.068-.43 2.092-1.194 2.849L18.5 11.214l-5.8-5.71 1.287-1.31.012-.012Zm-2.717 2.763L6.186 12.13l2.175 2.141 5.063-5.218-2.141-2.108Zm-6.25 6.886-1.98 5.849a.992.992 0 0 0 .245 1.026 1.03 1.03 0 0 0 1.043.242L10.282 19l-5.25-5.168Zm6.954 4.01 5.096-5.186-2.218-2.183-5.063 5.218 2.185 2.15Z"
-            clip-rule="evenodd"
-          />
-        </svg>
-        <svg
-          v-else
-          class="icon-4"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          fill="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M4.998 7.78C6.729 6.345 9.198 5 12 5c2.802 0 5.27 1.345 7.002 2.78a12.713 12.713 0 0 1 2.096 2.183c.253 .344 .465 .682 .618 .997 .14 .286 .284 .658 .284 1.04s-.145 .754 -.284 1.04a6.6 6.6 0 0 1-.618 .997 12.712 12.712 0 0 1-2.096 2.183C17.271 17.655 14.802 19 12 19c-2.802 0-5.27-1.345-7.002-2.78a12.712 12.712 0 0 1-2.096-2.183 6.6 6.6 0 0 1-.618-.997C2.144 12.754 2 12.382 2 12s.145-.754 .284-1.04c.153-.315 .365-.653 .618-.997A12.714 12.714 0 0 1 4.998 7.78ZM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
-            clip-rule="evenodd"
-          />
-        </svg>
-      </button>
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M4.998 7.78C6.729 6.345 9.198 5 12 5c2.802 0 5.27 1.345 7.002 2.78a12.713 12.713 0 0 1 2.096 2.183c.253 .344 .465 .682 .618 .997 .14 .286 .284 .658 .284 1.04s-.145 .754 -.284 1.04a6.6 6.6 0 0 1-.618 .997 12.712 12.712 0 0 1-2.096 2.183C17.271 17.655 14.802 19 12 19c-2.802 0-5.27-1.345-7.002-2.78a12.712 12.712 0 0 1-2.096-2.183 6.6 6.6 0 0 1-.618-.997C2.144 12.754 2 12.382 2 12s.145-.754 .284-1.04c.153-.315 .365-.653 .618-.997A12.714 12.714 0 0 1 4.998 7.78ZM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </button>
+      </Popper>
       <button
         v-if="isSched"
         @click="$emit('delete-message', ev)"
@@ -361,8 +401,8 @@
         </svg>
         <div v-if="ev.deleteLoading" class="loading-spinner"></div>
       </button>
-
       <button
+        v-if="isSched"
         class="cyber-button cyber-button--xs cyber-button--accent"
         @click="$emit('open-chat', ev)"
         aria-label="Abrir conversa"
@@ -403,6 +443,8 @@ const color = computed(() => {
   return fn(props.ev);
 });
 const isSched = computed(() => props.ev?.type === "scheduled_messages");
+const isReminder = computed(() => props.ev?.type === "attendant_reminder");
+
 const isMe = computed(
   () => attendantStore.attendants.find((a) => a.is_me) || {},
 );
@@ -516,6 +558,16 @@ const agendaLine = computed(() => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.type-pill {
+  display: inline-block;
+  margin-left: 0.35rem;
+  padding: 0 6px;
+  font-size: 10px;
+  line-height: 16px;
+  border-radius: 10px;
+  background: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
 }
 .itemsb-content {
   margin-top: 0.4rem;

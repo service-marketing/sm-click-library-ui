@@ -7,6 +7,7 @@ import {
   formatTimeHM,
   normalizeScheduledItem,
   normalizeScheduledResponseV2,
+  functionTitle,
 } from "~/components/calendar/useScheduledEvents";
 import { crm_events } from "~/utils/systemUrls";
 
@@ -270,9 +271,9 @@ export const useScheduledStore = defineStore("scheduled", {
 
         // título: só se veio; senão mantém
         if (Object.prototype.hasOwnProperty.call(params || {}, "title")) {
-          ev.title = params.title ?? ev.title ?? "Mensagem programada";
+          ev.title = params.title ?? ev.title ?? functionTitle(ev.function);
         } else {
-          ev.title = ev.title || "Mensagem programada";
+          ev.title = ev.title || functionTitle(ev.function);
         }
 
         // type/function: mantém se não vier; se vier, atualiza
@@ -303,20 +304,27 @@ export const useScheduledStore = defineStore("scheduled", {
                 return parseDateLocal?.(nt) || (nt ? new Date(nt) : new Date());
               })();
 
+        const isReminder =
+          (params?.function || "scheduled_messages") === "attendant_reminder";
+
         const ev = patchFields({
           id,
           date: baseDate,
           time: formatTimeHM(baseDate),
-          title: params?.title || "Mensagem programada",
+          title:
+            params?.title ||
+            functionTitle(params?.function || "scheduled_messages"),
           type: params?.function || "scheduled_messages",
           status: params?.status || "true",
           scheduled_by: params?.scheduled_by || null,
           function: params?.function || "scheduled_messages",
           content: params?.message?.[0]?.content ?? "",
           raw: { id, params },
-          contactName: params?.entity?.name ?? "Cliente",
+          contactName: isReminder ? "" : (params?.entity?.name ?? "Cliente"),
           contactPhoto: params?.entity?.photo ?? null,
-          departmentName: params?.info?.department?.name ?? null,
+          departmentName: isReminder
+            ? ""
+            : (params?.info?.department?.name ?? null),
           departmentId: params?.info?.department?.id ?? null,
           instanceName: params?.info?.instance?.name ?? null,
           instanceStatus: params?.info?.instance?.last_instance_status ?? null,
