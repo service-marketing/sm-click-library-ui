@@ -1,6 +1,7 @@
 // Mapeamento estático de cores por tipo de evento
 const FUNCTION_COLOR_MAP = {
   scheduled_messages: "#3b82f6", // azul
+  attendant_reminder: "#f59e0b", // âmbar
 };
 
 const fallbackPalette = [
