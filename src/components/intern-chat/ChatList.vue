@@ -115,9 +115,7 @@
       </li>
 
       <li v-if="filteredGrupos.length === 0" class="empty-message bg-base-200">
-        <p v-if="filteredGrupos.length === 0">
-          não há grupos disponíveis
-        </p>
+        <p v-if="filteredGrupos.length === 0">não há grupos disponíveis</p>
       </li>
 
       <li
@@ -164,6 +162,9 @@
         <!-- Indicador de "conversar" no hover -->
         <div class="hover-action">Conversar</div>
       </li>
+
+      <!-- Sentinel para scroll infinito em mobile (IntersectionObserver) -->
+      <li ref="groupsSentinel" class="h-4"></li>
     </ul>
 
     <!-- Botão de criar grupo -->
@@ -274,7 +275,14 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import {
+  ref,
+  computed,
+  onMounted,
+  onBeforeUnmount,
+  watch,
+  nextTick,
+} from "vue";
 import { useChannelStore } from "../../stores/channelStore";
 import Avatar from "./Avatar.vue";
 const props = defineProps({
@@ -288,6 +296,11 @@ const props = defineProps({
 const emit = defineEmits(["atendenteSelecionado", "update:currentList"]);
 
 const channelStore = useChannelStore();
+
+// Refs para lista de grupos e sentinel (infinite scroll)
+const groupsListRef = ref(null);
+const groupsSentinel = ref(null);
+let groupsIntersectionObserver = null;
 
 const searchQueryAttendant = ref("");
 const searchQueryGroups = ref("");
@@ -369,6 +382,69 @@ const handleGroupsScroll = (event) => {
     }
   }
 };
+
+const setupGroupsObserver = () => {
+  if (!props.mobile) return;
+  if (typeof window === "undefined" || !("IntersectionObserver" in window)) {
+    return;
+  }
+
+  if (groupsIntersectionObserver) {
+    groupsIntersectionObserver.disconnect();
+    groupsIntersectionObserver = null;
+  }
+
+  if (!groupsSentinel.value) return;
+
+  const store = useChannelStore();
+
+  groupsIntersectionObserver = new IntersectionObserver(
+    (entries) => {
+      const [entry] = entries || [];
+      if (!entry || !entry.isIntersecting) return;
+
+      if (store.nextPage && !store.loading) {
+        store.loadMoreChannels();
+      }
+    },
+    {
+      root: null,
+      threshold: 0.1,
+    }
+  );
+
+  groupsIntersectionObserver.observe(groupsSentinel.value);
+};
+
+onMounted(() => {
+  if (currentList.value === "grupos") {
+    nextTick().then(() => {
+      setupGroupsObserver();
+    });
+  }
+});
+
+watch(
+  () => currentList.value,
+  async (value) => {
+    if (!props.mobile) return;
+
+    if (value === "grupos") {
+      await nextTick();
+      setupGroupsObserver();
+    } else if (groupsIntersectionObserver) {
+      groupsIntersectionObserver.disconnect();
+      groupsIntersectionObserver = null;
+    }
+  }
+);
+
+onBeforeUnmount(() => {
+  if (groupsIntersectionObserver) {
+    groupsIntersectionObserver.disconnect();
+    groupsIntersectionObserver = null;
+  }
+});
 
 // Popper para selecioinar grupos
 const showPopper = ref(false);
@@ -483,12 +559,37 @@ const createGroup = async (participants, chat_name) => {
   }
 };
 
-const handleGroups = () => {
+// Garante que a lista de grupos tenha conteúdo suficiente para permitir scroll
+const ensureGroupsScrollable = async (maxIterations = 3) => {
+  await nextTick();
+
+  const listEl = groupsListRef.value;
+  if (!listEl) return;
+
+  let iterations = 0;
+  while (
+    iterations < maxIterations &&
+    listEl.scrollHeight <= listEl.clientHeight &&
+    channelStore.nextPage &&
+    !channelStore.loading
+  ) {
+    await channelStore.loadMoreChannels();
+    iterations += 1;
+    await nextTick();
+  }
+};
+
+const handleGroups = async () => {
   currentList.value = "grupos";
 
   if (!channelStore.loaded) {
-    channelStore.fetchChannel("group");
+    await channelStore.fetchChannel("group");
   }
+
+  // Em mobile/webview, às vezes a primeira página não é suficiente
+  // para gerar scroll; esse helper tenta carregar páginas adicionais
+  // até a lista se tornar rolável ou acabar o nextPage.
+  await ensureGroupsScrollable();
 };
 
 const groupStoreLoading = computed(() => {
