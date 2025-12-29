@@ -21,12 +21,10 @@ export const useChannelStore = defineStore("channel", {
           
           this.loading = true;
           
-          console.log("Buscando canais de grupo:", `${internalChatUrl}channels?page=${page}`);
           const response = await api.get(
             `${internalChatUrl}channels?page=${page}`
           );
           
-          console.log("Canais de grupo recebidos:", response.data);
           // Se for a primeira página, substitui os canais
           // Caso contrário, adiciona aos canais existentes
           if (page === 1) {
@@ -45,7 +43,7 @@ export const useChannelStore = defineStore("channel", {
             this.loaded = true;
           }
         } catch (error) {
-            console.error("Erro ao buscar canais de grupo:", error);
+            console.error("Erro ao buscar canais de grupo:", JSON.stringify(error));
         } finally {
           this.loading = false;
         }
