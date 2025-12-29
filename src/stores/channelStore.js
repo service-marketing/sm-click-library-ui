@@ -45,7 +45,7 @@ export const useChannelStore = defineStore("channel", {
             this.loaded = true;
           }
         } catch (error) {
-            console.error("Erro ao buscar canais de grupo:", error);
+            console.error("Erro ao buscar canais de grupo:", JSON.stringify(error));
         } finally {
           this.loading = false;
         }
