@@ -1,12 +1,13 @@
 <script setup>
 import { computed, onMounted, ref } from "vue";
+import { saveReminder, deleteReminder } from "../reminderFunctions.js";
 import ReminderList from "../reminderModal/reminderList.vue";
 import ReminderForm from "../reminderModal/reminderForm.vue";
-import { saveReminder, deleteReminder } from "../reminderFunctions.js";
 
 const formRef = ref(null);
 const formData = ref({});
 const saveLoader = ref(false);
+
 const headerLabel = computed(() => {
   if (pageState.value === "list") return "Lembretes";
   if (pageState.value === "create") return "Criar Lembrete";
@@ -14,22 +15,19 @@ const headerLabel = computed(() => {
   return "Lembretes";
 });
 
-const handleSave = () => {
+const handleSave = async () => {
   if (saveLoader.value) return;
 
   saveLoader.value = true;
-  formRef.value
-    ?.save()
-    .then(() => {
-      // Após salvar, voltar para a lista
-      pageState.value = "list";
-    })
-    .catch((error) => {
-      console.error("Erro ao salvar lembrete:", error);
-    })
-    .finally(() => {
-      saveLoader.value = false;
-    });
+
+  try {
+    await formRef.value?.save();
+    pageState.value = "list";
+  } catch (error) {
+    // console.error("Erro ao salvar lembrete:", error);
+  } finally {
+    saveLoader.value = false;
+  }
 };
 
 const emits = defineEmits(["close"]);
@@ -243,15 +241,16 @@ const openForm = (payload) => {
 .reminder-modal-container {
   flex-direction: column;
   display: flex;
-  height: 28rem /* 448px */;
+  height: 28rem;
   width: 90%;
   z-index: 50;
-  border-radius: 1rem /* 16px */;
+  border-radius: 1rem;
   --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color),
-    0 1px 2px -1px var(--tw-shadow-color);
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
-    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  --tw-shadow-colored:
+    0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);
+  box-shadow:
+    var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
+    var(--tw-shadow);
   --tw-shadow-color: #000;
   --tw-shadow: var(--tw-shadow-colored);
 }
@@ -284,8 +283,8 @@ const openForm = (payload) => {
   padding: 0.75rem;
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
-  border-top-left-radius: 1rem /* 16px */;
-  border-top-right-radius: 1rem /* 16px */;
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
   color: currentColor;
 }
 
@@ -293,19 +292,17 @@ const openForm = (payload) => {
   display: flex;
   justify-content: flex-end;
   padding: 0.5rem;
-  border-bottom-right-radius: 1rem /* 16px */;
-  border-bottom-left-radius: 1rem /* 16px */;
-  margin-right: calc(0.5rem /* 8px */ * var(--tw-space-x-reverse));
-  margin-left: calc(0.5rem /* 8px */ * calc(1 - var(--tw-space-x-reverse)));
+  border-bottom-right-radius: 1rem;
+  border-bottom-left-radius: 1rem;
   --tw-space-x-reverse: 0;
 }
 
 .reminder-modal-close-button {
   transition-duration: 300ms;
-  border-radius: 0.5rem /* 8px */;
-  font-size: 0.875rem /* 14px */;
-  line-height: 1.25rem /* 20px */;
-  padding: 0.375rem /* 6px */;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  padding: 0.375rem;
   margin-left: auto;
   display: inline-flex;
   align-items: center;
@@ -313,10 +310,10 @@ const openForm = (payload) => {
 
 .reminder-modal-close-button:hover {
   --tw-text-opacity: 1;
-  color: rgb(255 255 255 / var(--tw-text-opacity, 1)) /* #ffffff */;
+  color: #ffffff;
 
   --tw-bg-opacity: 1;
-  background-color: rgb(75 85 99 / var(--tw-bg-opacity, 1)) /* #4b5563 */;
+  background-color: #4b5563;
 
   --tw-scale-x: 1.05;
   --tw-scale-y: 1.05;
@@ -327,15 +324,15 @@ const openForm = (payload) => {
 
 .btn-save-reminder {
   display: flex;
-  width: 6rem /* 96px */;
-  height: 1.5rem /* 24px */;
-  border-radius: 0.375rem /* 6px */;
-  padding: 0.25rem /* 4px */;
+  width: 6rem;
+  height: 1.5rem;
+  border-radius: 0.375rem;
+  padding: 0.25rem;
   align-items: center;
   justify-content: center;
-  font-size: 0.675rem /* 14px */;
-  line-height: 1.25rem /* 20px */;
+  font-size: 0.675rem;
+  line-height: 1.25rem;
   --tw-text-opacity: 1;
-  color: rgb(255 255 255 / var(--tw-text-opacity, 1)) /* #ffffff */;
+  color: #ffffff;
 }
 </style>

@@ -18,13 +18,13 @@ export const useChannelStore = defineStore("channel", {
         try {
           if (this.loaded && page === 1) return;
           if (this.loading) return; // Evita chamadas duplicadas
-          
+
           this.loading = true;
-          
+
           const response = await api.get(
-            `${internalChatUrl}channels?page=${page}`
+            `${internalChatUrl}channels/?page=${page}`,
           );
-          
+
           // Se for a primeira página, substitui os canais
           // Caso contrário, adiciona aos canais existentes
           if (page === 1) {
@@ -32,18 +32,21 @@ export const useChannelStore = defineStore("channel", {
           } else {
             this.channels = [...this.channels, ...response.data.results];
           }
-          
+
           this.count = response.data.count;
           this.nextPage = response.data.next;
           this.previousPage = response.data.previous;
           this.currentPage = page;
-          
+
           // Marca como loaded após carregar a primeira página
           if (page === 1) {
             this.loaded = true;
           }
         } catch (error) {
-            console.error("Erro ao buscar canais de grupo:", JSON.stringify(error));
+          console.error(
+            "Erro ao buscar canais de grupo:",
+            JSON.stringify(error),
+          );
         } finally {
           this.loading = false;
         }
@@ -58,13 +61,17 @@ export const useChannelStore = defineStore("channel", {
     },
     async createChannel(body) {
       try {
-        const response = await api.post(`${internalChatUrl}create_group/`, body);
+        const response = await api.post(
+          `${internalChatUrl}create_group/`,
+          body,
+        );
         // Adiciona nos canais
-        this.channels.unshift(response.data)
+        this.channels.unshift(response.data);
         return response;
       } catch (error) {
         // Re-throw so callers can handle the error
         throw error;
       }
     },
-}});
+  },
+});

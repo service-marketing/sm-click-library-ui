@@ -31,11 +31,9 @@ export const reminderList = reactive({
 });
 
 const updateReminderList = (reminder, isEdit, statusList) => {
-  console.log(reminder);
-
   if (isEdit) {
     const i = reminderList[statusList].reminders.findIndex(
-      (p) => p.id === reminder.id
+      (p) => p.id === reminder.id,
     );
     if (i !== -1) reminderList[statusList].reminders[i] = { ...reminder };
   } else {
@@ -123,10 +121,6 @@ export const saveReminder = async (payload) => {
     updateReminderList(data.data, isEdit, "active");
     return data;
   } catch (error) {
-    const errorText =
-      error?.response?.data?.message || "Erro ao salvar o lembrete.";
-    notify({ group: "error", title: "Inválido", text: errorText }, 4000);
-    console.error("Error saving reminder:", error);
     throw error;
   }
 };
@@ -144,7 +138,7 @@ export const deleteReminder = async (id) => {
         title: "Sucesso",
         text: response.data.message || "Lembrete deletado com sucesso.",
       },
-      4000
+      4000,
     );
     return response.data;
   } catch (error) {}
@@ -181,7 +175,7 @@ export const moveReminderToCompleted = (reminder) => {
     activeList.splice(idx, 1);
     reminderList.active.pagination.count = Math.max(
       0,
-      reminderList.active.pagination.count - 1
+      reminderList.active.pagination.count - 1,
     );
   }
 

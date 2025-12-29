@@ -45,7 +45,7 @@ const createPayload = ref({
   },
 });
 
-const tittleError = ref(false);
+const errorsList = ref([]);
 
 const save = async () => {
   const min = minDate.value.getTime();
@@ -56,11 +56,16 @@ const save = async () => {
     createPayload.value.params.schedule.time = formatDateToSchedule(date.value);
   }
 
+  if (createPayload.value.params.message[0].title.trim() === "") {
+    errorsList.value.push("title");
+    return new Promise.reject("Título é obrigatório");
+  }
+
   try {
     await saveReminder(createPayload.value);
   } catch (error) {
-    tittleError.value = true;
-    console.log("Erro ao salvar lembrete:", error);
+    errorsList.value.push("date");
+
     return Promise.reject(error);
   }
 };
@@ -115,7 +120,8 @@ defineExpose({ save });
         <p class="reminder-form-label-text">Nome</p>
         <a
           v-if="
-            tittleError && createPayload.params.message[0].title.trim() === ''
+            errorsList.includes('title') &&
+            createPayload.params.message[0].title.trim() === ''
           "
           class="text-red-500 text-[10px] mt-0.3"
         >
@@ -125,12 +131,13 @@ defineExpose({ save });
 
       <input
         v-model="createPayload.params.message[0].title"
-        @input="tittleError = false"
+        @input="errorsList = errorsList.filter((e) => e !== 'title')"
         placeholder="Ligar para o cliente às 14h"
         type="text"
         :class="[
           'reminder-form-input-name bg-base-300',
-          tittleError && createPayload.params.message[0].title.trim() === ''
+          errorsList.includes('title') &&
+          createPayload.params.message[0].title.trim() === ''
             ? 'border-red-500 border-2'
             : 'border-transparent border-none',
         ]"
@@ -165,7 +172,20 @@ defineExpose({ save });
     </span>
 
     <span class="reminder-form-label-date">
-      <p class="reminder-form-label-text">Data do lembrete</p>
+      <section class="flex items-center gap-1">
+        <p class="reminder-form-label-text">Data do lembrete</p>
+        <a
+          v-if="
+            errorsList.includes('date') &&
+            new Date(createPayload.params.schedule.time).getTime() <
+              minDate.getTime()
+          "
+          class="text-red-500 text-[10px] mt-0.3"
+        >
+          Não é possível criar um agendamento com data e hora anterior que o
+          atual</a
+        >
+      </section>
 
       <div class="reminder-data-picker-container">
         <VueDatePicker
