@@ -82,6 +82,7 @@
           @open-message="$emit('open-message', $event)"
           @open-chat="$emit('open-chat', $event)"
           @delete-message="($event) => $emit('delete-message', $event)"
+          @edit-reminder="$emit('edit-reminder', $event)"
         />
       </li>
     </TransitionGroup>
@@ -99,7 +100,7 @@ const props = defineProps({
   events: { type: Array, default: () => [] },
   mode: { type: String, default: "compact" }, // 'compact' | 'sidebar'
 });
-defineEmits(["reload", "open-chat", "open-message", "delete-message"]);
+defineEmits(["reload", "open-chat", "open-message", "delete-message", "edit-reminder"]);
 
 const headerLabel = computed(() =>
   props.mode === "compact"

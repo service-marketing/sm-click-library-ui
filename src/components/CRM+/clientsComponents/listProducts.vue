@@ -261,7 +261,6 @@ watch(
       const { query } = filters.value;
       page.value = 1;
       itsSearching.value = query !== null && query !== undefined;
-      console.log("Buscando por:", itsSearching.value);
       loading.value = true;
       await getProducts({ query });
       loading.value = false;

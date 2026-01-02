@@ -43,6 +43,7 @@
                 @open-message="$emit('open-message', $event)"
                 @open-chat="$emit('open-chat', $event)"
                 @delete-message="$emit('delete-message', $event)"
+                @edit-reminder="$emit('edit-reminder', $event)"
               />
             </li>
           </ul>
@@ -55,7 +56,7 @@
 <script setup>
 import EventItem from "./EventItem.vue";
 import { getEventColor } from "../utils/eventColors";
-const emit = defineEmits(["open-chat", "open-message", "delete-message"]);
+const emit = defineEmits(["open-chat", "open-message", "delete-message", "edit-reminder"]);
 const props = defineProps({
   days: { type: Array, default: () => [] },
   weekdayLong: Function,

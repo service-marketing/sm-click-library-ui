@@ -187,8 +187,6 @@ watch(
 );
 
 onMounted(async () => {
-  console.log(props.allTags);
-
   if (props.teleportTo) {
     const reposition = () => {
       if (isOpen.value) updatePosition();

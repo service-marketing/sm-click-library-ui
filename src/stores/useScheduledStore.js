@@ -79,7 +79,7 @@ export const useScheduledStore = defineStore("scheduled", {
       const p = (async () => {
         try {
           const firstUrl = `${this.baseUrl}?year_month=${encodeURIComponent(
-            ym,
+            ym
           )}&page_size=10`;
           const res = await api.get(firstUrl);
           const page = Array.isArray(res?.data)
@@ -108,7 +108,7 @@ export const useScheduledStore = defineStore("scheduled", {
               } catch (bgErr) {
                 console.warn(
                   "[scheduled] background paging error:",
-                  bgErr?.message || bgErr,
+                  bgErr?.message || bgErr
                 );
               }
             })();
@@ -160,7 +160,7 @@ export const useScheduledStore = defineStore("scheduled", {
 
         // aceita "YYYY-MM-DD HH:mm" ou "YYYY-MM-DDTHH:mm"
         const m = /^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?$/.exec(
-          rawTime,
+          rawTime
         );
         if (m) {
           const [, y, mo, d, hh = "00", mm = "00"] = m;
@@ -172,7 +172,7 @@ export const useScheduledStore = defineStore("scheduled", {
             Number(hh),
             Number(mm),
             0,
-            0,
+            0
           );
         } else {
           // fallback bem conservador
@@ -183,7 +183,6 @@ export const useScheduledStore = defineStore("scheduled", {
           newDateCandidate = new Date(normalized);
         }
       }
-      console.log(params);
 
       // 🔧 Função que aplica APENAS os campos presentes no payload
       const patchFields = (ev) => {
@@ -260,7 +259,7 @@ export const useScheduledStore = defineStore("scheduled", {
             if (
               Object.prototype.hasOwnProperty.call(
                 params.info.instance,
-                "last_instance_status",
+                "last_instance_status"
               )
             ) {
               ev.instanceStatus =
@@ -320,11 +319,11 @@ export const useScheduledStore = defineStore("scheduled", {
           function: params?.function || "scheduled_messages",
           content: params?.message?.[0]?.content ?? "",
           raw: { id, params },
-          contactName: isReminder ? "" : (params?.entity?.name ?? "Cliente"),
+          contactName: isReminder ? "" : params?.entity?.name ?? "Cliente",
           contactPhoto: params?.entity?.photo ?? null,
           departmentName: isReminder
             ? ""
-            : (params?.info?.department?.name ?? null),
+            : params?.info?.department?.name ?? null,
           departmentId: params?.info?.department?.id ?? null,
           instanceName: params?.info?.instance?.name ?? null,
           instanceStatus: params?.info?.instance?.last_instance_status ?? null,

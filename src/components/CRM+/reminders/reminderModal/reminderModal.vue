@@ -4,6 +4,17 @@ import { saveReminder, deleteReminder } from "../reminderFunctions.js";
 import ReminderList from "../reminderModal/reminderList.vue";
 import ReminderForm from "../reminderModal/reminderForm.vue";
 
+const props = defineProps({
+  initialData: {
+    type: Object,
+    default: null,
+  },
+  viewOnly: {
+    type: Boolean,
+    default: false,
+  },
+});
+
 const formRef = ref(null);
 const formData = ref({});
 const saveLoader = ref(false);
@@ -11,7 +22,9 @@ const saveLoader = ref(false);
 const headerLabel = computed(() => {
   if (pageState.value === "list") return "Lembretes";
   if (pageState.value === "create") return "Criar Lembrete";
-  if (pageState.value === "edit") return "Editar Lembrete";
+  if (pageState.value === "edit") {
+    return props.viewOnly ? "Visualizar Lembrete" : "Editar Lembrete";
+  }
   return "Lembretes";
 });
 
@@ -36,6 +49,11 @@ const listButtons = ref(["Próximos", "Executados"]);
 const pageState = ref("list"); //list || create || edit
 
 const toggleCloseModal = () => {
+  if (props.viewOnly) {
+    emits("close");
+    return;
+  }
+
   if (pageState.value === "list") {
     emits("close");
   } else {
@@ -52,6 +70,21 @@ const openForm = (payload) => {
     formData.value = payload;
   }
 };
+
+const openForEdit = (reminderData) => {
+  pageState.value = "edit";
+  formData.value = reminderData;
+};
+
+defineExpose({
+  openForEdit,
+});
+
+onMounted(() => {
+  if (props.initialData) {
+    openForEdit(props.initialData);
+  }
+});
 </script>
 
 <template>
@@ -187,6 +220,7 @@ const openForm = (payload) => {
             <ReminderForm
               v-model="formData"
               ref="formRef"
+              :view-only="props.viewOnly"
               v-if="pageState === 'create' || pageState === 'edit'"
             />
           </div>
@@ -196,7 +230,7 @@ const openForm = (payload) => {
               :disabled="saveLoader"
               class="btn-save-reminder bg-primary hover:bg-primary_alt disabled:opacity-50 disabled:cursor-not-allowed"
               @click="handleSave"
-              v-if="pageState !== 'list'"
+              v-if="pageState !== 'list' && !props.viewOnly"
             >
               <div
                 v-if="saveLoader"
@@ -246,11 +280,10 @@ const openForm = (payload) => {
   z-index: 50;
   border-radius: 1rem;
   --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  --tw-shadow-colored:
-    0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);
-  box-shadow:
-    var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
-    var(--tw-shadow);
+  --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color),
+    0 1px 2px -1px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
+    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
   --tw-shadow-color: #000;
   --tw-shadow: var(--tw-shadow-colored);
 }

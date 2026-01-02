@@ -22,6 +22,10 @@ const props = defineProps({
     type: Object,
     default: () => ({}),
   },
+  viewOnly: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const date = ref(new Date(Date.now() + 60_000));
@@ -72,6 +76,8 @@ const save = async () => {
 
 watch(date, (newVal) => {
   if (!(newVal instanceof Date)) return;
+  if (props.viewOnly) return;
+  
   const min = minDate.value;
   if (newVal.getTime() < min.getTime()) {
     date.value = new Date(min.getTime());
@@ -84,7 +90,7 @@ onMounted(() => {
     nowRef.value = Date.now();
 
     const min = minDate.value;
-    if (date.value.getTime() < min.getTime()) {
+    if (!props.viewOnly && date.value.getTime() < min.getTime()) {
       date.value = new Date(min.getTime());
     }
   }, 15_000);
@@ -95,7 +101,10 @@ onMounted(() => {
     const parsed = new Date(
       createPayload.value.params?.schedule?.time || date.value,
     );
-    if (isNaN(parsed.getTime()) || parsed.getTime() < minDate.value.getTime()) {
+    // No modo viewOnly, aceita qualquer data, incluindo as do passado
+    if (props.viewOnly) {
+      date.value = parsed;
+    } else if (isNaN(parsed.getTime()) || parsed.getTime() < minDate.value.getTime()) {
       createPayload.value.params.schedule.time = formatDateToSchedule(
         minDate.value,
       );
@@ -134,12 +143,14 @@ defineExpose({ save });
         @input="errorsList = errorsList.filter((e) => e !== 'title')"
         placeholder="Ligar para o cliente às 14h"
         type="text"
+        :disabled="props.viewOnly"
         :class="[
           'reminder-form-input-name bg-base-300',
           errorsList.includes('title') &&
           createPayload.params.message[0].title.trim() === ''
             ? 'border-red-500 border-2'
             : 'border-transparent border-none',
+          props.viewOnly ? 'opacity-60 cursor-not-allowed' : '',
         ]"
       />
     </span>
@@ -151,7 +162,11 @@ defineExpose({ save });
         <textarea
           v-model="createPayload.params.message[0].content"
           placeholder="Ligar para o cliente para confirmar o agendamento da reunião."
-          class="reminder-form-input-description bg-base-300"
+          :disabled="props.viewOnly"
+          :class="[
+            'reminder-form-input-description bg-base-300',
+            props.viewOnly ? 'opacity-60 cursor-not-allowed' : '',
+          ]"
           maxlength="1000"
           aria-label="Anotações do cliente"
         ></textarea>
@@ -198,13 +213,20 @@ defineExpose({ save });
           format="dd/MM/yyyy HH:mm"
           :teleport="true"
           :min-date="minDate"
+          :disabled="props.viewOnly"
           @update:model-value="
             createPayload.params.schedule.time = formatDateToSchedule(date)
           "
         >
           <template #clear-icon></template>
           <template #dp-input>
-            <button class="reminder-btn-data-picker bg-base-300 group">
+            <button 
+              :class="[
+                'reminder-btn-data-picker bg-base-300',
+                props.viewOnly ? 'opacity-60 cursor-not-allowed' : 'group',
+              ]"
+              :disabled="props.viewOnly"
+            >
               <svg
                 class="size-4.5 group-hover:scale-105 group-hover:text-primary_alt transition-all duration-200"
                 aria-hidden="true"

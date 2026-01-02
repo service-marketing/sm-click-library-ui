@@ -97,7 +97,7 @@ const configNameInput = ref([
     type: "text",
     placeholder: "Digite o nome do contato",
     empty: computed(() =>
-      errors.value ? errors.value.some((e) => e.startsWith("name")) : false,
+      errors.value ? errors.value.some((e) => e.startsWith("name")) : false
     ),
     data: computed({
       get: () => form.name,
@@ -119,7 +119,7 @@ const configNameInput = ref([
 ]);
 
 const modalTitle = computed(() =>
-  props.form.mode === "edit" ? "Editar cliente" : "Adicionar Novo Cliente",
+  props.form.mode === "edit" ? "Editar cliente" : "Adicionar Novo Cliente"
 );
 
 const validateClient = (client) => {
@@ -157,7 +157,7 @@ watch(
   (newForm) => {
     Object.assign(form, toRaw(newForm));
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 const width = ref(window.innerWidth);
@@ -168,7 +168,6 @@ const updateWidth = () => {
 };
 
 onMounted(() => {
-  console.log(props.allTags);
   window.addEventListener("resize", updateWidth);
 });
 
@@ -187,7 +186,7 @@ watch(
       pageState.value = "data";
     }
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 const toggleButtons = [
@@ -438,8 +437,8 @@ const handlerToggleButtons = computed(() => {
                           form.notes?.length > 900
                             ? 'text-red-500'
                             : form.notes?.length > 700
-                              ? 'text-yellow-500'
-                              : 'text-gray-400'
+                            ? 'text-yellow-500'
+                            : 'text-gray-400'
                         "
                       >
                         {{ form.notes?.length || 0 }}/1000
@@ -582,8 +581,8 @@ const handlerToggleButtons = computed(() => {
   line-height: 1.25rem;
   font-weight: 500;
   background-color: rgb(34 197 94 / 0.8);
-  transition-property:
-    color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-property: color, background-color, border-color,
+    text-decoration-color, fill, stroke;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
   display: flex;

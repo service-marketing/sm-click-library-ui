@@ -1,7 +1,10 @@
-import { ref, reactive } from "vue";
+import { reactive } from "vue";
 import { reminders } from "../../../utils/systemUrls.js";
 import { notify } from "notiwind";
+import { useScheduledStore } from "../../../stores/useScheduledStore.js";
 import api from "../../../utils/api.js";
+
+const getScheduledStore = () => useScheduledStore();
 
 export const reminderList = reactive({
   active: {
@@ -33,7 +36,7 @@ export const reminderList = reactive({
 const updateReminderList = (reminder, isEdit, statusList) => {
   if (isEdit) {
     const i = reminderList[statusList].reminders.findIndex(
-      (p) => p.id === reminder.id,
+      (p) => p.id === reminder.id
     );
     if (i !== -1) reminderList[statusList].reminders[i] = { ...reminder };
   } else {
@@ -119,6 +122,20 @@ export const saveReminder = async (payload) => {
     notify({ group: "success", title: "Sucesso", text: successText }, 4000);
 
     updateReminderList(data.data, isEdit, "active");
+
+    const configToStore = {
+      id: data.data.id,
+      params: {
+        ...requestBody,
+        title: requestBody.message?.[0]?.title || "Lembrete",
+        function: data.data.function || "attendant_reminder",
+        type: "attendant_reminder",
+        scheduled_by: data.data?.params?.scheduled_by,
+        status: true,
+      },
+    };
+
+    getScheduledStore().insertFromParams(configToStore);
     return data;
   } catch (error) {
     throw error;
@@ -138,7 +155,7 @@ export const deleteReminder = async (id) => {
         title: "Sucesso",
         text: response.data.message || "Lembrete deletado com sucesso.",
       },
-      4000,
+      4000
     );
     return response.data;
   } catch (error) {}
@@ -175,7 +192,7 @@ export const moveReminderToCompleted = (reminder) => {
     activeList.splice(idx, 1);
     reminderList.active.pagination.count = Math.max(
       0,
-      reminderList.active.pagination.count - 1,
+      reminderList.active.pagination.count - 1
     );
   }
 
