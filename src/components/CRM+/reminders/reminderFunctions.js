@@ -158,7 +158,12 @@ export const deleteReminder = async (id) => {
       4000
     );
     return response.data;
-  } catch (error) {}
+  } catch (error) {
+    console.error("Error deleting reminder:", error);
+  } finally {
+    const scheduledStore = getScheduledStore();
+    scheduledStore.removeFromCache(String(id));
+  }
 };
 
 export const formatDateToSchedule = (date) => {
