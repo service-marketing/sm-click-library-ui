@@ -154,7 +154,7 @@
   <!-- SIDEBAR (status = bolinha maior no avatar) -->
   <template v-else-if="mode === 'sidebar'">
     <div class="itemsb-head">
-      <div class="avatar-wrap" :style="{ boxShadow: `0 0 0 1px ${color}` }">
+      <div class="avatar-wrap">
         <img
           v-if="ev.contactPhoto"
           :src="ev.contactPhoto"
@@ -170,7 +170,21 @@
             />
           </svg>
 
-          <span class="font-semibold" title="Lembrete" v-else> L </span>
+          <span title="Lembrete" v-else>
+            <svg
+              class="size-4"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M17.133 12.632v-1.8a5.406 5.406 0 0 0-4.154-5.262.955.955 0 0 0 .021-.106V3.1a1 1 0 0 0-2 0v2.364a.955.955 0 0 0 .021.106 5.406 5.406 0 0 0-4.154 5.262v1.8C6.867 15.018 5 15.614 5 16.807 5 17.4 5 18 5.538 18h12.924C19 18 19 17.4 19 16.807c0-1.193-1.867-1.789-1.867-4.175ZM8.823 19a3.453 3.453 0 0 0 6.354 0H8.823Z"
+              ></path>
+            </svg>
+          </span>
         </div>
         <div
           class="sched-pop"
@@ -182,7 +196,11 @@
           <span
             v-if="ev.status !== undefined"
             class="status-dot-avatar"
-            :class="!ev?.status ? 'status--down' : 'status--up'"
+            :class="
+              ev?.type === 'attendant_reminder'
+                ? 'status--reminder'
+                : 'status--scheduled'
+            "
           />
           <div
             class="sched-pop__card bg-base-300"
@@ -194,7 +212,11 @@
             role="dialog"
           >
             <strong>Status</strong><br />
-            {{ ev.status === true ? "Ativo" : "Executado" }}
+            {{
+              ev?.type === "attendant_reminder"
+                ? "Lembrete"
+                : "Mensagem programada"
+            }}
           </div>
         </div>
       </div>
@@ -210,7 +232,27 @@
               {{ ev.raw.params.message[0].title }}
             </template>
           </span>
-          <span class="itemsb-time">{{ ev.time }}</span>
+
+          <section class="flex flex-col items-center">
+            <span class="itemsb-time">{{ ev.time }}</span>
+
+            <div
+              class="sched-pop"
+              tabindex="0"
+              aria-haspopup="true"
+              aria-label="Agendado por"
+            >
+              <span
+                v-if="ev.status !== undefined"
+                class="status-bar"
+                :class="!ev?.status ? 'status--down' : 'status--up'"
+              />
+              <div class="sched-pop__card bg-base-300" role="dialog">
+                <strong>Status</strong><br />
+                {{ ev.status === true ? "Ativo" : "Executado" }}
+              </div>
+            </div>
+          </section>
         </div>
 
         <div class="itemsb-sub">
@@ -684,6 +726,16 @@ const agendaLine = computed(() => {
 }
 .status--down {
   background: var(--status-down);
+  box-shadow: 0 0 8px var(--status-glow-down);
+}
+
+.status--reminder {
+  background: #f59e0b;
+  box-shadow: 0 0 8px var(--status-glow-down);
+}
+
+.status--scheduled {
+  background: #3b82f6;
   box-shadow: 0 0 8px var(--status-glow-down);
 }
 

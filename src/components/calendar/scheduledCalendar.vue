@@ -192,7 +192,7 @@ scheduled.setBaseUrl(props.sourceUrl);
 const todayDate = new Date();
 const viewDate = ref(normalizeToMonth(props.initialDate));
 const selectedDate = ref(
-  new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate())
+  new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate()),
 );
 const viewMode = ref("calendar");
 
@@ -280,7 +280,7 @@ function normalizeToMonth(d) {
     return new Date(
       y || todayDate.getFullYear(),
       (m || todayDate.getMonth() + 1) - 1,
-      1
+      1,
     );
   }
   return new Date(todayDate.getFullYear(), todayDate.getMonth(), 1);
@@ -309,14 +309,14 @@ function prevMonth() {
   viewDate.value = new Date(
     viewDate.value.getFullYear(),
     viewDate.value.getMonth() - 1,
-    1
+    1,
   );
 }
 function nextMonth() {
   viewDate.value = new Date(
     viewDate.value.getFullYear(),
     viewDate.value.getMonth() + 1,
-    1
+    1,
   );
 }
 function today() {
@@ -324,7 +324,7 @@ function today() {
   selectedDate.value = new Date(
     todayDate.getFullYear(),
     todayDate.getMonth(),
-    todayDate.getDate()
+    todayDate.getDate(),
   );
 }
 
@@ -345,16 +345,16 @@ const monthsPt = [
 ];
 const weekDaysPt = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"];
 const monthLabelPt = computed(() =>
-  capitalize(monthsPt[viewDate.value.getMonth()])
+  capitalize(monthsPt[viewDate.value.getMonth()]),
 );
 const currentYear = computed(() => viewDate.value.getFullYear());
 const selectedLabel = computed(() => formatDMY(selectedDate.value));
 const selectedLabelLong = computed(
-  () => `${weekdayLongPt(selectedDate.value)} ${selectedDate.value.getDate()}`
+  () => `${weekdayLongPt(selectedDate.value)} ${selectedDate.value.getDate()}`,
 );
 function formatDMY(d) {
   return `${String(d.getDate()).padStart(2, "0")}/${String(
-    d.getMonth() + 1
+    d.getMonth() + 1,
   ).padStart(2, "0")}/${d.getFullYear()}`;
 }
 function weekdayLongPt(d) {
@@ -397,7 +397,7 @@ const monthDays = computed(() => {
     const d = new Date(
       viewDate.value.getFullYear(),
       viewDate.value.getMonth(),
-      day
+      day,
     );
     return { key: `d${day}`, date: d };
   });
@@ -432,7 +432,7 @@ function closeReminderModal() {
 // ===== Cache via Store =====
 const currentYM = computed(() => yearMonthKey(viewDate.value));
 const currentMonthEventsRaw = computed(() =>
-  scheduled.eventsOf(currentYM.value)
+  scheduled.eventsOf(currentYM.value),
 );
 
 // ===== Lista ATIVA (aplica filtros locais) =====
@@ -444,7 +444,7 @@ const FILTER_RESOLVERS = {
       ev?.raw?.scheduled_by ??
       ev?.created_by ??
       ev?.attendant_id;
-    const id = typeof sb === "object" && sb ? sb.id ?? sb.attendant_id : sb;
+    const id = typeof sb === "object" && sb ? (sb.id ?? sb.attendant_id) : sb;
     return id != null ? String(id) : "";
   },
   // exemplo: status: (ev) => String(ev.status ?? ev.raw?.status ?? ""),
@@ -472,7 +472,7 @@ function matchesFilters(ev, f) {
       null;
 
     // normalizações leves
-    const got = typeof gotRaw === "string" ? gotRaw : gotRaw ?? "";
+    const got = typeof gotRaw === "string" ? gotRaw : (gotRaw ?? "");
 
     // 1) função custom: (val, ev) => boolean
     if (typeof want === "function") return !!want(got, ev);
@@ -522,7 +522,7 @@ function eventsByDay(date) {
 }
 const selectedEvents = computed(() => eventsByDay(selectedDate.value));
 const selectedEventsSorted = computed(() =>
-  [...selectedEvents.value].sort((a, b) => a.date - b.date)
+  [...selectedEvents.value].sort((a, b) => a.date - b.date),
 );
 function dayEventCount(date) {
   return eventsByDay(date).length;
@@ -564,7 +564,7 @@ const compact = ref(false);
 const isSmall = ref(false);
 const isCompact = computed(() => isSmall.value || compact.value);
 const stageClass = computed(() =>
-  isCompact ? "calendar-stage--compact" : "calendar-stage--single"
+  isCompact ? "calendar-stage--compact" : "calendar-stage--single",
 );
 
 function setupMedia() {
@@ -615,7 +615,7 @@ async function onConfirmModal(ctx) {
     }
     if (ctx.event.type === "attendant_reminder") {
       const index = reminderList.active.reminders.findIndex(
-        (p) => p.id === ctx.event.id
+        (p) => p.id === ctx.event.id,
       );
       if (index !== -1) reminderList.active.reminders.splice(index, 1);
     }
@@ -657,17 +657,17 @@ async function eraseEvent(event) {
 onMounted(async () => {
   setupMedia();
   await scheduled.ensureMonthLoaded(currentYM.value);
-  if (
-    !eventsByDay(selectedDate.value).length &&
-    currentMonthEvents.value.length
-  ) {
-    const first = currentMonthEvents.value[0];
-    selectedDate.value = new Date(
-      first.date.getFullYear(),
-      first.date.getMonth(),
-      first.date.getDate()
-    );
-  }
+  // if (
+  //   !eventsByDay(selectedDate.value).length &&
+  //   currentMonthEvents.value.length
+  // ) {
+  //   const first = currentMonthEvents.value[0];
+  //   selectedDate.value = new Date(
+  //     first.date.getFullYear(),
+  //     first.date.getMonth(),
+  //     first.date.getDate()
+  //   );
+  // }
 });
 
 watch(
@@ -676,18 +676,18 @@ watch(
     scheduled.setBaseUrl(val);
     scheduled.resetAll();
     await scheduled.ensureMonthLoaded(currentYM.value);
-    if (
-      !eventsByDay(selectedDate.value).length &&
-      currentMonthEvents.value.length
-    ) {
-      const first = currentMonthEvents.value[0];
-      selectedDate.value = new Date(
-        first.date.getFullYear(),
-        first.date.getMonth(),
-        first.date.getDate()
-      );
-    }
-  }
+    // if (
+    //   !eventsByDay(selectedDate.value).length &&
+    //   currentMonthEvents.value.length
+    // ) {
+    //   const first = currentMonthEvents.value[0];
+    //   selectedDate.value = new Date(
+    //     first.date.getFullYear(),
+    //     first.date.getMonth(),
+    //     first.date.getDate()
+    //   );
+    // }
+  },
 );
 
 watch(currentYM, async () => {
@@ -695,23 +695,23 @@ watch(currentYM, async () => {
   const m = viewDate.value.getMonth();
   const day = Math.min(
     selectedDate.value.getDate(),
-    daysInMonth(viewDate.value)
+    daysInMonth(viewDate.value),
   );
   selectedDate.value = new Date(y, m, day);
 
   await scheduled.ensureMonthLoaded(currentYM.value);
 
-  if (
-    !eventsByDay(selectedDate.value).length &&
-    currentMonthEvents.value.length
-  ) {
-    const first = currentMonthEvents.value[0];
-    selectedDate.value = new Date(
-      first.date.getFullYear(),
-      first.date.getMonth(),
-      first.date.getDate()
-    );
-  }
+  // if (
+  //   !eventsByDay(selectedDate.value).length &&
+  //   currentMonthEvents.value.length
+  // ) {
+  //   const first = currentMonthEvents.value[0];
+  //   selectedDate.value = new Date(
+  //     first.date.getFullYear(),
+  //     first.date.getMonth(),
+  //     first.date.getDate()
+  //   );
+  // }
 });
 
 defineExpose({ updateEvent: scheduled.applyUpdateToCache });
@@ -755,12 +755,17 @@ defineExpose({ updateEvent: scheduled.applyUpdateToCache });
   z-index: 10;
   filter: blur(48px);
   opacity: 0.7;
-  background: radial-gradient(
+  background:
+    radial-gradient(
       60% 60% at 50% 50%,
       rgba(34, 226, 160, 0.12),
       transparent 70%
     ),
-    radial-gradient(40% 40% at 0% 50%, rgba(34, 226, 160, 0.1), transparent 70%),
+    radial-gradient(
+      40% 40% at 0% 50%,
+      rgba(34, 226, 160, 0.1),
+      transparent 70%
+    ),
     radial-gradient(
       40% 40% at 100% 50%,
       rgba(34, 226, 160, 0.1),
@@ -863,7 +868,8 @@ defineExpose({ updateEvent: scheduled.applyUpdateToCache });
 }
 .month-title {
   color: #d0fff6;
-  text-shadow: 0 0 8px rgba(31, 227, 158, 0.35),
+  text-shadow:
+    0 0 8px rgba(31, 227, 158, 0.35),
     0 0 20px rgba(31, 227, 158, 0.18);
   font-weight: 700;
   font-size: clamp(0.9rem, 2.2vw, 1.12rem);
@@ -876,7 +882,8 @@ defineExpose({ updateEvent: scheduled.applyUpdateToCache });
   }
   .month-title {
     color: #71a49d;
-    text-shadow: 0 0 8px rgba(113, 164, 157, 0.35),
+    text-shadow:
+      0 0 8px rgba(113, 164, 157, 0.35),
       0 0 20px rgba(113, 164, 157, 0.18);
   }
 }
