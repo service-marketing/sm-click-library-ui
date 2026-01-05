@@ -2,12 +2,26 @@
   <!-- COMPACT (status = barrinha horizontal sob o horário) -->
   <template v-if="mode === 'compact'">
     <header class="itemc-head">
-      <span :style="{ background: color }" class="color-bar"></span>
+      <div class="sched-pop sched-pop--right" tabindex="0" aria-haspopup="true">
+        <span :style="{ background: color }" class="color-bar"></span>
+        <div class="sched-pop__card bg-base-300" role="dialog">
+          <strong>Tipo</strong><br />
+          {{
+            ev.type === "attendant_reminder"
+              ? "Lembrete"
+              : "Mensagem programada"
+          }}
+        </div>
+      </div>
+
       <div class="minw0">
         <div class="itemc-title">
-          <template>
+          <template v-if="isSched">
             {{ ev.contactName ? ev.contactName + " • " : "" }}
             {{ ev.departmentName || "sem depto" }}
+          </template>
+          <template v-else-if="isReminder">
+            {{ ev.raw.params.message[0].title }}
           </template>
         </div>
         <div class="itemc-sub">
@@ -156,7 +170,7 @@
             />
           </svg>
 
-          <span v-else> L </span>
+          <span class="font-semibold" title="Lembrete" v-else> L </span>
         </div>
         <div
           class="sched-pop"
@@ -189,8 +203,11 @@
       <div class="itemsb-main">
         <div class="itemsb-row">
           <span class="itemsb-title truncate">
-            <template>
+            <template v-if="isSched">
               {{ ev.contactName }} • {{ ev.departmentName || "sem depto" }}
+            </template>
+            <template v-else-if="isReminder">
+              {{ ev.raw.params.message[0].title }}
             </template>
           </span>
           <span class="itemsb-time">{{ ev.time }}</span>
@@ -261,10 +278,24 @@
   <!-- AGENDA (status = barrinha horizontal ao lado da barra de cor) -->
   <template v-else>
     <div class="event-left">
-      <span :style="{ background: color }" class="event-color-bar"></span>
+      <div class="sched-pop sched-pop--right" tabindex="0" aria-haspopup="true">
+        <span :style="{ background: color }" class="event-color-bar"></span>
+        <div class="sched-pop__card bg-base-300" role="dialog">
+          <strong>Tipo</strong><br />
+          {{
+            ev.type === "attendant_reminder"
+              ? "Lembrete"
+              : "Mensagem programada"
+          }}
+        </div>
+      </div>
+
       <div class="event-line">
-        <template>
+        <template v-if="isSched">
           {{ agendaLine }}
+        </template>
+        <template v-else-if="isReminder">
+          {{ ev.raw.params.message[0].title }}
         </template>
       </div>
     </div>
@@ -292,6 +323,7 @@
             clip-rule="evenodd"
           />
         </svg>
+
         <div class="sched-pop__card bg-base-300" role="dialog">
           <strong>Agendado por</strong><br />
           {{ attendantName(ev.scheduled_by) }}
@@ -381,7 +413,7 @@
 
       <button
         :disabled="!isSched"
-        class="disabled:opacity-90 cyber-button cyber-button--xs cyber-button--accent"
+        class="cyber-button cyber-button--xs cyber-button--accent"
         @click="$emit('open-chat', ev)"
         aria-label="Abrir conversa"
       >
@@ -429,7 +461,7 @@ const isSched = computed(() => props.ev?.type === "scheduled_messages");
 const isReminder = computed(() => props.ev?.type === "attendant_reminder");
 
 const isMe = computed(
-  () => attendantStore.attendants.find((a) => a.is_me) || {}
+  () => attendantStore.attendants.find((a) => a.is_me) || {},
 );
 const attendantName = (id) => {
   const att = attendantStore.attendants.find((a) => a.id === id);
@@ -703,5 +735,16 @@ const agendaLine = computed(() => {
   .show-md {
     display: inline-flex;
   }
+}
+
+.sched-pop--right :deep(.sched-pop__card) {
+  left: 50% !important;
+  right: auto !important;
+  transform: translate(-20%, -50%) scale(0.98) !important;
+}
+
+.sched-pop--right:hover :deep(.sched-pop__card),
+.sched-pop--right:focus :deep(.sched-pop__card) {
+  transform: translate(10px, -50%) scale(1) !important;
 }
 </style>

@@ -137,6 +137,12 @@
   user-select: none;
 }
 
+.cyber-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  box-shadow: none;
+}
+
 .cyber-button:hover {
   transform: translateY(-1px);
   border-color: var(--cyber-border-light);
