@@ -298,7 +298,7 @@ const selecionarAtendente = async (atendente) => {
   }
 
   const entity = findEntityByChannelId(channelId);
-  const attendantCount = entity ? entity.internal_chat.unread : 0;
+  const attendantCount = entity ? entity.internal_chat?.unread : 0;
   emit("unreadMessagesEmit", attendantCount);
 
   // Garante que, ao sair do chat, o usuário volte para a lista correta.
