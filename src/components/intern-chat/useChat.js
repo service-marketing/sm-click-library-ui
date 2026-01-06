@@ -17,17 +17,24 @@ export function useChat() {
     return object[key];
   }
 
-  // Busca a entidade (atendente ou grupo) pelo channel_id
+  // Busca a entidade (atendente ou grupo) pelo channel_id ou id
   const findEntityByChannelId = (channelId) => {
-    // Procura primeiro nos atendentes
+    // Procura primeiro nos atendentes pelo channel_id
     let entity = attendantStore.attendants.find(
       (att) => att.internal_chat?.channel_id === channelId
     );
 
-    // Se não encontrar, procura nos canais (grupos)
+    // Se não encontrar, procura nos canais (grupos) pelo channel_id
     if (!entity) {
       entity = channelStore.channels.find(
         (ch) => ch.internal_chat?.channel_id === channelId
+      );
+    }
+
+    // Se ainda não encontrar, procura nos atendentes pelo id
+    if (!entity) {
+      entity = attendantStore.attendants.find(
+        (att) => att.id === channelId
       );
     }
 
@@ -37,12 +44,14 @@ export function useChat() {
   const fetchMessagesByChannel = async (channelId) => {
     const entity = findEntityByChannelId(channelId);
     if (!entity) return;
-
     try {
       loadingMessages.value = true;
-      const response = await api.get(
-        `${internalChatUrl}messages_by_channel/?channel_id=${channelId}&page=1`
-      );
+
+      const url = entity.internal_chat?.channel_id
+        ? `${internalChatUrl}messages_by_channel/?channel_id=${entity.internal_chat.channel_id}&page=1`
+        : `${internalChatUrl}?attendant=${entity.id}&page=1`;
+
+      const response = await api.get(url);
 
       // Inicializa chat_info se for um grupo ou messages se for atendente
       if (entity.is_group) {
@@ -85,9 +94,12 @@ export function useChat() {
         ? entity.chat_info.currentPage
         : entity.currentPage;
 
-      const response = await api.get(
-        `${internalChatUrl}messages_by_channel/?channel_id=${channelId}&page=${currentPage}`
-      );
+      // Se houver channel_id real, usa ele. Se não, usa attendant_id
+      const url = entity.internal_chat?.channel_id
+        ? `${internalChatUrl}messages_by_channel/?channel_id=${entity.internal_chat.channel_id}&page=${currentPage}`
+        : `${internalChatUrl}messages_by_channel/?attendant=${entity.id}&page=${currentPage}`;
+
+      const response = await api.get(url);
 
       if (entity.is_group) {
         entity.chat_info.messages = [
