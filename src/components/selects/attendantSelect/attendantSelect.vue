@@ -24,13 +24,13 @@ function incomingIds() {
   const incoming = Array.isArray(props.attendance)
     ? props.attendance
     : props.attendance
-      ? [props.attendance]
-      : [];
+    ? [props.attendance]
+    : [];
   // console.log(props.attendance)
   return new Set(
     incoming
       .filter(Boolean)
-      .map((item) => (typeof item === "object" ? item.id : item)),
+      .map((item) => (typeof item === "object" ? item.id : item))
   );
 }
 
@@ -38,7 +38,7 @@ const filteredAttendants = computed(() => {
   const active = attendantStore.attendants.filter((a) => a.status === true);
   const filtered = searchInput.value
     ? active.filter((a) =>
-        a.name.toLowerCase().includes(searchInput.value.toLowerCase()),
+        a.name.toLowerCase().includes(searchInput.value.toLowerCase())
       )
     : active;
   return filterByDepartment(filterByMethod(filtered));
@@ -49,8 +49,8 @@ function filterByMethod(attendants) {
     const list = Array.isArray(props.attendance)
       ? props.attendance
       : props.attendance
-        ? [props.attendance]
-        : attendants;
+      ? [props.attendance]
+      : attendants;
     return list.filter((att) => {
       const id = typeof att === "object" ? att.id : att;
       return id !== props?.attDel?.id;
@@ -69,8 +69,8 @@ function filterByDepartment(attendants) {
   if (Array.isArray(props.department) && props.department.length > 0) {
     return attendants.filter((att) =>
       att.department.some((dept) =>
-        props.department.some((d) => d.id === dept.id),
-      ),
+        props.department.some((d) => d.id === dept.id)
+      )
     );
   }
   return attendants;
@@ -87,7 +87,7 @@ watch(
     await nextTick();
     initializeComponent();
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 watch(
@@ -95,13 +95,13 @@ watch(
   () => {
     if (!props.modal_filter && props.multiSelect) clearSelectedAttendance();
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 watch(
   () => props.department,
   () => initializeComponent(),
-  { deep: true },
+  { deep: true }
 );
 
 function initializeComponent() {
@@ -123,8 +123,8 @@ function updateSelectedAttendance() {
   const incoming = Array.isArray(props.attendance)
     ? props.attendance
     : props.attendance
-      ? [props.attendance]
-      : [];
+    ? [props.attendance]
+    : [];
 
   incoming.forEach((item) => {
     const id = typeof item === "object" ? item.id : item;
@@ -310,11 +310,10 @@ function eraseAttendant(attendant, index) {
 /* Adiciona as classes de estilo conforme especificado no terceiro componente */
 .shadow {
   --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  --tw-shadow-colored:
-    0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);
-  box-shadow:
-    var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
-    var(--tw-shadow);
+  --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color),
+    0 1px 2px -1px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
+    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 
 .depart-select-container {
@@ -359,8 +358,7 @@ function eraseAttendant(attendant, index) {
     var(--tw-ring-offset-width) var(--tw-ring-offset-color);
   --tw-ring-shadow: var(--tw-ring-inset) 0 0 0
     calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color);
-  box-shadow:
-    var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
     var(--tw-shadow, 0 0 #0000);
 }
 

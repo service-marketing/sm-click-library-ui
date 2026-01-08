@@ -25,6 +25,11 @@ const props = defineProps({
     default:
       '<svg class="size-32 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24"> <path fill-rule="evenodd" d="M7.5 4.586A2 2 0 0 1 8.914 4h6.172a2 2 0 0 1 1.414.586L17.914 6H19a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h1.086L7.5 4.586ZM10 12a2 2 0 1 1 4 0 2 2 0 0 1-4 0Zm2-4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z" clip-rule="evenodd"/> </svg>',
   },
+
+  hasRemoveBtn: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 // Emite o novo valor quando o usuário adiciona ou remove foto
@@ -82,7 +87,7 @@ const removePhoto = async () => {
 
     <!-- Botão de remover -->
     <button
-      v-if="modelValue"
+      v-if="modelValue && hasRemoveBtn"
       @click.stop="removePhoto"
       class="absolute top-1 right-1 rounded-lg bg-red-600 hover:bg-red-500 z-50 py-1 px-1"
     >

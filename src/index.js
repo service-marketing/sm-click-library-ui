@@ -17,6 +17,7 @@ import btnNewUpdates from "./components/new-updates/btnNewUpdates.vue";
 import LibPhotoPicker from "./components/pickers/libPhotoPicker.vue";
 import SelectMultipleDepartments from "./components/selects/multiSelects/selectMultipleDepartments.vue";
 import SelectMultipleTags from "./components/selects/multiSelects/selectMultipleTags.vue";
+import SelectMultipleInstances from "./components/selects/multiSelects/selectMultipleInstances.vue";
 import PrimaryInput from "./components/inputs/primaryInput.vue";
 import SimpleSelect from "./components/selects/simpleSelect/simpleSelect.vue";
 import ClientsForm from "./components/CRM+/clientsForm.vue";
@@ -38,6 +39,7 @@ import CallHistory from "./components/chat/CallHistory.vue";
 import CallMessage from "./components/chat/CallMessage.vue";
 import ReminderModal from "./components/CRM+/reminders/reminderModal/reminderModal.vue";
 import { moveReminderToCompleted } from "./components/CRM+/reminders/reminderFunctions.js";
+export { useInstanceStore };
 
 import api, {
   setApiBaseURL,
@@ -66,6 +68,7 @@ function install(Vue) {
   Vue.component("BtnNewUpdates", btnNewUpdates);
   Vue.component("LibPhotoPicker", LibPhotoPicker);
   Vue.component("SelectMultipleDepartments", SelectMultipleDepartments);
+  Vue.component("SelectMultipleInstances", SelectMultipleInstances);
   Vue.component("PrimaryInput", PrimaryInput);
   Vue.component("SimpleSelect", SimpleSelect);
   Vue.component("FloatingDev", FloatingDev);
@@ -219,6 +222,7 @@ export default {
   btnNewUpdates,
   LibPhotoPicker,
   SelectMultipleDepartments,
+  SelectMultipleInstances,
   SelectMultipleTags,
   PrimaryInput,
   getWithContrastColor,
