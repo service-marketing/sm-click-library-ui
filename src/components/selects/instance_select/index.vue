@@ -18,6 +18,10 @@ const props = defineProps({
     type: Boolean,
     default: undefined,
   },
+  instance_deny_list: {
+    type: Array,
+    default: () => [],
+  },
 });
 
 const emit = defineEmits(["update:modelValue", "function", "component-mounted"]);
@@ -61,6 +65,13 @@ function clearSelectedInstance() {
   });
   selectedInstance.value = null;
 }
+
+// Computed para filtrar instâncias que não estão na deny list
+const filteredInstances = computed(() => {
+  return instanceStore.instances.filter(
+    (inst) => !props.instance_deny_list.includes(inst.id)
+  );
+});
 </script>
 <template>
     <main class="w-full relative text-current">
@@ -69,7 +80,7 @@ function clearSelectedInstance() {
             <div class="flex cursor-pointer justify-between items-center">
                 <p @click="open = !open" class="w-full p-3 px-4 select-none">
                 <div v-if="instanceStore.loaded">
-                    <span v-if="!selectedInstance">{{ instanceStore.instances ? instanceStore.instances.length : 'Sem' }} Instâncias
+                    <span v-if="!selectedInstance">{{ filteredInstances ? filteredInstances.length : 'Sem' }} Instâncias
                         disponíveis</span>
                     <span class="flex items-center  gap-2" v-else>
                         <header class="flex gap-3 items-center flex-shrink-0">
@@ -149,7 +160,7 @@ function clearSelectedInstance() {
         <nav v-if="open"
             class="absolute top-[48px] w-full z-20 text-sm ">
             <ul class="gap-2 rounded-b-lg flex overflow-y-auto p-2 shadow shadow-black dark:shadow-gray-400 bg-base-300  max-h-[200px] flex-col">
-                <li v-if="instanceStore.instances.length > 0" v-for="inst, index in instanceStore.instances"
+                <li v-if="filteredInstances.length > 0" v-for="inst, index in filteredInstances"
                     class="select-none cursor-pointer w-full">
                     <button
                         :class="selectedInstance && selectedInstance.id === inst.id ? 'bg-base-100' : 'bg-base-200 hover:bg-base-100'"
