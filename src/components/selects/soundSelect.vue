@@ -15,7 +15,7 @@ const open = ref(false);
 const root = ref(null);
 
 const currentLabel = computed(() =>
-  props.modelValue ? props.labelFn(props.modelValue) : "Selecionar…"
+  props.modelValue ? props.labelFn(props.modelValue) : "Selecionar…",
 );
 
 // Cores de tema
@@ -68,7 +68,7 @@ const isPlaying = (opt) =>
   props.playingKey === `${props.previewKeyPrefix}${opt}`;
 
 const headIsPlaying = computed(() =>
-  props.modelValue ? isPlaying(props.modelValue) : false
+  props.modelValue ? isPlaying(props.modelValue) : false,
 );
 function headPreview(e) {
   e.stopPropagation();
@@ -88,13 +88,13 @@ onBeforeUnmount(() => document.removeEventListener("click", onClickOutside));
   <div ref="root" class="relative soundselect" :style="cssVars">
     <!-- Cabeçalho -->
     <button type="button" class="select-head" @click="toggle">
-      <span class="truncate">{{ currentLabel }}</span>
+      <span class="truncate text-primary">{{ currentLabel }}</span>
 
       <div class="flex items-center gap-2">
         <button
           v-if="modelValue"
           type="button"
-          class="head-playbtn"
+          class="head-playbtn text-primary"
           :class="{ playing: headIsPlaying }"
           :title="headIsPlaying ? 'Pausar' : 'Ouvir'"
           @click.stop="headPreview"
@@ -110,7 +110,7 @@ onBeforeUnmount(() => document.removeEventListener("click", onClickOutside));
 
         <span class="chev">
           <svg
-            class="size-5"
+            class="size-5 text-primary"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -131,7 +131,7 @@ onBeforeUnmount(() => document.removeEventListener("click", onClickOutside));
     <Transition name="fade-scale">
       <div
         v-if="open"
-        class="select-popover w-full min-w-full left-0"
+        class="select-popover bg-base-300 w-full min-w-full left-0"
         style="position: absolute"
       >
         <div class="select-list">
@@ -180,15 +180,16 @@ onBeforeUnmount(() => document.removeEventListener("click", onClickOutside));
     var(--tone-color) 35%,
     rgba(255, 255, 255, 0.1)
   );
-  background: linear-gradient(135deg, var(--tone-grad1), var(--tone-grad2)),
+  background:
+    linear-gradient(135deg, var(--tone-grad1), var(--tone-grad2)),
     rgba(255, 255, 255, 0.04);
-  box-shadow: inset 0 0 0 1px
-      color-mix(in srgb, var(--tone-color) 22%, transparent),
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--tone-color) 22%, transparent),
     0 1px 10px rgba(0, 0, 0, 0.18);
 }
 .select-head:hover {
-  box-shadow: inset 0 0 0 1px
-      color-mix(in srgb, var(--tone-color) 30%, transparent),
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--tone-color) 30%, transparent),
     0 2px 16px rgba(0, 0, 0, 0.22);
 }
 .select-head::before {
@@ -200,7 +201,9 @@ onBeforeUnmount(() => document.removeEventListener("click", onClickOutside));
   width: 3px;
   background: color-mix(in srgb, var(--tone-color) 70%, transparent);
   opacity: 0.65;
-  transition: width 0.15s ease, opacity 0.15s ease;
+  transition:
+    width 0.15s ease,
+    opacity 0.15s ease;
 }
 .select-head:hover::before {
   width: 5px;
@@ -216,7 +219,7 @@ onBeforeUnmount(() => document.removeEventListener("click", onClickOutside));
   background: color-mix(in srgb, var(--tone-color) 18%, transparent);
 }
 .select-popover {
-  @apply z-30 rounded-lg border border-white/10 bg-slate-800/95 backdrop-blur-xl p-1 shadow-2xl;
+  @apply z-30 rounded-lg border border-white/10 backdrop-blur-xl p-1 shadow-2xl;
 }
 .select-item {
   @apply w-full flex items-center justify-between gap-2 rounded-md p-1 pl-2 text-sm
