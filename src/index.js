@@ -2,6 +2,7 @@ import primarySelect from "~/components/selects/primary_select/primary_select.vu
 import simpleModal from "~/components/modals/simple_modal/simple_modal.vue";
 import simpleCard from "~/components/cards/simple_card/simple_card.vue";
 import instanceSelect from "~/components/selects/instance_select/index.vue";
+import SoundSelect from "~/components/selects/soundSelect.vue";
 import calendar from "./components/calendar/scheduledCalendar.vue";
 import MFA from "./components/mfa/mfa.vue";
 import MfaQrCode from "./components/mfa/MfaQrCode.vue";
@@ -82,6 +83,7 @@ function install(Vue) {
   Vue.component("CallMessage", CallMessage);
   Vue.component("ListProducts", ListProducts);
   Vue.component("ReminderModal", ReminderModal);
+  Vue.component("SoundSelect", SoundSelect);
 }
 
 export function attLibDeparts(department, action = "add") {
@@ -235,4 +237,5 @@ export default {
   ListProducts,
   ReminderModal,
   attReminderByLib,
+  SoundSelect,
 };
