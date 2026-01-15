@@ -301,7 +301,10 @@ function handleGenerateProposal() {
         class="total-price-badge text-white"
         :class="{ 'with-proposal': proposal }"
       >
-        <div class="flex items-center gap-1">
+        <div
+          class="flex items-center gap-1"
+          :class="{ 'justify-center': !proposal }"
+        >
           <span>Valor total:</span>
           <span class="font-semibold">
             {{
