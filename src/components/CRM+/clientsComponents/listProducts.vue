@@ -35,9 +35,19 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  // --- habilita funcionalidade de geração de proposta ---
+  proposal: {
+    type: Boolean,
+    default: false,
+  },
+  // --- indica se está carregando a geração de proposta ---
+  loading: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-const emit = defineEmits(["update:modelValue"]);
+const emit = defineEmits(["update:modelValue", "generate-proposal"]);
 
 const loading = ref(false);
 const productsList = ref([]);
@@ -136,7 +146,7 @@ const mountUrl = (baseUrl, params) => {
 const getProducts = async (params) => {
   try {
     const { data } = await api.get(
-      mountUrl(crm_products, { page: page.value, ...params }),
+      mountUrl(crm_products, { page: page.value, ...params })
     );
     const { results, next, previous } = data;
 
@@ -183,10 +193,10 @@ watch(
       newVal.map((i) => ({
         product: i.product,
         quantity: i.quantity,
-      })),
+      }))
     );
   },
-  { deep: true },
+  { deep: true }
 );
 
 // --- Quando o parent atualizar v-model, normaliza novamente ---
@@ -198,7 +208,7 @@ watch(
       selectedProducts.value = normalized;
     }
   },
-  { deep: true },
+  { deep: true }
 );
 
 const isLoading = ref(false);
@@ -266,8 +276,12 @@ watch(
       loading.value = false;
     }, 500); // --- 500ms de atraso após parar de digitar ---
   },
-  { deep: true },
+  { deep: true }
 );
+
+function handleGenerateProposal() {
+  emit("generate-proposal");
+}
 </script>
 
 <template>
@@ -283,14 +297,64 @@ watch(
         v-model="filters.query"
       />
 
-      <section class="total-price-badge text-white">
-        Valor total:
-        {{
-          totalPrice.toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          })
-        }}
+      <section
+        class="total-price-badge text-white"
+        :class="{ 'with-proposal': proposal }"
+      >
+        <div class="flex items-center gap-1">
+          <span>Valor total:</span>
+          <span class="font-semibold">
+            {{
+              totalPrice.toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL",
+              })
+            }}
+          </span>
+        </div>
+
+        <button
+          v-if="proposal"
+          @click="handleGenerateProposal"
+          :disabled="selectedProducts.length === 0 || readonly || props.loading"
+          :title="
+            selectedProducts.length === 0
+              ? 'Adicione produtos para gerar proposta'
+              : props.loading
+              ? 'Gerando proposta...'
+              : 'Gerar proposta'
+          "
+          class="proposal-button"
+          :class="{
+            disabled:
+              selectedProducts.length === 0 || readonly || props.loading,
+          }"
+        >
+          <div v-if="props.loading" class="flex items-center gap-1">
+            <div
+              class="size-4 animate-spin rounded-full border-2 border-white border-t-transparent"
+            ></div>
+            <!-- <span class="text-[13px]">Gerando...</span> -->
+          </div>
+          <div v-else class="flex items-center gap-1">
+            <svg
+              class="size-4"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M9 2.221V7H4.221a2 2 0 0 1 .365-.5L8.5 2.586A2 2 0 0 1 9 2.22ZM11 2v5a2 2 0 0 1-2 2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2 2 2 0 0 0 2 2h12a2 2 0 0 0 2-2 2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2V4a2 2 0 0 0-2-2h-7Zm-6 9a1 1 0 0 0-1 1v5a1 1 0 1 0 2 0v-1h.5a2.5 2.5 0 0 0 0-5H5Zm1.5 3H6v-1h.5a.5.5 0 0 1 0 1Zm4.5-3a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h1.376A2.626 2.626 0 0 0 15 15.375v-1.75A2.626 2.626 0 0 0 12.375 11H11Zm1 5v-3h.375a.626.626 0 0 1 .625.626v1.748a.625.625 0 0 1-.626.626H12Zm5-5a1 1 0 0 0-1 1v5a1 1 0 1 0 2 0v-1h1a1 1 0 1 0 0-2h-1v-1h1a1 1 0 1 0 0-2h-2Z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            <span class="text-[13px]">{{ selectedProducts.length }}</span>
+          </div>
+        </button>
       </section>
     </header>
 
@@ -307,7 +371,7 @@ watch(
           class="w-full text-gray-500 list-none list-inside dark:text-gray-400 divide-y divide-base-200"
         >
           <li
-            class="flex w-full justify-between items-center py-1.5 relative"
+            class="flex w-full bg-base-300 justify-between items-center py-1.5 relative"
             v-for="(prd, index) in sortedProducts"
             :key="prd.id"
           >
@@ -482,7 +546,7 @@ watch(
     </main>
   </div>
 </template>
-
+<style src="../../calendar/utils/calendarTheme.css"></style>
 <style scoped>
 .department-blocked {
   display: flex;
@@ -543,14 +607,12 @@ watch(
     var(--tw-ring-offset-width) var(--tw-ring-offset-color);
   --tw-ring-shadow: var(--tw-ring-inset) 0 0 0
     calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color);
-  box-shadow:
-    var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
     var(--tw-shadow, 0 0 #0000);
   --tw-shadow: 0 0 #0000;
   --tw-shadow-colored: 0 0 #0000;
-  box-shadow:
-    var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
-    var(--tw-shadow);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
+    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 
 .list-products-list {
@@ -597,7 +659,7 @@ watch(
 }
 
 .total-price-badge {
-  background-color: #14532d;
+  background-color: var(--cyber-accent-glow);
   padding: 0.375rem;
   font-size: 10px;
   border-radius: 0.375rem;
@@ -605,6 +667,37 @@ watch(
   border-width: 1px;
   width: 100%;
   margin-left: 0.125rem;
+}
+
+.total-price-badge.with-proposal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.proposal-button {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  background-color: #3191ac;
+  color: white;
+  font-size: 1rem;
+  transition: all 0.2s;
+  cursor: pointer;
+  border: none;
+}
+
+.proposal-button:hover:not(.disabled) {
+  background-color: #1c6579;
+  transform: scale(1.05);
+}
+
+.proposal-button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #6b7280;
 }
 
 ::-webkit-scrollbar {
