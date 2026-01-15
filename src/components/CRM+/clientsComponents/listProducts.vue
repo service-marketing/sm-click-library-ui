@@ -52,9 +52,17 @@ const emit = defineEmits(["update:modelValue", "generate-proposal"]);
 const loading = ref(false);
 const productsList = ref([]);
 
-// --- Organiza a lista de produtos para exibir bloqueados ao final ---
+// --- Organiza a lista de produtos: prioriza com quantidade, depois bloqueados ao final ---
 const sortedProducts = computed(() => {
   return [...productsList.value].sort((a, b) => {
+    // Produtos com quantidade no topo
+    const hasQuantityA = getQuantity(a) > 0;
+    const hasQuantityB = getQuantity(b) > 0;
+    if (hasQuantityA !== hasQuantityB) {
+      return hasQuantityB - hasQuantityA;
+    }
+
+    // Se ambos têm ou não têm quantidade, então prioriza bloqueados ao final
     const blockedA = shouldShowDepartmentBlocked(a);
     const blockedB = shouldShowDepartmentBlocked(b);
     if (blockedA === blockedB) return 0;
@@ -316,48 +324,62 @@ function handleGenerateProposal() {
           </span>
         </div>
 
-        <button
+        <Popper
           v-if="proposal"
-          @click="handleGenerateProposal"
-          :disabled="selectedProducts.length === 0 || readonly || props.loading"
-          :title="
-            selectedProducts.length === 0
-              ? 'Adicione produtos para gerar proposta'
-              : props.loading
-              ? 'Gerando proposta...'
-              : 'Gerar proposta'
-          "
-          class="proposal-button"
-          :class="{
-            disabled:
-              selectedProducts.length === 0 || readonly || props.loading,
-          }"
+          class="label-popper"
+          :hover="true"
+          placement="top"
         >
-          <div v-if="props.loading" class="flex items-center gap-1">
-            <div
-              class="size-4 animate-spin rounded-full border-2 border-white border-t-transparent"
-            ></div>
-            <!-- <span class="text-[13px]">Gerando...</span> -->
-          </div>
-          <div v-else class="flex items-center gap-1">
-            <svg
-              class="size-4"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M9 2.221V7H4.221a2 2 0 0 1 .365-.5L8.5 2.586A2 2 0 0 1 9 2.22ZM11 2v5a2 2 0 0 1-2 2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2 2 2 0 0 0 2 2h12a2 2 0 0 0 2-2 2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2V4a2 2 0 0 0-2-2h-7Zm-6 9a1 1 0 0 0-1 1v5a1 1 0 1 0 2 0v-1h.5a2.5 2.5 0 0 0 0-5H5Zm1.5 3H6v-1h.5a.5.5 0 0 1 0 1Zm4.5-3a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h1.376A2.626 2.626 0 0 0 15 15.375v-1.75A2.626 2.626 0 0 0 12.375 11H11Zm1 5v-3h.375a.626.626 0 0 1 .625.626v1.748a.625.625 0 0 1-.626.626H12Zm5-5a1 1 0 0 0-1 1v5a1 1 0 1 0 2 0v-1h1a1 1 0 1 0 0-2h-1v-1h1a1 1 0 1 0 0-2h-2Z"
-                clip-rule="evenodd"
-              />
-            </svg>
-            <span class="text-[13px]">{{ selectedProducts.length }}</span>
-          </div>
-        </button>
+          <template #content>
+            <main class="rounded p-2 bg-base-200 text-sm px-3">
+              <div class="text-white text-center">
+                {{
+                  selectedProducts.length === 0
+                    ? "Adicione produtos para gerar proposta comercial"
+                    : props.loading
+                    ? "Gerando proposta..."
+                    : "Gerar proposta"
+                }}
+              </div>
+            </main>
+          </template>
+          <button
+            @click="handleGenerateProposal"
+            :disabled="
+              selectedProducts.length === 0 || readonly || props.loading
+            "
+            class="proposal-button"
+            :class="{
+              disabled:
+                selectedProducts.length === 0 || readonly || props.loading,
+            }"
+          >
+            <div v-if="props.loading" class="flex items-center gap-1">
+              <div
+                class="size-4 animate-spin rounded-full border-2 border-white border-t-transparent"
+              ></div>
+              <!-- <span class="text-[13px]">...</span> -->
+            </div>
+            <div v-else class="flex items-center gap-1">
+              <svg
+                class="size-4"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M9 2.221V7H4.221a2 2 0 0 1 .365-.5L8.5 2.586A2 2 0 0 1 9 2.22ZM11 2v5a2 2 0 0 1-2 2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2 2 2 0 0 0 2 2h12a2 2 0 0 0 2-2 2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2V4a2 2 0 0 0-2-2h-7Zm-6 9a1 1 0 0 0-1 1v5a1 1 0 1 0 2 0v-1h.5a2.5 2.5 0 0 0 0-5H5Zm1.5 3H6v-1h.5a.5.5 0 0 1 0 1Zm4.5-3a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h1.376A2.626 2.626 0 0 0 15 15.375v-1.75A2.626 2.626 0 0 0 12.375 11H11Zm1 5v-3h.375a.626.626 0 0 1 .625.626v1.748a.625.625 0 0 1-.626.626H12Zm5-5a1 1 0 0 0-1 1v5a1 1 0 1 0 2 0v-1h1a1 1 0 1 0 0-2h-1v-1h1a1 1 0 1 0 0-2h-2Z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              <span class="text-[13px]">{{ selectedProducts.length }}</span>
+            </div>
+          </button>
+        </Popper>
       </section>
     </header>
 
@@ -668,14 +690,19 @@ function handleGenerateProposal() {
   border-radius: 0.375rem;
   border-color: #22c55e;
   border-width: 1px;
-  width: 100%;
-  margin-left: 0.125rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 50%;
 }
 
 .total-price-badge.with-proposal {
-  display: flex;
   justify-content: space-between;
-  align-items: center;
+  display: flex;
+  min-width: 220px;
+  padding: 0.1rem 0.1rem 0.1rem 0.5rem;
 }
 
 .proposal-button {
@@ -726,5 +753,16 @@ function handleGenerateProposal() {
 * {
   scrollbar-width: thin;
   scrollbar-color: #334155 transparent;
+}
+
+.label-popper {
+  --popper-theme-background-color: #021812;
+  --popper-theme-background-color-hover: #021812;
+  --popper-theme-text-color: #ffffff;
+  --popper-theme-border-width: 0px;
+  --popper-theme-border-style: solid;
+  --popper-theme-border-radius: 8px;
+  --popper-theme-padding: 0px;
+  --popper-theme-box-shadow: 0 6px 30px -6px rgba(0, 0, 0, 0.25);
 }
 </style>
