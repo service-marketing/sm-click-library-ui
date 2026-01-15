@@ -37,13 +37,7 @@
 </template>
 
 <script setup>
-import {
-  ref,
-  onMounted,
-  computed,
-  watch,
-  onBeforeUnmount,
-} from "vue";
+import { ref, onMounted, computed, watch, onBeforeUnmount } from "vue";
 import { useChat } from "./useChat"; // Importe o composable
 import ChatList from "./ChatList.vue";
 import ChatMessages from "./ChatMessages.vue";
@@ -115,7 +109,7 @@ const onSendFiles = () => {
 const unreadMessagesCount = computed(() => {
   if (selectedAtendente.value) {
     const atendente = attendants.value.find(
-      (att) => att.id === selectedAtendente.value.id,
+      (att) => att.id === selectedAtendente.value.id
     );
     return atendente ? atendente.internal_chat.unread : 0;
   }
@@ -168,10 +162,10 @@ const handleVoltar = () => {
 };
 
 const selecionarAtendente = async (atendente) => {
-  const channelId = atendente?.internal_chat?.channel_id;
-  
+  const channelId = atendente.internal_chat?.channel_id || atendente.id;
+
   if (!channelId) {
-    console.error("Canal sem channel_id:", atendente);
+    console.error("Canal sem channel_id(mobile):", channelId);
     return;
   }
 
@@ -199,10 +193,10 @@ watch(
       addMessageToChannel(
         newVal,
         isChatOpen.value,
-        selectedAtendente.value?.internal_chat?.channel_id,
+        selectedAtendente.value?.internal_chat?.channel_id
       );
     }
-  },
+  }
 );
 
 watch(isChatOpen, (newVal) => {
@@ -225,14 +219,14 @@ watch(
           title: "Carregando",
           text: "Carregando mensagens…",
         },
-        2000,
+        2000
       );
     }
 
     if (!isLoading) {
       loadingToastOpen = false;
     }
-  },
+  }
 );
 </script>
 
