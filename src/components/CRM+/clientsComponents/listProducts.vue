@@ -758,7 +758,7 @@ function handleGenerateProposal() {
 .label-popper {
   --popper-theme-background-color: #021812;
   --popper-theme-background-color-hover: #021812;
-  --popper-theme-text-color: #ffffff;
+  --popper-theme-text-color: content;
   --popper-theme-border-width: 0px;
   --popper-theme-border-style: solid;
   --popper-theme-border-radius: 8px;
