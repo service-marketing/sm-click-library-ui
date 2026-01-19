@@ -332,7 +332,7 @@ function handleGenerateProposal() {
         >
           <template #content>
             <main class="rounded p-2 bg-base-200 text-sm px-3">
-              <div class="text-white text-center">
+              <div class="text-center">
                 {{
                   selectedProducts.length === 0
                     ? "Adicione produtos para gerar proposta comercial"
