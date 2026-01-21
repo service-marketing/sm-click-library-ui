@@ -199,7 +199,7 @@ const displayLabel = computed(() => {
     <div
       @click="isOpen = !isOpen"
       :class="[
-        'flex flex-wrap items-center justify-between p-3 gap-2 rounded-md cursor-pointer transition',
+        'flex flex-wrap shadow shadow-gray-900 dark:shadow-gray-400 items-center justify-between p-3 gap-2 rounded-md cursor-pointer transition',
         theme,
       ]"
       ref="triggerRef"
@@ -207,7 +207,7 @@ const displayLabel = computed(() => {
       <span
         :class="[
           'text-xs truncate max-w-full flex gap-2 items-center',
-          hasSelection ? 'text-white' : 'text-gray-400',
+          hasSelection ? '' : 'opacity-80',
         ]"
       >
         <!-- Ícone da seleção -->
@@ -230,7 +230,7 @@ const displayLabel = computed(() => {
       <!-- Ícone -->
       <svg
         :class="[
-          'size-3 text-white transition-transform duration-300',
+          'size-3 transition-transform duration-300',
           isOpen ? 'rotate-180' : '',
         ]"
         xmlns="http://www.w3.org/2000/svg"
