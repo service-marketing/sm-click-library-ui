@@ -70,7 +70,7 @@ const sortedProducts = computed(() => {
   });
 });
 
-// --- Normaliza itens do parent para sempre ter { product, quantity } ---
+// --- Normaliza itens do parent para sempre ter { product, quantity, discount } ---
 function normalizeProducts(list) {
   if (!Array.isArray(list)) return [];
   return list.map((item) => {
@@ -78,11 +78,13 @@ function normalizeProducts(list) {
       return {
         product: { ...item.product },
         quantity: item.quantity ?? 0,
+        discount: item.discount ?? 0,
       };
     }
     return {
       product: { ...item },
       quantity: item.quantity ?? 0,
+      discount: item.discount ?? 0,
     };
   });
 }
@@ -95,7 +97,25 @@ const totalPrice = computed(() => {
   return selectedProducts.value.reduce((total, item) => {
     const price = item.product?.price || item.price || 0;
     const quantity = item.quantity || 0;
-    return total + price * quantity;
+    const discount = item.discount || 0;
+    const finalPrice = price * (1 - discount / 100);
+    return total + finalPrice * quantity;
+  }, 0);
+});
+
+const productsWithDiscount = computed(() => {
+  return selectedProducts.value.filter(
+    (item) => item.quantity > 0 && item.discount > 0,
+  );
+});
+
+const totalSavings = computed(() => {
+  return selectedProducts.value.reduce((total, item) => {
+    const price = item.product?.price || item.price || 0;
+    const quantity = item.quantity || 0;
+    const discount = item.discount || 0;
+    const savingsAmount = ((price * discount) / 100) * quantity;
+    return total + savingsAmount;
   }, 0);
 });
 
@@ -115,6 +135,43 @@ const quantityMap = computed(() => {
 
 const getQuantity = (prd) => quantityMap.value[prd.id] || 0;
 
+const discountMap = computed(() => {
+  const map = {};
+  selectedProducts.value.forEach((p) => {
+    const id = getProductId(p);
+    if (id != null) map[id] = p.discount || 0;
+  });
+  return map;
+});
+
+const getDiscount = (prd) => discountMap.value[prd.id] || 0;
+
+const updateDiscount = (prd, value) => {
+  if (props.readonly) return;
+  if (shouldShowDepartmentBlocked(prd)) return;
+
+  let numValue = parseInt(value, 10) || 0;
+  numValue = Math.max(0, Math.min(100, numValue));
+
+  const found = selectedProducts.value.find((p) => getProductId(p) === prd.id);
+  if (found) {
+    found.discount = numValue;
+  }
+};
+
+const validateDiscount = (prd, event) => {
+  let value = parseInt(event.target.value, 10) || 0;
+  value = Math.max(0, Math.min(100, value));
+  event.target.value = value;
+  updateDiscount(prd, value);
+};
+
+const calculateFinalPrice = (prd) => {
+  const price = prd.price || 0;
+  const discount = getDiscount(prd);
+  return price * (1 - discount / 100);
+};
+
 // --- Incrementa ---
 const increaseQuantity = (prd) => {
   if (props.readonly) return;
@@ -126,6 +183,7 @@ const increaseQuantity = (prd) => {
     selectedProducts.value.push({
       product: { ...prd },
       quantity: 1,
+      discount: 0,
     });
   }
 };
@@ -154,7 +212,7 @@ const mountUrl = (baseUrl, params) => {
 const getProducts = async (params) => {
   try {
     const { data } = await api.get(
-      mountUrl(crm_products, { page: page.value, ...params })
+      mountUrl(crm_products, { page: page.value, ...params }),
     );
     const { results, next, previous } = data;
 
@@ -201,10 +259,11 @@ watch(
       newVal.map((i) => ({
         product: i.product,
         quantity: i.quantity,
-      }))
+        discount: i.discount || 0,
+      })),
     );
   },
-  { deep: true }
+  { deep: true },
 );
 
 // --- Quando o parent atualizar v-model, normaliza novamente ---
@@ -216,7 +275,7 @@ watch(
       selectedProducts.value = normalized;
     }
   },
-  { deep: true }
+  { deep: true },
 );
 
 const isLoading = ref(false);
@@ -284,7 +343,7 @@ watch(
       loading.value = false;
     }, 500); // --- 500ms de atraso após parar de digitar ---
   },
-  { deep: true }
+  { deep: true },
 );
 
 function handleGenerateProposal() {
@@ -322,23 +381,79 @@ function handleGenerateProposal() {
               })
             }}
           </span>
+
+          <Popper
+            v-if="productsWithDiscount.length > 0"
+            class="discount-popper"
+            :hover="true"
+            placement="top"
+          >
+            <template #content>
+              <main class="discount-tooltip">
+                <div class="discount-tooltip-header">
+                  Produtos com desconto ({{ productsWithDiscount.length }})
+                </div>
+                <ul class="discount-tooltip-list">
+                  <li
+                    v-for="item in productsWithDiscount"
+                    :key="getProductId(item)"
+                    class="discount-tooltip-item"
+                  >
+                    <span class="discount-tooltip-name">{{
+                      item.product.name
+                    }}</span>
+                    <span class="discount-tooltip-value"
+                      >{{ item.discount }}% OFF</span
+                    >
+                  </li>
+                </ul>
+                <div class="discount-tooltip-footer">
+                  <div class="savings-info">
+                    <span class="savings-label">Economia total:</span>
+                    <span class="savings-amount">{{
+                      totalSavings.toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                      })
+                    }}</span>
+                  </div>
+                </div>
+              </main>
+            </template>
+            <div
+              class="discount-badge discount-percentage"
+              :class="{ 'mr-2': proposal }"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="size-4"
+                viewBox="0 0 590 635"
+                fill="none"
+              >
+                <path
+                  d="M310.86 10.2568C324.851 -7.41679 353.27 -1.24771 360.711 21.0781L385.338 94.9668C390.061 109.138 404.244 118.008 418.419 115.657L489.449 103.877C511.311 100.251 529.835 122.547 522.516 143.678L495.903 220.51C491.399 233.513 496.733 248.391 508.624 255.996L575.418 298.717C594.157 310.702 594.568 338.119 576.17 348.87L508.033 388.685C496.571 395.383 491.618 409.545 496.134 422.714L523.506 502.543C530.844 523.944 513.237 544.396 491.612 539.592L418.451 523.338C404.513 520.241 390.92 527.845 386.406 541.264L361.263 616C354.018 637.533 325.878 641.26 311.658 622.57L265.838 562.345C256.671 550.297 240.405 546.767 228.058 554.145L166.338 591.025C147.184 602.471 122.152 587.201 122.215 564.109L122.433 483.962C122.472 469.572 112.215 456.791 98.2549 453.832L24.9766 438.299C3.31649 433.707 -6.61363 407.277 6.98828 390.422L57.7256 327.548C66.0956 317.176 65.9616 301.91 57.4043 290.866L6.53418 225.218C-7.20026 207.492 1.8522 182.13 23.0938 178.823L98.8135 167.039C112.294 164.941 121.966 153.32 121.883 139.32L121.394 56.6055C121.259 33.8573 145.561 20.8575 164.775 33.3994L227.204 74.1494C239.663 82.282 255.677 79.9662 264.558 68.748L310.86 10.2568ZM333.442 173.23L199.154 415.935H232.727L367.322 173.23H333.442ZM360.546 287.19C342.066 287.19 328.001 293.248 318.351 305.362C310.137 316.04 306.03 330.926 306.03 350.022C306.03 368.708 310.137 383.389 318.351 394.066C328.001 406.181 342.066 412.238 360.546 412.238C379.231 412.238 393.399 406.181 403.05 394.066C411.674 383.389 415.986 368.708 415.986 350.022C415.986 331.132 411.674 316.245 403.05 305.362C393.399 293.248 379.231 287.19 360.546 287.19ZM360.546 315.834C376.973 315.834 385.187 327.23 385.187 350.022C385.186 372.814 376.972 384.21 360.546 384.21C352.743 384.21 346.686 380.822 342.374 374.046C338.267 368.091 336.214 360.084 336.214 350.022C336.214 327.231 344.325 315.834 360.546 315.834ZM205.93 176.926C187.245 176.926 173.076 182.983 163.426 195.098C155.007 205.98 150.798 220.765 150.798 239.45C150.798 257.93 155.007 272.612 163.426 283.494C172.871 295.814 187.039 301.974 205.93 301.974C224.41 301.974 238.475 295.814 248.126 283.494C256.75 272.817 261.062 258.135 261.062 239.45C261.062 220.765 256.75 205.98 248.126 195.098C238.475 182.983 224.41 176.926 205.93 176.926ZM205.93 205.262C213.938 205.262 220.098 208.547 224.41 215.118C228.517 221.483 230.57 229.594 230.57 239.45C230.57 262.037 222.356 273.33 205.93 273.33C189.709 273.33 181.599 262.037 181.599 239.45C181.599 229.184 183.549 221.073 187.45 215.118C191.762 208.548 197.922 205.262 205.93 205.262Z"
+                  fill="currentColor"
+                />
+              </svg>
+            </div>
+          </Popper>
         </div>
 
         <Popper
           v-if="proposal"
-          class="label-popper"
+          class="discount-popper"
           :hover="true"
           placement="top"
         >
           <template #content>
-            <main class="rounded p-2 bg-base-200 text-sm px-3">
+            <main class="p-2 text-sm px-3">
               <div class="text-center">
                 {{
                   selectedProducts.length === 0
                     ? "Adicione produtos para gerar proposta comercial"
                     : props.loading
-                    ? "Gerando proposta..."
-                    : "Gerar proposta"
+                      ? "Gerando proposta..."
+                      : "Gerar proposta"
                 }}
               </div>
             </main>
@@ -428,14 +543,14 @@ function handleGenerateProposal() {
             <div class="flex gap-2 items-center pl-2">
               <section>
                 <img
-                  class="size-8 rounded-md"
+                  class="size-9 rounded-md"
                   v-if="prd.photo"
                   :src="prd.photo"
                 />
 
                 <div class="empty-product-photo" v-else>
                   <svg
-                    class="size-4"
+                    class="size-5"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"
@@ -457,36 +572,70 @@ function handleGenerateProposal() {
                 </div>
               </section>
 
-              <section class="flex flex-col items-start">
-                <p
-                  :title="prd.name"
-                  class="label-product-name"
-                  :class="
-                    getQuantity(prd) > 0 ? 'text-white dark:text-primary' : ''
-                  "
+              <section
+                class="flex flex-col items-start gap-1 justify-between flex-1"
+              >
+                <div
+                  style="display: flex; align-items: center"
+                  class="flex items-center gap-1.5"
                 >
-                  {{ prd.name }}
-                </p>
-
-                <span class="text-[10px] flex gap-1 items-center">
-                  <p class="text-xs font-semibold font-sans">
-                    R$
-                    {{
-                      prd.price.toLocaleString("pt-BR", {
-                        style: "currency",
-                        currency: "BRL",
-                      })
-                    }}
+                  <p
+                    :class="[
+                      'text-xs font-semibold products-and-services_badge dark:text-white flex-shrink-0',
+                      prd.recurrence,
+                    ]"
+                  >
+                    {{ prd.recurrence === "monthly" ? "Mensal" : "Único" }}
                   </p>
 
                   <p
-                    v-if="getQuantity(prd) > 0"
-                    class="font-sans text-primary text-white dark:text-primary font-semibold"
+                    :title="prd.name"
+                    class="label-product-name"
+                    :class="
+                      getQuantity(prd) > 0 ? 'text-white dark:text-primary' : ''
+                    "
                   >
-                    - x {{ getQuantity(prd) }} =
-                    <a class="text-green-400 dark:text-[#14532d] font-semibold">
+                    {{ prd.name }}
+                  </p>
+                </div>
+
+                <span class="flex gap-1 items-center flex-wrap">
+                  <div class="flex gap-1 items-center">
+                    <p
+                      class="text-xs font-semibold"
+                      :class="
+                        getDiscount(prd) > 0 ? 'line-through opacity-60' : ''
+                      "
+                    >
                       {{
-                        (prd.price * getQuantity(prd)).toLocaleString("pt-BR", {
+                        prd.price.toLocaleString("pt-BR", {
+                          style: "currency",
+                          currency: "BRL",
+                        })
+                      }}
+                    </p>
+
+                    <p v-if="getDiscount(prd) > 0" class="discount-percentage">
+                      - {{ getDiscount(prd) }}%
+                    </p>
+
+                    <p v-if="getDiscount(prd) > 0" class="discounted-price">
+                      {{
+                        calculateFinalPrice(prd).toLocaleString("pt-BR", {
+                          style: "currency",
+                          currency: "BRL",
+                        })
+                      }}
+                    </p>
+                  </div>
+
+                  <p v-if="getQuantity(prd) > 0" class="price-line">
+                    - x {{ getQuantity(prd) }} =
+                    <a class="price-total">
+                      {{
+                        (
+                          calculateFinalPrice(prd) * getQuantity(prd)
+                        ).toLocaleString("pt-BR", {
                           style: "currency",
                           currency: "BRL",
                         })
@@ -497,17 +646,8 @@ function handleGenerateProposal() {
               </section>
             </div>
 
-            <section class="flex flex-col gap-1 pr-2">
-              <p
-                :class="[
-                  'text-xs font-semibold font-sans products-and-services_badge dark:text-white',
-                  prd.recurrence,
-                ]"
-              >
-                {{ prd.recurrence === "monthly" ? "Mensal" : "Único" }}
-              </p>
-
-              <div class="flex gap-1">
+            <section class="product-actions-section">
+              <div class="quantity-controls">
                 <button
                   :disabled="shouldShowDepartmentBlocked(prd) || readonly"
                   class="action-list-button bg-base-200"
@@ -532,6 +672,25 @@ function handleGenerateProposal() {
                 >
                   +
                 </button>
+              </div>
+
+              <div
+                v-if="getQuantity(prd) > 0"
+                class="discount-input-wrapper-animated"
+              >
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="1"
+                  :value="getDiscount(prd)"
+                  @input="validateDiscount(prd, $event)"
+                  @change="validateDiscount(prd, $event)"
+                  :disabled="shouldShowDepartmentBlocked(prd) || readonly"
+                  class="discount-input-compact"
+                  placeholder="0"
+                />
+                <span class="discount-symbol">%</span>
               </div>
             </section>
           </li>
@@ -591,8 +750,8 @@ function handleGenerateProposal() {
 }
 
 .empty-product-photo {
-  width: 2rem;
-  height: 2rem;
+  width: 2.25rem;
+  height: 2.25rem;
   border-radius: 0.375rem;
   display: flex;
   align-items: center;
@@ -632,12 +791,14 @@ function handleGenerateProposal() {
     var(--tw-ring-offset-width) var(--tw-ring-offset-color);
   --tw-ring-shadow: var(--tw-ring-inset) 0 0 0
     calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color);
-  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
+  box-shadow:
+    var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
     var(--tw-shadow, 0 0 #0000);
   --tw-shadow: 0 0 #0000;
   --tw-shadow-colored: 0 0 #0000;
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
-    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  box-shadow:
+    var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
+    var(--tw-shadow);
 }
 
 .list-products-list {
@@ -656,7 +817,7 @@ function handleGenerateProposal() {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 8rem;
+  max-width: 6rem;
 }
 
 .action-list-button {
@@ -674,7 +835,7 @@ function handleGenerateProposal() {
 }
 
 .products-and-services_badge {
-  @apply inline-flex w-full justify-center items-center rounded-md px-1 py-1 text-[10px] font-medium hover:scale-105 transition-all;
+  @apply inline-flex justify-center items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium hover:scale-105 transition-all h-fit w-12;
 }
 .products-and-services_badge.monthly {
   @apply bg-green-600/20  text-green-400 hover:text-green-200;
@@ -703,6 +864,10 @@ function handleGenerateProposal() {
   display: flex;
   min-width: 220px;
   padding: 0.1rem 0.1rem 0.1rem 0.5rem;
+}
+
+.dark .total-price-badge {
+  color: #000000;
 }
 
 .proposal-button {
@@ -756,13 +921,382 @@ function handleGenerateProposal() {
 }
 
 .label-popper {
-  --popper-theme-background-color: #021812;
-  --popper-theme-background-color-hover: #021812;
-  --popper-theme-text-color: content;
-  --popper-theme-border-width: 0px;
+  --popper-theme-background-color: #1f2937;
+  --popper-theme-background-color-hover: #1f2937;
+  --popper-theme-text-color: #ffffff;
+  --popper-theme-border-width: 1px;
   --popper-theme-border-style: solid;
+  --popper-theme-border-color: #374151;
   --popper-theme-border-radius: 8px;
   --popper-theme-padding: 0px;
-  --popper-theme-box-shadow: 0 6px 30px -6px rgba(0, 0, 0, 0.25);
+  --popper-theme-box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+}
+
+/* Discount Badge Styles */
+.discount-badge {
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  animation: bounce 3s infinite;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+@keyframes bounce {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+.discount-badge:hover {
+  transform: scale(1.05);
+}
+
+/* Discount Popper Styles */
+.discount-popper {
+  --popper-theme-background-color: #1f2937;
+  --popper-theme-background-color-hover: #1f2937;
+  --popper-theme-text-color: #ffffff;
+  --popper-theme-border-width: 1px;
+  --popper-theme-border-style: solid;
+  --popper-theme-border-color: #374151;
+  --popper-theme-border-radius: 8px;
+  --popper-theme-padding: 0px;
+  --popper-theme-box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+}
+
+.discount-tooltip {
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  max-width: 280px;
+  color: white;
+}
+
+.discount-tooltip-header {
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #374151;
+  color: #f59e0b;
+}
+
+.discount-tooltip-footer {
+  border-top: 1px solid #374151;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+}
+
+.savings-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.688rem;
+}
+
+.savings-label {
+  opacity: 0.8;
+  font-weight: 500;
+}
+
+.savings-amount {
+  font-weight: 700;
+  color: #34d399;
+}
+
+.discount-tooltip-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.discount-tooltip-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.688rem;
+  padding: 0.375rem;
+  border-radius: 0.375rem;
+  background-color: #374151;
+  transition: background-color 0.2s ease;
+}
+
+.discount-tooltip-item:hover {
+  background-color: #4b5563;
+}
+
+.discount-tooltip-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #e5e7eb;
+}
+
+.discount-tooltip-value {
+  font-weight: 700;
+  color: #34d399;
+  white-space: nowrap;
+}
+
+/* Product Actions Section */
+.product-actions-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding-right: 0.5rem;
+  min-width: fit-content;
+}
+
+.actions-top-row {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.quantity-controls {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+/* Discount Input Styles */
+.discount-input-wrapper-animated {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  animation: slideDown 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: top;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 100px;
+  }
+}
+
+.discount-input-compact {
+  width: 100%;
+  height: 1.5rem;
+  padding: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 0.375rem;
+  border: 1px solid #374151;
+  background-color: #1f2937;
+  color: white;
+  outline: none;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.discount-input-compact:focus {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+.discount-input-compact:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.discount-input-compact::placeholder {
+  color: #6b7280;
+}
+
+/* Remove spinner buttons in number input */
+.discount-input-compact::-webkit-outer-spin-button,
+.discount-input-compact::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.discount-input-compact[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.discount-symbol {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.688rem;
+  font-weight: 700;
+  color: #f59e0b;
+  pointer-events: none;
+}
+
+/* Dark mode (modo claro da plataforma) */
+.dark .discount-input-compact {
+  background-color: #f3f4f6;
+  color: #111827;
+  border-color: #d1d5db;
+}
+
+.dark .discount-input-compact:focus {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+}
+
+.dark .discount-tooltip {
+  background-color: #ffffff;
+  color: #111827;
+  box-shadow: 10px 40px -10px rgba(0, 0, 0, 0.2);
+}
+
+.dark .discount-tooltip-header {
+  color: #d97706;
+  border-bottom-color: #e5e7eb;
+}
+
+.dark .discount-tooltip-item {
+  background-color: #f3f4f6;
+}
+
+.dark .discount-tooltip-item:hover {
+  background-color: #e5e7eb;
+}
+
+.dark .discount-tooltip-name {
+  color: #374151;
+}
+
+.dark .discount-tooltip-value {
+  color: #059669;
+}
+
+.dark .discounted-price {
+  color: #047857;
+}
+
+/* Popper colors for dark mode */
+.dark .label-popper {
+  --popper-theme-background-color: #ffffff;
+  --popper-theme-background-color-hover: #ffffff;
+  --popper-theme-text-color: #111827;
+  --popper-theme-border-color: #d1d5db;
+}
+
+.dark .discount-popper {
+  --popper-theme-background-color: #ffffff;
+  --popper-theme-background-color-hover: #ffffff;
+  --popper-theme-text-color: #111827;
+  --popper-theme-border-color: #d1d5db;
+}
+
+/* Pure CSS classes for discount display */
+.discount-percentage {
+  color: #f97316;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.dark .discount-percentage {
+  color: #f58f46;
+}
+
+.discounted-price {
+  color: #34d399;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* Pure CSS for products badges */
+.products-and-services_badge {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0.375rem;
+  padding-left: 0.375rem;
+  padding-right: 0.375rem;
+  padding-top: 0.125rem;
+  padding-bottom: 0.125rem;
+  font-size: 0.625rem;
+  line-height: 0.875rem;
+  font-weight: 500;
+  height: fit-content;
+  width: 3rem;
+  transition: all 0.2s;
+}
+
+.products-and-services_badge:hover {
+  transform: scale(1.05);
+}
+
+.products-and-services_badge.monthly {
+  background-color: rgba(22, 163, 74, 0.2);
+  color: #4ade80;
+}
+
+.products-and-services_badge.monthly:hover {
+  color: #a7f3d0;
+}
+
+.products-and-services_badge.unique {
+  background-color: rgba(54, 102, 240, 0.5);
+  color: #93c5fd;
+}
+
+.products-and-services_badge.unique:hover {
+  color: #dbeafe;
+}
+
+/* Adjust badge colors for dark mode */
+.dark .products-and-services_badge.monthly {
+  background-color: rgba(22, 163, 74, 0.3);
+  color: #16a34a;
+}
+
+.dark .products-and-services_badge.monthly:hover {
+  color: #15803d;
+}
+
+.dark .products-and-services_badge.unique {
+  background-color: rgba(54, 102, 240, 0.6);
+  color: #1d4ed8;
+}
+
+.dark .products-and-services_badge.unique:hover {
+  color: #1e40af;
+}
+.price-line {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.price-total {
+  display: inline-flex;
+  align-items: center;
+
+  font-weight: 700;
 }
 </style>
