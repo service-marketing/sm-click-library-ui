@@ -8,6 +8,7 @@ import { computed, onMounted, reactive, watch, toRaw, ref } from "vue";
 import { crm_products } from "~/utils/systemUrls";
 import InfiniteLoading from "v3-infinite-loading";
 import api from "~/utils/api.js";
+import DiscountProductCard from "./DiscountProductCard.vue";
 
 const props = defineProps({
   // --- Lista que será exibida e já selecionada ---
@@ -149,9 +150,11 @@ const getDiscount = (prd) => discountMap.value[prd.id] || 0;
 const updateDiscount = (prd, value) => {
   if (props.readonly) return;
   if (shouldShowDepartmentBlocked(prd)) return;
+  if (!prd.discountable) return;
 
   let numValue = parseInt(value, 10) || 0;
-  numValue = Math.max(0, Math.min(100, numValue));
+  const maxDiscount = prd.max_discount || 100;
+  numValue = Math.max(0, Math.min(maxDiscount, numValue));
 
   const found = selectedProducts.value.find((p) => getProductId(p) === prd.id);
   if (found) {
@@ -160,8 +163,13 @@ const updateDiscount = (prd, value) => {
 };
 
 const validateDiscount = (prd, event) => {
+  if (!prd.discountable) {
+    event.target.value = 0;
+    return;
+  }
   let value = parseInt(event.target.value, 10) || 0;
-  value = Math.max(0, Math.min(100, value));
+  const maxDiscount = prd.max_discount || 100;
+  value = Math.max(0, Math.min(maxDiscount, value));
   event.target.value = value;
   updateDiscount(prd, value);
 };
@@ -355,153 +363,160 @@ function handleGenerateProposal() {
   <div class="list-products-wrapper" @mouseleave="handleMouseLeave">
     <header
       v-if="(productsList.length > 0 && !itsSearching) || itsSearching"
-      class="header-products-list"
+      class="header-products-list bg-base-300"
     >
-      <input
-        class="search-products-input text-white dark:text-black"
-        type="text"
-        placeholder="Buscar..."
-        v-model="filters.query"
-      />
-
-      <section
-        class="total-price-badge text-white"
-        :class="{ 'with-proposal': proposal }"
-      >
-        <div
-          style="display: flex; align-items: center"
-          class="flex items-center gap-1"
-          :class="{ 'justify-center': !proposal }"
+      <div style="padding: 0.5rem 0.5rem 0rem 0.5rem">
+        <section
+          class="total-price-badge text-white"
+          :class="{ 'with-proposal': proposal }"
         >
-          <span>Valor total:</span>
-          <span class="font-semibold">
-            {{
-              totalPrice.toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-              })
-            }}
-          </span>
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <span class="text-xs">Valor total:</span>
+            <span class="font-semibold text-sm">
+              {{
+                (totalPrice + totalSavings).toLocaleString("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
+                })
+              }}
+            </span>
+
+            <template v-if="productsWithDiscount.length > 0">
+              <span class="text-xs">-</span>
+              <span
+                style="font-size: 0.875rem"
+                class="font-medium discount-percentage"
+              >
+                {{
+                  totalSavings.toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                  })
+                }}
+              </span>
+              <Popper class="discount-popper" :hover="true" placement="top">
+                <template #content>
+                  <main class="discount-tooltip">
+                    <div class="discount-tooltip-header">
+                      Produtos com desconto ({{ productsWithDiscount.length }})
+                    </div>
+                    <ul class="discount-tooltip-list">
+                      <DiscountProductCard
+                        v-for="item in productsWithDiscount"
+                        :key="getProductId(item)"
+                        :item="item"
+                        :getProductId="getProductId"
+                      />
+                    </ul>
+                    <div class="discount-tooltip-footer">
+                      <div class="savings-info">
+                        <span class="savings-label">Economia total:</span>
+                        <span class="savings-amount">{{
+                          totalSavings.toLocaleString("pt-BR", {
+                            style: "currency",
+                            currency: "BRL",
+                          })
+                        }}</span>
+                      </div>
+                    </div>
+                  </main>
+                </template>
+                <div class="discount-badge">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="size-6"
+                    viewBox="0 0 55 62"
+                    fill="none"
+                  >
+                    <path
+                      d="M26.6839 11.1304C28.6291 8.59593 32.6389 9.49368 33.6735 12.6953V12.6953C34.3268 14.7172 36.3132 15.9948 38.2894 15.6568V15.6568C41.3197 15.1384 43.9062 18.2943 42.9019 21.2848L42.6968 21.8954C42.033 23.8721 42.8293 26.1348 44.6 27.3029V27.3029C47.3871 29.1414 47.4599 33.2982 44.7337 34.9412L44.5536 35.0498C42.8092 36.1011 42.0583 38.3046 42.7427 40.3634L42.9237 40.9079C43.9644 44.0383 41.4451 47.0065 38.3496 46.2972V46.2972C36.3456 45.838 34.3946 46.9497 33.7532 48.9162L33.6179 49.3311C32.6312 52.3561 28.7486 52.8621 26.7994 50.2196V50.2196C25.5373 48.5086 23.2813 48.0035 21.5812 49.0513V49.0513C18.9556 50.6695 15.4947 48.5194 15.5032 45.2754L15.5044 44.8305C15.5099 42.7216 14.0337 40.8426 12.0265 40.4037V40.4037C8.92596 39.7259 7.48972 35.872 9.41874 33.4065L9.75425 32.9777C11.0229 31.3561 10.9991 28.9791 9.69678 27.2457L9.56236 27.0668C7.52706 24.3577 8.86928 20.5177 12.0288 20.0105V20.0105C14.036 19.6883 15.4714 17.9253 15.4592 15.7972L15.4555 15.1399C15.437 11.9204 18.8135 10.0995 21.4769 11.8926V11.8926C23.2138 13.062 25.4555 12.731 26.6839 11.1304V11.1304Z"
+                      fill="currentColor"
+                    />
+                    <path
+                      d="M21.3849 25.185C20.8649 25.185 20.4649 25.3984 20.1849 25.825C19.9316 26.2117 19.8049 26.7384 19.8049 27.405C19.8049 28.8717 20.3316 29.605 21.3849 29.605C22.4516 29.605 22.9849 28.8717 22.9849 27.405C22.9849 26.765 22.8516 26.2384 22.5849 25.825C22.3049 25.3984 21.9049 25.185 21.3849 25.185ZM21.3849 23.345C22.5849 23.345 23.4983 23.7384 24.1249 24.525C24.6849 25.2317 24.9649 26.1917 24.9649 27.405C24.9649 28.6184 24.6849 29.5717 24.1249 30.265C23.4983 31.065 22.5849 31.465 21.3849 31.465C20.1583 31.465 19.2383 31.065 18.6249 30.265C18.0783 29.5584 17.8049 28.605 17.8049 27.405C17.8049 26.1917 18.0783 25.2317 18.6249 24.525C19.2516 23.7384 20.1716 23.345 21.3849 23.345ZM31.8649 23.105L23.1249 38.865H20.9449L29.6649 23.105H31.8649ZM31.4249 32.365C30.3716 32.365 29.8449 33.105 29.8449 34.585C29.8449 35.2384 29.9783 35.7584 30.2449 36.145C30.5249 36.585 30.9183 36.805 31.4249 36.805C32.4916 36.805 33.0249 36.065 33.0249 34.585C33.0249 33.105 32.4916 32.365 31.4249 32.365ZM31.4249 30.505C32.6383 30.505 33.5583 30.8984 34.1849 31.685C34.7449 32.3917 35.0249 33.3584 35.0249 34.585C35.0249 35.7984 34.7449 36.7517 34.1849 37.445C33.5583 38.2317 32.6383 38.625 31.4249 38.625C30.2249 38.625 29.3116 38.2317 28.6849 37.445C28.1516 36.7517 27.8849 35.7984 27.8849 34.585C27.8849 33.345 28.1516 32.3784 28.6849 31.685C29.3116 30.8984 30.2249 30.505 31.4249 30.505Z"
+                      fill="white"
+                    />
+                  </svg>
+                </div>
+              </Popper>
+              <span class="text-xs">=</span>
+              <span
+                class="font-bold text-sm text-green-400 dark:text-green-600"
+              >
+                {{
+                  totalPrice.toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                  })
+                }}
+              </span>
+            </template>
+          </div>
 
           <Popper
-            v-if="productsWithDiscount.length > 0"
+            v-if="proposal"
             class="discount-popper"
             :hover="true"
             placement="top"
           >
             <template #content>
-              <main class="discount-tooltip">
-                <div class="discount-tooltip-header">
-                  Produtos com desconto ({{ productsWithDiscount.length }})
-                </div>
-                <ul class="discount-tooltip-list">
-                  <li
-                    v-for="item in productsWithDiscount"
-                    :key="getProductId(item)"
-                    class="discount-tooltip-item"
-                  >
-                    <span class="discount-tooltip-name">{{
-                      item.product.name
-                    }}</span>
-                    <span class="discount-tooltip-value"
-                      >{{ item.discount }}% OFF</span
-                    >
-                  </li>
-                </ul>
-                <div class="discount-tooltip-footer">
-                  <div class="savings-info">
-                    <span class="savings-label">Economia total:</span>
-                    <span class="savings-amount">{{
-                      totalSavings.toLocaleString("pt-BR", {
-                        style: "currency",
-                        currency: "BRL",
-                      })
-                    }}</span>
-                  </div>
+              <main class="p-2 text-sm px-3">
+                <div class="text-center">
+                  {{
+                    selectedProducts.length === 0
+                      ? "Adicione produtos para gerar proposta comercial"
+                      : props.loading
+                        ? "Gerando proposta..."
+                        : "Gerar proposta"
+                  }}
                 </div>
               </main>
             </template>
-            <div
-              class="discount-badge discount-percentage"
-              :class="{ 'mr-2': proposal }"
-              style="margin-left: -4px"
+            <button
+              @click="handleGenerateProposal"
+              :disabled="
+                selectedProducts.length === 0 || readonly || props.loading
+              "
+              class="proposal-button"
+              :class="{
+                disabled:
+                  selectedProducts.length === 0 || readonly || props.loading,
+              }"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="size-7"
-                viewBox="0 0 55 62"
-                fill="none"
-              >
-                <path
-                  d="M26.6839 11.1304C28.6291 8.59593 32.6389 9.49368 33.6735 12.6953V12.6953C34.3268 14.7172 36.3132 15.9948 38.2894 15.6568V15.6568C41.3197 15.1384 43.9062 18.2943 42.9019 21.2848L42.6968 21.8954C42.033 23.8721 42.8293 26.1348 44.6 27.3029V27.3029C47.3871 29.1414 47.4599 33.2982 44.7337 34.9412L44.5536 35.0498C42.8092 36.1011 42.0583 38.3046 42.7427 40.3634L42.9237 40.9079C43.9644 44.0383 41.4451 47.0065 38.3496 46.2972V46.2972C36.3456 45.838 34.3946 46.9497 33.7532 48.9162L33.6179 49.3311C32.6312 52.3561 28.7486 52.8621 26.7994 50.2196V50.2196C25.5373 48.5086 23.2813 48.0035 21.5812 49.0513V49.0513C18.9556 50.6695 15.4947 48.5194 15.5032 45.2754L15.5044 44.8305C15.5099 42.7216 14.0337 40.8426 12.0265 40.4037V40.4037C8.92596 39.7259 7.48972 35.872 9.41874 33.4065L9.75425 32.9777C11.0229 31.3561 10.9991 28.9791 9.69678 27.2457L9.56236 27.0668C7.52706 24.3577 8.86928 20.5177 12.0288 20.0105V20.0105C14.036 19.6883 15.4714 17.9253 15.4592 15.7972L15.4555 15.1399C15.437 11.9204 18.8135 10.0995 21.4769 11.8926V11.8926C23.2138 13.062 25.4555 12.731 26.6839 11.1304V11.1304Z"
-                  fill="currentColor"
-                />
-                <path
-                  d="M21.3849 25.185C20.8649 25.185 20.4649 25.3984 20.1849 25.825C19.9316 26.2117 19.8049 26.7384 19.8049 27.405C19.8049 28.8717 20.3316 29.605 21.3849 29.605C22.4516 29.605 22.9849 28.8717 22.9849 27.405C22.9849 26.765 22.8516 26.2384 22.5849 25.825C22.3049 25.3984 21.9049 25.185 21.3849 25.185ZM21.3849 23.345C22.5849 23.345 23.4983 23.7384 24.1249 24.525C24.6849 25.2317 24.9649 26.1917 24.9649 27.405C24.9649 28.6184 24.6849 29.5717 24.1249 30.265C23.4983 31.065 22.5849 31.465 21.3849 31.465C20.1583 31.465 19.2383 31.065 18.6249 30.265C18.0783 29.5584 17.8049 28.605 17.8049 27.405C17.8049 26.1917 18.0783 25.2317 18.6249 24.525C19.2516 23.7384 20.1716 23.345 21.3849 23.345ZM31.8649 23.105L23.1249 38.865H20.9449L29.6649 23.105H31.8649ZM31.4249 32.365C30.3716 32.365 29.8449 33.105 29.8449 34.585C29.8449 35.2384 29.9783 35.7584 30.2449 36.145C30.5249 36.585 30.9183 36.805 31.4249 36.805C32.4916 36.805 33.0249 36.065 33.0249 34.585C33.0249 33.105 32.4916 32.365 31.4249 32.365ZM31.4249 30.505C32.6383 30.505 33.5583 30.8984 34.1849 31.685C34.7449 32.3917 35.0249 33.3584 35.0249 34.585C35.0249 35.7984 34.7449 36.7517 34.1849 37.445C33.5583 38.2317 32.6383 38.625 31.4249 38.625C30.2249 38.625 29.3116 38.2317 28.6849 37.445C28.1516 36.7517 27.8849 35.7984 27.8849 34.585C27.8849 33.345 28.1516 32.3784 28.6849 31.685C29.3116 30.8984 30.2249 30.505 31.4249 30.505Z"
-                  fill="white"
-                />
-              </svg>
-            </div>
-          </Popper>
-        </div>
-
-        <Popper
-          v-if="proposal"
-          class="discount-popper"
-          :hover="true"
-          placement="top"
-        >
-          <template #content>
-            <main class="p-2 text-sm px-3">
-              <div class="text-center">
-                {{
-                  selectedProducts.length === 0
-                    ? "Adicione produtos para gerar proposta comercial"
-                    : props.loading
-                      ? "Gerando proposta..."
-                      : "Gerar proposta"
-                }}
+              <div v-if="props.loading" class="flex items-center gap-1">
+                <div
+                  class="size-4 animate-spin rounded-full border-2 border-white border-t-transparent"
+                ></div>
               </div>
-            </main>
-          </template>
-          <button
-            @click="handleGenerateProposal"
-            :disabled="
-              selectedProducts.length === 0 || readonly || props.loading
-            "
-            class="proposal-button"
-            :class="{
-              disabled:
-                selectedProducts.length === 0 || readonly || props.loading,
-            }"
-          >
-            <div v-if="props.loading" class="flex items-center gap-1">
-              <div
-                class="size-4 animate-spin rounded-full border-2 border-white border-t-transparent"
-              ></div>
-              <!-- <span class="text-[13px]">...</span> -->
-            </div>
-            <div v-else class="flex items-center gap-1">
-              <svg
-                class="size-4"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M9 2.221V7H4.221a2 2 0 0 1 .365-.5L8.5 2.586A2 2 0 0 1 9 2.22ZM11 2v5a2 2 0 0 1-2 2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2 2 2 0 0 0 2 2h12a2 2 0 0 0 2-2 2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2V4a2 2 0 0 0-2-2h-7Zm-6 9a1 1 0 0 0-1 1v5a1 1 0 1 0 2 0v-1h.5a2.5 2.5 0 0 0 0-5H5Zm1.5 3H6v-1h.5a.5.5 0 0 1 0 1Zm4.5-3a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h1.376A2.626 2.626 0 0 0 15 15.375v-1.75A2.626 2.626 0 0 0 12.375 11H11Zm1 5v-3h.375a.626.626 0 0 1 .625.626v1.748a.625.625 0 0 1-.626.626H12Zm5-5a1 1 0 0 0-1 1v5a1 1 0 1 0 2 0v-1h1a1 1 0 1 0 0-2h-1v-1h1a1 1 0 1 0 0-2h-2Z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-              <span class="text-[13px]">{{ selectedProducts.length }}</span>
-            </div>
-          </button>
-        </Popper>
-      </section>
+              <div v-else class="flex items-center gap-1">
+                <svg
+                  class="size-4"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M9 2.221V7H4.221a2 2 0 0 1 .365-.5L8.5 2.586A2 2 0 0 1 9 2.22ZM11 2v5a2 2 0 0 1-2 2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2 2 2 0 0 0 2 2h12a2 2 0 0 0 2-2 2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2V4a2 2 0 0 0-2-2h-7Zm-6 9a1 1 0 0 0-1 1v5a1 1 0 1 0 2 0v-1h.5a2.5 2.5 0 0 0 0-5H5Zm1.5 3H6v-1h.5a.5.5 0 0 1 0 1Zm4.5-3a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h1.376A2.626 2.626 0 0 0 15 15.375v-1.75A2.626 2.626 0 0 0 12.375 11H11Zm1 5v-3h.375a.626.626 0 0 1 .625.626v1.748a.625.625 0 0 1-.626.626H12Zm5-5a1 1 0 0 0-1 1v5a1 1 0 1 0 2 0v-1h1a1 1 0 1 0 0-2h-1v-1h1a1 1 0 1 0 0-2h-2Z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                <span class="text-[13px]">{{ selectedProducts.length }}</span>
+              </div>
+            </button>
+          </Popper>
+        </section>
+      </div>
+
+      <input
+        class="search-products-input bg-base-200 text-white dark:text-black"
+        type="text"
+        placeholder="Buscar..."
+        v-model="filters.query"
+      />
     </header>
 
     <div
@@ -680,24 +695,50 @@ function handleGenerateProposal() {
                 </button>
               </div>
 
-              <div
+              <Popper
                 v-if="getQuantity(prd) > 0"
-                class="discount-input-wrapper-animated"
+                class="discount-input-popper"
+                :hover="true"
+                arrow
+                placement="left"
               >
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  step="1"
-                  :value="getDiscount(prd)"
-                  @input="validateDiscount(prd, $event)"
-                  @change="validateDiscount(prd, $event)"
-                  :disabled="shouldShowDepartmentBlocked(prd) || readonly"
-                  class="discount-input-compact"
-                  placeholder="0"
-                />
-                <span class="discount-symbol">%</span>
-              </div>
+                <template #content>
+                  <main class="discount-input-tooltip">
+                    <div v-if="!prd.discountable" class="text-xs">
+                      Desconto não permitido para este produto
+                    </div>
+                    <div v-else class="flex flex-col gap-1">
+                      <div class="text-xs">Desconto habilitado</div>
+                      <div class="text-xs">
+                        Máximo:
+                        <span class="font-bold text-orange-400"
+                          >{{ prd.max_discount || 100 }}%</span
+                        >
+                      </div>
+                    </div>
+                  </main>
+                </template>
+                <div class="discount-input-wrapper-animated">
+                  <input
+                    type="number"
+                    min="0"
+                    :max="prd.max_discount || 100"
+                    step="1"
+                    :value="getDiscount(prd)"
+                    @input="validateDiscount(prd, $event)"
+                    @change="validateDiscount(prd, $event)"
+                    :disabled="
+                      shouldShowDepartmentBlocked(prd) ||
+                      readonly ||
+                      !prd.discountable
+                    "
+                    class="discount-input-compact"
+                    :class="{ 'not-discountable': !prd.discountable }"
+                    :placeholder="prd.discountable ? '0' : 'N/A'"
+                  />
+                  <span class="discount-symbol">%</span>
+                </div>
+              </Popper>
             </section>
           </li>
         </ul>
@@ -771,40 +812,48 @@ function handleGenerateProposal() {
   top: 0px;
   z-index: 50;
   /* background-color: #111b21; */
-  padding-top: 0.25rem;
+  /* padding-top: 0.25rem;
   padding-bottom: 0.25rem;
   padding-left: 0.375rem;
-  padding-right: 0.375rem;
+  padding-right: 0.375rem; */
   display: flex;
+  flex-direction: column;
   gap: 0.5rem;
 }
 
 .search-products-input {
   width: 100%;
   font-size: 0.75rem;
-  line-height: 1rem;
-  background-color: transparent;
-  border-radius: 0.375rem;
-  padding-top: 0.375rem;
-  outline: 2px solid transparent;
-  outline-offset: 2px;
-  border-style: none;
+  /* border-radius: 0.375rem; */
+  padding: 0.5rem 0.5rem;
+  border: none;
+  transition: all 0.2s ease;
 }
+
+.search-products-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
 .search-products-input:focus {
-  outline: 2px solid transparent;
-  outline-offset: 2px;
-  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0
-    var(--tw-ring-offset-width) var(--tw-ring-offset-color);
-  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0
-    calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color);
-  box-shadow:
-    var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
-    var(--tw-shadow, 0 0 #0000);
-  --tw-shadow: 0 0 #0000;
-  --tw-shadow-colored: 0 0 #0000;
-  box-shadow:
-    var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
-    var(--tw-shadow);
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.15);
+  border-color: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+.dark .search-products-input {
+  background-color: rgba(0, 0, 0, 0.1);
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.dark .search-products-input::placeholder {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.dark .search-products-input:focus {
+  background-color: rgba(0, 0, 0, 0.15);
+  border-color: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
 }
 
 .list-products-list {
@@ -813,6 +862,7 @@ function handleGenerateProposal() {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
 
 .label-product-name {
@@ -852,25 +902,21 @@ function handleGenerateProposal() {
 
 .total-price-badge {
   background-color: var(--cyber-accent-glow);
-  padding: 0.375rem;
-  font-size: 0.875rem;
-  border-radius: 0.375rem;
+  padding: 0.375rem 0.625rem;
+  font-size: 0.813rem;
+  border-radius: 0.5rem;
   border-color: #22c55e;
   border-width: 1px;
-  font-size: 0.75rem;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  white-space: nowrap;
-  flex-shrink: 0;
-  min-width: 50%;
+  width: 100%;
+  gap: 0.5rem;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.2);
 }
 
 .total-price-badge.with-proposal {
-  justify-content: space-between;
-  display: flex;
-  min-width: 220px;
-  padding: 0.1rem 0.1rem 0.1rem 0.5rem;
+  padding: 0.25rem 0.25rem 0.25rem 0.625rem;
 }
 
 .dark .total-price-badge {
@@ -921,22 +967,9 @@ function handleGenerateProposal() {
   background: transparent;
 }
 
-/* Para Firefox */
 * {
   scrollbar-width: thin;
   scrollbar-color: #334155 transparent;
-}
-
-.label-popper {
-  --popper-theme-background-color: #1f2937;
-  --popper-theme-background-color-hover: #1f2937;
-  --popper-theme-text-color: #ffffff;
-  --popper-theme-border-width: 1px;
-  --popper-theme-border-style: solid;
-  --popper-theme-border-color: #374151;
-  --popper-theme-border-radius: 8px;
-  --popper-theme-padding: 0px;
-  --popper-theme-box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
 }
 
 /* Discount Badge Styles */
@@ -945,8 +978,10 @@ function handleGenerateProposal() {
   align-items: center;
   transition: all 0.2s ease;
   cursor: pointer;
+  margin-left: -6px;
   animation: bounce 3s infinite;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  color: #f97316;
 }
 
 @keyframes bounce {
@@ -985,7 +1020,7 @@ function handleGenerateProposal() {
 .discount-tooltip {
   border-radius: 0.5rem;
   padding: 0.75rem;
-  max-width: 280px;
+  max-width: 320px;
   color: white;
 }
 
@@ -1029,38 +1064,8 @@ function handleGenerateProposal() {
   list-style: none;
   padding: 0;
   margin: 0;
-  max-height: 200px;
+  max-height: 300px;
   overflow-y: auto;
-}
-
-.discount-tooltip-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.688rem;
-  padding: 0.375rem;
-  border-radius: 0.375rem;
-  background-color: #374151;
-  transition: background-color 0.2s ease;
-}
-
-.discount-tooltip-item:hover {
-  background-color: #4b5563;
-}
-
-.discount-tooltip-name {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: #e5e7eb;
-}
-
-.discount-tooltip-value {
-  font-weight: 700;
-  color: #34d399;
-  white-space: nowrap;
 }
 
 /* Product Actions Section */
@@ -1092,6 +1097,25 @@ function handleGenerateProposal() {
   width: 100%;
   animation: slideDown 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   transform-origin: top;
+}
+
+.discount-input-popper {
+  --popper-theme-background-color: #1f2937;
+  --popper-theme-background-color-hover: #1f2937;
+  --popper-theme-text-color: #ffffff;
+  --popper-theme-border-width: 1px;
+  --popper-theme-border-style: solid;
+  --popper-theme-border-color: #374151;
+  --popper-theme-border-radius: 8px;
+  --popper-theme-padding: 0px;
+  --popper-theme-box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+}
+
+.discount-input-tooltip {
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  color: white;
+  font-size: 0.75rem;
 }
 
 @keyframes slideDown {
@@ -1130,6 +1154,12 @@ function handleGenerateProposal() {
 .discount-input-compact:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.discount-input-compact.not-discountable {
+  background-color: #374151;
+  border-color: #4b5563;
+  color: #9ca3af;
 }
 
 .discount-input-compact::placeholder {
@@ -1176,40 +1206,63 @@ function handleGenerateProposal() {
   box-shadow: 10px 40px -10px rgba(0, 0, 0, 0.2);
 }
 
+.dark .discount-input-tooltip {
+  background-color: #ffffff;
+  color: #111827;
+}
+
 .dark .discount-tooltip-header {
   color: #d97706;
   border-bottom-color: #e5e7eb;
 }
 
-.dark .discount-tooltip-item {
+.dark .discount-product-card {
   background-color: #f3f4f6;
 }
 
-.dark .discount-tooltip-item:hover {
+.dark .discount-product-card:hover {
   background-color: #e5e7eb;
 }
 
-.dark .discount-tooltip-name {
-  color: #374151;
+.dark .product-img-placeholder {
+  background-color: #ffffff;
+  border-color: #d1d5db;
+  color: #6b7280;
 }
 
-.dark .discount-tooltip-value {
+.dark .discount-product-name {
+  color: #111827;
+}
+
+.dark .original-price {
+  color: #6b7280;
+}
+
+.dark .discount-badge-mini {
+  color: #ea580c;
+  background-color: rgba(234, 88, 12, 0.15);
+}
+
+.dark .final-price {
   color: #059669;
 }
 
-.dark .discounted-price {
+.dark .discount-product-quantity {
+  color: #4b5563;
+}
+
+.dark .discount-product-quantity .subtotal {
   color: #047857;
 }
 
-/* Popper colors for dark mode */
-.dark .label-popper {
+.dark .discount-popper {
   --popper-theme-background-color: #ffffff;
   --popper-theme-background-color-hover: #ffffff;
   --popper-theme-text-color: #111827;
   --popper-theme-border-color: #d1d5db;
 }
 
-.dark .discount-popper {
+.dark .discount-input-popper {
   --popper-theme-background-color: #ffffff;
   --popper-theme-background-color-hover: #ffffff;
   --popper-theme-text-color: #111827;
@@ -1223,14 +1276,13 @@ function handleGenerateProposal() {
   font-weight: 700;
 }
 
-.dark .discount-percentage {
-  color: #f58f46;
-}
-
 .discounted-price {
-  color: #34d399;
   font-size: 0.75rem;
   font-weight: 700;
+}
+
+.dark .discount-percentage {
+  color: #f58f46;
 }
 
 /* Pure CSS for products badges */
