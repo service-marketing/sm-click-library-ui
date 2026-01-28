@@ -184,15 +184,18 @@ const handleDiscountInput = (prd, e) => {
     e.target.value = "";
     clearTimeout(discountDebounceTimers[productId]);
     discountDebounceTimers[productId] = setTimeout(() => {
-      discountInputValues.value[productId] = "0";
-      updateDiscount(prd, 0);
+      // Só reseta se ainda está vazio (user não digitou nada)
+      if (discountInputValues.value[productId] === "") {
+        discountInputValues.value[productId] = "0";
+        updateDiscount(prd, 0);
+      }
       isEditingDiscount.value[productId] = false;
     }, 600);
     return;
   }
 
-  // Remove tudo que não é número ou ponto
-  value = value.replace(/[^\d.]/g, "");
+  // Remove tudo que não é número, ponto ou vírgula, depois normaliza para ponto
+  value = value.replace(/[^\d.,]/g, "").replace(",", ".");
 
   // Remove pontos extras (mantém apenas um)
   const parts = value.split(".");
@@ -200,7 +203,8 @@ const handleDiscountInput = (prd, e) => {
     value = parts[0] + "." + parts.slice(1).join("");
   }
 
-  e.target.value = value;
+  // Exibe com vírgula
+  e.target.value = value.replace(".", ",");
   discountInputValues.value[productId] = value;
 
   // Debounce de 600ms
@@ -215,9 +219,10 @@ const validateDiscount = (prd) => {
   const productId = prd.id;
   let raw = (discountInputValues.value[productId] || "").trim();
 
+  // Se o campo está vazio, mantém o valor atual do desconto do produto
   if (raw === "" || raw === ".") {
-    updateDiscount(prd, 0);
-    discountInputValues.value[productId] = "0";
+    const currentDiscount = getDiscount(prd);
+    discountInputValues.value[productId] = String(currentDiscount);
     return;
   }
 
@@ -236,22 +241,34 @@ const handleDiscountFocus = (prd, e) => {
 const handleDiscountBlur = (prd) => {
   const productId = prd.id;
   clearTimeout(discountDebounceTimers[productId]);
-  validateDiscount(prd);
+
+  // Se o campo está vazio, reseta para 0
+  if (discountInputValues.value[productId] === "") {
+    discountInputValues.value[productId] = "0";
+    updateDiscount(prd, 0);
+  } else {
+    validateDiscount(prd);
+  }
+
   isEditingDiscount.value[productId] = false;
 };
 
 const getDiscountInputValue = (prd) => {
   const productId = prd.id;
   if (isEditingDiscount.value[productId]) {
-    return discountInputValues.value[productId] ?? String(getDiscount(prd));
+    // Durante edição, converte para vírgula para exibição
+    return (
+      discountInputValues.value[productId] ?? String(getDiscount(prd))
+    ).replace(".", ",");
   }
-  return String(getDiscount(prd));
+  // Quando não está editando, mostra o valor armazenado com vírgula
+  return String(getDiscount(prd)).replace(".", ",");
 };
 
 const formatDiscount = (value) => {
   const num = Number(value);
-  if (!Number.isFinite(num)) return "0.00";
-  return num.toFixed(2);
+  if (!Number.isFinite(num)) return "0,00";
+  return num.toFixed(2).replace(".", ",");
 };
 
 const calculateFinalPrice = (prd) => {
@@ -273,6 +290,8 @@ const increaseQuantity = (prd) => {
       quantity: 1,
       discount: 0,
     });
+    // Inicializa o valor de desconto para este produto
+    discountInputValues.value[prd.id] = "0";
   }
 };
 
@@ -335,7 +354,33 @@ onMounted(async () => {
     previousPage.value = props.allProducts.previous || null;
     page.value = 2; // assume que já carregamos a primeira página
   }
+
+  // Inicializa discountInputValues para produtos já selecionados
+  selectedProducts.value.forEach((item) => {
+    const productId = getProductId(item);
+    if (productId && !discountInputValues.value[productId]) {
+      discountInputValues.value[productId] = String(item.discount || 0);
+    }
+  });
 });
+
+// Monitora mudanças em sortedProducts para garantir que discountInputValues sempre tenha valores inicializados
+watch(
+  sortedProducts,
+  (newProducts) => {
+    newProducts.forEach((product) => {
+      if (product && product.id && !discountInputValues.value[product.id]) {
+        // Procura o desconto do produto em selectedProducts
+        const selectedItem = selectedProducts.value.find(
+          (p) => getProductId(p) === product.id,
+        );
+        const discount = selectedItem?.discount || 0;
+        discountInputValues.value[product.id] = String(discount);
+      }
+    });
+  },
+  { immediate: true },
+);
 
 // --- Sempre que selectedProducts mudar, emitimos o evento para o parent ---
 watch(
@@ -350,8 +395,8 @@ watch(
         discount: i.discount || 0,
       })),
     );
-    
-    // Inicializa valores de input de desconto
+
+    // Inicializa valores de input de desconto (armazena com ponto)
     newVal.forEach((item) => {
       const productId = getProductId(item);
       if (productId && !isEditingDiscount.value[productId]) {
