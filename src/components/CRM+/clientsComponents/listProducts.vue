@@ -147,14 +147,21 @@ const discountMap = computed(() => {
 
 const getDiscount = (prd) => discountMap.value[prd.id] || 0;
 
+const clampDiscount = (val, maxDiscount = 100) => {
+  let n = Number(val);
+  if (!Number.isFinite(n)) n = 0;
+  if (n < 0) n = 0;
+  if (n > maxDiscount) n = maxDiscount;
+  return Math.round(n * 100) / 100;
+};
+
 const updateDiscount = (prd, value) => {
   if (props.readonly) return;
   if (shouldShowDepartmentBlocked(prd)) return;
   if (!prd.discountable) return;
 
-  let numValue = parseInt(value, 10) || 0;
   const maxDiscount = prd.max_discount || 100;
-  numValue = Math.max(0, Math.min(maxDiscount, numValue));
+  const numValue = clampDiscount(value, maxDiscount);
 
   const found = selectedProducts.value.find((p) => getProductId(p) === prd.id);
   if (found) {
@@ -162,16 +169,90 @@ const updateDiscount = (prd, value) => {
   }
 };
 
-const validateDiscount = (prd, event) => {
-  if (!prd.discountable) {
-    event.target.value = 0;
+const handleDiscountInput = (prd, e) => {
+  if (props.readonly) return;
+  if (shouldShowDepartmentBlocked(prd)) return;
+  if (!prd.discountable) return;
+
+  const productId = prd.id;
+  isEditingDiscount.value[productId] = true;
+  let value = e.target.value;
+
+  // Permite deletar tudo
+  if (value === "") {
+    discountInputValues.value[productId] = "";
+    e.target.value = "";
+    clearTimeout(discountDebounceTimers[productId]);
+    discountDebounceTimers[productId] = setTimeout(() => {
+      discountInputValues.value[productId] = "0";
+      updateDiscount(prd, 0);
+      isEditingDiscount.value[productId] = false;
+    }, 600);
     return;
   }
-  let value = parseInt(event.target.value, 10) || 0;
+
+  // Remove tudo que não é número ou ponto
+  value = value.replace(/[^\d.]/g, "");
+
+  // Remove pontos extras (mantém apenas um)
+  const parts = value.split(".");
+  if (parts.length > 2) {
+    value = parts[0] + "." + parts.slice(1).join("");
+  }
+
+  e.target.value = value;
+  discountInputValues.value[productId] = value;
+
+  // Debounce de 600ms
+  clearTimeout(discountDebounceTimers[productId]);
+  discountDebounceTimers[productId] = setTimeout(() => {
+    validateDiscount(prd);
+    isEditingDiscount.value[productId] = false;
+  }, 600);
+};
+
+const validateDiscount = (prd) => {
+  const productId = prd.id;
+  let raw = (discountInputValues.value[productId] || "").trim();
+
+  if (raw === "" || raw === ".") {
+    updateDiscount(prd, 0);
+    discountInputValues.value[productId] = "0";
+    return;
+  }
+
   const maxDiscount = prd.max_discount || 100;
-  value = Math.max(0, Math.min(maxDiscount, value));
-  event.target.value = value;
-  updateDiscount(prd, value);
+  const n = clampDiscount(raw, maxDiscount);
+  discountInputValues.value[productId] = String(n);
+  updateDiscount(prd, n);
+};
+
+const handleDiscountFocus = (prd, e) => {
+  const productId = prd.id;
+  isEditingDiscount.value[productId] = true;
+  e.target.select();
+};
+
+const handleDiscountBlur = (prd) => {
+  const productId = prd.id;
+  clearTimeout(discountDebounceTimers[productId]);
+  validateDiscount(prd);
+  isEditingDiscount.value[productId] = false;
+};
+
+const getDiscountInputValue = (prd) => {
+  const productId = prd.id;
+  if (isEditingDiscount.value[productId]) {
+    return discountInputValues.value[productId] ?? String(getDiscount(prd));
+  }
+  return String(getDiscount(prd));
+};
+
+const formatDiscount = (value) => {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return "0";
+  // Remove zeros desnecessários à direita após o ponto decimal
+  return num % 1 === 0 ? String(Math.floor(num)) : num.toFixed(2).replace(/\.?0+$/, "");
 };
 
 const calculateFinalPrice = (prd) => {
@@ -270,6 +351,14 @@ watch(
         discount: i.discount || 0,
       })),
     );
+    
+    // Inicializa valores de input de desconto
+    newVal.forEach((item) => {
+      const productId = getProductId(item);
+      if (productId && !isEditingDiscount.value[productId]) {
+        discountInputValues.value[productId] = String(item.discount || 0);
+      }
+    });
   },
   { deep: true },
 );
@@ -336,6 +425,11 @@ const shouldShowDepartmentBlocked = (prd) => {
 
 const filters = ref({ query: "" });
 const itsSearching = ref(false);
+
+// Controle de edição de desconto
+const discountInputValues = ref({});
+const isEditingDiscount = ref({});
+let discountDebounceTimers = {};
 
 let debounceTimer;
 watch(
@@ -637,7 +731,7 @@ function handleGenerateProposal() {
                     </p>
 
                     <p v-if="getDiscount(prd) > 0" class="discount-percentage">
-                      - {{ getDiscount(prd) }}%
+                      - {{ formatDiscount(getDiscount(prd)) }}%
                     </p>
 
                     <p v-if="getDiscount(prd) > 0" class="discounted-price">
@@ -720,17 +814,16 @@ function handleGenerateProposal() {
                 </template>
                 <div class="discount-input-wrapper-animated">
                   <input
-                    type="number"
-                    min="0"
-                    :max="prd.max_discount || 100"
-                    step="1"
-                    :value="getDiscount(prd)"
-                    @input="validateDiscount(prd, $event)"
-                    @change="validateDiscount(prd, $event)"
+                    :value="getDiscountInputValue(prd)"
+                    @input="(e) => handleDiscountInput(prd, e)"
+                    @focus="(e) => handleDiscountFocus(prd, e)"
+                    @blur="() => handleDiscountBlur(prd)"
+                    inputmode="decimal"
+                    type="text"
                     :disabled="
+                      !prd.discountable ||
                       shouldShowDepartmentBlocked(prd) ||
-                      readonly ||
-                      !prd.discountable
+                      readonly
                     "
                     class="discount-input-compact"
                     :class="{ 'not-discountable': !prd.discountable }"
@@ -1094,7 +1187,7 @@ function handleGenerateProposal() {
   position: relative;
   display: flex;
   align-items: center;
-  width: 100%;
+  width: 5rem;
   animation: slideDown 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   transform-origin: top;
 }
@@ -1134,8 +1227,8 @@ function handleGenerateProposal() {
 .discount-input-compact {
   width: 100%;
   height: 1.5rem;
-  padding: 0.25rem;
-  font-size: 0.75rem;
+  padding: 0 0.375rem;
+  font-size: 0.7rem;
   font-weight: 600;
   border-radius: 0.375rem;
   border: 1px solid #374151;

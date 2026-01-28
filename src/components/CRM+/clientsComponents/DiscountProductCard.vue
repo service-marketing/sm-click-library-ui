@@ -17,6 +17,15 @@ const calculateFinalPrice = () => {
 const calculateSubtotal = () => {
   return calculateFinalPrice() * props.item.quantity;
 };
+
+const formatDiscount = (value) => {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return "0";
+  // Remove zeros desnecessários à direita após o ponto decimal
+  return num % 1 === 0
+    ? String(Math.floor(num))
+    : num.toFixed(2).replace(/\.?0+$/, "");
+};
 </script>
 
 <template>
@@ -53,7 +62,9 @@ const calculateSubtotal = () => {
     <div class="discount-product-info">
       <div class="discount-product-header">
         <span class="discount-product-name">{{ item.product.name }}</span>
-        <span class="discount-badge-mini">-{{ item.discount }}%</span>
+        <span class="discount-badge-mini"
+          >-{{ formatDiscount(item.discount) }}%</span
+        >
       </div>
       <div class="discount-product-row">
         <div class="discount-product-prices">
