@@ -250,9 +250,8 @@ const getDiscountInputValue = (prd) => {
 
 const formatDiscount = (value) => {
   const num = Number(value);
-  if (!Number.isFinite(num)) return "0";
-  // Remove zeros desnecessários à direita após o ponto decimal
-  return num % 1 === 0 ? String(Math.floor(num)) : num.toFixed(2).replace(/\.?0+$/, "");
+  if (!Number.isFinite(num)) return "0.00";
+  return num.toFixed(2);
 };
 
 const calculateFinalPrice = (prd) => {
