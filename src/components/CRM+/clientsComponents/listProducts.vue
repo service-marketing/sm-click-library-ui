@@ -9,7 +9,7 @@ import { crm_products } from "~/utils/systemUrls";
 import InfiniteLoading from "v3-infinite-loading";
 import api from "~/utils/api.js";
 import DiscountProductCard from "./DiscountProductCard.vue";
-import { formatCurrency } from '~/utils/currencyUtils.js';
+import { formatCurrency } from "~/utils/currencyUtils.js";
 
 const props = defineProps({
   // --- Lista que será exibida e já selecionada ---
@@ -332,9 +332,15 @@ const getProducts = async (params) => {
     if (page.value === 1) {
       productsList.value = results;
     } else {
-      // Evita duplicados caso API retorne algum repetido
+      // Evita duplicados caso API retorne algum repetido ou que já está em selectedProducts
       const existingIds = new Set(productsList.value.map((p) => p.id));
-      const newOnes = results.filter((p) => !existingIds.has(p.id));
+      const selectedIds = new Set(
+        selectedProducts.value.map((p) => getProductId(p)),
+      );
+
+      const newOnes = results.filter(
+        (p) => !existingIds.has(p.id) && !selectedIds.has(p.id),
+      );
       productsList.value = [...productsList.value, ...newOnes];
     }
 
@@ -354,6 +360,19 @@ onMounted(async () => {
     nextPage.value = props.allProducts.next || null;
     previousPage.value = props.allProducts.previous || null;
     page.value = 2; // assume que já carregamos a primeira página
+  }
+
+  // --- Pré-carrega produtos já selecionados que não estão na lista ---
+  const existingIds = new Set(productsList.value.map((p) => p.id));
+  const preLoadedProducts = selectedProducts.value
+    .filter((item) => {
+      const productId = getProductId(item);
+      return productId && !existingIds.has(productId);
+    })
+    .map((item) => item.product);
+
+  if (preLoadedProducts.length > 0) {
+    productsList.value = [...preLoadedProducts, ...productsList.value];
   }
 
   // Inicializa discountInputValues para produtos já selecionados
@@ -785,7 +804,10 @@ function handleGenerateProposal() {
                     - x {{ getQuantity(prd) }} =
                     <a class="price-total">
                       {{
-                        formatCurrency(calculateFinalPrice(prd) * getQuantity(prd), prd.currency)
+                        formatCurrency(
+                          calculateFinalPrice(prd) * getQuantity(prd),
+                          prd.currency,
+                        )
                       }}
                     </a>
                   </p>
