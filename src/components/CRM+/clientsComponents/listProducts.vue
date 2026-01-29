@@ -9,6 +9,7 @@ import { crm_products } from "~/utils/systemUrls";
 import InfiniteLoading from "v3-infinite-loading";
 import api from "~/utils/api.js";
 import DiscountProductCard from "./DiscountProductCard.vue";
+import { formatCurrency } from '~/utils/currencyUtils.js';
 
 const props = defineProps({
   // --- Lista que será exibida e já selecionada ---
@@ -766,12 +767,7 @@ function handleGenerateProposal() {
                         getDiscount(prd) > 0 ? 'line-through opacity-60' : ''
                       "
                     >
-                      {{
-                        prd.price.toLocaleString("pt-BR", {
-                          style: "currency",
-                          currency: "BRL",
-                        })
-                      }}
+                      {{ formatCurrency(prd.price, prd.currency) }}
                     </p>
 
                     <p v-if="getDiscount(prd) > 0" class="discount-percentage">
@@ -780,10 +776,7 @@ function handleGenerateProposal() {
 
                     <p v-if="getDiscount(prd) > 0" class="discounted-price">
                       {{
-                        calculateFinalPrice(prd).toLocaleString("pt-BR", {
-                          style: "currency",
-                          currency: "BRL",
-                        })
+                        formatCurrency(calculateFinalPrice(prd), prd.currency)
                       }}
                     </p>
                   </div>
@@ -792,12 +785,7 @@ function handleGenerateProposal() {
                     - x {{ getQuantity(prd) }} =
                     <a class="price-total">
                       {{
-                        (
-                          calculateFinalPrice(prd) * getQuantity(prd)
-                        ).toLocaleString("pt-BR", {
-                          style: "currency",
-                          currency: "BRL",
-                        })
+                        formatCurrency(calculateFinalPrice(prd) * getQuantity(prd), prd.currency)
                       }}
                     </a>
                   </p>

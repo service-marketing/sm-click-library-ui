@@ -1,4 +1,6 @@
 <script setup>
+import { formatCurrency } from '~/utils/currencyUtils.js';
+
 const props = defineProps({
   item: {
     type: Object,
@@ -65,27 +67,12 @@ const formatDiscount = (value) => {
       </div>
       <div class="discount-product-row">
         <div class="discount-product-prices">
-          <span class="original-price">{{
-            item.product.price.toLocaleString("pt-BR", {
-              style: "currency",
-              currency: "BRL",
-            })
-          }}</span>
-          <span class="final-price">{{
-            calculateFinalPrice().toLocaleString("pt-BR", {
-              style: "currency",
-              currency: "BRL",
-            })
-          }}</span>
+          <span class="original-price">{{ formatCurrency(item.product.price, item.product.currency) }}</span>
+          <span class="final-price">{{ formatCurrency(calculateFinalPrice(), item.product.currency) }}</span>
         </div>
         <div class="discount-product-quantity">
           <span class="qty-label">{{ item.quantity }}x</span>
-          <span class="subtotal">{{
-            calculateSubtotal().toLocaleString("pt-BR", {
-              style: "currency",
-              currency: "BRL",
-            })
-          }}</span>
+          <span class="subtotal">{{ formatCurrency(calculateSubtotal(), item.product.currency) }}</span>
         </div>
       </div>
     </div>

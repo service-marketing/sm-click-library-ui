@@ -20,6 +20,7 @@ import SelectMultipleDepartments from "./components/selects/multiSelects/selectM
 import SelectMultipleTags from "./components/selects/multiSelects/selectMultipleTags.vue";
 import SelectMultipleInstances from "./components/selects/multiSelects/selectMultipleInstances.vue";
 import PrimaryInput from "./components/inputs/primaryInput.vue";
+import CurrencyDisplay from "./components/inputs/CurrencyDisplay.vue";
 import SimpleSelect from "./components/selects/simpleSelect/simpleSelect.vue";
 import ClientsForm from "./components/CRM+/clientsForm.vue";
 import SimpleLoader from "./components/loaders/simpleLoader.vue";
@@ -33,8 +34,10 @@ import { useAttendantStore } from "./stores/attendantStore";
 import { useDepartmentStore } from "./stores/departmentStore";
 import { useInstanceStore } from "./stores/instanceStore";
 import { getContrastColor } from "./utils/functions/getContrastColor";
+import { formatCurrency, getCurrencySymbol, getCurrencyLocale } from "./utils/currencyUtils.js";
 export { useScheduledStore } from "./stores/useScheduledStore";
 export { useAuthStore };
+export { formatCurrency, getCurrencySymbol, getCurrencyLocale } from "./utils/currencyUtils.js";
 import RatingInput from "./components/inputs/ratingInput.vue";
 import CallHistory from "./components/chat/CallHistory.vue";
 import CallMessage from "./components/chat/CallMessage.vue";
@@ -71,6 +74,7 @@ function install(Vue) {
   Vue.component("SelectMultipleDepartments", SelectMultipleDepartments);
   Vue.component("SelectMultipleInstances", SelectMultipleInstances);
   Vue.component("PrimaryInput", PrimaryInput);
+  Vue.component("CurrencyDisplay", CurrencyDisplay);
   Vue.component("SimpleSelect", SimpleSelect);
   Vue.component("FloatingDev", FloatingDev);
   Vue.component("RatingInput", RatingInput);
@@ -227,6 +231,7 @@ export default {
   SelectMultipleInstances,
   SelectMultipleTags,
   PrimaryInput,
+  CurrencyDisplay,
   getWithContrastColor,
   RatingInput,
   TagView,
@@ -238,4 +243,7 @@ export default {
   ReminderModal,
   attReminderByLib,
   SoundSelect,
+  formatCurrency,
+  getCurrencySymbol,
+  getCurrencyLocale
 };

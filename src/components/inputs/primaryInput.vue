@@ -1,5 +1,6 @@
 <script setup>
 import { computed, reactive, ref, watch } from "vue";
+import CurrencyDisplay from "./CurrencyDisplay.vue";
 
 const props = defineProps({
   content: {
@@ -31,6 +32,7 @@ const contentHandler = reactive({
   placeholder: props.content.placeholder ?? "Integração de sistemas",
   empty: props.content.empty ?? false,
   data: props.content.data ?? "",
+  currency: props.content.currency ?? "BRL",
 });
 
 // --- Modelo do input reativo ---
@@ -51,12 +53,18 @@ watch(
     if (newVal.data !== model.value) model.value = newVal.data;
     if (newVal.empty !== contentHandler.empty)
       contentHandler.empty = newVal.empty;
+    if (newVal.currency !== contentHandler.currency)
+      contentHandler.currency = newVal.currency;
   },
   { deep: true },
 );
 
 // --- Computed de erro/estado visual ---
 const isEmpty = computed(() => contentHandler.empty && !model.value);
+
+// --- Verifica se é input de preço ---
+const isNumberType = computed(() => contentHandler.type === "number");
+
 </script>
 
 <template>
@@ -93,14 +101,20 @@ const isEmpty = computed(() => contentHandler.empty && !model.value);
         'input__container bg-base-300',
         isEmpty ? 'input__container--error' : '',
         contentHandler.type === 'textArea' ? 'textArea' : '',
+        isNumberType ? 'input__container--with-prefix' : '',
       ]"
     >
       <!-- Ícone -->
       <span
-        v-if="contentHandler.type !== 'textArea'"
+        v-if="contentHandler.type !== 'textArea' && !isNumberType"
         :class="isEmpty ? 'text-red-500' : 'text-base-100'"
         v-html="contentHandler.svg"
       ></span>
+
+      <!-- Currency Symbol para price inputs -->
+      <span v-if="isNumberType" class="currency-prefix">
+        <CurrencyDisplay :currency="contentHandler.currency" symbolOnly />
+      </span>
 
       <!-- Input  -->
       <input
@@ -139,9 +153,19 @@ const isEmpty = computed(() => contentHandler.empty && !model.value);
   @apply px-0 h-full;
 }
 
+/* --- Container com símbolo de moeda (para price inputs) --- */
+.input__container--with-prefix {
+  @apply pl-0;
+}
+
 /* --- Estado de erro do input --- */
 .input__container--error {
   @apply border border-red-500 ring-1 ring-red-500;
+}
+
+/* --- Prefixo de moeda --- */
+.currency-prefix {
+  @apply flex items-center px-3 text-gray-500 text-xs font-medium flex-shrink-0;
 }
 
 /* --- Campo de texto --- */
