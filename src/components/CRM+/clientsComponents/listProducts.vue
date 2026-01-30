@@ -9,7 +9,7 @@ import { crm_products } from "~/utils/systemUrls";
 import InfiniteLoading from "v3-infinite-loading";
 import api from "~/utils/api.js";
 import DiscountProductCard from "./DiscountProductCard.vue";
-import { formatCurrency } from "~/utils/currencyUtils.js";
+import { formatCurrency, getCurrencySymbol } from "~/utils/currencyUtils.js";
 
 const props = defineProps({
   // --- Lista que será exibida e já selecionada ---
@@ -24,7 +24,7 @@ const props = defineProps({
   },
   // --- caso o mouse saia do componente executa uma ação ---
   onMouseLeave: {
-    type: Function,
+    type: Function, 
     required: false,
   },
   // --- departamento que pode acessar os produtos ---
@@ -94,6 +94,43 @@ const selectedProducts = ref(normalizeProducts(props.modelValue));
 const page = ref(1);
 const nextPage = ref(null);
 const previousPage = ref(null);
+
+// --- Agrupa totais por moeda ---
+const totalsByCurrency = computed(() => {
+  const totals = {};
+  
+  selectedProducts.value.forEach((item) => {
+    const product = item.product || item;
+    const price = product.price || 0;
+    const quantity = item.quantity || 0;
+    const discount = item.discount || 0;
+    const currency = product.currency || 'BRL';
+    
+    if (quantity === 0) return;
+    
+    if (!totals[currency]) {
+      totals[currency] = {
+        currency,
+        originalTotal: 0,
+        finalTotal: 0,
+        hasDiscount: false,
+      };
+    }
+    
+    const itemTotal = price * quantity;
+    const itemDiscount = (price * discount / 100) * quantity;
+    const itemFinal = itemTotal - itemDiscount;
+    
+    totals[currency].originalTotal += itemTotal;
+    totals[currency].finalTotal += itemFinal;
+    
+    if (discount > 0) {
+      totals[currency].hasDiscount = true;
+    }
+  });
+  
+  return Object.values(totals);
+});
 
 const totalPrice = computed(() => {
   return selectedProducts.value.reduce((total, item) => {
@@ -528,86 +565,64 @@ function handleGenerateProposal() {
           class="total-price-badge text-white"
           :class="{ 'with-proposal': proposal }"
         >
-          <div class="flex items-center gap-1.5 flex-wrap">
-            <span class="text-xs">Valor total:</span>
-            <span class="font-semibold text-sm">
-              {{
-                (totalPrice + totalSavings).toLocaleString("pt-BR", {
-                  style: "currency",
-                  currency: "BRL",
-                })
-              }}
-            </span>
-
-            <template v-if="productsWithDiscount.length > 0">
-              <span class="text-xs">-</span>
-              <span
-                style="font-size: 0.875rem"
-                class="font-medium discount-percentage"
-              >
-                {{
-                  totalSavings.toLocaleString("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
-                  })
-                }}
-              </span>
-              <Popper class="discount-popper" :hover="true" placement="top">
-                <template #content>
-                  <main class="discount-tooltip">
-                    <div class="discount-tooltip-header">
-                      Produtos com desconto ({{ productsWithDiscount.length }})
-                    </div>
-                    <ul class="discount-tooltip-list">
-                      <DiscountProductCard
-                        v-for="item in productsWithDiscount"
-                        :key="getProductId(item)"
-                        :item="item"
-                        :getProductId="getProductId"
-                      />
-                    </ul>
-                    <div class="discount-tooltip-footer">
-                      <div class="savings-info">
-                        <span class="savings-label">Economia total:</span>
-                        <span class="savings-amount">{{
-                          totalSavings.toLocaleString("pt-BR", {
-                            style: "currency",
-                            currency: "BRL",
-                          })
-                        }}</span>
+          <div class="flex items-center gap-2 flex-wrap">
+            <template v-for="total in totalsByCurrency" :key="total.currency">
+              <div class="currency-badge">
+                <span class="currency-code">{{ getCurrencySymbol(total.currency) }}</span>
+                
+                <Popper 
+                  v-if="total.hasDiscount"
+                  class="discount-popper" 
+                  :hover="true" 
+                  placement="top"
+                >
+                  <template #content>
+                    <main class="discount-tooltip">
+                      <div class="discount-tooltip-header">
+                        {{ total.currency }} - Produtos com desconto ({{ selectedProducts.filter(item => (item.product?.currency || 'BRL') === total.currency && item.quantity > 0 && item.discount > 0).length }})
                       </div>
-                    </div>
-                  </main>
-                </template>
-                <div class="discount-badge">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="size-6"
-                    viewBox="0 0 55 62"
-                    fill="none"
-                  >
-                    <path
-                      d="M26.6839 11.1304C28.6291 8.59593 32.6389 9.49368 33.6735 12.6953V12.6953C34.3268 14.7172 36.3132 15.9948 38.2894 15.6568V15.6568C41.3197 15.1384 43.9062 18.2943 42.9019 21.2848L42.6968 21.8954C42.033 23.8721 42.8293 26.1348 44.6 27.3029V27.3029C47.3871 29.1414 47.4599 33.2982 44.7337 34.9412L44.5536 35.0498C42.8092 36.1011 42.0583 38.3046 42.7427 40.3634L42.9237 40.9079C43.9644 44.0383 41.4451 47.0065 38.3496 46.2972V46.2972C36.3456 45.838 34.3946 46.9497 33.7532 48.9162L33.6179 49.3311C32.6312 52.3561 28.7486 52.8621 26.7994 50.2196V50.2196C25.5373 48.5086 23.2813 48.0035 21.5812 49.0513V49.0513C18.9556 50.6695 15.4947 48.5194 15.5032 45.2754L15.5044 44.8305C15.5099 42.7216 14.0337 40.8426 12.0265 40.4037V40.4037C8.92596 39.7259 7.48972 35.872 9.41874 33.4065L9.75425 32.9777C11.0229 31.3561 10.9991 28.9791 9.69678 27.2457L9.56236 27.0668C7.52706 24.3577 8.86928 20.5177 12.0288 20.0105V20.0105C14.036 19.6883 15.4714 17.9253 15.4592 15.7972L15.4555 15.1399C15.437 11.9204 18.8135 10.0995 21.4769 11.8926V11.8926C23.2138 13.062 25.4555 12.731 26.6839 11.1304V11.1304Z"
-                      fill="currentColor"
-                    />
-                    <path
-                      d="M21.3849 25.185C20.8649 25.185 20.4649 25.3984 20.1849 25.825C19.9316 26.2117 19.8049 26.7384 19.8049 27.405C19.8049 28.8717 20.3316 29.605 21.3849 29.605C22.4516 29.605 22.9849 28.8717 22.9849 27.405C22.9849 26.765 22.8516 26.2384 22.5849 25.825C22.3049 25.3984 21.9049 25.185 21.3849 25.185ZM21.3849 23.345C22.5849 23.345 23.4983 23.7384 24.1249 24.525C24.6849 25.2317 24.9649 26.1917 24.9649 27.405C24.9649 28.6184 24.6849 29.5717 24.1249 30.265C23.4983 31.065 22.5849 31.465 21.3849 31.465C20.1583 31.465 19.2383 31.065 18.6249 30.265C18.0783 29.5584 17.8049 28.605 17.8049 27.405C17.8049 26.1917 18.0783 25.2317 18.6249 24.525C19.2516 23.7384 20.1716 23.345 21.3849 23.345ZM31.8649 23.105L23.1249 38.865H20.9449L29.6649 23.105H31.8649ZM31.4249 32.365C30.3716 32.365 29.8449 33.105 29.8449 34.585C29.8449 35.2384 29.9783 35.7584 30.2449 36.145C30.5249 36.585 30.9183 36.805 31.4249 36.805C32.4916 36.805 33.0249 36.065 33.0249 34.585C33.0249 33.105 32.4916 32.365 31.4249 32.365ZM31.4249 30.505C32.6383 30.505 33.5583 30.8984 34.1849 31.685C34.7449 32.3917 35.0249 33.3584 35.0249 34.585C35.0249 35.7984 34.7449 36.7517 34.1849 37.445C33.5583 38.2317 32.6383 38.625 31.4249 38.625C30.2249 38.625 29.3116 38.2317 28.6849 37.445C28.1516 36.7517 27.8849 35.7984 27.8849 34.585C27.8849 33.345 28.1516 32.3784 28.6849 31.685C29.3116 30.8984 30.2249 30.505 31.4249 30.505Z"
-                      fill="white"
-                    />
-                  </svg>
-                </div>
-              </Popper>
-              <span class="text-xs">=</span>
-              <span
-                class="font-bold text-sm text-green-400 dark:text-green-600"
-              >
-                {{
-                  totalPrice.toLocaleString("pt-BR", {
-                    style: "currency",
-                    currency: "BRL",
-                  })
-                }}
-              </span>
+                      <ul class="discount-tooltip-list">
+                        <DiscountProductCard
+                          v-for="item in selectedProducts.filter(item => (item.product?.currency || 'BRL') === total.currency && item.quantity > 0 && item.discount > 0)"
+                          :key="getProductId(item)"
+                          :item="item"
+                          :getProductId="getProductId"
+                        />
+                      </ul>
+                    </main>
+                  </template>
+                  <div class="original-value-wrapper">
+                    <span 
+                      class="original-value-crossed"
+                    >
+                      {{ formatCurrency(total.originalTotal, total.currency).replace(/[^\d.,\s]/g, '').trim() }}
+                    </span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="discount-icon-small"
+                      viewBox="0 0 55 62"
+                      fill="none"
+                    >
+                      <path
+                        d="M26.6839 11.1304C28.6291 8.59593 32.6389 9.49368 33.6735 12.6953V12.6953C34.3268 14.7172 36.3132 15.9948 38.2894 15.6568V15.6568C41.3197 15.1384 43.9062 18.2943 42.9019 21.2848L42.6968 21.8954C42.033 23.8721 42.8293 26.1348 44.6 27.3029V27.3029C47.3871 29.1414 47.4599 33.2982 44.7337 34.9412L44.5536 35.0498C42.8092 36.1011 42.0583 38.3046 42.7427 40.3634L42.9237 40.9079C43.9644 44.0383 41.4451 47.0065 38.3496 46.2972V46.2972C36.3456 45.838 34.3946 46.9497 33.7532 48.9162L33.6179 49.3311C32.6312 52.3561 28.7486 52.8621 26.7994 50.2196V50.2196C25.5373 48.5086 23.2813 48.0035 21.5812 49.0513V49.0513C18.9556 50.6695 15.4947 48.5194 15.5032 45.2754L15.5044 44.8305C15.5099 42.7216 14.0337 40.8426 12.0265 40.4037V40.4037C8.92596 39.7259 7.48972 35.872 9.41874 33.4065L9.75425 32.9777C11.0229 31.3561 10.9991 28.9791 9.69678 27.2457L9.56236 27.0668C7.52706 24.3577 8.86928 20.5177 12.0288 20.0105V20.0105C14.036 19.6883 15.4714 17.9253 15.4592 15.7972L15.4555 15.1399C15.437 11.9204 18.8135 10.0995 21.4769 11.8926V11.8926C23.2138 13.062 25.4555 12.731 26.6839 11.1304V11.1304Z"
+                        fill="currentColor"
+                      />
+                      <path
+                        d="M21.3849 25.185C20.8649 25.185 20.4649 25.3984 20.1849 25.825C19.9316 26.2117 19.8049 26.7384 19.8049 27.405C19.8049 28.8717 20.3316 29.605 21.3849 29.605C22.4516 29.605 22.9849 28.8717 22.9849 27.405C22.9849 26.765 22.8516 26.2384 22.5849 25.825C22.3049 25.3984 21.9049 25.185 21.3849 25.185ZM21.3849 23.345C22.5849 23.345 23.4983 23.7384 24.1249 24.525C24.6849 25.2317 24.9649 26.1917 24.9649 27.405C24.9649 28.6184 24.6849 29.5717 24.1249 30.265C23.4983 31.065 22.5849 31.465 21.3849 31.465C20.1583 31.465 19.2383 31.065 18.6249 30.265C18.0783 29.5584 17.8049 28.605 17.8049 27.405C17.8049 26.1917 18.0783 25.2317 18.6249 24.525C19.2516 23.7384 20.1716 23.345 21.3849 23.345ZM31.8649 23.105L23.1249 38.865H20.9449L29.6649 23.105H31.8649ZM31.4249 32.365C30.3716 32.365 29.8449 33.105 29.8449 34.585C29.8449 35.2384 29.9783 35.7584 30.2449 36.145C30.5249 36.585 30.9183 36.805 31.4249 36.805C32.4916 36.805 33.0249 36.065 33.0249 34.585C33.0249 33.105 32.4916 32.365 31.4249 32.365ZM31.4249 30.505C32.6383 30.505 33.5583 30.8984 34.1849 31.685C34.7449 32.3917 35.0249 33.3584 35.0249 34.585C35.0249 35.7984 34.7449 36.7517 34.1849 37.445C33.5583 38.2317 32.6383 38.625 31.4249 38.625C30.2249 38.625 29.3116 38.2317 28.6849 37.445C28.1516 36.7517 27.8849 35.7984 27.8849 34.585C27.8849 33.345 28.1516 32.3784 28.6849 31.685C29.3116 30.8984 30.2249 30.505 31.4249 30.505Z"
+                        fill="white"
+                      />
+                    </svg>
+                  </div>
+                </Popper>
+                
+                <span v-else class="original-value-crossed">
+                  {{ formatCurrency(total.originalTotal, total.currency).replace(/[^\d.,\s]/g, '').trim() }}
+                </span>
+                
+                <span class="final-value">
+                  {{ formatCurrency(total.finalTotal, total.currency).replace(/[^\d.,\s]/g, '').trim() }}
+                </span>
+              </div>
             </template>
           </div>
 
@@ -1063,10 +1078,92 @@ function handleGenerateProposal() {
 }
 
 .total-price-badge.with-proposal {
-  padding: 0.25rem 0.25rem 0.25rem 0.625rem;
+  padding: 0.25rem 0.25rem 0.25rem 0.25rem;
 }
 
 .dark .total-price-badge {
+  color: #000000;
+}
+
+/* Currency Badge Styles */
+.currency-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  background-color: rgba(34, 197, 94, 0.15);
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.currency-code {
+  color: #22c55e;
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+.original-value-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.discount-icon-small {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 1.325rem;
+  height: 1.325rem;
+  color: #f97316;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+  animation: pulse-icon 2s ease-in-out infinite;
+  cursor: pointer;
+}
+
+@keyframes pulse-icon {
+  0%,
+  100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+.original-value-crossed {
+  color: #f97316;
+  text-decoration: line-through;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.final-value {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.dark .currency-badge {
+  background-color: rgba(34, 197, 94, 0.2);
+}
+
+.dark .currency-code {
+  color: #16a34a;
+}
+
+.dark .discount-icon-small {
+  color: #ea580c;
+}
+
+.dark .original-value-crossed {
+  color: #ea580c;
+}
+
+.dark .final-value {
   color: #000000;
 }
 
