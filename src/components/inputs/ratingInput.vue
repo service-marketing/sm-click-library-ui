@@ -4,11 +4,11 @@
     :disabled="props.readonly"
     class="flex select-none"
     :style="{ gap: `${gap}px` }"
-    @mouseleave="!props.readonly && (hoverRating = 0)"
-    @touchstart="handleTouchStart"
-    @touchmove="handleTouchMove"
-    @touchend="handleTouchMoveEnd"
-    @touchcancel="handleTouchEnd"
+    @mouseleave.passive="!props.readonly && (hoverRating = 0)"
+    @touchstart.passive="handleTouchStart"
+    @touchmove.passive="handleTouchMove"
+    @touchend.passive="handleTouchMoveEnd"
+    @touchcancel.passive="handleTouchEnd"
   >
     <div
       v-for="star in 5"
@@ -87,7 +87,7 @@ watch(
   () => props.modelValue,
   (val) => {
     rating.value = val;
-  },
+  }
 );
 
 const displayRating = computed(() => hoverRating.value || rating.value);
