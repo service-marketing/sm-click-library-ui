@@ -24,7 +24,7 @@ const props = defineProps({
   },
   // --- caso o mouse saia do componente executa uma ação ---
   onMouseLeave: {
-    type: Function, 
+    type: Function,
     required: false,
   },
   // --- departamento que pode acessar os produtos ---
@@ -98,16 +98,16 @@ const previousPage = ref(null);
 // --- Agrupa totais por moeda ---
 const totalsByCurrency = computed(() => {
   const totals = {};
-  
+
   selectedProducts.value.forEach((item) => {
     const product = item.product || item;
     const price = product.price || 0;
     const quantity = item.quantity || 0;
     const discount = item.discount || 0;
-    const currency = product.currency || 'BRL';
-    
+    const currency = product.currency || "BRL";
+
     if (quantity === 0) return;
-    
+
     if (!totals[currency]) {
       totals[currency] = {
         currency,
@@ -116,19 +116,19 @@ const totalsByCurrency = computed(() => {
         hasDiscount: false,
       };
     }
-    
+
     const itemTotal = price * quantity;
-    const itemDiscount = (price * discount / 100) * quantity;
+    const itemDiscount = ((price * discount) / 100) * quantity;
     const itemFinal = itemTotal - itemDiscount;
-    
+
     totals[currency].originalTotal += itemTotal;
     totals[currency].finalTotal += itemFinal;
-    
+
     if (discount > 0) {
       totals[currency].hasDiscount = true;
     }
   });
-  
+
   return Object.values(totals);
 });
 
@@ -568,22 +568,38 @@ function handleGenerateProposal() {
           <div class="flex items-center gap-2 flex-wrap">
             <template v-for="total in totalsByCurrency" :key="total.currency">
               <div class="currency-badge">
-                <span class="currency-code">{{ getCurrencySymbol(total.currency) }}</span>
-                
-                <Popper 
+                <span class="currency-code">{{
+                  getCurrencySymbol(total.currency)
+                }}</span>
+
+                <Popper
                   v-if="total.hasDiscount"
-                  class="discount-popper" 
-                  :hover="true" 
+                  class="discount-popper"
+                  :hover="true"
                   placement="top"
                 >
                   <template #content>
                     <main class="discount-tooltip">
                       <div class="discount-tooltip-header">
-                        {{ total.currency }} - Produtos com desconto ({{ selectedProducts.filter(item => (item.product?.currency || 'BRL') === total.currency && item.quantity > 0 && item.discount > 0).length }})
+                        {{ total.currency }} - Produtos com desconto ({{
+                          selectedProducts.filter(
+                            (item) =>
+                              (item.product?.currency || "BRL") ===
+                                total.currency &&
+                              item.quantity > 0 &&
+                              item.discount > 0,
+                          ).length
+                        }})
                       </div>
                       <ul class="discount-tooltip-list">
                         <DiscountProductCard
-                          v-for="item in selectedProducts.filter(item => (item.product?.currency || 'BRL') === total.currency && item.quantity > 0 && item.discount > 0)"
+                          v-for="item in selectedProducts.filter(
+                            (item) =>
+                              (item.product?.currency || 'BRL') ===
+                                total.currency &&
+                              item.quantity > 0 &&
+                              item.discount > 0,
+                          )"
                           :key="getProductId(item)"
                           :item="item"
                           :getProductId="getProductId"
@@ -592,10 +608,12 @@ function handleGenerateProposal() {
                     </main>
                   </template>
                   <div class="original-value-wrapper">
-                    <span 
-                      class="original-value-crossed"
-                    >
-                      {{ formatCurrency(total.originalTotal, total.currency).replace(/[^\d.,\s]/g, '').trim() }}
+                    <span class="original-value-crossed">
+                      {{
+                        formatCurrency(total.originalTotal, total.currency)
+                          .replace(/[^\d.,\s]/g, "")
+                          .trim()
+                      }}
                     </span>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -614,13 +632,17 @@ function handleGenerateProposal() {
                     </svg>
                   </div>
                 </Popper>
-                
-                <span v-else class="original-value-crossed">
+
+                <!-- <span v-else class="original-value-crossed">
                   {{ formatCurrency(total.originalTotal, total.currency).replace(/[^\d.,\s]/g, '').trim() }}
-                </span>
-                
+                </span> -->
+
                 <span class="final-value">
-                  {{ formatCurrency(total.finalTotal, total.currency).replace(/[^\d.,\s]/g, '').trim() }}
+                  {{
+                    formatCurrency(total.finalTotal, total.currency)
+                      .replace(/[^\d.,\s]/g, "")
+                      .trim()
+                  }}
                 </span>
               </div>
             </template>
