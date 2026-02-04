@@ -560,7 +560,7 @@ function handleGenerateProposal() {
       v-if="(productsList.length > 0 && !itsSearching) || itsSearching"
       class="header-products-list bg-base-300"
     >
-      <div style="padding: 0.5rem 0.5rem 0rem 0.5rem">
+      <div v-if="totalsByCurrency.length > 0" style="padding: 0.5rem 0.5rem 0rem 0.5rem">
         <section
           class="total-price-badge text-white"
           :class="{ 'with-proposal': proposal }"

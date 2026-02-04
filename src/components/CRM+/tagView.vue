@@ -49,7 +49,7 @@ const visibleTags = computed(() => props.clients?.tags?.slice(0, 4) || []);
         <!-- Primeira letra da tag -->
         <span
           :style="{ backgroundColor: tag.color || '#fff' }"
-          class="w-full ml-[-0.10rem] rounded-r-md inline-flex items-center justify-center px-1 py-0.5 border-b-2 border-gray-900"
+          class="w-full ml-[-0.10rem] rounded-r-md inline-flex items-center justify-center px-1 border-b-2 border-gray-900"
         >
           <p class="text-[8px] font-bold">
             {{ tag.name.charAt(0).toUpperCase() }}
@@ -82,7 +82,7 @@ const visibleTags = computed(() => props.clients?.tags?.slice(0, 4) || []);
         <!-- Quantas tags tem além das 4 primeiras -->
         <span
           :style="{ backgroundColor: '#d1d5db' }"
-          class="w-full ml-[-0.5rem] rounded-r-md inline-flex items-center justify-center p-0.5 border-b-2 border-gray-900"
+          class="w-full ml-[-0.5rem] rounded-r-md inline-flex items-center justify-center p-0.5 py-0 border-b-2 border-gray-900"
         >
           <p class="text-[8px] text-black font-bold">
             +{{ clients.tags.length - 4 }}
@@ -144,8 +144,8 @@ const visibleTags = computed(() => props.clients?.tags?.slice(0, 4) || []);
 }
 
 .svg-list-tag {
-  width: 1.55rem;
-  height: 1.55rem;
+  width: 1.25rem;
+  height: 1.25rem;
   margin-left: -0.5rem;
 }
 
