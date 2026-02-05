@@ -63,6 +63,13 @@ const props = defineProps({
     default: null, // quando null mantém comportamento antigo (absolute dentro do container)
   },
 
+  // --- Mostra dropdown como overlay (position: fixed) sem precisar de Teleport ---
+  // Útil quando o dropdown está "esticando" o layout ou quando Teleport não é uma opção.
+  overlay: {
+    type: Boolean,
+    default: false,
+  },
+
   //--- Aceita um svg para ficar do lado esquerdo das ecolhas ---
   //   (continua existindo para compatibilidade / fallback)
   icon: {
@@ -80,7 +87,7 @@ const props = defineProps({
 const emit = defineEmits(["update:modelValue"]);
 
 const isOpen = ref(false);
-const dropdownRef = ref(null);  // ref do container geral
+const dropdownRef = ref(null); // ref do container geral
 const triggerRef = ref(null); // ref da área clicável (campo principal)
 const dropdownStyle = ref({}); // estilos calculados quando usa teleport
 
@@ -89,7 +96,7 @@ onClickOutside(dropdownRef, () => (isOpen.value = false));
 
 // --- Calcula posição absoluta (fixed) para o dropdown quando teletransportado ---
 const updatePosition = () => {
-  if (!props.teleportTo || !triggerRef.value) return;
+  if ((!props.teleportTo && !props.overlay) || !triggerRef.value) return;
   const rect = triggerRef.value.getBoundingClientRect();
   dropdownStyle.value = {
     position: "fixed", // evita ser afetado por scroll de ancestors
@@ -113,7 +120,7 @@ const selectedIcon = computed(() => {
   if (props.multiple) return null;
 
   const selectedOption = props.options.find(
-    (opt) => opt.value === props.modelValue
+    (opt) => opt.value === props.modelValue,
   );
 
   // Ícone da opção; se não tiver, usa ícone de placeholder/icon como fallback
@@ -134,7 +141,7 @@ watch(isOpen, (open) => {
 
 const listeners = [];
 onMounted(() => {
-  if (props.teleportTo) {
+  if (props.teleportTo || props.overlay) {
     const reposition = () => {
       if (isOpen.value) updatePosition();
     };
@@ -146,7 +153,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   listeners.forEach(([evt, fn]) =>
-    window.removeEventListener(evt, fn, evt === "scroll" ? true : undefined)
+    window.removeEventListener(evt, fn, evt === "scroll" ? true : undefined),
   );
 });
 
@@ -187,7 +194,7 @@ const displayLabel = computed(() => {
   }
 
   const selectedOption = props.options.find(
-    (opt) => opt.value === props.modelValue
+    (opt) => opt.value === props.modelValue,
   );
   return selectedOption?.name || props.placeholder;
 });
@@ -224,7 +231,7 @@ const displayLabel = computed(() => {
           v-html="placeholderIcon"
         />
 
-        {{ displayLabel }}
+        <p class="text-text-text-base">{{ displayLabel }}</p>
       </span>
 
       <!-- Ícone -->
@@ -249,9 +256,9 @@ const displayLabel = computed(() => {
 
     <!-- Dropdown (modo padrão dentro do fluxo) -->
     <div
-      v-if="isOpen && !teleportTo"
+      v-if="isOpen && !teleportTo && !overlay"
       :class="[
-        'absolute flex flex-col z-10 mt-1.5 w-full shadow-sm border rounded-md max-h-64 overflow-y-auto hide-scrollbar',
+        'absolute flex flex-col z-50 mt-1.5 w-full shadow-sm border rounded-md max-h-64 overflow-y-auto hide-scrollbar',
         theme,
       ]"
     >
@@ -268,7 +275,49 @@ const displayLabel = computed(() => {
       >
         <div class="flex items-center gap-2">
           <span v-if="option.icon" v-html="option.icon" class="flex-shrink-0" />
-          <span>{{ option.name }}</span>
+          <span class="text-text-base">{{ option.name }}</span>
+        </div>
+        <svg
+          v-if="isSelected(option.value)"
+          xmlns="http://www.w3.org/2000/svg"
+          class="size-4 text-green-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M5 13l4 4L19 7"
+          />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Dropdown como overlay (sem Teleport) -->
+    <div
+      v-if="isOpen && !teleportTo && overlay"
+      :style="dropdownStyle"
+      :class="[
+        'flex flex-col shadow-sm border rounded-md max-h-64 overflow-y-auto hide-scrollbar',
+        theme,
+      ]"
+    >
+      <button
+        v-for="option in options"
+        :key="option.value"
+        :class="[
+          isSelected(option.value)
+            ? 'bg-green-500/30 hover:bg-green-500/50'
+            : 'hover:bg-base-200',
+          'flex items-center justify-between gap-2 px-3 py-2 text-left text-sm cursor-pointer transition w-full',
+        ]"
+        @click="toggleSelect(option.value)"
+      >
+        <div class="flex items-center gap-2">
+          <span v-if="option.icon" v-html="option.icon" class="flex-shrink-0" />
+          <span class="text-text-base">{{ option.name }}</span>
         </div>
         <svg
           v-if="isSelected(option.value)"
@@ -314,7 +363,7 @@ const displayLabel = computed(() => {
               v-html="option.icon"
               class="flex-shrink-0"
             />
-            <span>{{ option.name }}</span>
+            <span class="text-text-base">{{ option.name }}</span>
           </div>
           <svg
             v-if="isSelected(option.value)"
