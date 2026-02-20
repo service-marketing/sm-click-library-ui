@@ -125,25 +125,13 @@ const modalTitle = computed(() =>
 
 const validateClient = (client) => {
   const missing = [];
-  const isLid = client.whatsapp_id?.endsWith("@lid");
-  const canViewNumber = client.viewContactNumber;
 
   if (!client.name?.trim()) {
     missing.push("name");
   }
 
-  if (!isLid && canViewNumber && !client.telephone?.trim()) {
-    missing.push("telephone");
-  }
-
   return missing;
 };
-
-const isEmptyNumber = computed(() => {
-  return errors.value
-    ? errors.value.some((e) => e.startsWith("telephone"))
-    : false;
-});
 
 // --- Função de salvar cliente ---
 const saveClient = async () => {
@@ -472,7 +460,6 @@ const handlerToggleButtons = computed(() => {
                     :handlerToggleButtons="handlerToggleButtons"
                     :allProducts="allProducts"
                     :departmentBypass="departmentBypass"
-                    :isEmptyNumber="isEmptyNumber"
                     :isLargeScreen="isLargeScreen"
                     v-model:pageState="pageState"
                     v-model:telephone="form.telephone"
@@ -491,7 +478,6 @@ const handlerToggleButtons = computed(() => {
                   :handlerToggleButtons="handlerToggleButtons"
                   :allProducts="allProducts"
                   :departmentBypass="departmentBypass"
-                  :isEmptyNumber="isEmptyNumber"
                   :isLargeScreen="isLargeScreen"
                   v-model:pageState="pageState"
                   v-model:telephone="form.telephone"
