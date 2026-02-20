@@ -267,11 +267,7 @@ const filteredInstances = computed(() => {
         </nav>
     </main>
 </template>
-<style>
-button[disabled] {
-    opacity: 50;
-    cursor: not-allowed;
-}
+<style scoped>
 
 .popper-dark {
     --popper-theme-background-color: #111B21;
@@ -294,14 +290,23 @@ button[disabled] {
     --popper-theme-padding: 10px;
     --popper-theme-box-shadow: 0 6px 30px -6px rgba(0, 0, 0, .60);
 }
+
 .icon-meta {
-  color: #0081FB;         /* style="color: #0081FB;" */
-  width: 1rem;            /* w-4 → 1rem */
-  height: 1rem;           /* h-4 → 1rem */
-  position: absolute;     /* absolute */
-  flex-shrink: 0;         /* flex-shrink-0 */
-  bottom: -0.5rem;        /* -bottom-2 → -0.5rem */
-  right: -0.5rem;         /* -right-2 → -0.5rem */
-  border-radius: 9999px;  /* rounded-full */
+  color: #0081FB;
+  /* style="color: #0081FB;" */
+  width: 1rem;
+  /* w-4 → 1rem */
+  height: 1rem;
+  /* h-4 → 1rem */
+  position: absolute;
+  /* absolute */
+  flex-shrink: 0;
+  /* flex-shrink-0 */
+  bottom: -0.5rem;
+  /* -bottom-2 → -0.5rem */
+  right: -0.5rem;
+  /* -right-2 → -0.5rem */
+  border-radius: 9999px;
+  /* rounded-full */
 }
 </style>

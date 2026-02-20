@@ -20,11 +20,33 @@ function deepClone(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
 
+function normalizeBool(value) {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value === 1;
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    if (["true", "1", "yes", "y", "sim"].includes(normalized)) return true;
+    if (["false", "0", "no", "n", "nao", "não"].includes(normalized))
+      return false;
+  }
+  return false;
+}
+
+function normalizeFields(fields) {
+  if (!Array.isArray(fields)) return;
+  fields.forEach((field) => {
+    if (field?.type === "bool") {
+      field.content = normalizeBool(field.content);
+    }
+  });
+}
+
 const getSegmentationsFields = async () => {
   try {
     loading.value = true;
     const response = await api.get(segmentation_field);
     segmentationsFields.value = response.data;
+    normalizeFields(segmentationsFields.value);
   } catch (error) {
     console.error("Error fetching segmentation fields:", error);
   } finally {
@@ -37,12 +59,17 @@ onMounted(() => {
     getSegmentationsFields();
   }
 
-  segmentationsFields.value.forEach((field) => {
-    if (field.type === "bool") {
-      field.content = field.content === "True" ? true : false;
-    }
-  });
+  normalizeFields(segmentationsFields.value);
 });
+
+watch(
+  () => props.modelValue,
+  (newVal) => {
+    segmentationsFields.value = deepClone(newVal);
+    normalizeFields(segmentationsFields.value);
+  },
+  { deep: true },
+);
 
 watch(
   segmentationsFields,
@@ -78,28 +105,35 @@ watch(
               : 'flex-col items-start',
           ]"
         >
-          <template v-if="field.type === 'bool'">
+          <label
+            v-if="field.type === 'bool'"
+            :for="'seg-label-' + field.id"
+            class="flex items-center gap-2 cursor-pointer select-none"
+            title="verdadeiro/falso"
+          >
             <input
               :id="'seg-label-' + field.id"
               class="peer size-4 cursor-pointer appearance-none rounded bg-gray-400 transition-all duration-200 checked:scale-75 checked:bg-teal-400"
               type="checkbox"
               v-model="field.content"
             />
-          </template>
+            <span class="text-xs text-[12px] font-sans font-semibold">
+              {{ field.name }}
+            </span>
+          </label>
 
           <label
+            v-else
             :for="'seg-label-' + field.id"
             class="text-xs text-[12px] font-sans font-semibold"
             :title="
               field.type === 'string'
                 ? 'texto'
-                : field.type === 'bool'
-                  ? 'verdadeiro/falso'
-                  : field.type === 'float'
-                    ? 'número'
-                    : field.type === 'list'
-                      ? 'lista'
-                      : 'Desconhecido'
+                : field.type === 'float'
+                  ? 'número'
+                  : field.type === 'list'
+                    ? 'lista'
+                    : 'Desconhecido'
             "
           >
             {{ field.name }}
@@ -126,6 +160,7 @@ watch(
           <template v-if="field.type === 'list'">
             <SimpleSelect
               v-model="field.content"
+              :overlay="true"
               :options="
                 field.additional_info.list.options.map((option) => ({
                   value: option,
@@ -133,8 +168,7 @@ watch(
                 }))
               "
               placeholder="Selecione uma opção"
-              theme="bg-base-300 border-base-100 text-white"
-              teleport-to="body"
+              theme="bg-base-300 border-base-100 text-text-base"
             />
           </template>
         </div>

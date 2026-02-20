@@ -125,9 +125,17 @@ const modalTitle = computed(() =>
 
 const validateClient = (client) => {
   const missing = [];
-  if (!client.name?.trim()) missing.push("name");
-  if (form.viewContactNumber && !client.telephone?.trim())
+  const isLid = client.whatsapp_id?.endsWith("@lid");
+  const canViewNumber = client.viewContactNumber;
+
+  if (!client.name?.trim()) {
+    missing.push("name");
+  }
+
+  if (!isLid && canViewNumber && !client.telephone?.trim()) {
     missing.push("telephone");
+  }
+
   return missing;
 };
 

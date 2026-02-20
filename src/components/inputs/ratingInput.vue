@@ -74,6 +74,7 @@ const props = defineProps({
   gap: { type: Number, default: 4 }, // espaçamento entre estrelas (px)
   onRate: { type: Function, default: null }, // função opcional a ser executada no clique
   readonly: { type: Boolean, default: false },
+  starWeight: { type: Number, default: 1 }, // peso de cada estrela (1 padrão, 2 para nota 0-10)
 });
 
 const emit = defineEmits(["update:modelValue"]);
@@ -90,26 +91,31 @@ watch(
   }
 );
 
+
 const displayRating = computed(() => hoverRating.value || rating.value);
 
 function fillWidth(star) {
-  const diff = displayRating.value - star + 1;
-  if (diff >= 1) return "100%";
-  if (diff >= 0.5) return "50%";
-  if (diff > 0) return `${diff * 100}%`;
-  return "0%";
+  // star: 1 a 5, cada estrela vale starWeight pontos
+  const nota = displayRating.value;
+  const starMin = (star - 1) * props.starWeight;
+  const starMax = star * props.starWeight;
+  if (nota >= starMax) return "100%";
+  if (nota <= starMin) return "0%";
+  // Preenchimento parcial
+  return `${((nota - starMin) / props.starWeight) * 100}%`;
 }
 
 function onHover(e, star) {
   const rect = e.currentTarget.getBoundingClientRect();
+  // Cada metade da estrela vale starWeight/2 pontos
   const isHalf = e.offsetX < rect.width / 2;
-  hoverRating.value = star - (isHalf ? 0.5 : 0);
+  hoverRating.value = (star - 1) * props.starWeight + (isHalf ? props.starWeight / 2 : props.starWeight);
 }
 
 function setRating(e, star) {
   const rect = e.currentTarget.getBoundingClientRect();
   const isHalf = e.offsetX < rect.width / 2;
-  const newRating = star - (isHalf ? 0.5 : 0);
+  const newRating = (star - 1) * props.starWeight + (isHalf ? props.starWeight / 2 : props.starWeight);
   rating.value = rating.value === newRating ? 0 : newRating;
   emit("update:modelValue", rating.value);
 
@@ -146,7 +152,8 @@ function handleTouchMove(e) {
     if (starElement) {
       const starRect = starElement.getBoundingClientRect();
       const isHalf = touch.clientX - starRect.left < starRect.width / 2;
-      hoverRating.value = starIndex - (isHalf ? 0.5 : 0);
+      // Cada metade da estrela vale starWeight/2 pontos
+      hoverRating.value = (starIndex - 1) * props.starWeight + (isHalf ? props.starWeight / 2 : props.starWeight);
     }
   }
 }
