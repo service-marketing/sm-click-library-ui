@@ -16,7 +16,6 @@ const props = defineProps({
     type: [String, Number, Boolean, Object],
     default: undefined,
   },
-  isEmptyNumber: { type: Boolean, default: false },
   isLargeScreen: { type: Boolean, default: true },
   viewContactNumber: { type: Boolean, default: false },
 });
@@ -30,6 +29,13 @@ const segmentationFields = defineModel("segmentationFields", {
   default: () => [],
 });
 const products = defineModel("products", { type: Array, default: () => [] });
+
+// Handler para garantir apenas números no telefone
+const handleTelephoneInput = (value) => {
+  // Remove tudo que não for número, espaço, parênteses ou hífen
+  const sanitized = value ? String(value).replace(/[^\d\s()-]/g, '') : '';
+  telephone.value = sanitized;
+};
 </script>
 
 <template>
@@ -46,12 +52,7 @@ const products = defineModel("products", { type: Array, default: () => [] });
       'flex flex-col gap-2 flex-1 min-h-0 px-1.5 overflow-hidden',
     ]"
   >
-    <div
-      :class="
-        props.isEmptyNumber && !telephone ? 'border-red-500' : 'border-white/10'
-      "
-      class="rounded-md bg-base-200 border shadow-sm transition-shadow duration-200 hover:shadow-md"
-    >
+    <div class="rounded-md bg-base-200 border shadow-sm transition-shadow duration-200 hover:shadow-md border-white/10">
       <h1 class="text-start w-full items-center justify-between flex p-2">
         <p class="text-xs font-semibold">Contatos</p>
       </h1>
@@ -80,13 +81,15 @@ const products = defineModel("products", { type: Array, default: () => [] });
           v-if="viewContactNumber"
           class="z-40 w-full"
           @country-changed="(crt) => (country = crt.iso2)"
+          @input="handleTelephoneInput"
           :mode="'national'"
           :validCharactersOnly="true"
-          :defaultCountry="country"
+          :defaultCountry="country || 'br'"
+          :modelValue="telephone || ''"
           :inputOptions="{
             placeholder: 'Coloque seu telefone',
             showDialCode: false,
-            required: true,
+            required: false,
             searchBoxPlaceholder: 'Brazil',
           }"
           :dropdownOptions="{
@@ -94,7 +97,6 @@ const products = defineModel("products", { type: Array, default: () => [] });
             showFlags: true,
             searchBoxPlaceholder: 'Brazil',
           }"
-          v-model="telephone"
         ></vue-tel-input>
 
         <div
@@ -103,14 +105,6 @@ const products = defineModel("products", { type: Array, default: () => [] });
         >
           +55 00000-0000
         </div>
-
-        <span
-          style="bottom: -0.5rem"
-          v-if="props.isEmptyNumber && !telephone"
-          class="text-xs absolute z-50 left-1 bg-base-300 px-2 py-0.5 rounded-lg text-red-500 select-none shadow-sm shadow-base-100"
-        >
-          Campo obrigatorio
-        </span>
       </div>
     </div>
 
