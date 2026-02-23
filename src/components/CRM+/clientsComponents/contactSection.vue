@@ -29,6 +29,13 @@ const segmentationFields = defineModel("segmentationFields", {
   default: () => [],
 });
 const products = defineModel("products", { type: Array, default: () => [] });
+
+// Handler para garantir apenas números no telefone
+const handleTelephoneInput = (value) => {
+  // Remove tudo que não for número, espaço, parênteses ou hífen
+  const sanitized = value ? String(value).replace(/[^\d\s()-]/g, '') : '';
+  telephone.value = sanitized;
+};
 </script>
 
 <template>
@@ -74,9 +81,11 @@ const products = defineModel("products", { type: Array, default: () => [] });
           v-if="viewContactNumber"
           class="z-40 w-full"
           @country-changed="(crt) => (country = crt.iso2)"
+          @input="handleTelephoneInput"
           :mode="'national'"
           :validCharactersOnly="true"
-          :defaultCountry="country"
+          :defaultCountry="country || 'br'"
+          :modelValue="telephone || ''"
           :inputOptions="{
             placeholder: 'Coloque seu telefone',
             showDialCode: false,
@@ -88,7 +97,6 @@ const products = defineModel("products", { type: Array, default: () => [] });
             showFlags: true,
             searchBoxPlaceholder: 'Brazil',
           }"
-          v-model="telephone"
         ></vue-tel-input>
 
         <div
