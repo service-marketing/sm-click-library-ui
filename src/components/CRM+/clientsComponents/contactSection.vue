@@ -31,9 +31,11 @@ const segmentationFields = defineModel("segmentationFields", {
 const products = defineModel("products", { type: Array, default: () => [] });
 
 // Handler para garantir apenas números no telefone
-const handleTelephoneInput = (value) => {
+const handleTelephoneInput = (value, phoneObject) => {
+  // vue-tel-input pode retornar um objeto ou string
+  const phoneValue = phoneObject?.number || value || '';
   // Remove tudo que não for número, espaço, parênteses ou hífen
-  const sanitized = value ? String(value).replace(/[^\d\s()-]/g, '') : '';
+  const sanitized = String(phoneValue).replace(/[^\d\s()-]/g, '');
   telephone.value = sanitized;
 };
 </script>
@@ -81,7 +83,7 @@ const handleTelephoneInput = (value) => {
           v-if="viewContactNumber"
           class="z-40 w-full"
           @country-changed="(crt) => (country = crt.iso2)"
-          @input="handleTelephoneInput"
+          @update:modelValue="handleTelephoneInput"
           :mode="'national'"
           :validCharactersOnly="true"
           :defaultCountry="country || 'br'"
