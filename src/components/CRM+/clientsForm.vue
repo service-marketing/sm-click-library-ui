@@ -46,6 +46,7 @@ const props = defineProps({
       segmentation_fields: [],
       products: [],
       notes: "",
+      blocked: false,
     }),
   },
   // --- Função que salva o formulário ---
@@ -57,6 +58,11 @@ const props = defineProps({
   hasCrmPlus: {
     type: Boolean,
     default: false,
+  },
+  // --- Checa se tem permissão para bloquear contatos ---
+  canBlockedContacts: {
+    type: Boolean,
+    default: true,
   },
   // --- Lista de todos os produtos disponíveis e bloqueia o fetch na lista de produtos ---
   allProducts: {
@@ -318,7 +324,7 @@ const handlerToggleButtons = computed(() => {
 
                 <div
                   v-if="isLargeScreen || pageState === 'contact'"
-                  class="flex flex-col gap-1 items-center"
+                  class="flex flex-col gap-4 items-center"
                 >
                   <OutcomeButton
                     v-if="hasCrmPlus"
@@ -330,29 +336,93 @@ const handlerToggleButtons = computed(() => {
                     title="Não é possível alterar a foto do cliente neste momento"
                     class="flex items-center justify-center w-full"
                   >
-                    <img
-                      v-if="form.photo"
-                      :src="form.photo"
-                      alt=""
-                      class="avatar-client"
-                    />
+                    <div class="relative inline-block">
+                      <!-- Foto -->
+                      <img
+                        v-if="form.photo"
+                        :src="form.photo"
+                        alt=""
+                        class="avatar-client"
+                      />
 
-                    <span v-else class="no-avatar-client"
-                      ><svg
-                        class="size-14"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          fill-rule="evenodd"
-                          d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4h-4Z"
-                          clip-rule="evenodd"
-                        /></svg
-                    ></span>
+                      <span v-else class="no-avatar-client">
+                        <svg
+                          class="size-14"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            fill-rule="evenodd"
+                            d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4h-4Z"
+                            clip-rule="evenodd"
+                          />
+                        </svg>
+                      </span>
+
+                      <!-- Botão de Bloquear/Desbloquear (inferior esquerdo) -->
+                      <div class="absolute -bottom-1 -right-1">
+                        <Popper
+                          hover
+                          :content="
+                            !canBlockedContacts
+                              ? 'Sem permissão para esta ação'
+                              : form.blocked
+                                ? 'Desbloquear contato'
+                                : 'Bloquear contato'
+                          "
+                          placement="bottom"
+                          arrow
+                        >
+                          <button
+                            @click="form.blocked = !form.blocked"
+                            :disabled="!canBlockedContacts"
+                            class="lock-button transition-all duration-200"
+                            :class="[
+                              form.blocked
+                                ? 'lock-button-blocked'
+                                : 'lock-button-unblocked',
+                              canBlockedContacts
+                                ? 'lock-button-enabled'
+                                : 'lock-button-disabled',
+                            ]"
+                          >
+                            <!-- Ícone de Bloqueado -->
+                            <svg
+                              v-if="form.blocked"
+                              class="size-3 text-red-100"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                fill-rule="evenodd"
+                                d="M8 10V7a4 4 0 1 1 8 0v3h1a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h1Zm2-3a2 2 0 1 1 4 0v3h-4V7Zm2 6a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1Z"
+                                clip-rule="evenodd"
+                              />
+                            </svg>
+
+                            <!-- Ícone de Desbloqueado -->
+                            <svg
+                              v-else
+                              class="size-3 text-green-100"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                fill-rule="evenodd"
+                                d="M15 7a2 2 0 1 1 4 0v4a1 1 0 1 0 2 0V7a4 4 0 0 0-8 0v3H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2V7Zm-5 6a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1Z"
+                                clip-rule="evenodd"
+                              />
+                            </svg>
+                          </button>
+                        </Popper>
+                      </div>
+                    </div>
                   </div>
 
                   <RatingInput v-if="hasCrmPlus" v-model="form.rating" />
@@ -761,5 +831,42 @@ const handlerToggleButtons = computed(() => {
 * {
   scrollbar-width: thin;
   scrollbar-color: #334155 transparent;
+}
+
+/* Estilos do botão de bloquear/desbloquear */
+.lock-button {
+  padding: 0.25rem;
+  border-radius: 0.375rem;
+}
+
+.lock-button-blocked {
+  background-color: rgba(239, 68, 68, 0.9);
+  border: 1px solid #dc2626;
+}
+
+.lock-button-blocked:hover {
+  background-color: #ef4444;
+}
+
+.lock-button-unblocked {
+  background-color: rgba(34, 197, 94, 0.9);
+  border: 1px solid #16a34a;
+}
+
+.lock-button-unblocked:hover {
+  background-color: #22c55e;
+}
+
+.lock-button-enabled {
+  cursor: pointer;
+}
+
+.lock-button-enabled:hover {
+  transform: scale(1.1);
+}
+
+.lock-button-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 </style>
