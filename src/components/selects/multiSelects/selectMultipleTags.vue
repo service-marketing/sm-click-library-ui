@@ -1,5 +1,12 @@
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, watch } from "vue";
+import {
+  ref,
+  computed,
+  onMounted,
+  onBeforeUnmount,
+  watch,
+  nextTick,
+} from "vue";
 import api from "~/utils/api.js";
 import { contact_tag } from "~/utils/systemUrls";
 import InfiniteLoading from "v3-infinite-loading";
@@ -21,11 +28,16 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
-  // --- Define o seletor CSS do container onde o dropdown será teletransportado ---
-  // --- quando null mantém comportamento antigo (absolute dentro do container) ---
+  // Mantido por compatibilidade com chamadas existentes.
+  // O dropdown agora sempre é renderizado localmente (absolute + relative).
   teleportTo: {
     type: String,
     default: null,
+  },
+  // Dropdown em overlay (position: fixed) para evitar clipping por overflow sem Teleport.
+  overlay: {
+    type: Boolean,
+    default: false,
   },
   // --- lista de todas as tags em geral ---
   allTags: {
@@ -39,10 +51,9 @@ const emit = defineEmits(["update:modelValue"]);
 
 const isOpen = ref(false);
 const search = ref("");
-const dropdownRef = ref(null); // container original (não teleportado)
-const teleportedRef = ref(null); // container quando teleportado
+const dropdownRef = ref(null);
 const triggerRef = ref(null); // ref da área clicável (campo principal)
-const dropdownStyle = ref({}); // estilos calculados quando usa teleport
+const dropdownStyle = ref({});
 const internalTags = ref([]);
 const page = ref(1);
 const nextPage = ref(null);
@@ -55,38 +66,66 @@ const itsSearching = ref(false);
 // --- Primeiro selecionado (modo single) ---
 const firstSelected = computed(() => props.modelValue[0] || null);
 
-// --- Fecha o dropdown ao clicar fora (custom p/ suportar teleport) ---
+// --- Fecha o dropdown ao clicar fora ---
 const handleOutside = (e) => {
   if (!isOpen.value) return;
   const target = e.target;
-  // Se o clique está dentro de qualquer um dos containers, não fecha
   if (
     triggerRef.value?.contains(target) ||
-    dropdownRef.value?.contains(target) ||
-    teleportedRef.value?.contains(target)
+    dropdownRef.value?.contains(target)
   ) {
     return;
   }
   isOpen.value = false;
 };
 
-// --- Calcula posição absoluta (fixed) para o dropdown quando teletransportado ---
+// Posição do dropdown quando em overlay (fixed), para escapar de clipping por overflow.
+const getFixedContainingBlock = (element) => {
+  let node = element?.parentElement || null;
+  while (node && node !== document.body && node !== document.documentElement) {
+    const style = window.getComputedStyle(node);
+    const willChange = style.willChange || "";
+    const createsContainingBlock =
+      style.transform !== "none" ||
+      style.perspective !== "none" ||
+      style.filter !== "none" ||
+      style.backdropFilter !== "none" ||
+      willChange.includes("transform") ||
+      willChange.includes("filter") ||
+      willChange.includes("perspective");
+    if (createsContainingBlock) return node;
+    node = node.parentElement;
+  }
+  return null;
+};
+
 const updatePosition = () => {
-  if (!props.teleportTo || !triggerRef.value) return;
+  if (!props.overlay || !triggerRef.value) return;
   const rect = triggerRef.value.getBoundingClientRect();
+  let top = rect.bottom + 3;
+  let left = rect.left;
+
+  const containingBlock = getFixedContainingBlock(triggerRef.value);
+  if (containingBlock) {
+    const blockRect = containingBlock.getBoundingClientRect();
+    top -= blockRect.top;
+    left -= blockRect.left;
+  }
+
   dropdownStyle.value = {
-    position: "fixed", // evita ser afetado por scroll de ancestors
-    top: `${rect.bottom + 3}px`, // pequeno espaçamento
-    left: `${rect.left}px`,
+    position: "fixed",
+    top: `${top}px`,
+    left: `${left}px`,
     width: `${rect.width}px`,
     zIndex: 9999,
   };
 };
 
-watch(isOpen, (open) => {
-  if (open) {
-    updatePosition();
-  }
+watch(isOpen, async (open) => {
+  if (!open) return;
+  await nextTick();
+  updatePosition();
+  requestAnimationFrame(updatePosition);
 });
 
 // --- Filtra as Tags conforme a busca ---
@@ -187,7 +226,10 @@ watch(
 );
 
 onMounted(async () => {
-  if (props.teleportTo) {
+  // Listener global para clique fora
+  document.addEventListener("mousedown", handleOutside);
+
+  if (props.overlay) {
     const reposition = () => {
       if (isOpen.value) updatePosition();
     };
@@ -195,12 +237,13 @@ onMounted(async () => {
     window.addEventListener("resize", reposition);
     listeners.push(["scroll", reposition], ["resize", reposition]);
   }
-  // Listener global para clique fora (suporta ambos os modos)
-  document.addEventListener("mousedown", handleOutside);
 });
 
 onBeforeUnmount(() => {
   document.removeEventListener("mousedown", handleOutside);
+  listeners.forEach(([evt, fn]) =>
+    window.removeEventListener(evt, fn, evt === "scroll" ? true : undefined),
+  );
 });
 
 watch(
@@ -220,7 +263,7 @@ watch(
 </script>
 
 <template>
-  <div class="relative w-full z-[9999]" ref="dropdownRef">
+  <div class="relative w-full z-5" ref="dropdownRef">
     <!-- Div de seleção -->
     <div
       @click="isOpen = !isOpen"
@@ -301,8 +344,13 @@ watch(
 
     <!-- Dropdown -->
     <div
-      v-if="isOpen && !teleportTo"
-      class="absolute z-10 mt-1.5 w-full bg-base-300 shadow-sm shadow-base-100 border border-base-300 rounded-md overflow-y-auto hide-scrollbar"
+      v-if="isOpen"
+      :style="overlay ? dropdownStyle : undefined"
+      :class="[
+        overlay
+          ? 'max-h-[200px] w-full bg-base-300 shadow-sm shadow-base-100 border border-base-300 rounded-md overflow-y-auto hide-scrollbar'
+          : 'absolute max-h-[200px] z-10 mt-1.5 w-full bg-base-300 shadow-sm shadow-base-100 border border-base-300 rounded-md overflow-y-auto hide-scrollbar',
+      ]"
     >
       <div class="p-2 sticky top-0 bg-base-300">
         <input
@@ -382,90 +430,6 @@ watch(
         </template>
       </InfiniteLoading>
     </div>
-
-    <Teleport v-if="isOpen && teleportTo" :to="teleportTo">
-      <div
-        ref="teleportedRef"
-        :style="{ ...dropdownStyle }"
-        class="absolute z-10 w-full bg-base-300 shadow-sm shadow-base-100 border border-base-300 rounded-md overflow-y-auto hide-scrollbar max-h-[200px]"
-      >
-        <div class="p-2 sticky top-0 bg-base-300">
-          <input
-            v-model="filters.name"
-            type="text"
-            placeholder="Buscar..."
-            class="w-full text-[10px] bg-base-200 rounded-md p-2 outline-none border-none focus:outline-none focus:ring-0 focus:shadow-none placeholder:text-gray-500"
-          />
-        </div>
-
-        <button
-          v-for="depart in filteredTags"
-          :key="depart.id"
-          :class="[
-            'select-tag-btn',
-            { selected: modelValue.some((d) => d.id === depart.id) },
-          ]"
-          @click="toggleSelect(depart)"
-        >
-          <section class="inline-flex">
-            <svg
-              class="size-6"
-              aria-hidden="true"
-              viewBox="0 0 3 97"
-              :style="{ color: depart.color || '#ffff' }"
-            >
-              <path
-                d="M49.9,0a17.1,17.1,0,0,0-12,5L5,37.9A17,17,0,0,0,5,62L37.9,94.9a17.1,17.1,0,0,0,12,5ZM25.4,59.4a9.5,9.5,0,1,1,9.5-9.5A9.5,9.5,0,0,1,25.4,59.4Z"
-                fill="currentColor"
-              />
-            </svg>
-            <span
-              :style="{ backgroundColor: depart.color || '#ffff' }"
-              class="viewTag"
-              :class="getContrastColor(depart.color || '#ffff')"
-              >{{ depart.name }}</span
-            >
-          </section>
-
-          <svg
-            v-if="modelValue.some((d) => d.id === depart.id)"
-            class="size-4 text-green-500"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M5 11.917 9.724 16.5 19 7.5"
-            />
-          </svg>
-        </button>
-
-        <div v-if="!filteredTags.length" class="text-center text-gray-400 py-2">
-          <span class="text-xs">Nenhum resultado encontrado</span>
-        </div>
-
-        <InfiniteLoading
-          v-if="nextPage"
-          @infinite="loadMoreTags"
-          class="p-3 bg-base-300"
-        >
-          <template #spinner>
-            <section class="w-full justify-center items-center flex">
-              <div
-                class="size-4 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"
-              />
-            </section>
-          </template>
-        </InfiniteLoading>
-      </div>
-    </Teleport>
   </div>
 </template>
 
@@ -481,39 +445,6 @@ watch(
   display: none;
   width: 0;
   height: 0;
-}
-
-.select-tag-btn {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  cursor: pointer;
-  transition: background 0.2s;
-  width: 100%;
-  background: transparent;
-}
-.select-tag-btn:hover {
-  background-color: #26343d;
-}
-.select-tag-btn.selected {
-  background-color: rgba(34, 197, 94, 0.3);
-}
-.select-tag-btn.selected:hover {
-  background-color: rgba(34, 197, 94, 0.5);
-}
-
-.viewTag {
-  font-size: 0.75rem;
-  line-height: 1rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 8rem;
-  padding: 0.25rem;
-  border-top-right-radius: 0.375rem;
-  border-bottom-right-radius: 0.375rem;
 }
 
 .loader-select-tags {

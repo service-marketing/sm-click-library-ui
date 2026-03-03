@@ -29,7 +29,7 @@
 <script setup>
 const props = defineProps({
   url: { type: String },
-  style: { type: String, default: 'size-10' },
+  style: { type: String, default: "size-10" },
 });
 </script>
 

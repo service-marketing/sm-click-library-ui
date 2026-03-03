@@ -350,7 +350,7 @@ const filteredAtendentes = computed(() => {
       att.name
         .toLowerCase()
         .includes(searchQueryAttendant.value.toLowerCase()) &&
-      att.id !== props.attendant.id
+      att.id !== props.attendant.id,
   );
 });
 
@@ -410,7 +410,7 @@ const setupGroupsObserver = () => {
     {
       root: null,
       threshold: 0.1,
-    }
+    },
   );
 
   groupsIntersectionObserver.observe(groupsSentinel.value);
@@ -436,7 +436,7 @@ watch(
       groupsIntersectionObserver.disconnect();
       groupsIntersectionObserver = null;
     }
-  }
+  },
 );
 
 onBeforeUnmount(() => {
@@ -457,10 +457,10 @@ const groupParticipants = ref(
   JSON.parse(
     JSON.stringify(
       props.atendentes.filter(
-        (att) => att.id !== (props.attendant && props.attendant.id)
-      )
-    )
-  )
+        (att) => att.id !== (props.attendant && props.attendant.id),
+      ),
+    ),
+  ),
 );
 const errorMap = ref([]);
 
@@ -492,7 +492,7 @@ const filteredGroupParticipants = computed(() => {
   const q = participantsQuery.value.trim().toLowerCase();
   if (!q) return groupParticipants.value;
   return groupParticipants.value.filter((att) =>
-    (att.name || "").toLowerCase().includes(q)
+    (att.name || "").toLowerCase().includes(q),
   );
 });
 
@@ -619,7 +619,9 @@ const hasUnreadGroups = computed(() => unreadGroupsTotal.value > 0);
 
 <style scoped>
 .atendente-item {
-  transition: transform 0.3s ease, background-color 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    background-color 0.3s ease;
 }
 
 .atendente-item.moved {
@@ -941,7 +943,9 @@ const hasUnreadGroups = computed(() => unreadGroupsTotal.value > 0);
   gap: 0.5rem;
   cursor: pointer;
   width: 100%;
-  transition: transform 0.3s ease, background-color 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    background-color 0.3s ease;
   padding: 0.5rem;
   border-radius: 6px;
   border: 1px solid transparent;

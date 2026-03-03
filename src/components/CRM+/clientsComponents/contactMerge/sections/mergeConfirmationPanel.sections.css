@@ -1,0 +1,522 @@
+﻿.confirmation-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Seções de contato */
+.confirmation-panel .contact-section {
+  border-radius: 0.75rem;
+  overflow: hidden;
+  @apply bg-base-300;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.confirmation-panel .contact-section--remove {
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.confirmation-panel .contact-section--result {
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  /* box-shadow: 
+    0 4px 16px rgba(34, 197, 94, 0.15),
+    0 2px 8px rgba(0, 0, 0, 0.1); */
+}
+
+.confirmation-panel .section-header {
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.confirmation-panel .section-header--remove {
+  background: linear-gradient(
+    135deg,
+    rgba(239, 68, 68, 0.08),
+    rgba(239, 68, 68, 0.03)
+  );
+  border-bottom: 1px solid rgba(239, 68, 68, 0.15);
+}
+
+.confirmation-panel .section-header--result {
+  background: linear-gradient(
+    135deg,
+    rgba(34, 197, 94, 0.1),
+    rgba(34, 197, 94, 0.04)
+  );
+  border-bottom: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.confirmation-panel .section-header-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.confirmation-panel .section-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  flex-shrink: 0;
+}
+
+.confirmation-panel .section-icon--remove {
+  background: linear-gradient(
+    135deg,
+    rgba(239, 68, 68, 0.2),
+    rgba(220, 38, 38, 0.15)
+  );
+  color: rgb(248, 113, 113);
+}
+
+.confirmation-panel .section-icon--result {
+  background: linear-gradient(
+    135deg,
+    rgba(34, 197, 94, 0.2),
+    rgba(22, 163, 74, 0.15)
+  );
+  color: rgb(74, 222, 128);
+  @apply dark:bg-green-300/30 dark:text-green-600;
+}
+
+.confirmation-panel .section-title {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: start;
+}
+
+.confirmation-panel .section-subtitle {
+  display: block;
+  font-size: 0.7rem;
+  opacity: 0.6;
+  margin-top: 0.125rem;
+}
+
+.confirmation-panel .changes-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  background: rgba(14, 116, 144, 0.15);
+  color: rgb(34, 211, 238);
+  border: 1px solid rgba(14, 116, 144, 0.3);
+  flex-shrink: 0;
+  @apply dark:text-sky-700 dark:bg-sky-300/30;
+}
+
+/* .contact-card-wrapper {
+  padding: 0.5rem;
+} */
+
+/* .contact-card-wrapper--result {
+  padding: 0.625rem;
+  background: linear-gradient(180deg, transparent, rgba(34, 197, 94, 0.03));
+} */
+
+/* Seta de direção */
+.confirmation-panel .merge-direction {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0;
+}
+
+.confirmation-panel .merge-direction-line {
+  flex: 1;
+  max-width: 4rem;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(148, 163, 184, 0.25),
+    transparent
+  );
+  @apply dark:bg-gray-500/50;
+}
+
+.confirmation-panel .merge-direction-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    rgba(14, 116, 144, 0.15),
+    rgba(8, 145, 178, 0.1)
+  );
+  color: rgb(34, 211, 238);
+  border: 1px solid rgba(14, 116, 144, 0.3);
+  @apply dark:bg-sky-300/30 dark:text-sky-700;
+}
+
+/* Lista de alterações */
+.confirmation-panel .changes-list {
+  padding: 0.625rem 0.75rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.confirmation-panel .change-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.75rem;
+}
+
+.confirmation-panel .change-label {
+  font-weight: 600;
+  opacity: 0.7;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+  letter-spacing: 0.02em;
+  padding-top: 0.125rem;
+  flex-shrink: 0;
+}
+
+.confirmation-panel .change-values {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.confirmation-panel .change-kept {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: rgb(74, 222, 128);
+}
+
+.confirmation-panel .change-kept svg {
+  flex-shrink: 0;
+}
+
+.confirmation-panel .incorporated-tag {
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  background: rgba(34, 197, 94, 0.15);
+  color: rgb(74, 222, 128);
+}
+
+.confirmation-panel .change-discarded {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: rgba(248, 113, 113, 0.7);
+}
+
+.confirmation-panel .change-discarded svg {
+  flex-shrink: 0;
+}
+
+.confirmation-panel .discarded-text {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+/* Checkbox de confirmação */
+.confirmation-panel .confirm-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 0.625rem;
+  cursor: pointer;
+  transition: all 150ms ease;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  background: rgba(245, 158, 11, 0.08);
+}
+
+.confirmation-panel .confirm-checkbox:hover:not(.confirm-checkbox--disabled) {
+  border-color: rgba(245, 158, 11, 0.5);
+}
+
+.confirmation-panel .confirm-checkbox--checked {
+  border-color: rgba(34, 197, 94, 0.4);
+  background: rgba(34, 197, 94, 0.08);
+}
+
+.confirmation-panel .confirm-checkbox--checked:hover {
+  border-color: rgba(34, 197, 94, 0.6);
+}
+
+.confirmation-panel .confirm-checkbox--disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.confirmation-panel .checkbox-box {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 0.25rem;
+  border: 2px solid rgba(245, 158, 11, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 150ms ease;
+  margin-top: 0.125rem;
+}
+
+.confirmation-panel .confirm-checkbox--checked .checkbox-box {
+  background: rgb(34, 197, 94);
+  border-color: rgb(34, 197, 94);
+  color: white;
+}
+
+.confirmation-panel .checkbox-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.confirmation-panel .checkbox-title {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.confirmation-panel .checkbox-desc {
+  display: block;
+  font-size: 0.7rem;
+  opacity: 0.8;
+  margin-top: 0.25rem;
+  line-height: 1.4;
+}
+
+.confirmation-panel .checkbox-desc strong {
+  color: rgb(248, 113, 113);
+  font-weight: 600;
+}
+
+/* Mensagem de erro */
+.confirmation-panel .error-message {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: 0.5rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: rgb(248, 113, 113);
+  font-size: 0.75rem;
+}
+
+.confirmation-panel .error-message svg {
+  flex-shrink: 0;
+}
+
+/* Array changes sections (tags, products, segmentation) */
+.confirmation-panel .array-changes-section {
+  padding: 0.625rem 0.75rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.confirmation-panel .array-changes-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  @apply text-gray-300 dark:text-gray-700;
+}
+
+.confirmation-panel .array-changes-title {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.confirmation-panel .array-changes-count {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  background: rgba(34, 197, 94, 0.15);
+  color: rgb(74, 222, 128);
+  @apply dark:bg-green-300/30 dark:text-green-600;
+}
+
+.confirmation-panel .expand-button {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  background: rgba(148, 163, 184, 0.1);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  color: rgba(211, 216, 223, 0.9);
+  cursor: pointer;
+  transition: all 150ms ease;
+  margin-left: auto;
+  @apply dark:text-gray-700;
+}
+
+.confirmation-panel .expand-button:hover {
+  background: rgba(148, 163, 184, 0.15);
+  border-color: rgba(148, 163, 184, 0.3);
+}
+
+.confirmation-panel .expand-button svg {
+  transition: transform 200ms ease;
+}
+
+.confirmation-panel .expand-button svg.rotate-180 {
+  transform: rotate(180deg);
+}
+
+/* Tags list */
+.confirmation-panel .tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  max-height: 8rem;
+  overflow-y: auto;
+  padding-right: 0.125rem;
+}
+
+.confirmation-panel .tag-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+  border: 1px solid;
+}
+
+.confirmation-panel .tag-item--incorporated {
+  animation: fadeInScale 0.2s ease-out;
+}
+
+.confirmation-panel .tag-color {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.confirmation-panel .tag-name {
+  max-width: 8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.confirmation-panel .incorporated-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: rgb(74, 222, 128);
+  background: rgba(34, 197, 94, 0.2);
+  border-radius: 50%;
+  width: 0.875rem;
+  height: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  @apply dark:bg-green-500/30 dark:text-green-700;
+}
+
+/* Products list */
+.confirmation-panel .products-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 12rem;
+  overflow-y: auto;
+  padding-right: 0.125rem;
+}
+
+.confirmation-panel .product-wrapper {
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  background: rgba(148, 163, 184, 0.05);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  transition: all 0.2s ease;
+}
+
+.confirmation-panel .product-wrapper:hover {
+  background: rgba(148, 163, 184, 0.08);
+  transform: translateX(2px);
+}
+
+.confirmation-panel .product-wrapper--incorporated {
+  animation: fadeInScale 0.2s ease-out;
+  background: rgba(34, 197, 94, 0.08);
+  border-color: rgba(34, 197, 94, 0.25);
+}
+
+.confirmation-panel .product-wrapper--incorporated:hover {
+  background: rgba(34, 197, 94, 0.12);
+}
+
+/* Segmentation fields list */
+.confirmation-panel .segmentation-changes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 10rem;
+  overflow-y: auto;
+  padding-right: 0.125rem;
+}
+
+.confirmation-panel .segmentation-change-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.75rem;
+  padding: 0.375rem;
+  border-radius: 0.375rem;
+  background: rgba(148, 163, 184, 0.05);
+}
+
+.confirmation-panel .segmentation-field-name {
+  font-weight: 600;
+  opacity: 0.7;
+  font-size: 0.7rem;
+  flex-shrink: 0;
+  max-width: 8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.confirmation-panel .segmentation-change-values {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+  min-width: 0;
+  flex: 1;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

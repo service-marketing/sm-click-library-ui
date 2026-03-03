@@ -64,7 +64,6 @@ const isEmpty = computed(() => contentHandler.empty && !model.value);
 
 // --- Verifica se é input de preço ---
 const isNumberType = computed(() => contentHandler.type === "number");
-
 </script>
 
 <template>
