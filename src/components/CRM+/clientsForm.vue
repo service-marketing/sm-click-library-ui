@@ -148,12 +148,50 @@ const isEmptyNumber = computed(() => {
 
 const isMergeModalOpen = ref(false);
 
-const canOpenMergeFlow = computed(() => {
-  return props.canMergeContacts && Boolean(form.id);
+const mergeFlowState = computed(() => {
+  if (!props.canMergeContacts) {
+    return "no-permission";
+  }
+
+  if (!form.id) {
+    return "missing-contact-id";
+  }
+
+  return "ready";
 });
+
+const canOpenMergeFlow = computed(() => mergeFlowState.value === "ready");
+
+const mergeFlowTooltipContent = computed(() => {
+  if (mergeFlowState.value === "no-permission") {
+    return "Você não tem permissão para mesclar contatos.";
+  }
+
+  if (mergeFlowState.value === "missing-contact-id") {
+    return "Salve o contato para habilitar a mesclagem.";
+  }
+
+  return "Mescla contatos para unificar histórico e informações.";
+});
+
+const notifyMergeFlowBlocked = () => {
+  const isMissingPermission = mergeFlowState.value === "no-permission";
+
+  notify(
+    {
+      group: isMissingPermission ? "error" : "info",
+      title: isMissingPermission ? "Sem permissão" : "Ação indisponível",
+      text: isMissingPermission
+        ? "Você não tem permissão para mesclar contatos."
+        : "Salve o contato antes de iniciar a mesclagem.",
+    },
+    3000,
+  );
+};
 
 const openMergeModal = () => {
   if (!canOpenMergeFlow.value) {
+    notifyMergeFlowBlocked();
     return;
   }
 
@@ -175,6 +213,11 @@ const handleMergedContacts = (payload) => {
 
 // --- Funcao de mesclar contatos ---
 const mergeContacts = async (payload) => {
+  if (!canOpenMergeFlow.value) {
+    notifyMergeFlowBlocked();
+    throw new Error("Fluxo de mesclagem bloqueado.");
+  }
+
   try {
     const response = await api.post("/v1/api/contacts/contact/merge/", {
       contact_father: payload.parentId,
@@ -289,7 +332,7 @@ const handlerToggleButtons = computed(() => {
         <div class="modal-form-container">
           <div
             :class="{ noCrmPlus: !hasCrmPlus }"
-            class="clients-form-background relative rounded-2xl bg-base-200 backdrop-blur-lg"
+            class="clients-form-background relative rounded-2xl bg-base-200"
           >
             <!-- --- Header --- -->
             <div class="modal-form-header bg-base-300">
@@ -319,13 +362,24 @@ const handlerToggleButtons = computed(() => {
               </span>
 
               <section class="flex gap-2 items-center">
-                <button
-                  v-if="canOpenMergeFlow"
-                  class="button-merge-clients"
-                  @click="openMergeModal"
+                <Popper
+                  hover
+                  :content="mergeFlowTooltipContent"
+                  placement="bottom"
                 >
-                  Mesclar contatos
-                </button>
+                  <div
+                    class="inline-flex"
+                    :class="{ 'cursor-not-allowed': !canOpenMergeFlow }"
+                  >
+                    <button
+                      class="button-merge-clients"
+                      :disabled="!canOpenMergeFlow"
+                      @click="openMergeModal"
+                    >
+                      Mesclar contatos
+                    </button>
+                  </div>
+                </Popper>
 
                 <button
                   class="bg-base-200 p-1.5 rounded-md hover:bg-base-100 transition"
@@ -635,8 +689,15 @@ const handlerToggleButtons = computed(() => {
     box-shadow 120ms ease;
 }
 
-.button-merge-clients:hover {
+.button-merge-clients:hover:not(:disabled) {
   transform: translateY(-1px);
+}
+
+.button-merge-clients:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: saturate(0.35);
+  pointer-events: none;
 }
 
 .right-column {
