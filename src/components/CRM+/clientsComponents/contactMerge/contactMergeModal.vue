@@ -548,7 +548,7 @@ watch(
 
 .merge-modal {
   width: min(96vw, 720px);
-  max-height: 90vh;
+  max-height: 95vh;
   border-radius: 1rem;
   overflow: hidden;
   display: flex;

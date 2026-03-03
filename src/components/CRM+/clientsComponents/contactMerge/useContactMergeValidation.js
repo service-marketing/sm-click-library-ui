@@ -285,6 +285,61 @@ export const generateMergePreview = (
     whatsappId = `${lidValue}@lid`;
   }
 
+  // Merge tags (union by id, avoid duplicates)
+  const parentTags = parentContact.tags || [];
+  const childTags = childContact.tags || [];
+  const mergedTagsMap = new Map();
+  parentTags.forEach((tag) => mergedTagsMap.set(tag.id, tag));
+  childTags.forEach((tag) => {
+    if (!mergedTagsMap.has(tag.id)) {
+      mergedTagsMap.set(tag.id, tag);
+    }
+  });
+  const mergedTags = Array.from(mergedTagsMap.values());
+
+  // Merge products (union by id, avoid duplicates)
+  const parentProducts = parentContact.products || [];
+  const childProducts = childContact.products || [];
+  const mergedProductsMap = new Map();
+  parentProducts.forEach((product) =>
+    mergedProductsMap.set(product.id, product),
+  );
+  childProducts.forEach((product) => {
+    if (!mergedProductsMap.has(product.id)) {
+      mergedProductsMap.set(product.id, product);
+    }
+  });
+  const mergedProducts = Array.from(mergedProductsMap.values());
+
+  // Merge segmentation_fields (prefer parent value, fill with child if empty)
+  const parentFields = parentContact.segmentation_fields || [];
+  const childFields = childContact.segmentation_fields || [];
+  const mergedFieldsMap = new Map();
+
+  // Start with parent fields
+  parentFields.forEach((field) => mergedFieldsMap.set(field.id, { ...field }));
+
+  // Add child fields or fill empty values
+  childFields.forEach((childField) => {
+    if (mergedFieldsMap.has(childField.id)) {
+      const parentField = mergedFieldsMap.get(childField.id);
+      // If parent has empty content but child has value, use child's value
+      const parentContent = normalizeString(parentField.content);
+      const childContent = normalizeString(childField.content);
+      if (!parentContent && childContent) {
+        mergedFieldsMap.set(childField.id, {
+          ...parentField,
+          content: childField.content,
+          content_id: childField.content_id,
+        });
+      }
+    } else {
+      // Field doesn't exist in parent, add from child
+      mergedFieldsMap.set(childField.id, { ...childField });
+    }
+  });
+  const mergedSegmentationFields = Array.from(mergedFieldsMap.values());
+
   return {
     name:
       normalizeString(parentContact.name) || normalizeString(childContact.name),
@@ -297,6 +352,8 @@ export const generateMergePreview = (
     instagram_user_name:
       normalizeString(parentContact.instagram_user_name) ||
       normalizeString(childContact.instagram_user_name),
-    tags: [...(parentContact.tags || []), ...(childContact.tags || [])],
+    tags: mergedTags,
+    products: mergedProducts,
+    segmentation_fields: mergedSegmentationFields,
   };
 };

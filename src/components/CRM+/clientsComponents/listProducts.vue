@@ -9,6 +9,7 @@ import { crm_products } from "~/utils/systemUrls";
 import InfiniteLoading from "v3-infinite-loading";
 import api from "~/utils/api.js";
 import DiscountProductCard from "./DiscountProductCard.vue";
+import ProductListItem from "./ProductListItem.vue";
 import { formatCurrency, getCurrencySymbol } from "~/utils/currencyUtils.js";
 
 const props = defineProps({
@@ -759,100 +760,12 @@ function handleGenerateProposal() {
               </p>
             </span>
 
-            <div class="flex gap-2 items-center pl-2">
-              <section>
-                <img
-                  class="size-9 rounded-md"
-                  v-if="prd.photo"
-                  :src="prd.photo"
-                />
-
-                <div class="empty-product-photo" v-else>
-                  <svg
-                    class="size-5"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      fill="currentColor"
-                      d="M4 19v2c0 .5523.44772 1 1 1h14c.5523 0 1-.4477 1-1v-2H4Z"
-                    ></path>
-                    <path
-                      fill="currentColor"
-                      fill-rule="evenodd"
-                      d="M9 3c0-.55228.44772-1 1-1h8c.5523 0 1 .44772 1 1v3c0 .55228-.4477 1-1 1h-2v1h2c.5096 0 .9376.38314.9939.88957L19.8951 17H4.10498l.90116-8.11043C5.06241 8.38314 5.49047 8 6.00002 8H12V7h-2c-.55228 0-1-.44772-1-1V3Zm1.01 8H8.00002v2.01H10.01V11Zm.99 0h2.01v2.01H11V11Zm5.01 0H14v2.01h2.01V11Zm-8.00998 3H10.01v2.01H8.00002V14ZM13.01 14H11v2.01h2.01V14Zm.99 0h2.01v2.01H14V14ZM11 4h6v1h-6V4Z"
-                      clip-rule="evenodd"
-                    ></path>
-                  </svg>
-                </div>
-              </section>
-
-              <section
-                class="flex flex-col items-start gap-1 justify-between flex-1"
-              >
-                <div
-                  style="display: flex; align-items: center"
-                  class="flex items-center gap-1.5"
-                >
-                  <p
-                    :class="[
-                      'text-xs font-semibold products-and-services_badge dark:text-white flex-shrink-0',
-                      prd.recurrence,
-                    ]"
-                  >
-                    {{ prd.recurrence === "monthly" ? "Mensal" : "Único" }}
-                  </p>
-
-                  <p
-                    :title="prd.name"
-                    class="label-product-name"
-                    :class="
-                      getQuantity(prd) > 0 ? 'text-white dark:text-primary' : ''
-                    "
-                  >
-                    {{ prd.name }}
-                  </p>
-                </div>
-
-                <span class="flex gap-1 items-center flex-wrap">
-                  <div class="flex gap-1 items-center">
-                    <p
-                      class="text-xs font-semibold"
-                      :class="
-                        getDiscount(prd) > 0 ? 'line-through opacity-60' : ''
-                      "
-                    >
-                      {{ formatCurrency(prd.price, prd.currency) }}
-                    </p>
-
-                    <p v-if="getDiscount(prd) > 0" class="discount-percentage">
-                      - {{ formatDiscount(getDiscount(prd)) }}%
-                    </p>
-
-                    <p v-if="getDiscount(prd) > 0" class="discounted-price">
-                      {{
-                        formatCurrency(calculateFinalPrice(prd), prd.currency)
-                      }}
-                    </p>
-                  </div>
-
-                  <p v-if="getQuantity(prd) > 0" class="price-line">
-                    - x {{ getQuantity(prd) }} =
-                    <a class="price-total">
-                      {{
-                        formatCurrency(
-                          calculateFinalPrice(prd) * getQuantity(prd),
-                          prd.currency,
-                        )
-                      }}
-                    </a>
-                  </p>
-                </span>
-              </section>
+            <div class="flex gap-2 items-center pl-2 flex-1">
+              <ProductListItem
+                :product="prd"
+                :quantity="getQuantity(prd)"
+                :discount="getDiscount(prd)"
+              />
             </div>
 
             <section class="product-actions-section">
@@ -983,17 +896,6 @@ function handleGenerateProposal() {
   height: 100%;
 }
 
-.empty-product-photo {
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 0.375rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-width: 1px;
-  border-color: #26343d;
-}
-
 .header-products-list {
   position: sticky;
   top: 0px;
@@ -1052,17 +954,6 @@ function handleGenerateProposal() {
   overflow-x: hidden;
 }
 
-.label-product-name {
-  font-size: 0.75rem;
-  line-height: 1rem;
-  text-align: start;
-  font-weight: 600;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 6rem;
-}
-
 .action-list-button {
   justify-content: center;
   align-items: center;
@@ -1075,16 +966,6 @@ function handleGenerateProposal() {
 .action-list-button:hover {
   background-color: #26343d;
   color: white;
-}
-
-.products-and-services_badge {
-  @apply inline-flex justify-center items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium hover:scale-105 transition-all h-fit w-12;
-}
-.products-and-services_badge.monthly {
-  @apply bg-green-600/20  text-green-400 hover:text-green-200;
-}
-.products-and-services_badge.unique {
-  @apply bg-[#3666f0]/50  text-blue-200 hover:text-blue-100;
 }
 
 .total-price-badge {
@@ -1536,95 +1417,5 @@ function handleGenerateProposal() {
   --popper-theme-background-color-hover: #ffffff;
   --popper-theme-text-color: #111827;
   --popper-theme-border-color: #d1d5db;
-}
-
-/* Pure CSS classes for discount display */
-.discount-percentage {
-  color: #f97316;
-  font-size: 0.75rem;
-  font-weight: 700;
-}
-
-.discounted-price {
-  font-size: 0.75rem;
-  font-weight: 700;
-}
-
-.dark .discount-percentage {
-  color: #f58f46;
-}
-
-/* Pure CSS for products badges */
-.products-and-services_badge {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 0.375rem;
-  padding-left: 0.375rem;
-  padding-right: 0.375rem;
-  padding-top: 0.125rem;
-  padding-bottom: 0.125rem;
-  font-size: 0.625rem;
-  line-height: 0.875rem;
-  font-weight: 500;
-  height: fit-content;
-  width: 3rem;
-  transition: all 0.2s;
-}
-
-.products-and-services_badge:hover {
-  transform: scale(1.05);
-}
-
-.products-and-services_badge.monthly {
-  background-color: rgba(22, 163, 74, 0.2);
-  color: #4ade80;
-}
-
-.products-and-services_badge.monthly:hover {
-  color: #a7f3d0;
-}
-
-.products-and-services_badge.unique {
-  background-color: rgba(54, 102, 240, 0.5);
-  color: #93c5fd;
-}
-
-.products-and-services_badge.unique:hover {
-  color: #dbeafe;
-}
-
-/* Adjust badge colors for dark mode */
-.dark .products-and-services_badge.monthly {
-  background-color: rgba(22, 163, 74, 0.3);
-  color: #16a34a;
-}
-
-.dark .products-and-services_badge.monthly:hover {
-  color: #15803d;
-}
-
-.dark .products-and-services_badge.unique {
-  background-color: rgba(54, 102, 240, 0.6);
-  color: #1d4ed8;
-}
-
-.dark .products-and-services_badge.unique:hover {
-  color: #1e40af;
-}
-.price-line {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.price-total {
-  display: inline-flex;
-  align-items: center;
-
-  font-weight: 700;
 }
 </style>
