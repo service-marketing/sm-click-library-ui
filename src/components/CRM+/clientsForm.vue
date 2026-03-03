@@ -19,6 +19,7 @@ import PrimaryInput from "../inputs/primaryInput.vue";
 import RatingInput from "../inputs/ratingInput.vue";
 import ToggleListButtons from "./clientsComponents/toggleListButtons.vue";
 import ContactSection from "./clientsComponents/contactSection.vue";
+import WalletSection from "./clientsComponents/walletSection.vue";
 
 const emit = defineEmits(["close", "save"]);
 const pageState = ref("contact");
@@ -206,17 +207,19 @@ const toggleButtons = [
     disabled:
       props.form.status === "screening" || props.form.status === "finished",
   },
+  { label: "Carteira", value: "wallet" },
 ];
 
 const handlerToggleButtons = computed(() => {
   const contactItem = { label: "Contato", value: "contact" };
 
-  const baseList = toggleButtons.filter((item) => item.value !== "contact");
+  let baseList = toggleButtons.filter((item) => item.value !== "contact");
 
   if (!props.hasCrmPlus) {
+    baseList = baseList.filter((item) => item.value !== "products" && item.value !== "wallet");
     return [
       contactItem,
-      ...baseList.filter((item) => item.value !== "products"),
+      ...baseList,
     ];
   }
 
@@ -524,7 +527,15 @@ const handlerToggleButtons = computed(() => {
                   v-show="!isLargeScreen && pageState !== 'contact'"
                   class="right-column bg-base-300"
                 >
+                  <div v-if="hasCrmPlus" class="pt-1 px-1.5">
+                    <ToggleListButtons
+                      :buttons="handlerToggleButtons.filter(b => b.value !== 'contact')"
+                      v-model="pageState"
+                    />
+                  </div>
+                  
                   <ContactSection
+                    v-if="pageState !== 'wallet'"
                     :viewContactNumber="form.viewContactNumber"
                     :hasCrmPlus="hasCrmPlus"
                     :handlerToggleButtons="handlerToggleButtons"
@@ -537,12 +548,25 @@ const handlerToggleButtons = computed(() => {
                     v-model:segmentationFields="form.segmentation_fields"
                     v-model:products="form.products"
                   />
+                  
+                  <WalletSection
+                    v-if="pageState === 'wallet'"
+                    :contactId="form.id"
+                  />
                 </section>
               </section>
 
               <!-- Coluna Direita -->
               <section v-if="isLargeScreen" class="right-column bg-base-300">
+                <div v-if="hasCrmPlus" class="pt-1 px-1.5">
+                  <ToggleListButtons
+                    :buttons="handlerToggleButtons"
+                    v-model="pageState"
+                  />
+                </div>
+                
                 <ContactSection
+                  v-if="pageState !== 'wallet'"
                   :viewContactNumber="form.viewContactNumber"
                   :hasCrmPlus="hasCrmPlus"
                   :handlerToggleButtons="handlerToggleButtons"
@@ -554,6 +578,11 @@ const handlerToggleButtons = computed(() => {
                   v-model:country="form.country"
                   v-model:segmentationFields="form.segmentation_fields"
                   v-model:products="form.products"
+                />
+                
+                <WalletSection
+                  v-if="pageState === 'wallet'"
+                  :contactId="form.id"
                 />
               </section>
             </div>
@@ -668,7 +697,6 @@ const handlerToggleButtons = computed(() => {
   min-height: 0px;
   flex-direction: column;
   display: flex;
-  padding-top: 0.25rem;
   padding-bottom: 0.25rem;
   padding-left: 0.125rem;
   padding-right: 0.125rem;

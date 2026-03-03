@@ -6,7 +6,6 @@
 
 import ListProducts from "./listProducts.vue";
 import ListSegmentationsFields from "./listSegmentationsFields.vue";
-import ToggleListButtons from "./toggleListButtons.vue";
 
 const props = defineProps({
   hasCrmPlus: { type: Boolean, default: false },
@@ -41,16 +40,10 @@ const handleTelephoneInput = (value, phoneObject) => {
 </script>
 
 <template>
-  <ToggleListButtons
-    v-if="isLargeScreen && hasCrmPlus"
-    :buttons="props.handlerToggleButtons"
-    v-model="pageState"
-  />
-
   <div
     v-show="pageState === 'data'"
     :class="[
-      props.hasCrmPlus ? 'pt-1.5' : 'pt-0',
+      hasCrmPlus ? 'pt-1.5' : 'pt-1',
       'flex flex-col gap-2 flex-1 min-h-0 px-1.5 overflow-hidden',
     ]"
   >
@@ -115,7 +108,7 @@ const handleTelephoneInput = (value, phoneObject) => {
     </div>
   </div>
 
-  <div v-show="pageState === 'products'" class="list-products-container">
+  <div v-show="pageState === 'products'" :class="['list-products-container px-1.5', hasCrmPlus ? 'pt-1.5' : 'pt-1']">
     <ListProducts
       v-model="products"
       :allProducts="props.allProducts"
