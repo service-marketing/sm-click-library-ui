@@ -78,7 +78,7 @@ const props = defineProps({
   // --- Exibe acao de mesclagem no formulario ---
   canMergeContacts: {
     type: Boolean,
-    default: true,
+    default: false,
   },
 });
 
