@@ -218,7 +218,7 @@ const startRecorder = async () => {
         title: "Erro",
         text: "Permissões de microfone desativadas, ajuste nas configurações do dispositivo",
       },
-      4000
+      4000,
     );
   }
 };
@@ -371,7 +371,7 @@ const sendAudio = async () => {
       props.selectedAttendant.internal_chat.channel_id,
       payload,
       props.attendant,
-      true
+      true,
     );
     resetAudio();
   } catch (error) {
@@ -383,7 +383,7 @@ const sendAudio = async () => {
         title: "Erro",
         text: "Erro ao enviar áudio, tente novamente.",
       },
-      4000
+      4000,
     );
     return;
   }

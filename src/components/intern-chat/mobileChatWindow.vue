@@ -109,7 +109,7 @@ const onSendFiles = () => {
 const unreadMessagesCount = computed(() => {
   if (selectedAtendente.value) {
     const atendente = attendants.value.find(
-      (att) => att.id === selectedAtendente.value.id
+      (att) => att.id === selectedAtendente.value.id,
     );
     return atendente ? atendente.internal_chat.unread : 0;
   }
@@ -193,10 +193,10 @@ watch(
       addMessageToChannel(
         newVal,
         isChatOpen.value,
-        selectedAtendente.value?.internal_chat?.channel_id
+        selectedAtendente.value?.internal_chat?.channel_id,
       );
     }
-  }
+  },
 );
 
 watch(isChatOpen, (newVal) => {
@@ -219,14 +219,14 @@ watch(
           title: "Carregando",
           text: "Carregando mensagens…",
         },
-        2000
+        2000,
       );
     }
 
     if (!isLoading) {
       loadingToastOpen = false;
     }
-  }
+  },
 );
 </script>
 

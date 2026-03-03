@@ -33,8 +33,8 @@ onClickOutside(dropdownRef, () => (isOpen.value = false));
 // --- Filtra as instâncias conforme a busca ---
 const filteredInstances = computed(() =>
   props.instances.filter((i) =>
-    i.name.toLowerCase().includes(search.value.toLowerCase())
-  )
+    i.name.toLowerCase().includes(search.value.toLowerCase()),
+  ),
 );
 
 // --- Alterna seleção da instância ---

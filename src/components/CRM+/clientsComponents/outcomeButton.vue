@@ -29,18 +29,16 @@ const isLost = computed(() => props.outcome === "lost");
 </script>
 
 <template>
-  <div class="flex gap-2">
+  <div class="outcome-buttons-wrapper">
     <button
       @click="testBtn('won')"
-      :class="[
-        'button_outcome-base bg-base-300 dark:bg-base-100',
-        { 'button_outcome-active-won': isWon },
-      ]"
+      :class="['button_outcome-base', { 'button_outcome-active-won': isWon }]"
+      class="hover:bg-green-500/40 dark:hover:bg-green-300/40"
     >
       <p>Ganho</p>
       <svg
         :class="{ 'svg_outcome-active-won': isWon }"
-        class="text-white size-4"
+        class="size-4"
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 20 20"
         fill="none"
@@ -58,14 +56,12 @@ const isLost = computed(() => props.outcome === "lost");
 
     <button
       @click="testBtn('lost')"
-      :class="[
-        'button_outcome-base bg-base-300 dark:bg-base-100',
-        { 'button_outcome-active-lost': isLost },
-      ]"
+      :class="['button_outcome-base', { 'button_outcome-active-lost': isLost }]"
+      class="hover:bg-red-500/40 dark:hover:bg-red-300/40"
     >
       <svg
         :class="{ 'svg_outcome-active-lost': isLost }"
-        class="text-white size-4 mt-0.8"
+        class="size-4 mt-0.8"
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 20 19"
         fill="none"
@@ -85,23 +81,30 @@ const isLost = computed(() => props.outcome === "lost");
 </template>
 
 <style scoped>
-.button_outcome-base {
-  @apply py-1 px-2 text-sm min-w-24 flex justify-between items-center gap-1 rounded-md transition border-b-2 border-gray-500;
+.outcome-buttons-wrapper {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
 }
-.button_outcome-base:hover {
-  @apply bg-base-100;
+
+.button_outcome-base {
+  @apply min-w-0 flex-1 rounded-lg shadow shadow-gray-900 dark:shadow-gray-200 bg-base-300 px-2.5 py-1.5 transition flex justify-between items-center gap-1.5 text-[12px] font-semibold text-white/85 dark:text-black/75;
+  min-height: 2.45rem;
 }
 
 .button_outcome-active-won {
-  @apply bg-green-500/80 hover:bg-green-600/80 text-white border-green-500;
+  color: rgb(220 252 231 / 0.98);
+  background-color: rgb(22 163 74 / 0.44);
 }
 .button_outcome-active-lost {
-  @apply bg-red-500/80 hover:bg-red-600/80 text-white border-red-500;
+  color: rgb(254 226 226 / 0.98);
+  background-color: rgb(220 38 38 / 0.42);
 }
-.svg_outcome-active-lost {
-  @apply text-red-100;
-}
-.svg_outcome-active-won {
-  @apply text-green-100;
+
+@media (max-width: 767px) {
+  .button_outcome-base {
+    min-height: 2.3rem;
+    @apply rounded-lg;
+  }
 }
 </style>

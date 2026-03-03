@@ -33,9 +33,9 @@ const products = defineModel("products", { type: Array, default: () => [] });
 // Handler para garantir apenas números no telefone
 const handleTelephoneInput = (value, phoneObject) => {
   // vue-tel-input pode retornar um objeto ou string
-  const phoneValue = phoneObject?.number || value || '';
+  const phoneValue = phoneObject?.number || value || "";
   // Remove tudo que não for número, espaço, parênteses ou hífen
-  const sanitized = String(phoneValue).replace(/[^\d\s()-]/g, '');
+  const sanitized = String(phoneValue).replace(/[^\d\s()-]/g, "");
   telephone.value = sanitized;
 };
 </script>
@@ -43,6 +43,7 @@ const handleTelephoneInput = (value, phoneObject) => {
 <template>
   <ToggleListButtons
     v-if="isLargeScreen && hasCrmPlus"
+    class="section-toggle"
     :buttons="props.handlerToggleButtons"
     v-model="pageState"
   />
@@ -50,12 +51,14 @@ const handleTelephoneInput = (value, phoneObject) => {
   <div
     v-show="pageState === 'data'"
     :class="[
-      props.hasCrmPlus ? 'pt-1.5' : 'pt-0',
+      props.hasCrmPlus ? 'pt-1' : 'pt-0',
       'flex flex-col gap-2 flex-1 min-h-0 px-1.5 overflow-hidden',
     ]"
   >
-    <div class="rounded-md bg-base-200 border shadow-sm transition-shadow duration-200 hover:shadow-md border-white/10">
-      <h1 class="text-start w-full items-center justify-between flex p-2">
+    <div
+      class="rounded-md bg-base-200 p-1 shadow-sm transition-shadow duration-200 hover:shadow-md"
+    >
+      <h1 class="text-start w-full items-center justify-between flex p-1 pb-2">
         <p class="text-xs font-semibold">Contatos</p>
       </h1>
 
@@ -64,7 +67,7 @@ const handleTelephoneInput = (value, phoneObject) => {
           border-bottom-right-radius: 0.35rem;
           border-bottom-left-radius: 0.35rem;
         "
-        class="flex w-full relative bg-base-300"
+        class="flex w-full relative rounded-md bg-base-300"
       >
         <span class="flex justify-center items-center w-8">
           <svg
@@ -125,17 +128,20 @@ const handleTelephoneInput = (value, phoneObject) => {
 </template>
 
 <style scoped>
+.section-toggle {
+  padding: 0 0.25rem;
+}
+
 .list-products-container {
   flex: 1 1 0%;
   min-height: 0px;
+  padding: 0.2rem 0.2rem 0.35rem;
 }
 
 .segmentation-fields-container {
   flex: 1 1 0%;
   min-height: 0px;
   overflow-y: auto;
-  border-radius: 0.375rem;
-  border-width: 1px;
-  border-color: rgb(255 255 255 / 0.1);
+  border-radius: 0.625rem;
 }
 </style>

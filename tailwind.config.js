@@ -4,14 +4,14 @@ import scrollbar from "tailwind-scrollbar";
 
 export default {
   content: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
-  darkMode: ["class", '[data-mode="dark"]'],
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
         base: {
-          100: "#4B6374",
-          200: "#26343D",
-          300: "#111B21",
+          100: "rgb(var(--bg-base-100) / <alpha-value>)",
+          200: "rgb(var(--bg-base-200) / <alpha-value>)",
+          300: "rgb(var(--bg-base-300) / <alpha-value>)",
         },
       },
     },

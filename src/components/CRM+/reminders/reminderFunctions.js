@@ -36,7 +36,7 @@ export const reminderList = reactive({
 const updateReminderList = (reminder, isEdit, statusList) => {
   if (isEdit) {
     const i = reminderList[statusList].reminders.findIndex(
-      (p) => p.id === reminder.id
+      (p) => p.id === reminder.id,
     );
     if (i !== -1) reminderList[statusList].reminders[i] = { ...reminder };
   } else {
@@ -155,7 +155,7 @@ export const deleteReminder = async (id) => {
         title: "Sucesso",
         text: response.data.message || "Lembrete deletado com sucesso.",
       },
-      4000
+      4000,
     );
     return response.data;
   } catch (error) {
@@ -197,7 +197,7 @@ export const moveReminderToCompleted = (reminder) => {
     activeList.splice(idx, 1);
     reminderList.active.pagination.count = Math.max(
       0,
-      reminderList.active.pagination.count - 1
+      reminderList.active.pagination.count - 1,
     );
   }
 
