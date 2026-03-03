@@ -56,7 +56,12 @@
 <script setup>
 import EventItem from "./EventItem.vue";
 import { getEventColor } from "../utils/eventColors";
-const emit = defineEmits(["open-chat", "open-message", "delete-message", "edit-reminder"]);
+const emit = defineEmits([
+  "open-chat",
+  "open-message",
+  "delete-message",
+  "edit-reminder",
+]);
 const props = defineProps({
   days: { type: Array, default: () => [] },
   weekdayLong: Function,

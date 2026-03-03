@@ -77,7 +77,7 @@ const save = async () => {
 watch(date, (newVal) => {
   if (!(newVal instanceof Date)) return;
   if (props.viewOnly) return;
-  
+
   const min = minDate.value;
   if (newVal.getTime() < min.getTime()) {
     date.value = new Date(min.getTime());
@@ -104,7 +104,10 @@ onMounted(() => {
     // No modo viewOnly, aceita qualquer data, incluindo as do passado
     if (props.viewOnly) {
       date.value = parsed;
-    } else if (isNaN(parsed.getTime()) || parsed.getTime() < minDate.value.getTime()) {
+    } else if (
+      isNaN(parsed.getTime()) ||
+      parsed.getTime() < minDate.value.getTime()
+    ) {
       createPayload.value.params.schedule.time = formatDateToSchedule(
         minDate.value,
       );
@@ -220,7 +223,7 @@ defineExpose({ save });
         >
           <template #clear-icon></template>
           <template #dp-input>
-            <button 
+            <button
               :class="[
                 'reminder-btn-data-picker bg-base-300',
                 props.viewOnly ? 'opacity-60 cursor-not-allowed' : 'group',

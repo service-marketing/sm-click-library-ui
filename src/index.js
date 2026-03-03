@@ -28,16 +28,26 @@ import TagView from "./components/CRM+/tagView.vue";
 import FloatingDev from "./components/devHelpers/floating-dev.vue";
 import OutcomeButton from "./components/CRM+/clientsComponents/outcomeButton.vue";
 import ListProducts from "./components/CRM+/clientsComponents/listProducts.vue";
+import ContactCard from "./components/CRM+/clientsComponents/contactMerge/contactCard.vue";
 import { useDebugStore } from "~/stores/debugStore";
 import { useAuthStore } from "~/stores/authStore";
 import { useAttendantStore } from "./stores/attendantStore";
 import { useDepartmentStore } from "./stores/departmentStore";
 import { useInstanceStore } from "./stores/instanceStore";
 import { getContrastColor } from "./utils/functions/getContrastColor";
-import { formatCurrency, getCurrencySymbol, getCurrencyLocale } from "./utils/currencyUtils.js";
+import {
+  formatCurrency,
+  getCurrencySymbol,
+  getCurrencyLocale,
+} from "./utils/currencyUtils.js";
 export { useScheduledStore } from "./stores/useScheduledStore";
 export { useAuthStore };
-export { formatCurrency, getCurrencySymbol, getCurrencyLocale } from "./utils/currencyUtils.js";
+export { ContactCard };
+export {
+  formatCurrency,
+  getCurrencySymbol,
+  getCurrencyLocale,
+} from "./utils/currencyUtils.js";
 import RatingInput from "./components/inputs/ratingInput.vue";
 import CallHistory from "./components/chat/CallHistory.vue";
 import CallMessage from "./components/chat/CallMessage.vue";
@@ -86,6 +96,7 @@ function install(Vue) {
   Vue.component("CallHistory", CallHistory);
   Vue.component("CallMessage", CallMessage);
   Vue.component("ListProducts", ListProducts);
+  Vue.component("ContactCard", ContactCard);
   Vue.component("ReminderModal", ReminderModal);
   Vue.component("SoundSelect", SoundSelect);
 }
@@ -140,7 +151,7 @@ export async function setupLibrary(
   attendances = [],
   departments = [],
   instances = [],
-  refreshTokenUrl = null
+  refreshTokenUrl = null,
 ) {
   try {
     // Define a instância do Pinia para uso nos interceptadores da API
@@ -240,10 +251,11 @@ export default {
   CallHistory,
   CallMessage,
   ListProducts,
+  ContactCard,
   ReminderModal,
   attReminderByLib,
   SoundSelect,
   formatCurrency,
   getCurrencySymbol,
-  getCurrencyLocale
+  getCurrencyLocale,
 };

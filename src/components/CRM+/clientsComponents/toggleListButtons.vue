@@ -1,9 +1,4 @@
 <script setup>
-/**
- * 📋 Descrição:
- * Componente que troca o estado do formulário e define a quantidade de botões exibidos.
- */
-
 const emit = defineEmits(["update:modelValue"]);
 
 const props = defineProps({
@@ -20,15 +15,12 @@ const props = defineProps({
 </script>
 
 <template>
-  <main class="flex gap-1 px-1">
+  <main class="toggle-page-buttons-wrapper">
     <button
       v-for="btn in buttons"
       :key="btn.value"
       :disabled="btn.disabled"
-      :class="[
-        'toggle-page-button bg-base-200',
-        { selected: modelValue === btn.value },
-      ]"
+      :class="['toggle-page-button', { selected: modelValue === btn.value }]"
       @click="$emit('update:modelValue', btn.value)"
       :title="
         btn.disabled
@@ -38,7 +30,7 @@ const props = defineProps({
     >
       <svg
         v-if="btn.disabled"
-        class="size-4 text-white"
+        class="size-4 text-white/80"
         aria-hidden="true"
         xmlns="http://www.w3.org/2000/svg"
         width="24"
@@ -53,21 +45,28 @@ const props = defineProps({
         />
       </svg>
 
-      <p v-else>{{ btn.label }}</p>
+      <p v-else class="toggle-page-button-label">{{ btn.label }}</p>
     </button>
   </main>
 </template>
 
 <style scoped>
+.toggle-page-buttons-wrapper {
+  display: flex;
+  gap: 0.35rem;
+  padding: 0;
+}
+
 .toggle-page-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.235rem;
+  min-height: 2.1rem;
+  padding: 0.4rem 0.72rem;
   width: 100%;
-  font-size: 0.75rem;
-  line-height: 1rem;
-  font-weight: 500;
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
+  font-weight: 600;
   font-family:
     ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
     "Segoe UI Symbol", "Noto Color Emoji";
@@ -76,15 +75,34 @@ const props = defineProps({
     opacity, box-shadow, transform, filter, backdrop-filter;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
-  border-radius: 0.375rem /* 6px */;
+  @apply rounded-md bg-base-200;
 }
+
 .toggle-page-button:hover {
-  background-color: rgb(38 52 61 / 0.7);
+  @apply bg-base-100;
 }
+
 .toggle-page-button.selected {
-  background-color: #16a34ad6;
+  border-color: rgb(34 197 94 / 0.45);
+  background: linear-gradient(
+    135deg,
+    rgb(22 163 74 / 0.88),
+    rgb(5 150 105 / 0.88)
+  );
+  /* box-shadow: 0 4px 12px rgb(22 163 74 / 0.28); */
 }
+
 .toggle-page-button.selected:hover {
-  background-color: #16a34a;
+  background: linear-gradient(135deg, rgb(22 163 74 / 1), rgb(5 150 105 / 1));
+}
+
+.toggle-page-button:disabled {
+  opacity: 0.65;
+  border-color: rgb(255 255 255 / 0.1);
+  cursor: not-allowed;
+}
+
+.toggle-page-button-label {
+  white-space: nowrap;
 }
 </style>

@@ -61,7 +61,7 @@
       <!-- Mensagens -->
       <div>
         <div v-for="(msg, index) in mensagens" :key="index">
-          <!-- Exibir separador de datas --> 
+          <!-- Exibir separador de datas -->
           <div
             v-if="shouldShowDateSeparator(index)"
             class="date-separator bg-base-100/50"
@@ -126,7 +126,7 @@
                       @click="
                         toggleDownloadFunctions(
                           msg.content.media,
-                          msg.content.media.name
+                          msg.content.media.name,
                         )
                       "
                     >
@@ -157,7 +157,7 @@
                   @download="
                     toggleDownloadFunctions(
                       msg.content.media,
-                      msg.content.media.name
+                      msg.content.media.name,
                     )
                   "
                   @open-mobile-pdf="openPdf(msg.content.media.data)"
@@ -315,9 +315,9 @@ const isRecording = ref(false);
 const isLoading = ref(false);
 const mensagens = computed(() => {
   if (!props.selectedAtendente) return [];
-  
+
   // Se for um grupo, usa chat_info.messages, senão usa messages diretamente
-  return props.selectedAtendente.is_group 
+  return props.selectedAtendente.is_group
     ? props.selectedAtendente.chat_info?.messages || []
     : props.selectedAtendente.messages || [];
 });
@@ -349,7 +349,9 @@ const toggleDownloadFunctions = (file, name) => {
 };
 
 const hasNextPage = computed(() =>
-  props.hasNextPageForAtendente(props.selectedAtendente.internal_chat.channel_id)
+  props.hasNextPageForAtendente(
+    props.selectedAtendente.internal_chat.channel_id,
+  ),
 );
 const formatMessageTime = (dateStr) => {
   const date = new Date(dateStr);
@@ -415,7 +417,9 @@ const loadMoreMessages = async ($state) => {
     const previousScrollTop = chatArea.value.scrollTop;
 
     // Carrega mais mensagens
-    await props.loadMessagesForAtendente(props.selectedAtendente.internal_chat.channel_id);
+    await props.loadMessagesForAtendente(
+      props.selectedAtendente.internal_chat.channel_id,
+    );
 
     // Aguarda a renderização das novas mensagens
     await nextTick();
@@ -445,7 +449,7 @@ const enviarMensagem = async () => {
       await props.sendMessageToAtendente(
         channel_id,
         newMessage,
-        props.attendant
+        props.attendant,
       );
       await nextTick();
       scrollToBottom();
@@ -500,14 +504,14 @@ watch(
   () => props.selectedAtendente?.internal_chat?.channel_id,
   () => {
     focusMessageInput();
-  }
+  },
 );
 
 watch(
   () => props.isLoadingMessages,
   (isLoading) => {
     if (!isLoading) focusMessageInput();
-  }
+  },
 );
 
 watch(
@@ -524,7 +528,7 @@ watch(
         }, 100);
       }
     }
-  }
+  },
 );
 
 function checkIsNearBottom() {
@@ -903,7 +907,9 @@ const downloadFiles = async (url, name = "undefined") => {
 
 /* Animação para as mensagens enviadas pelo usuário (vindo da esquerda) */
 .message-enter-active {
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
 }
 
 .message.me.new-message {

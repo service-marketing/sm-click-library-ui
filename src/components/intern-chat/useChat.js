@@ -21,21 +21,19 @@ export function useChat() {
   const findEntityByChannelId = (channelId) => {
     // Procura primeiro nos atendentes pelo channel_id
     let entity = attendantStore.attendants.find(
-      (att) => att.internal_chat?.channel_id === channelId
+      (att) => att.internal_chat?.channel_id === channelId,
     );
 
     // Se não encontrar, procura nos canais (grupos) pelo channel_id
     if (!entity) {
       entity = channelStore.channels.find(
-        (ch) => ch.internal_chat?.channel_id === channelId
+        (ch) => ch.internal_chat?.channel_id === channelId,
       );
     }
 
     // Se ainda não encontrar, procura nos atendentes pelo id
     if (!entity) {
-      entity = attendantStore.attendants.find(
-        (att) => att.id === channelId
-      );
+      entity = attendantStore.attendants.find((att) => att.id === channelId);
     }
 
     return entity;
@@ -68,7 +66,8 @@ export function useChat() {
 
       entity.internal_chat = {
         ...entity.internal_chat,
-        channel_id: response.data.channel_id || entity.internal_chat?.channel_id,
+        channel_id:
+          response.data.channel_id || entity.internal_chat?.channel_id,
         unread: 0,
       };
     } catch (error) {
@@ -106,14 +105,16 @@ export function useChat() {
           ...response.data.results.reverse(),
           ...entity.chat_info.messages,
         ];
-        entity.chat_info.hasNextPage = response.data.next !== null && response.data.next !== undefined;
+        entity.chat_info.hasNextPage =
+          response.data.next !== null && response.data.next !== undefined;
         entity.chat_info.currentPage++;
       } else {
         entity.messages = [
           ...response.data.results.reverse(),
           ...entity.messages,
         ];
-        entity.hasNextPage = response.data.next !== null && response.data.next !== undefined;
+        entity.hasNextPage =
+          response.data.next !== null && response.data.next !== undefined;
         entity.currentPage++;
       }
     } catch (error) {
@@ -151,7 +152,7 @@ export function useChat() {
       const logged_attendant = attendantStore.logged_attendant();
       entity.internal_chat.unread = getValueByKey(
         entity.internal_chat.unread,
-        logged_attendant.id
+        logged_attendant.id,
       );
     }
 
@@ -200,7 +201,7 @@ export function useChat() {
     channelId,
     messageContent,
     sender,
-    sendFile = false
+    sendFile = false,
   ) => {
     const entity = findEntityByChannelId(channelId);
     if (!entity || !entity.internal_chat?.channel_id) return;
@@ -239,7 +240,7 @@ export function useChat() {
         {
           id: newMessage.id,
           content: newMessage.content,
-        }
+        },
       );
     } catch (error) {
       console.error("Erro ao enviar mensagem:", error);

@@ -21,8 +21,8 @@ import {
   watch,
   onMounted,
   onUnmounted,
+  nextTick,
 } from "vue";
-import { onClickOutside } from "@vueuse/core";
 
 const props = defineProps({
   // --- Valor selecionado — pode ser um único valor ou um array (caso múltiplo) ---
@@ -88,20 +88,66 @@ const emit = defineEmits(["update:modelValue"]);
 
 const isOpen = ref(false);
 const dropdownRef = ref(null); // ref do container geral
+const teleportedRef = ref(null); // ref do dropdown quando teletransportado
 const triggerRef = ref(null); // ref da área clicável (campo principal)
 const dropdownStyle = ref({}); // estilos calculados quando usa teleport
 
 // --- Fecha dropdown ao clicar fora ---
-onClickOutside(dropdownRef, () => (isOpen.value = false));
+const handleOutside = (event) => {
+  if (!isOpen.value) return;
+  const target = event.target;
 
-// --- Calcula posição absoluta (fixed) para o dropdown quando teletransportado ---
+  if (
+    dropdownRef.value?.contains(target) ||
+    teleportedRef.value?.contains(target)
+  ) {
+    return;
+  }
+
+  isOpen.value = false;
+};
+
+const getFixedContainingBlock = (element) => {
+  let node = element?.parentElement || null;
+  while (node && node !== document.body && node !== document.documentElement) {
+    const style = window.getComputedStyle(node);
+    const willChange = style.willChange || "";
+    const createsContainingBlock =
+      style.transform !== "none" ||
+      style.perspective !== "none" ||
+      style.filter !== "none" ||
+      style.backdropFilter !== "none" ||
+      willChange.includes("transform") ||
+      willChange.includes("filter") ||
+      willChange.includes("perspective");
+    if (createsContainingBlock) return node;
+    node = node.parentElement;
+  }
+  return null;
+};
+
+// --- Calcula posição absoluta (fixed) para overlay/teleport ---
 const updatePosition = () => {
   if ((!props.teleportTo && !props.overlay) || !triggerRef.value) return;
   const rect = triggerRef.value.getBoundingClientRect();
+  let top = rect.bottom + 6;
+  let left = rect.left;
+
+  // Overlay sem Teleport pode ficar relativo a um ancestor transformado.
+  // Ajustamos para esse containing block quando existir.
+  if (props.overlay && !props.teleportTo) {
+    const containingBlock = getFixedContainingBlock(triggerRef.value);
+    if (containingBlock) {
+      const blockRect = containingBlock.getBoundingClientRect();
+      top -= blockRect.top;
+      left -= blockRect.left;
+    }
+  }
+
   dropdownStyle.value = {
     position: "fixed", // evita ser afetado por scroll de ancestors
-    top: `${rect.bottom + 6}px`, // pequeno espaçamento
-    left: `${rect.left}px`,
+    top: `${top}px`, // pequeno espaçamento
+    left: `${left}px`,
     width: `${rect.width}px`,
     zIndex: 9999,
   };
@@ -133,14 +179,17 @@ const placeholderIcon = computed(() => {
   return props.iconPlaceholder || props.icon || null;
 });
 
-watch(isOpen, (open) => {
-  if (open) {
-    updatePosition();
-  }
+watch(isOpen, async (open) => {
+  if (!open) return;
+  await nextTick();
+  updatePosition();
+  requestAnimationFrame(updatePosition);
 });
 
 const listeners = [];
 onMounted(() => {
+  document.addEventListener("mousedown", handleOutside);
+
   if (props.teleportTo || props.overlay) {
     const reposition = () => {
       if (isOpen.value) updatePosition();
@@ -152,6 +201,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  document.removeEventListener("mousedown", handleOutside);
   listeners.forEach(([evt, fn]) =>
     window.removeEventListener(evt, fn, evt === "scroll" ? true : undefined),
   );
@@ -340,6 +390,7 @@ const displayLabel = computed(() => {
     <!-- Dropdown teletransportado para fora (evita clipping por overflow) -->
     <Teleport v-if="isOpen && teleportTo" :to="teleportTo">
       <div
+        ref="teleportedRef"
         :style="dropdownStyle"
         :class="[
           'flex flex-col shadow-sm border rounded-md max-h-64 overflow-y-auto hide-scrollbar',

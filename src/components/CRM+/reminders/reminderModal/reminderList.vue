@@ -29,8 +29,8 @@ const currentPageModel = computed({
   get() {
     if (!state.value) return 1;
     return pageState.value === "Próximos"
-      ? state.value.active?.pagination?.currentPage ?? 1
-      : state.value.completed?.pagination?.currentPage ?? 1;
+      ? (state.value.active?.pagination?.currentPage ?? 1)
+      : (state.value.completed?.pagination?.currentPage ?? 1);
   },
   set(val) {
     if (pageState.value === "Próximos") {
@@ -269,7 +269,7 @@ onMounted(async () => {
       @click="
         fetchRemindersFor(
           pageState === 'Próximos' ? 'next' : 'completed',
-          currentPageModel
+          currentPageModel,
         )
       "
     >

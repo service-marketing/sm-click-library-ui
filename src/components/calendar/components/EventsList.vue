@@ -100,7 +100,13 @@ const props = defineProps({
   events: { type: Array, default: () => [] },
   mode: { type: String, default: "compact" }, // 'compact' | 'sidebar'
 });
-defineEmits(["reload", "open-chat", "open-message", "delete-message", "edit-reminder"]);
+defineEmits([
+  "reload",
+  "open-chat",
+  "open-message",
+  "delete-message",
+  "edit-reminder",
+]);
 
 const headerLabel = computed(() =>
   props.mode === "compact"

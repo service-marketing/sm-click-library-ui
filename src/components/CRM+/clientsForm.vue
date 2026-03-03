@@ -1,9 +1,4 @@
 <script setup>
-/**
- * 📋 Descrição:
- * Componente de botões para definir o resultado de uma oportunidade (Ganho ou Perdido).
- */
-
 import {
   computed,
   onMounted,
@@ -14,18 +9,19 @@ import {
   ref,
 } from "vue";
 import SelectMultipleTags from "../selects/multiSelects/selectMultipleTags.vue";
-import OutcomeButton from "./clientsComponents/outcomeButton.vue";
 import PrimaryInput from "../inputs/primaryInput.vue";
-import RatingInput from "../inputs/ratingInput.vue";
 import ToggleListButtons from "./clientsComponents/toggleListButtons.vue";
 import ContactSection from "./clientsComponents/contactSection.vue";
+import ClientOverviewPanel from "./clientsComponents/clientOverviewPanel.vue";
+import { ContactMergeModal } from "./clientsComponents/contactMerge/index.js";
+import api from "../../utils/api.js";
+import { notify } from "notiwind";
 
-const emit = defineEmits(["close", "save"]);
-const pageState = ref("contact");
-const teleportContainerId = "selectTags-portal-container";
+const emit = defineEmits(["close", "save", "merge"]);
+const pageState = ref("data");
 
 const props = defineProps({
-  // --- Estado atual do formulário caso preenchido ---
+  // --- Estado atual do formulario caso preenchido ---
   form: {
     type: Object,
     default: () => ({
@@ -48,7 +44,7 @@ const props = defineProps({
       notes: "",
     }),
   },
-  // --- Função que salva o formulário ---
+  // --- Funcao que salva o formulario ---
   save: {
     type: Function,
     default: () => {},
@@ -58,12 +54,17 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  // --- Lista de todos os produtos disponíveis e bloqueia o fetch na lista de produtos ---
+  // --- Checa se tem permissao para bloquear contatos ---
+  canBlockedContacts: {
+    type: Boolean,
+    default: true,
+  },
+  // --- Lista de todos os produtos disponiveis e bloqueia o fetch na lista de produtos ---
   allProducts: {
     type: Object,
     default: () => {},
   },
-  // --- Lista de todas as tags disponíveis e bloqueia o fetch na lista de tags ---
+  // --- Lista de todas as tags disponiveis e bloqueia o fetch na lista de tags ---
   allTags: {
     type: Object,
     default: () => {},
@@ -73,9 +74,14 @@ const props = defineProps({
     type: String,
     default: "",
   },
+  // --- Exibe acao de mesclagem no formulario ---
+  canMergeContacts: {
+    type: Boolean,
+    default: true,
+  },
 });
 
-// --- Estado principal do formulário ---
+// --- Estado principal do formulario ---
 const form = reactive({ ...props.form });
 const loading = ref(false);
 const errors = ref(false);
@@ -133,7 +139,59 @@ const validateClient = (client) => {
   return missing;
 };
 
-// --- Função de salvar cliente ---
+const isEmptyNumber = computed(() => {
+  return errors.value
+    ? errors.value.some((e) => e.startsWith("telephone"))
+    : false;
+});
+
+const isMergeModalOpen = ref(false);
+
+const canOpenMergeFlow = computed(() => {
+  return props.canMergeContacts && Boolean(form.id);
+});
+
+const openMergeModal = () => {
+  if (!canOpenMergeFlow.value) {
+    return;
+  }
+
+  isMergeModalOpen.value = true;
+};
+
+const closeMergeModal = () => {
+  isMergeModalOpen.value = false;
+};
+
+const handleMergedContacts = (payload) => {
+  // Emite o childId para que o componente pai possa remover o chat associado
+  emit("merge", {
+    ...payload,
+    removedContactId: payload.childId,
+  });
+  closeMergeModal();
+};
+
+// --- Funcao de mesclar contatos ---
+const mergeContacts = async (payload) => {
+  try {
+    const response = await api.post("/v1/api/contacts/contact/merge/", {
+      contact_father: payload.parentId,
+      contact_children: payload.childId,
+      force: true,
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao mesclar contatos:", error);
+    throw (
+      error.response?.data ||
+      new Error("Ocorreu um erro ao mesclar os contatos.")
+    );
+  }
+};
+
+// --- Funcao de salvar cliente ---
 const saveClient = async () => {
   try {
     loading.value = true;
@@ -232,8 +290,6 @@ const handlerToggleButtons = computed(() => {
             :class="{ noCrmPlus: !hasCrmPlus }"
             class="clients-form-background relative rounded-2xl bg-base-200 backdrop-blur-lg"
           >
-            <!-- --- Container para teleport --- -->
-            <div :id="teleportContainerId" class="relative"></div>
             <!-- --- Header --- -->
             <div class="modal-form-header bg-base-300">
               <span class="flex items-center gap-2">
@@ -262,6 +318,14 @@ const handlerToggleButtons = computed(() => {
               </span>
 
               <section class="flex gap-2 items-center">
+                <button
+                  v-if="canOpenMergeFlow"
+                  class="button-merge-clients"
+                  @click="openMergeModal"
+                >
+                  Mesclar contatos
+                </button>
+
                 <button
                   class="bg-base-200 p-1.5 rounded-md hover:bg-base-100 transition"
                   @click="emit('close')"
@@ -292,9 +356,7 @@ const handlerToggleButtons = computed(() => {
             >
               <!-- Coluna Esquerda -->
               <section
-                :class="
-                  pageState !== 'contact' && !isLargeScreen ? 'pt-1.5' : 'p-1.5'
-                "
+                :class="isLargeScreen ? 'p-2' : 'p-1.5'"
                 class="left-column"
               >
                 <!-- Bloco fixo (avatar / outcome / rating) -->
@@ -306,44 +368,19 @@ const handlerToggleButtons = computed(() => {
 
                 <div
                   v-if="isLargeScreen || pageState === 'contact'"
-                  class="flex flex-col gap-1 items-center"
+                  class="w-full"
                 >
-                  <OutcomeButton
-                    v-if="hasCrmPlus"
+                  <ClientOverviewPanel
+                    :hasCrmPlus="hasCrmPlus"
                     :outcome="form.outcome"
+                    :rating="form.rating"
+                    :photo="form.photo"
+                    :blocked="form.blocked"
+                    :canBlockedContacts="canBlockedContacts"
                     @update:outcome="form.outcome = $event"
+                    @update:rating="form.rating = $event"
+                    @update:blocked="form.blocked = $event"
                   />
-
-                  <div
-                    title="Não é possível alterar a foto do cliente neste momento"
-                    class="flex items-center justify-center w-full"
-                  >
-                    <img
-                      v-if="form.photo"
-                      :src="form.photo"
-                      alt=""
-                      class="avatar-client"
-                    />
-
-                    <span v-else class="no-avatar-client"
-                      ><svg
-                        class="size-14"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          fill-rule="evenodd"
-                          d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4h-4Z"
-                          clip-rule="evenodd"
-                        /></svg
-                    ></span>
-                  </div>
-
-                  <RatingInput v-if="hasCrmPlus" v-model="form.rating" />
                 </div>
 
                 <div
@@ -362,15 +399,14 @@ const handlerToggleButtons = computed(() => {
 
                   <div class="flex flex-col gap-2 w-full">
                     <header class="flex items-center justify-between px-1">
-                      <p class="text-xs font-medium text-left">
+                      <p class="text-[13px] font-semibold text-left">
                         Escolha suas etiquetas
                       </p>
 
                       <Popper
                         hover
-                        content="Etiquetas que estão atribuídas ao cliente"
+                        content="Etiquetas atribuídas ao cliente"
                         placement="top"
-                        arrow
                       >
                         <svg
                           class="size-4 text-white dark:text-black"
@@ -388,7 +424,7 @@ const handlerToggleButtons = computed(() => {
                     </header>
 
                     <SelectMultipleTags
-                      :teleportTo="`#${teleportContainerId}`"
+                      :overlay="true"
                       :allTags="allTags"
                       v-model="form.tags"
                     />
@@ -399,7 +435,7 @@ const handlerToggleButtons = computed(() => {
                     class="h-full flex flex-col gap-2 w-full"
                   >
                     <header class="flex items-center justify-between px-1">
-                      <p class="text-xs font-medium text-left">
+                      <p class="text-[13px] font-semibold text-left">
                         Anotações sobre o cliente
                       </p>
 
@@ -407,7 +443,6 @@ const handlerToggleButtons = computed(() => {
                         hover
                         content="Anotações adicionais sobre o cliente"
                         placement="top"
-                        arrow
                       >
                         <svg
                           class="size-4 text-white dark:text-black"
@@ -488,7 +523,7 @@ const handlerToggleButtons = computed(() => {
               </section>
             </div>
 
-            <!-- --- Rodapé (Botão de salvar) --- -->
+            <!-- --- Rodape (Botao de salvar) --- -->
             <div class="modal-form-end-button bg-base-300">
               <button
                 :disabled="loading"
@@ -502,6 +537,14 @@ const handlerToggleButtons = computed(() => {
                 <p class="text-xs font-semibold" v-else>Salvar</p>
               </button>
             </div>
+
+            <ContactMergeModal
+              :isOpen="isMergeModalOpen"
+              :currentContact="form"
+              :mergeContacts="mergeContacts"
+              @close="closeMergeModal"
+              @merged="handleMergedContacts"
+            />
           </div>
         </div>
       </div>
@@ -510,41 +553,9 @@ const handlerToggleButtons = computed(() => {
 </template>
 
 <style scoped>
-.avatar-client {
-  cursor: not-allowed;
-  border-radius: 0.375rem;
-  object-fit: cover;
-  width: 3.5rem;
-  height: 3.5rem;
-}
-
-.no-avatar-client {
-  cursor: not-allowed;
-  border-width: 1px;
-  justify-content: center;
-  align-items: center;
-  display: flex;
-  width: 3.5rem;
-  height: 3.5rem;
-  border-radius: 0.75rem;
-  padding: 0.5rem;
-  @apply bg-base-300 p-2 border-base-100;
-}
-
 .id-label-clients {
   color: #9ca3af;
   font-size: 10px;
-}
-
-@media (min-width: 864px) {
-  .avatar-client {
-    width: 4.5rem;
-    height: 4.5rem;
-  }
-  .no-avatar-client {
-    width: 4.5rem;
-    height: 4.5rem;
-  }
 }
 
 @media (min-width: 640px) {
@@ -557,31 +568,33 @@ const handlerToggleButtons = computed(() => {
 .modal-form-left-column-body {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.75rem;
   width: 100%;
   height: 100%;
-  /* justify-content: space-between; */
 }
 
 .modal-form-header {
   display: flex;
   justify-content: space-between;
-  padding: 0.625rem;
+  padding: 0.75rem;
   border-top-left-radius: 1rem;
   border-top-right-radius: 1rem;
   align-items: center;
   color: currentColor;
+  border-bottom: 1px solid rgb(255 255 255 / 0.08);
 }
 .button-save-clients {
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  border-radius: 0.5rem;
+  padding: 0.5625rem 1rem;
+  border-radius: 0.625rem;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  font-weight: 500;
-  background-color: rgb(34 197 94 / 0.8);
+  font-weight: 600;
+  border: 1px solid rgb(34 197 94 / 0.45);
+  background: linear-gradient(
+    135deg,
+    rgb(22 163 74 / 0.9),
+    rgb(5 150 105 / 0.9)
+  );
   transition-property:
     color, background-color, border-color, text-decoration-color, fill, stroke;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -590,7 +603,39 @@ const handlerToggleButtons = computed(() => {
   gap: 0.5rem;
   align-items: center;
   justify-content: center;
-  min-width: 8rem;
+  min-width: 8.5rem;
+  /* box-shadow: 0 3px 10px rgb(22 163 74 / 0.35); */
+}
+
+.button-save-clients:hover:not(:disabled) {
+  transform: translateY(-1px);
+  /* box-shadow: 0 3px 10px rgb(22 163 74 / 0.4); */
+}
+
+.button-save-clients:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.button-merge-clients {
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid rgb(14 116 144 / 0.45);
+  background: linear-gradient(
+    135deg,
+    rgb(14 116 144 / 0.92),
+    rgb(8 145 178 / 0.92)
+  );
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.button-merge-clients:hover {
+  transform: translateY(-1px);
 }
 
 .right-column {
@@ -598,17 +643,14 @@ const handlerToggleButtons = computed(() => {
   min-height: 0px;
   flex-direction: column;
   display: flex;
-  padding-top: 0.25rem;
-  padding-bottom: 0.25rem;
-  padding-left: 0.125rem;
-  padding-right: 0.125rem;
-  border-top-left-radius: 0.375rem;
-  border-bottom-left-radius: 0.375rem;
+  padding: 0.35rem 0rem 0.35rem 0rem;
+  border-top-left-radius: 0.625rem;
+  border-bottom-left-radius: 0.625rem;
 }
 
 .left-column {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
   flex-direction: column;
   height: 100%;
   min-height: 0px;
@@ -619,6 +661,19 @@ const handlerToggleButtons = computed(() => {
   height: 100%;
   min-height: 0px;
   @apply flex sm:grid sm:grid-cols-2;
+}
+
+@media (min-width: 640px) {
+  .modal-form-body {
+    grid-template-columns: minmax(20rem, 0.95fr) minmax(24rem, 1.15fr);
+  }
+}
+
+@media (max-width: 639px) {
+  .right-column {
+    padding: 0.25rem 0.5rem 0.5rem;
+    border-radius: 0.75rem;
+  }
 }
 
 .form-text-area {
@@ -644,22 +699,22 @@ const handlerToggleButtons = computed(() => {
 
 .modal-form-container {
   z-index: 50;
-  width: 90%;
+  width: min(94vw, 1140px);
   border-radius: 1rem;
-  @apply shadow shadow-black;
+  @apply shadow shadow-black/60;
 }
 .modal-form-end-button {
   display: flex;
   justify-content: flex-end;
-  padding: 0.5rem;
+  padding: 0.625rem 0.75rem;
   border-bottom-right-radius: 1rem;
   border-bottom-left-radius: 1rem;
-  /* background-color: #111b21; */
+  border-top: 1px solid rgb(255 255 255 / 0.08);
 }
 
 @media (min-width: 1280px) {
   .modal-form-container {
-    width: 55%;
+    width: min(88vw, 1260px);
   }
 }
 
@@ -667,6 +722,7 @@ const handlerToggleButtons = computed(() => {
   display: flex;
   flex-direction: column;
   height: 85vh;
+  box-shadow: 0 16px 40px rgb(2 6 23 / 0.38);
 }
 
 .clients-form-background.noCrmPlus {

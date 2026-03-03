@@ -88,9 +88,8 @@ watch(
   () => props.modelValue,
   (val) => {
     rating.value = val;
-  }
+  },
 );
-
 
 const displayRating = computed(() => hoverRating.value || rating.value);
 
@@ -109,13 +108,17 @@ function onHover(e, star) {
   const rect = e.currentTarget.getBoundingClientRect();
   // Cada metade da estrela vale starWeight/2 pontos
   const isHalf = e.offsetX < rect.width / 2;
-  hoverRating.value = (star - 1) * props.starWeight + (isHalf ? props.starWeight / 2 : props.starWeight);
+  hoverRating.value =
+    (star - 1) * props.starWeight +
+    (isHalf ? props.starWeight / 2 : props.starWeight);
 }
 
 function setRating(e, star) {
   const rect = e.currentTarget.getBoundingClientRect();
   const isHalf = e.offsetX < rect.width / 2;
-  const newRating = (star - 1) * props.starWeight + (isHalf ? props.starWeight / 2 : props.starWeight);
+  const newRating =
+    (star - 1) * props.starWeight +
+    (isHalf ? props.starWeight / 2 : props.starWeight);
   rating.value = rating.value === newRating ? 0 : newRating;
   emit("update:modelValue", rating.value);
 
@@ -153,7 +156,9 @@ function handleTouchMove(e) {
       const starRect = starElement.getBoundingClientRect();
       const isHalf = touch.clientX - starRect.left < starRect.width / 2;
       // Cada metade da estrela vale starWeight/2 pontos
-      hoverRating.value = (starIndex - 1) * props.starWeight + (isHalf ? props.starWeight / 2 : props.starWeight);
+      hoverRating.value =
+        (starIndex - 1) * props.starWeight +
+        (isHalf ? props.starWeight / 2 : props.starWeight);
     }
   }
 }
@@ -172,12 +177,24 @@ function handleTouchMoveEnd() {
 
 <style scoped>
 .color-disabled {
-  color: #374151;
+  color: #64748b;
 }
 .text-primary {
-  color: #eab308;
+  color: #facc15;
 }
 .text-hover {
-  color: #ad840b;
+  color: #eab308;
+}
+
+.dark .color-disabled {
+  color: #475569;
+}
+
+.dark .text-primary {
+  color: #d97706;
+}
+
+.dark .text-hover {
+  color: #b45309;
 }
 </style>
