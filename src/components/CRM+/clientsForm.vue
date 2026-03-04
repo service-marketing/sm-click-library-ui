@@ -56,7 +56,7 @@ const props = defineProps({
     default: false,
   },
   // --- Checa se tem permissao para bloquear contatos ---
-  canBlockedContacts: {
+  canBlockContacts: {
     type: Boolean,
     default: true,
   },
@@ -431,7 +431,7 @@ const handlerToggleButtons = computed(() => {
                     :rating="form.rating"
                     :photo="form.photo"
                     :blocked="form.blocked"
-                    :canBlockedContacts="canBlockedContacts"
+                    :canBlockContacts="canBlockContacts"
                     @update:outcome="form.outcome = $event"
                     @update:rating="form.rating = $event"
                     @update:blocked="form.blocked = $event"
