@@ -51,7 +51,7 @@ const handleConfirmChange = (event) => {
     <div class="checkbox-content">
       <span class="checkbox-title">Confirmo que entendi as consequências</span>
       <span class="checkbox-desc">
-        Esta ação é <strong>irreversível</strong>. O contato duplicado será
+        Esta ação é <strong>irreversível</strong>. O contato selecionado será
         excluído permanentemente.
       </span>
     </div>

@@ -250,6 +250,7 @@ watch(
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
   backdrop-filter: blur(6px);
+  z-index: 10;
 }
 
 .segmentation-field-row {

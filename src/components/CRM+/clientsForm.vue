@@ -31,6 +31,7 @@ const props = defineProps({
       photo: null,
       raw_telephone: "",
       telephone: "",
+      instagram_user_name: "",
       whatsapp_id: "",
       whatsapp_jid: "",
       whatsapp_lid: null,
@@ -554,6 +555,7 @@ const handlerToggleButtons = computed(() => {
                     v-model:pageState="pageState"
                     v-model:telephone="form.telephone"
                     v-model:country="form.country"
+                    v-model:instagramUserName="form.instagram_user_name"
                     v-model:segmentationFields="form.segmentation_fields"
                     v-model:products="form.products"
                   />
@@ -572,6 +574,7 @@ const handlerToggleButtons = computed(() => {
                   v-model:pageState="pageState"
                   v-model:telephone="form.telephone"
                   v-model:country="form.country"
+                  v-model:instagramUserName="form.instagram_user_name"
                   v-model:segmentationFields="form.segmentation_fields"
                   v-model:products="form.products"
                 />
@@ -788,7 +791,7 @@ const handlerToggleButtons = computed(() => {
 }
 
 .clients-form-background.noCrmPlus {
-  max-height: 350px;
+  max-height: 450px;
 }
 
 @media (min-width: 1920px) {
