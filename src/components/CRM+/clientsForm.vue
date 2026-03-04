@@ -302,6 +302,11 @@ const toggleButtons = [
     disabled:
       props.form.status === "screening" || props.form.status === "finished",
   },
+  {
+    label: "Carteira",
+    value: "wallet",
+    disabled: !form.id,
+  },
 ];
 
 const handlerToggleButtons = computed(() => {
@@ -312,7 +317,9 @@ const handlerToggleButtons = computed(() => {
   if (!props.hasCrmPlus) {
     return [
       contactItem,
-      ...baseList.filter((item) => item.value !== "products"),
+      ...baseList.filter(
+        (item) => item.value !== "products" && item.value !== "wallet",
+      ),
     ];
   }
 
@@ -551,6 +558,7 @@ const handlerToggleButtons = computed(() => {
                     :allProducts="allProducts"
                     :departmentBypass="departmentBypass"
                     :isLargeScreen="isLargeScreen"
+                    :contactId="form.id"
                     v-model:pageState="pageState"
                     v-model:telephone="form.telephone"
                     v-model:country="form.country"
@@ -569,6 +577,7 @@ const handlerToggleButtons = computed(() => {
                   :allProducts="allProducts"
                   :departmentBypass="departmentBypass"
                   :isLargeScreen="isLargeScreen"
+                  :contactId="form.id"
                   v-model:pageState="pageState"
                   v-model:telephone="form.telephone"
                   v-model:country="form.country"
@@ -788,7 +797,7 @@ const handlerToggleButtons = computed(() => {
 }
 
 .clients-form-background.noCrmPlus {
-  max-height: 350px;
+  max-height: 450px;
 }
 
 @media (min-width: 1920px) {
