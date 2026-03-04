@@ -154,7 +154,7 @@ const sidebarCardClasses = computed(() => {
     classes.push("cursor-not-allowed opacity-60");
   } else {
     classes.push(
-      "cursor-pointer hover:bg-custom-sub-headers-colors dark:hover:bg-sky-300/20",
+      "cursor-pointer hover:bg-base-100/50 dark:hover:bg-sky-300/20",
     );
   }
 
