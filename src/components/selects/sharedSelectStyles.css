@@ -350,7 +350,8 @@
   z-index: 1;
   font-size: 0.9375rem;
   transition: all 0.15s ease;
-    @apply my-auto
+  height: auto;
+  @apply text-left;
 }
 
 /* .department-item:hover .department-name {
