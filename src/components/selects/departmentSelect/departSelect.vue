@@ -467,12 +467,10 @@ function isItemDisabled(departmentId) {
 
     <!-- Variante EXPANDED (padrão atual) -->
     <template v-else>
-      <div
-        class="search-container relative shadow shadow-gray-900 dark:shadow-gray-500"
-      >
+      <div class="search-container relative">
         <div
           v-if="showSearch"
-          class="input-wrapper bg-base-300 border-b border-base-200"
+          class="input-wrapper bg-base-300"
           @click="open_select = !open_select"
           :class="{ expanded: open_select || departmentSelected.length > 0 }"
         >

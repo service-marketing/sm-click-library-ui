@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from "vue";
 import { useAttendantStore } from "~/stores/attendantStore";
+import PhotoDisplay from "../../chat/components/photoDisplay.vue";
 
 const props = defineProps({
   attendance: { type: [Array, String], default: null },
@@ -122,7 +123,6 @@ function filterByDepartment(attendants) {
 
 // Computed para variante de exibição
 const isExpanded = computed(() => props.variant === "expanded");
-const isSelect = computed(() => props.variant === "select");
 const isDropdown = computed(() => props.variant === "dropdown");
 
 // Computed para classes de tamanho
@@ -294,46 +294,8 @@ function isItemDisabled(attendantId) {
 
 <template>
   <div class="depart-select-container" :class="sizeClasses" :style="cssVars">
-    <!-- Variante SELECT (select nativo simples) -->
-    <template v-if="isSelect">
-      <div class="native-select-wrapper">
-        <select
-          v-model="nativeSelectValue"
-          @change="handleNativeSelect"
-          class="native-select bg-base-300"
-          :class="sizeClasses"
-          :multiple="multiSelect"
-        >
-          <option value="" disabled>{{ placeholderSelect }}</option>
-          <option
-            v-for="attendant in filteredAttendants"
-            :key="attendant.id"
-            :value="attendant.id"
-          >
-            {{ attendant.name }}
-          </option>
-        </select>
-        <div class="native-select-icon">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="2"
-            stroke="currentColor"
-            class="size-4"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="m19.5 8.25-7.5 7.5-7.5-7.5"
-            />
-          </svg>
-        </div>
-      </div>
-    </template>
-
     <!-- Variante DROPDOWN (toggle compacto) -->
-    <template v-else-if="isDropdown">
+    <template v-if="isDropdown">
       <div class="dropdown-wrapper" ref="dropdownRef">
         <button
           type="button"
@@ -402,25 +364,11 @@ function isItemDisabled(attendantId) {
                 class="dropdown-option"
               >
                 <template v-if="showAvatar">
-                  <img
-                    v-if="attendant.photo"
-                    :src="attendant.photo"
-                    class="dropdown-avatar"
+                  <PhotoDisplay
+                    :photo="attendant.photo"
+                    :clickable="false"
+                    size="size-5"
                   />
-                  <div v-else class="dropdown-avatar-placeholder bg-base-200">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                      class="size-4"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4h-4Z"
-                        clip-rule="evenodd"
-                      />
-                    </svg>
-                  </div>
                 </template>
                 <span>{{ attendant.name }}</span>
                 <span
@@ -491,12 +439,10 @@ function isItemDisabled(attendantId) {
 
     <!-- Variante EXPANDED (padrão atual) -->
     <template v-else>
-      <div
-        class="search-container relative shadow shadow-gray-900 dark:shadow-gray-500"
-      >
+      <div class="search-container relative">
         <div
           v-if="showSearch"
-          class="input-wrapper bg-base-300 border-b border-base-200"
+          class="input-wrapper bg-base-300"
           @click="open_select = !open_select"
           :class="{ expanded: open_select || attendanceSelected.length > 0 }"
         >
@@ -582,38 +528,11 @@ function isItemDisabled(attendantId) {
                 class="department-item line-clamp-1 bg-slate-500/20 hover:bg-teal-600"
               >
                 <div v-if="showAvatar" style="padding-left: 5px">
-                  <img
-                    v-if="attendant.photo"
-                    :src="attendant.photo"
-                    style="
-                      pointer-events: none;
-                      border-radius: 100%;
-                      width: 24px;
-                      height: 24px;
-                    "
+                  <PhotoDisplay
+                    :photo="attendant.photo"
+                    :clickable="false"
+                    size="size-5"
                   />
-                  <svg
-                    v-else
-                    style="
-                      pointer-events: none;
-                      border-radius: 100%;
-                      width: 24px;
-                      height: 24px;
-                    "
-                    class="bg-base-300"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4h-4Z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
                 </div>
                 <span
                   @click="selectAttendant(attendant)"
