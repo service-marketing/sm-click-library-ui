@@ -7,6 +7,7 @@ import ListProducts from "./listProducts.vue";
 import ListSegmentationsFields from "./listSegmentationsFields.vue";
 import ToggleListButtons from "./toggleListButtons.vue";
 import { WalletSection } from "./wallet/index.js";
+import InstagramBadge from "./instagramBadge.vue";
 
 const props = defineProps({
   hasCrmPlus: { type: Boolean, default: false },
@@ -28,6 +29,10 @@ const props = defineProps({
 const pageState = defineModel("pageState", { type: String, default: "data" });
 const telephone = defineModel("telephone", { type: String, default: "" });
 const country = defineModel("country", { type: String, default: "br" });
+const instagramUserName = defineModel("instagramUserName", {
+  type: String,
+  default: "",
+});
 const segmentationFields = defineModel("segmentationFields", {
   type: Array,
   default: () => [],
@@ -113,6 +118,32 @@ const handleTelephoneInput = (value, phoneObject) => {
           v-else
         >
           +55 00000-0000
+        </div>
+      </div>
+
+      <div
+        v-if="instagramUserName"
+        class="flex w-full relative rounded-md bg-base-300 mt-1"
+      >
+        <span class="flex justify-center items-center w-8">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="currentColor"
+            class="size-4 text-gray-500 ml-1.5"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 2.25c5.376 0 9.75 4.374 9.75 9.75s-4.374 9.75-9.75 9.75S2.25 17.376 2.25 12 6.624 2.25 12 2.25zm4.875 9.75c0 2.691-2.184 4.875-4.875 4.875s-4.875-2.184-4.875-4.875 2.184-4.875 4.875-4.875 4.875 2.184 4.875 4.875zm-1.906 0c0-1.637-1.332-2.969-2.969-2.969-1.636 0-2.969 1.332-2.969 2.969 0 1.637 1.333 2.969 2.969 2.969 1.637 0 2.969-1.332 2.969-2.969zm2.719-5.25c0 .621-.504 1.125-1.125 1.125s-1.125-.504-1.125-1.125.504-1.125 1.125-1.125 1.125.504 1.125 1.125z"
+            ></path>
+          </svg>
+        </span>
+
+        <div class="flex items-center w-full px-1 py-1.5 text-sm">
+          <InstagramBadge
+            :hide-svg="true"
+            size="large"
+            :instagram-user-name="instagramUserName"
+          />
         </div>
       </div>
     </div>

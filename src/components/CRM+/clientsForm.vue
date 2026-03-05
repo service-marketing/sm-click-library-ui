@@ -31,6 +31,7 @@ const props = defineProps({
       photo: null,
       raw_telephone: "",
       telephone: "",
+      instagram_user_name: "",
       whatsapp_id: "",
       whatsapp_jid: "",
       whatsapp_lid: null,
@@ -56,7 +57,7 @@ const props = defineProps({
     default: false,
   },
   // --- Checa se tem permissao para bloquear contatos ---
-  canBlockedContacts: {
+  canBlockContacts: {
     type: Boolean,
     default: true,
   },
@@ -369,7 +370,7 @@ const handlerToggleButtons = computed(() => {
               </span>
 
               <section class="flex gap-2 items-center">
-                <Popper
+                <!-- <Popper
                   hover
                   :content="mergeFlowTooltipContent"
                   placement="bottom"
@@ -386,7 +387,7 @@ const handlerToggleButtons = computed(() => {
                       Mesclar contatos
                     </button>
                   </div>
-                </Popper>
+                </Popper> -->
 
                 <button
                   class="bg-base-200 p-1.5 rounded-md hover:bg-base-100 transition"
@@ -438,7 +439,7 @@ const handlerToggleButtons = computed(() => {
                     :rating="form.rating"
                     :photo="form.photo"
                     :blocked="form.blocked"
-                    :canBlockedContacts="canBlockedContacts"
+                    :canBlockContacts="canBlockContacts"
                     @update:outcome="form.outcome = $event"
                     @update:rating="form.rating = $event"
                     @update:blocked="form.blocked = $event"
@@ -562,6 +563,7 @@ const handlerToggleButtons = computed(() => {
                     v-model:pageState="pageState"
                     v-model:telephone="form.telephone"
                     v-model:country="form.country"
+                    v-model:instagramUserName="form.instagram_user_name"
                     v-model:segmentationFields="form.segmentation_fields"
                     v-model:products="form.products"
                   />
@@ -581,6 +583,7 @@ const handlerToggleButtons = computed(() => {
                   v-model:pageState="pageState"
                   v-model:telephone="form.telephone"
                   v-model:country="form.country"
+                  v-model:instagramUserName="form.instagram_user_name"
                   v-model:segmentationFields="form.segmentation_fields"
                   v-model:products="form.products"
                 />

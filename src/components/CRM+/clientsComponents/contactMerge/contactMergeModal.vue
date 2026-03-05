@@ -93,6 +93,10 @@ const canConfirmMerge = computed(() => {
   );
 });
 
+const filteredCandidates = computed(() =>
+  candidates.value.filter((contact) => contact.id !== parentContact.value?.id),
+);
+
 // ========== METHODS ==========
 const resetState = () => {
   step.value = "select";
@@ -307,9 +311,9 @@ watch(
 
             <!-- Candidates List -->
             <div class="candidates-list" :key="infiniteKey">
-              <template v-if="candidates.length > 0">
+              <template v-if="filteredCandidates.length > 0">
                 <MergeContactCard
-                  v-for="contact in candidates"
+                  v-for="contact in filteredCandidates"
                   :key="contact.id"
                   :contact="contact"
                   :selectable="true"
