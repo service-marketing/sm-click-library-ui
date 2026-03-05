@@ -92,9 +92,6 @@ const filteredDepartments = computed(() => {
     );
 });
 
-// Computed para variante de exibição
-const isExpanded = computed(() => props.variant === "expanded");
-const isSelect = computed(() => props.variant === "select");
 const isDropdown = computed(() => props.variant === "dropdown");
 
 // Computed para classes de tamanho
@@ -285,46 +282,8 @@ function isItemDisabled(departmentId) {
 
 <template>
   <div class="depart-select-container" :class="sizeClasses" :style="cssVars">
-    <!-- Variante SELECT (select nativo simples) -->
-    <template v-if="isSelect">
-      <div class="native-select-wrapper">
-        <select
-          v-model="nativeSelectValue"
-          @change="handleNativeSelect"
-          class="native-select bg-base-300"
-          :class="sizeClasses"
-          :multiple="multiSelect"
-        >
-          <option value="" disabled>{{ placeholderSelect }}</option>
-          <option
-            v-for="department in filteredDepartments"
-            :key="department.id"
-            :value="department.id"
-          >
-            {{ department.name }}
-          </option>
-        </select>
-        <div class="native-select-icon">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="2"
-            stroke="currentColor"
-            class="size-4"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="m19.5 8.25-7.5 7.5-7.5-7.5"
-            />
-          </svg>
-        </div>
-      </div>
-    </template>
-
     <!-- Variante DROPDOWN (toggle compacto) -->
-    <template v-else-if="isDropdown">
+    <template v-if="isDropdown">
       <div class="dropdown-wrapper" ref="dropdownRef">
         <button
           type="button"
