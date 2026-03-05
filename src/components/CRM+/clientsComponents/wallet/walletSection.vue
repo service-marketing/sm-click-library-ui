@@ -426,7 +426,7 @@ watch(
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  @apply text-primary;
+  color: var(--primary);
 }
 
 .wallet-title {
@@ -453,7 +453,7 @@ watch(
   border-radius: 0.5rem;
   padding: 0.4rem 0.65rem;
   transition: all 140ms ease;
-  @apply text-primary bg-base-300 dark:bg-sky-900/10;
+  @apply bg-base-300 dark:bg-sky-900/10;
 }
 
 .wallet-refresh-btn:hover:not(:disabled) {

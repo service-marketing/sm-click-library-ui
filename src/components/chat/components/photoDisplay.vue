@@ -1,6 +1,5 @@
 <script setup>
-import { viewSingleImage } from "@/utils/functions";
-
+import { Fancybox } from "@fancyapps/ui";
 defineProps({
   photo: {
     type: String,
@@ -27,6 +26,16 @@ defineProps({
     default: false,
   },
 });
+
+const viewSingleImage = async (src, mimetype, caption = "") => {
+  Fancybox.show([
+    {
+      src,
+      type: "image",
+      caption,
+    },
+  ]);
+};
 </script>
 
 <template>
