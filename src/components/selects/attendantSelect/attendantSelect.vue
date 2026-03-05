@@ -20,7 +20,7 @@ const props = defineProps({
   showSearch: { type: Boolean, default: true },
   showSelectedBadges: { type: Boolean, default: true },
   showAvatar: { type: Boolean, default: true },
-  maxHeight: { type: String, default: "300px" },
+  maxHeight: { type: String, default: "183.5px" },
   placeholder: { type: String, default: "Pesquise por nome." },
   placeholderSelect: { type: String, default: "Selecione um atendente" },
   // --- Items desabilitados ---
@@ -32,6 +32,8 @@ const props = defineProps({
     default: "normal",
     validator: (v) => ["small", "normal", "large"].includes(v),
   },
+  maxColumns: { type: Number, default: 2 },
+  minColumnWidth: { type: String, default: "170px" },
   // --- Cores customizáveis ---
   primaryColor: { type: String, default: "#14b8a6" },
   primaryColorHover: { type: String, default: "#0d9488" },
@@ -130,6 +132,11 @@ const sizeClasses = computed(() => ({
   "size-small": props.size === "small",
   "size-normal": props.size === "normal",
   "size-large": props.size === "large",
+}));
+
+// Computed para estilo do grid
+const gridStyle = computed(() => ({
+  gridTemplateColumns: `repeat(auto-fit, minmax(${props.minColumnWidth}, 1fr))`,
 }));
 
 // Computed para o placeholder dinâmico
@@ -329,11 +336,7 @@ function isItemDisabled(attendantId) {
           </svg>
         </button>
 
-        <div
-          v-show="open_select"
-          class="dropdown-menu bg-base-300"
-          :style="{ maxHeight: maxHeight }"
-        >
+        <div v-show="open_select" class="dropdown-menu bg-base-300">
           <div v-if="showSearch" class="dropdown-search-wrapper">
             <input
               v-model="searchInput"
@@ -341,7 +344,7 @@ function isItemDisabled(attendantId) {
               class="dropdown-search-input bg-base-200"
             />
           </div>
-          <div class="dropdown-options">
+          <div class="dropdown-options" :style="{ maxHeight: maxHeight }">
             <!-- Loading Store State -->
             <div v-if="!attendantStore.loaded" class="dropdown-loading">
               <div class="library-loader"></div>
@@ -514,8 +517,8 @@ function isItemDisabled(attendantId) {
         >
           <div class="department-list">
             <div
-              :class="{ 'two-columns': filteredAttendants.length > 4 }"
               class="grid-container"
+              :style="gridStyle"
             >
               <div
                 v-if="attendantStore.loaded"

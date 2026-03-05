@@ -1,10 +1,4 @@
 <script setup>
-/**
- * Wallet Section Component
- * Displays and manages wallet relationships for a contact.
- * Fetches and displays attendant-department relationships.
- * Uses stores to resolve attendant and department data.
- */
 import { computed, onMounted, ref, watch } from "vue";
 import api from "../../../../utils/api.js";
 import { useAttendantStore } from "../../../../stores/attendantStore.js";
@@ -458,7 +452,7 @@ watch(
 
 .wallet-refresh-btn:hover:not(:disabled) {
   border-color: rgb(56 189 248 / 0.6);
-  @apply text-current;
+  @apply text-current bg-base-100;
 }
 
 .wallet-refresh-btn:disabled {

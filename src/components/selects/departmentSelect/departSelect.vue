@@ -27,7 +27,7 @@ const props = defineProps({
   },
   showSearch: { type: Boolean, default: true },
   showSelectedBadges: { type: Boolean, default: true },
-  maxHeight: { type: String, default: "300px" },
+  maxHeight: { type: String, default: "183.5px" },
   placeholder: { type: String, default: "Pesquise por nome." },
   placeholderSelect: { type: String, default: "Selecione um departamento" },
   // --- Items desabilitados ---
@@ -39,6 +39,8 @@ const props = defineProps({
     default: "normal",
     validator: (v) => ["small", "normal", "large"].includes(v),
   },
+  maxColumns: { type: Number, default: 3 },
+  minColumnWidth: { type: String, default: "170px" },
   // --- Cores customizáveis ---
   primaryColor: { type: String, default: "#14b8a6" },
   primaryColorHover: { type: String, default: "#0d9488" },
@@ -99,6 +101,11 @@ const sizeClasses = computed(() => ({
   "size-small": props.size === "small",
   "size-normal": props.size === "normal",
   "size-large": props.size === "large",
+}));
+
+// Computed para estilo do grid
+const gridStyle = computed(() => ({
+  gridTemplateColumns: `repeat(auto-fit, minmax(${props.minColumnWidth}, 1fr))`,
 }));
 
 // Computed para o placeholder dinâmico
@@ -320,7 +327,6 @@ function isItemDisabled(departmentId) {
         <div
           v-show="open_select"
           class="dropdown-menu bg-base-300"
-          :style="{ maxHeight: maxHeight }"
         >
           <div v-if="showSearch" class="dropdown-search-wrapper">
             <input
@@ -329,7 +335,7 @@ function isItemDisabled(departmentId) {
               class="dropdown-search-input bg-base-200"
             />
           </div>
-          <div class="dropdown-options">
+          <div class="dropdown-options" :style="{ maxHeight: maxHeight }">
             <!-- Loading Store State -->
             <div v-if="!departmentStore.loaded" class="dropdown-loading">
               <div class="library-loader"></div>
@@ -501,8 +507,8 @@ function isItemDisabled(departmentId) {
         >
           <div class="department-list">
             <div
-              :class="{ 'two-columns': filteredDepartments.length > 4 }"
               class="grid-container"
+              :style="gridStyle"
             >
               <div
                 v-if="departmentStore.loaded"
@@ -525,7 +531,7 @@ function isItemDisabled(departmentId) {
                 >
                   {{ disabledReason }}
                 </span>
-                <div v-if="multiSelect && permissions" style="width: 150px">
+                <div v-if="multiSelect && permissions" style="width: 150px" class="pr-1">
                   <select
                     v-model="department.permission"
                     @change="changePermission(department)"
@@ -566,7 +572,7 @@ function isItemDisabled(departmentId) {
   text-transform: capitalize;
   appearance: none;
   text-align: center;
-  border-radius: 0.3rem;
+  border-radius: 3rem;
   padding-left: 0.2rem;
   padding: 0.2rem;
   width: 100%;
