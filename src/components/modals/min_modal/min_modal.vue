@@ -68,7 +68,7 @@ const closeModal = () => {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(1px);
 }
 
 .modal_container {
@@ -93,15 +93,16 @@ const closeModal = () => {
 
 .modal_box {
   position: relative;
-  background: #111b21;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  @apply bg-base-300;
 }
 
 .modal_header {
   display: flex;
   justify-content: space-between;
-  padding: 10px;
+  padding: 8px;
+  align-items: center;
 }
 
 .modal_close {
@@ -113,6 +114,7 @@ const closeModal = () => {
   display: flex;
   align-items: center;
   justify-content: center;
+  @apply transition rounded-xl;
 }
 
 .modal_close_icon {
@@ -122,8 +124,7 @@ const closeModal = () => {
 }
 
 .modal_close:hover {
-  background: #e5e7eb;
-  border-radius: 8px;
+  background: #808285;
 }
 
 @keyframes modalani {

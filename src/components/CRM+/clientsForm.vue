@@ -742,8 +742,8 @@ const handlerToggleButtons = computed(() => {
 
 @media (max-width: 639px) {
   .right-column {
-    padding: 0.25rem 0.5rem 0.5rem;
-    border-radius: 0.75rem;
+    padding: 0.25rem 0.1rem 0.5rem;
+    border-radius: 0.9rem;
   }
 }
 

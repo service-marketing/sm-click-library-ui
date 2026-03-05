@@ -29,6 +29,7 @@ const walletRelations = ref([]);
 const walletLoading = ref(false);
 const walletError = ref("");
 const walletLoadedContactId = ref(null);
+const removingDepartmentIds = ref([]);
 
 /**
  * Extrai a lista de wallets do payload da API.
@@ -68,10 +69,10 @@ const walletItems = computed(() =>
   walletRelations.value.map((item, index) => {
     const attendantId = item?.attendant_id;
     const departmentId = item?.department_id;
-    
+
     const attendant = findAttendant(attendantId);
     const department = findDepartment(departmentId);
-    
+
     const attendantName = attendant?.name || "Atendente não encontrado";
     const departmentName = department?.name || "Departamento não encontrado";
     const attendantPhoto = attendant?.photo || null;
@@ -94,19 +95,23 @@ const walletItems = computed(() =>
  */
 const ensureStoresLoaded = async () => {
   const promises = [];
-  
+
   if (!attendantStore.loaded && attendantStore.attendants.length === 0) {
-    promises.push(attendantStore.fetchAttendants().then(() => {
-      attendantStore.loaded = true;
-    }));
+    promises.push(
+      attendantStore.fetchAttendants().then(() => {
+        attendantStore.loaded = true;
+      }),
+    );
   }
-  
+
   if (!departmentStore.loaded && departmentStore.departments.length === 0) {
-    promises.push(departmentStore.fetchDepartments().then(() => {
-      departmentStore.loaded = true;
-    }));
+    promises.push(
+      departmentStore.fetchDepartments().then(() => {
+        departmentStore.loaded = true;
+      }),
+    );
   }
-  
+
   if (promises.length > 0) {
     await Promise.all(promises);
   }
@@ -132,10 +137,10 @@ const fetchWalletRelations = async ({ force = false } = {}) => {
   try {
     walletLoading.value = true;
     walletError.value = "";
-    
+
     // Garante que as stores estejam carregadas antes de buscar as wallets
     await ensureStoresLoaded();
-    
+
     const { data } = await api.get(
       `/v1/api/contacts/contact/${contactId}/wallets/`,
     );
@@ -148,6 +153,69 @@ const fetchWalletRelations = async ({ force = false } = {}) => {
     console.error("Erro ao buscar carteira do contato:", error);
   } finally {
     walletLoading.value = false;
+  }
+};
+
+const isRemoving = (departmentId) =>
+  removingDepartmentIds.value.includes(departmentId);
+
+const setRemoving = (departmentId, active) => {
+  if (!departmentId) return;
+
+  if (active) {
+    if (!removingDepartmentIds.value.includes(departmentId)) {
+      removingDepartmentIds.value = [
+        ...removingDepartmentIds.value,
+        departmentId,
+      ];
+    }
+    return;
+  }
+
+  removingDepartmentIds.value = removingDepartmentIds.value.filter(
+    (currentId) => currentId !== departmentId,
+  );
+};
+
+const removeFromWallet = async (wallet) => {
+  const contactId = props.contactId;
+  const departmentId = wallet?.departmentId;
+
+  if (!contactId || !departmentId || isRemoving(departmentId)) return;
+
+  try {
+    setRemoving(departmentId, true);
+    walletError.value = "";
+
+    const url = `/v1/api/contacts/contact/${contactId}/wallets/`;
+    const payload = {
+      department_id: departmentId,
+      attendant_id: null,
+    };
+
+    try {
+      await api.post(url, payload);
+    } catch (requestError) {
+      walletError.value =
+        requestError?.response?.data?.message ||
+        "Não foi possível remover o responsável da carteira.";
+      console.error(
+        "Erro na requisição para remover da carteira:",
+        requestError,
+      );
+      return;
+    }
+
+    walletRelations.value = walletRelations.value.filter(
+      (item) => item?.department_id !== departmentId,
+    );
+  } catch (error) {
+    walletError.value =
+      error?.response?.data?.message ||
+      "Não foi possível remover o responsável da carteira.";
+    console.error("Erro ao remover relação da carteira:", error);
+  } finally {
+    setRemoving(departmentId, false);
   }
 };
 
@@ -210,7 +278,8 @@ watch(
           <div>
             <h3 class="wallet-title">Carteira do contato</h3>
             <p class="wallet-subtitle">
-              Relações de atendente e departamento vinculadas a este contato.
+              Atendentes responsáveis por este contato e seus respectivos
+              departamentos
             </p>
           </div>
         </div>
@@ -264,11 +333,7 @@ watch(
 
       <!-- Error state -->
       <div v-else-if="walletError" class="wallet-error-state">
-        <svg
-          class="wallet-error-icon"
-          fill="currentColor"
-          viewBox="0 0 20 20"
-        >
+        <svg class="wallet-error-icon" fill="currentColor" viewBox="0 0 20 20">
           <path
             fill-rule="evenodd"
             d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
@@ -310,6 +375,8 @@ watch(
           v-for="wallet in walletItems"
           :key="wallet.id"
           :wallet="wallet"
+          :is-removing="isRemoving(wallet.departmentId)"
+          @remove="removeFromWallet"
         />
       </div>
     </section>
@@ -326,12 +393,11 @@ watch(
 
 .wallet-box {
   height: 100%;
-  border-radius: 0.625rem;
-  border: 1px solid rgb(148 163 184 / 0.14);
-  padding: 0.75rem;
+  border-radius: 0.85rem;
+  padding: 0.45rem;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.8rem;
 }
 
 .wallet-header {
@@ -343,34 +409,38 @@ watch(
 
 .wallet-header__text {
   display: flex;
-  align-items: flex-start;
   gap: 0.65rem;
+  text-align: start;
 }
 
 .wallet-header__icon {
   width: 2rem;
   height: 2rem;
   border-radius: 0.5rem;
-  background: linear-gradient(135deg, rgb(14 116 144 / 0.2), rgb(8 145 178 / 0.1));
+  background: linear-gradient(
+    135deg,
+    rgb(14 116 144 / 0.2),
+    rgb(8 145 178 / 0.1)
+  );
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgb(34 211 238);
   flex-shrink: 0;
+  @apply text-primary;
 }
 
 .wallet-title {
-  font-size: 0.875rem;
+  font-size: 0.98rem;
   line-height: 1.25rem;
   font-weight: 700;
-  color: rgb(248 250 252);
+  text-align: start;
 }
 
 .wallet-subtitle {
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   line-height: 1rem;
-  color: rgb(148 163 184);
-  max-width: 18rem;
+  max-width: 23rem;
+  opacity: 0.75;
 }
 
 .wallet-refresh-btn {
@@ -381,16 +451,14 @@ watch(
   line-height: 1rem;
   font-weight: 600;
   border-radius: 0.5rem;
-  background: rgb(15 23 42 / 0.7);
-  border: 1px solid rgb(56 189 248 / 0.35);
-  color: rgb(125 211 252);
   padding: 0.4rem 0.65rem;
   transition: all 140ms ease;
+  @apply text-primary bg-base-300 dark:bg-sky-900/10;
 }
 
 .wallet-refresh-btn:hover:not(:disabled) {
   border-color: rgb(56 189 248 / 0.6);
-  color: rgb(186 230 253);
+  @apply text-current;
 }
 
 .wallet-refresh-btn:disabled {
@@ -402,8 +470,6 @@ watch(
 .wallet-empty-state,
 .wallet-error-state {
   border-radius: 0.6rem;
-  border: 1px dashed rgb(148 163 184 / 0.35);
-  background: rgb(15 23 42 / 0.5);
   min-height: 7rem;
   flex: 1;
   display: flex;
@@ -413,6 +479,7 @@ watch(
   gap: 0.55rem;
   padding: 0.75rem;
   text-align: center;
+  @apply bg-base-300;
 }
 
 .wallet-empty-icon {
@@ -478,11 +545,43 @@ watch(
 .wallet-list {
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: 0.25rem;
   overflow-y: auto;
   min-height: 0;
   flex: 1;
   padding-right: 0.15rem;
+}
+
+.wallet-highlight {
+  border-radius: 0.65rem;
+  border: 1px solid rgb(56 189 248 / 0.35);
+  background: linear-gradient(
+    135deg,
+    rgb(8 47 73 / 0.5),
+    rgb(14 116 144 / 0.12)
+  );
+  padding: 0.65rem 0.7rem;
+}
+
+.wallet-highlight__title {
+  font-size: 0.74rem;
+  line-height: 1rem;
+  font-weight: 700;
+  color: rgb(125 211 252);
+  margin-bottom: 0.15rem;
+}
+
+.wallet-highlight__text {
+  font-size: 0.7rem;
+  line-height: 1rem;
+  color: rgb(191 219 254);
+}
+
+.wallet-highlight__text code {
+  color: rgb(224 242 254);
+  background: rgb(2 6 23 / 0.3);
+  border-radius: 0.3rem;
+  padding: 0 0.22rem;
 }
 
 .wallet-list::-webkit-scrollbar {

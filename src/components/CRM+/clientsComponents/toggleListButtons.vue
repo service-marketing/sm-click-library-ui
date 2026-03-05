@@ -67,15 +67,12 @@ const props = defineProps({
   font-size: 0.8125rem;
   line-height: 1.125rem;
   font-weight: 600;
-  font-family:
-    ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
-    "Segoe UI Symbol", "Noto Color Emoji";
   transition-property:
     color, background-color, border-color, text-decoration-color, fill, stroke,
     opacity, box-shadow, transform, filter, backdrop-filter;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
-  @apply rounded-md bg-base-200;
+  @apply rounded-md sm:bg-base-200 bg-base-300;
 }
 
 .toggle-page-button:hover {

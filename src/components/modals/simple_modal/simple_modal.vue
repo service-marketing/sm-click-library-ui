@@ -105,7 +105,7 @@ const toggleModal = () => {
 <style scoped>
 /* simple_modal CSS  */
 .modal_head {
-  @apply my_modal backdrop-blur-[2px] z-50 fixed w-full h-full top-0 left-0 flex items-center justify-center;
+  @apply my_modal backdrop-blur-[1px] z-50 fixed w-full h-full top-0 left-0 flex items-center justify-center;
 }
 
 .my_modal {
