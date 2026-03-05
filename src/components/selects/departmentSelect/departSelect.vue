@@ -324,10 +324,7 @@ function isItemDisabled(departmentId) {
           </svg>
         </button>
 
-        <div
-          v-show="open_select"
-          class="dropdown-menu bg-base-300"
-        >
+        <div v-show="open_select" class="dropdown-menu bg-base-300">
           <div v-if="showSearch" class="dropdown-search-wrapper">
             <input
               v-model="searchInput"
@@ -506,10 +503,7 @@ function isItemDisabled(departmentId) {
           :style="{ maxHeight: maxHeight }"
         >
           <div class="department-list">
-            <div
-              class="grid-container"
-              :style="gridStyle"
-            >
+            <div class="grid-container" :style="gridStyle">
               <div
                 v-if="departmentStore.loaded"
                 v-for="department in filteredDepartments"
@@ -531,7 +525,11 @@ function isItemDisabled(departmentId) {
                 >
                   {{ disabledReason }}
                 </span>
-                <div v-if="multiSelect && permissions" style="width: 150px" class="pr-1">
+                <div
+                  v-if="multiSelect && permissions"
+                  style="width: 150px"
+                  class="pr-1"
+                >
                   <select
                     v-model="department.permission"
                     @change="changePermission(department)"

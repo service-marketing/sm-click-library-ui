@@ -516,10 +516,7 @@ function isItemDisabled(attendantId) {
           :style="{ maxHeight: maxHeight }"
         >
           <div class="department-list">
-            <div
-              class="grid-container"
-              :style="gridStyle"
-            >
+            <div class="grid-container" :style="gridStyle">
               <div
                 v-if="attendantStore.loaded"
                 v-for="attendant in filteredAttendants"
