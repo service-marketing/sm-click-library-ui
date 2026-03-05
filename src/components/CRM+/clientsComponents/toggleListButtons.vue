@@ -53,7 +53,7 @@ const props = defineProps({
 <style scoped>
 .toggle-page-buttons-wrapper {
   display: flex;
-  gap: 0.35rem;
+  gap: 0.15rem;
   padding: 0;
 }
 
