@@ -119,6 +119,7 @@ const selectedDepartmentId = computed(() => {
   return enabledDepartmentsFilter.value[0]?.id ?? null;
 });
 const isSupervisor = computed(() => {
+  if (isManagerFlow.value) return true;
   if (!selectedDepartmentId.value) return false;
 
   const department = findDepartmentById(selectedDepartmentId.value);
