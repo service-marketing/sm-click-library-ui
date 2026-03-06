@@ -527,7 +527,7 @@ function isItemDisabled(departmentId) {
                 </span>
                 <div
                   v-if="multiSelect && permissions"
-                  style="width: 150px"
+                  style="width: 90px"
                   class="pr-1"
                 >
                   <select
