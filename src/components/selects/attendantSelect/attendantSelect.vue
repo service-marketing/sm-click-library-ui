@@ -610,7 +610,6 @@ function isItemDisabled(attendantId) {
   word-break: break-word;
   margin-left: auto;
   font-weight: 500;
-  flex: 0 1 9rem;
   text-align: right;
 }
 

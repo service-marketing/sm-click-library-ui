@@ -600,7 +600,6 @@ function isItemDisabled(departmentId) {
   word-break: break-word;
   margin-left: auto;
   font-weight: 500;
-  flex: 0 1 9rem;
   text-align: right;
 }
 
@@ -624,7 +623,6 @@ function isItemDisabled(departmentId) {
   overflow-wrap: anywhere;
   word-break: break-word;
   font-weight: 500;
-  flex: 0 1 9rem;
   text-align: right;
 }
 </style>

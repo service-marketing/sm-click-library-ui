@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, ref, watch } from "vue";
 import api from "../../../../utils/api.js";
+import { contactWalletUrl } from "../../../../utils/systemUrls.js";
 import { useAttendantStore } from "../../../../stores/attendantStore.js";
 import { useDepartmentStore } from "../../../../stores/departmentStore.js";
 import WalletCreateModal from "./walletCreateModal.vue";
@@ -34,26 +35,21 @@ const walletError = ref("");
 const walletLoadedContactId = ref(null);
 const removingDepartmentIds = ref([]);
 const createWalletModalOpen = ref(false);
-const loggedAttendantId = computed(
-  () => attendantStore.logged_attendant?.()?.id ?? null,
+const loggedAttendant = computed(
+  () => attendantStore.logged_attendant?.() || null,
 );
-const findDepartmentById = (departmentId) => {
-  if (!departmentId) return null;
-
-  return (
-    departmentStore.departments.find(
-      (item) => String(item?.id) === String(departmentId),
-    ) || null
-  );
-};
+const loggedAttendantId = computed(() => loggedAttendant.value?.id ?? null);
+const loggedAttendantDepartments = computed(() =>
+  Array.isArray(loggedAttendant.value?.department)
+    ? loggedAttendant.value.department
+    : [],
+);
 const findDepartmentMembership = (departmentId) => {
   if (!departmentId || !loggedAttendantId.value) return null;
 
-  const department = findDepartmentById(departmentId);
-
   return (
-    department?.attendants?.find(
-      (item) => String(item?.attendant?.id) === String(loggedAttendantId.value),
+    loggedAttendantDepartments.value.find(
+      (item) => String(item?.id) === String(departmentId),
     ) || null
   );
 };
@@ -61,13 +57,8 @@ const hasDepartmentMembership = (departmentId) =>
   Boolean(findDepartmentMembership(departmentId));
 const isDepartmentSupervisor = (departmentId) =>
   findDepartmentMembership(departmentId)?.permission === "supervisor";
-const canManageDepartmentWallet = (departmentId) => {
-  const department = findDepartmentById(departmentId);
-
-  if (!Array.isArray(department?.attendants)) return props.supervisor;
-
-  return isDepartmentSupervisor(departmentId);
-};
+const canManageDepartmentWallet = (departmentId) =>
+  isDepartmentSupervisor(departmentId);
 
 /**
  * Extrai a lista de wallets do payload da API.
@@ -187,9 +178,7 @@ const fetchWalletRelations = async ({ force = false } = {}) => {
     // Garante que as stores estejam carregadas antes de buscar as wallets
     await ensureStoresLoaded();
 
-    const { data } = await api.get(
-      `/v1/api/contacts/contact/${contactId}/wallets/`,
-    );
+    const { data } = await api.get(contactWalletUrl(contactId));
     walletRelations.value = extractWalletList(data);
     walletLoadedContactId.value = contactId;
   } catch (error) {
@@ -278,7 +267,7 @@ const removeFromWallet = async (wallet) => {
     setRemoving(departmentId, true);
     walletError.value = "";
 
-    const url = `/v1/api/contacts/contact/${contactId}/wallets/`;
+    const url = contactWalletUrl(contactId);
     const payload = {
       department_id: departmentId,
       attendant_id: null,
@@ -512,7 +501,11 @@ watch(
       :contact-id="props.contactId"
       :existing-wallets="walletRelations"
       :current-attendance="props.currentAttendance"
-      :supervisor="props.supervisor"
+      :attendants="attendantStore.attendants"
+      :logged-attendant="loggedAttendant"
+      :logged-attendant-id="loggedAttendantId"
+      :has-department-membership="hasDepartmentMembership"
+      :is-department-supervisor="isDepartmentSupervisor"
       @saved="addWalletRelation"
     />
   </div>

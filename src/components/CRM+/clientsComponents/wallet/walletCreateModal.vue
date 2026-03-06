@@ -2,8 +2,7 @@
 import { computed, ref, watch } from "vue";
 import { notify } from "notiwind";
 import api from "~/utils/api.js";
-import { contact_url } from "~/utils/systemUrls.js";
-import { useAttendantStore } from "~/stores/attendantStore.js";
+import { contactWalletUrl } from "~/utils/systemUrls.js";
 import { useDepartmentStore } from "~/stores/departmentStore.js";
 
 const props = defineProps({
@@ -23,15 +22,30 @@ const props = defineProps({
     type: Object,
     default: () => null,
   },
-  supervisor: {
-    type: Boolean,
-    default: false,
+  attendants: {
+    type: Array,
+    default: () => [],
+  },
+  loggedAttendant: {
+    type: Object,
+    default: () => null,
+  },
+  loggedAttendantId: {
+    type: [String, Number],
+    default: null,
+  },
+  hasDepartmentMembership: {
+    type: Function,
+    default: () => false,
+  },
+  isDepartmentSupervisor: {
+    type: Function,
+    default: () => false,
   },
 });
 
 const emit = defineEmits(["update:isOpen", "saved"]);
 
-const attendantStore = useAttendantStore();
 const departmentStore = useDepartmentStore();
 
 const submitLoading = ref(false);
@@ -59,12 +73,8 @@ const lockedAttendantName = computed(
 );
 const hasLockedDepartment = computed(() => Boolean(lockedDepartmentId.value));
 const isManagerFlow = computed(() => !props.currentAttendance);
-const loggedAttendant = computed(
-  () => attendantStore.logged_attendant?.() || null,
-);
-const loggedAttendantId = computed(() => loggedAttendant.value?.id ?? null);
 const loggedAttendantName = computed(
-  () => loggedAttendant.value?.name || "Atendente não encontrado",
+  () => props.loggedAttendant?.name || "Atendente não encontrado",
 );
 
 const departmentsWithoutWallets = computed(() =>
@@ -90,43 +100,14 @@ const lockedDepartment = computed(() => {
 const lockedDepartmentHasWalletsEnabled = computed(
   () => lockedDepartment.value?.wallets_enabled === true,
 );
-const findDepartmentById = (departmentId) => {
-  if (!departmentId) return null;
-
-  return (
-    departmentStore.departments.find(
-      (item) => String(item?.id) === String(departmentId),
-    ) || null
-  );
-};
-const findDepartmentMembership = (departmentId) => {
-  if (!departmentId || !loggedAttendantId.value) return null;
-
-  const department = findDepartmentById(departmentId);
-
-  return (
-    department?.attendants?.find(
-      (item) => String(item?.attendant?.id) === String(loggedAttendantId.value),
-    ) || null
-  );
-};
-const hasDepartmentMembership = (departmentId) =>
-  Boolean(findDepartmentMembership(departmentId));
-const isDepartmentSupervisor = (departmentId) =>
-  findDepartmentMembership(departmentId)?.permission === "supervisor";
 const selectedDepartmentId = computed(() => {
   if (hasLockedDepartment.value) return lockedDepartmentId.value;
   return enabledDepartmentsFilter.value[0]?.id ?? null;
 });
 const isSupervisor = computed(() => {
   if (isManagerFlow.value) return true;
-  if (!selectedDepartmentId.value) return false;
 
-  const department = findDepartmentById(selectedDepartmentId.value);
-
-  if (!Array.isArray(department?.attendants)) return props.supervisor;
-
-  return isDepartmentSupervisor(selectedDepartmentId.value);
+  return props.isDepartmentSupervisor(selectedDepartmentId.value);
 });
 const departmentWallets = computed(() => {
   const deptId = selectedDepartmentId.value;
@@ -149,14 +130,14 @@ const disabledAttendants = computed(() => {
   });
 
   if (!isSupervisor.value) {
-    attendantStore.attendants.forEach((attendant) => {
-      if (String(attendant.id) !== String(loggedAttendantId.value)) {
+    props.attendants.forEach((attendant) => {
+      if (String(attendant.id) !== String(props.loggedAttendantId)) {
         disabledIds.add(String(attendant.id));
       }
     });
 
-    if (departmentAlreadyLinked.value && loggedAttendantId.value != null) {
-      disabledIds.add(String(loggedAttendantId.value));
+    if (departmentAlreadyLinked.value && props.loggedAttendantId != null) {
+      disabledIds.add(String(props.loggedAttendantId));
     }
   }
 
@@ -168,13 +149,13 @@ const attendantSelectDisabled = computed(
 const effectiveAttendant = computed(() =>
   isSupervisor.value
     ? (selectedAttendants.value[0] ?? null)
-    : loggedAttendant.value,
+    : props.loggedAttendant,
 );
 const selectedAttendantId = computed(
   () => effectiveAttendant.value?.id ?? null,
 );
 const isLoggedAttendantSelected = computed(
-  () => String(selectedAttendantId.value) === String(loggedAttendantId.value),
+  () => String(selectedAttendantId.value) === String(props.loggedAttendantId),
 );
 const roleRestrictionMessage = computed(() => {
   if (isSupervisor.value) {
@@ -182,7 +163,7 @@ const roleRestrictionMessage = computed(() => {
   }
   if (
     selectedDepartmentId.value &&
-    !hasDepartmentMembership(selectedDepartmentId.value)
+    !props.hasDepartmentMembership(selectedDepartmentId.value)
   ) {
     return "Você não pertence ao departamento selecionado, então não pode criar carteira nele.";
   }
@@ -215,9 +196,9 @@ const canSubmit = computed(() => {
   const departmentId = selectedDepartmentId.value;
 
   if (!isSupervisor.value) {
-    if (!loggedAttendantId.value) return false;
+    if (!props.loggedAttendantId) return false;
     if (!isLoggedAttendantSelected.value) return false;
-    if (!hasDepartmentMembership(departmentId)) return false;
+    if (!props.hasDepartmentMembership(departmentId)) return false;
     if (departmentAlreadyLinked.value) return false;
   }
 
@@ -244,8 +225,8 @@ const syncLockedDepartmentSelection = () => {
 const syncLoggedAttendantSelection = () => {
   if (isSupervisor.value) return;
 
-  selectedAttendants.value = loggedAttendant.value
-    ? [loggedAttendant.value]
+  selectedAttendants.value = props.loggedAttendant
+    ? [props.loggedAttendant]
     : [];
 };
 
@@ -273,7 +254,7 @@ const createWalletRelation = async () => {
 
   const attendantId = effectiveAttendant.value?.id;
   const departmentId = selectedDepartmentId.value;
-  const walletUrl = `${contact_url}${props.contactId}/wallets/`;
+  const walletUrl = contactWalletUrl(props.contactId);
 
   try {
     submitLoading.value = true;
@@ -335,7 +316,7 @@ watch(
 );
 
 watch(
-  () => [isSupervisor.value, loggedAttendantId.value],
+  () => [isSupervisor.value, props.loggedAttendantId, props.loggedAttendant],
   () => {
     syncLoggedAttendantSelection();
   },
