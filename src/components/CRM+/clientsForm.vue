@@ -314,7 +314,10 @@ const toggleButtons = [
   {
     label: "Carteira",
     value: "wallet",
-    disabled: !form.id,
+    disabled:
+      !form.id ||
+      props.form.status === "screening" ||
+      props.form.status === "finished",
   },
 ];
 
