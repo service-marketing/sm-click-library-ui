@@ -109,7 +109,9 @@
   gap: 0.5rem;
   padding: 0.45rem;
   width: 100%;
+  min-width: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   max-height: 5.5rem;
   scrollbar-width: thin;
   scrollbar-color: var(--primary-color-light, rgba(20, 184, 166, 0.3))
@@ -137,7 +139,7 @@
 
 .selection-item {
   display: inline-flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.5rem;
   background: linear-gradient(
     135deg,
@@ -152,6 +154,14 @@
   box-shadow: 0 2px 4px rgba(20, 184, 166, 0.25);
   transition: all 0.2s ease;
   animation: badge-appear 0.2s ease;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.selection-item-label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 @keyframes badge-appear {
@@ -179,6 +189,7 @@
   padding: 0.125rem;
   transition: all 0.15s ease;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .close-btn:hover {
@@ -286,11 +297,13 @@
   width: 100%;
   align-items: center;
   display: flex;
+  gap: 0.5rem;
   border-radius: calc(var(--border-radius, 0.75rem) * 0.6);
   transition: all 0.15s ease;
   position: relative;
   overflow: hidden;
   animation: item-appear 0.3s ease backwards;
+  min-width: 0;
 }
 
 .department-item:nth-child(1) {
@@ -351,6 +364,12 @@
   font-size: 0.9375rem;
   transition: all 0.15s ease;
   height: auto;
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
+  line-height: 1.35;
   @apply text-left;
 }
 
@@ -503,6 +522,7 @@
 
 .dropdown-trigger-text {
   flex: 1;
+  min-width: 0;
   text-align: left;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -551,6 +571,7 @@
 
 .dropdown-options {
   overflow-y: auto;
+  overflow-x: hidden;
   scrollbar-width: thin;
   scrollbar-color: var(--primary-color-light, rgba(20, 184, 166, 0.3))
     transparent;
@@ -582,6 +603,18 @@
   font-size: 0.9rem;
   transition: background-color 0.1s ease;
   font-weight: 300;
+  width: 100%;
+  min-width: 0;
+}
+
+.dropdown-option-label {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
+  line-height: 1.35;
+  @apply text-left;
 }
 
 .dropdown-option:hover {

@@ -76,6 +76,14 @@ const props = defineProps({
     type: String,
     default: "",
   },
+  currentAttendance: {
+    type: Object,
+    default: () => null,
+  },
+  supervisor: {
+    type: Boolean,
+    default: false,
+  },
   // --- Exibe acao de mesclagem no formulario ---
   canMergeContacts: {
     type: Boolean,
@@ -558,8 +566,11 @@ const handlerToggleButtons = computed(() => {
                     :handlerToggleButtons="handlerToggleButtons"
                     :allProducts="allProducts"
                     :departmentBypass="departmentBypass"
+                    :currentAttendance="currentAttendance"
+                    :supervisor="props.supervisor"
                     :isLargeScreen="isLargeScreen"
                     :contactId="form.id"
+                    :contact="form"
                     v-model:pageState="pageState"
                     v-model:telephone="form.telephone"
                     v-model:country="form.country"
@@ -578,8 +589,11 @@ const handlerToggleButtons = computed(() => {
                   :handlerToggleButtons="handlerToggleButtons"
                   :allProducts="allProducts"
                   :departmentBypass="departmentBypass"
+                  :currentAttendance="currentAttendance"
+                  :supervisor="props.supervisor"
                   :isLargeScreen="isLargeScreen"
                   :contactId="form.id"
+                  :contact="form"
                   v-model:pageState="pageState"
                   v-model:telephone="form.telephone"
                   v-model:country="form.country"

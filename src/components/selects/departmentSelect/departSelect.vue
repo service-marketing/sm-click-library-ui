@@ -354,7 +354,7 @@ function isItemDisabled(departmentId) {
                 }"
                 class="dropdown-option"
               >
-                <span>{{ department.name }}</span>
+                <span class="dropdown-option-label">{{ department.name }}</span>
                 <span
                   class="dropdown-option-check ml-auto"
                   v-if="department.selected"
@@ -473,7 +473,7 @@ function isItemDisabled(departmentId) {
             :key="depart.id"
             class="selection-item"
           >
-            {{ depart.name }}
+            <span class="selection-item-label">{{ depart.name }}</span>
             <button @click="eraseDepartment(depart, index)" class="close-btn">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -512,7 +512,7 @@ function isItemDisabled(departmentId) {
                   selected: department.selected,
                   'is-disabled': isItemDisabled(department.id),
                 }"
-                class="department-item line-clamp-1 bg-slate-500/20 hover:bg-teal-600"
+                class="department-item bg-slate-500/20 hover:bg-teal-600"
               >
                 <span
                   @click="selectDepartment(department)"
@@ -595,10 +595,13 @@ function isItemDisabled(departmentId) {
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
   background: rgba(148, 163, 184, 0.15);
-  color: rgb(148 163 184);
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
   margin-left: auto;
   font-weight: 500;
+  flex: 0 1 9rem;
+  text-align: right;
 }
 
 .department-item.is-disabled {
@@ -617,7 +620,11 @@ function isItemDisabled(departmentId) {
   border-radius: 0.25rem;
   background: rgba(148, 163, 184, 0.15);
   color: rgb(148 163 184);
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
   font-weight: 500;
+  flex: 0 1 9rem;
+  text-align: right;
 }
 </style>

@@ -373,7 +373,7 @@ function isItemDisabled(attendantId) {
                     size="size-5"
                   />
                 </template>
-                <span>{{ attendant.name }}</span>
+                <span class="dropdown-option-label">{{ attendant.name }}</span>
                 <span
                   class="dropdown-option-check ml-auto"
                   v-if="attendant.selected"
@@ -486,7 +486,7 @@ function isItemDisabled(attendantId) {
             :key="attendant.id"
             class="selection-item"
           >
-            {{ attendant.name }}
+            <span class="selection-item-label">{{ attendant.name }}</span>
             <button @click="eraseAttendant(attendant, index)" class="close-btn">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -521,11 +521,12 @@ function isItemDisabled(attendantId) {
                 v-if="attendantStore.loaded"
                 v-for="attendant in filteredAttendants"
                 :key="attendant.id"
+                @click="selectAttendant(attendant)"
                 :class="{
                   selected: attendant.selected,
                   'is-disabled': isItemDisabled(attendant.id),
                 }"
-                class="department-item line-clamp-1 bg-slate-500/20 hover:bg-teal-600"
+                class="department-item bg-slate-500/20 hover:bg-teal-600"
               >
                 <div v-if="showAvatar" style="padding-left: 5px">
                   <PhotoDisplay
@@ -534,11 +535,9 @@ function isItemDisabled(attendantId) {
                     size="size-5"
                   />
                 </div>
-                <span
-                  @click="selectAttendant(attendant)"
-                  class="department-name h-full w-full"
-                  >{{ attendant.name }}</span
-                >
+                <span class="department-name h-full w-full">
+                  {{ attendant.name }}
+                </span>
                 <span
                   v-if="isItemDisabled(attendant.id)"
                   class="disabled-badge-expanded"
@@ -606,10 +605,13 @@ function isItemDisabled(attendantId) {
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
   background: rgba(148, 163, 184, 0.15);
-  color: rgb(148 163 184);
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
   margin-left: auto;
   font-weight: 500;
+  flex: 0 1 9rem;
+  text-align: right;
 }
 
 .department-item.is-disabled {
@@ -628,7 +630,11 @@ function isItemDisabled(attendantId) {
   border-radius: 0.25rem;
   background: rgba(148, 163, 184, 0.15);
   color: rgb(148 163 184);
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
   font-weight: 500;
+  flex: 0 1 9rem;
+  text-align: right;
 }
 </style>

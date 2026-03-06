@@ -3,12 +3,21 @@ import { computed, onMounted, ref, watch } from "vue";
 import api from "../../../../utils/api.js";
 import { useAttendantStore } from "../../../../stores/attendantStore.js";
 import { useDepartmentStore } from "../../../../stores/departmentStore.js";
+import WalletCreateModal from "./walletCreateModal.vue";
 import WalletCard from "./walletCard.vue";
 
 const props = defineProps({
   contactId: {
     type: [String, Number],
     default: "",
+  },
+  currentAttendance: {
+    type: Object,
+    default: () => null,
+  },
+  supervisor: {
+    type: Boolean,
+    default: false,
   },
   pageState: {
     type: String,
@@ -24,6 +33,41 @@ const walletLoading = ref(false);
 const walletError = ref("");
 const walletLoadedContactId = ref(null);
 const removingDepartmentIds = ref([]);
+const createWalletModalOpen = ref(false);
+const loggedAttendantId = computed(
+  () => attendantStore.logged_attendant?.()?.id ?? null,
+);
+const findDepartmentById = (departmentId) => {
+  if (!departmentId) return null;
+
+  return (
+    departmentStore.departments.find(
+      (item) => String(item?.id) === String(departmentId),
+    ) || null
+  );
+};
+const findDepartmentMembership = (departmentId) => {
+  if (!departmentId || !loggedAttendantId.value) return null;
+
+  const department = findDepartmentById(departmentId);
+
+  return (
+    department?.attendants?.find(
+      (item) => String(item?.attendant?.id) === String(loggedAttendantId.value),
+    ) || null
+  );
+};
+const hasDepartmentMembership = (departmentId) =>
+  Boolean(findDepartmentMembership(departmentId));
+const isDepartmentSupervisor = (departmentId) =>
+  findDepartmentMembership(departmentId)?.permission === "supervisor";
+const canManageDepartmentWallet = (departmentId) => {
+  const department = findDepartmentById(departmentId);
+
+  if (!Array.isArray(department?.attendants)) return props.supervisor;
+
+  return isDepartmentSupervisor(departmentId);
+};
 
 /**
  * Extrai a lista de wallets do payload da API.
@@ -48,7 +92,9 @@ const buildWalletId = (item, index) => {
  */
 const findAttendant = (attendantId) => {
   if (!attendantId) return null;
-  return attendantStore.attendants.find((a) => a.id === attendantId);
+  return attendantStore.attendants.find(
+    (a) => String(a.id) === String(attendantId),
+  );
 };
 
 /**
@@ -56,7 +102,9 @@ const findAttendant = (attendantId) => {
  */
 const findDepartment = (departmentId) => {
   if (!departmentId) return null;
-  return departmentStore.departments.find((d) => d.id === departmentId);
+  return departmentStore.departments.find(
+    (d) => String(d.id) === String(departmentId),
+  );
 };
 
 const walletItems = computed(() =>
@@ -80,6 +128,10 @@ const walletItems = computed(() =>
       attendantPhoto,
       departmentName,
       updatedAt,
+      canRemove:
+        canManageDepartmentWallet(departmentId) ||
+        (hasDepartmentMembership(departmentId) &&
+          String(attendantId) === String(loggedAttendantId.value)),
     };
   }),
 );
@@ -171,11 +223,56 @@ const setRemoving = (departmentId, active) => {
   );
 };
 
+const closeCreateWalletModal = () => {
+  createWalletModalOpen.value = false;
+};
+
+const openCreateWalletModal = () => {
+  createWalletModalOpen.value = true;
+};
+
+const addWalletRelation = (wallet) => {
+  const attendantId = wallet?.attendant_id;
+  const departmentId = wallet?.department_id;
+
+  if (!attendantId || !departmentId) return;
+
+  const walletIndex = walletRelations.value.findIndex(
+    (item) => item?.department_id === departmentId,
+  );
+
+  if (walletIndex >= 0) {
+    walletRelations.value = walletRelations.value.map((item, index) =>
+      index === walletIndex
+        ? {
+            ...item,
+            attendant_id: attendantId,
+            department_id: departmentId,
+          }
+        : item,
+    );
+    return;
+  }
+
+  walletRelations.value = [
+    ...walletRelations.value,
+    {
+      attendant_id: attendantId,
+      department_id: departmentId,
+    },
+  ];
+};
+
 const removeFromWallet = async (wallet) => {
   const contactId = props.contactId;
   const departmentId = wallet?.departmentId;
+  const canRemove =
+    canManageDepartmentWallet(departmentId) ||
+    (hasDepartmentMembership(departmentId) &&
+      String(wallet?.attendantId) === String(loggedAttendantId.value));
 
-  if (!contactId || !departmentId || isRemoving(departmentId)) return;
+  if (!contactId || !departmentId || isRemoving(departmentId) || !canRemove)
+    return;
 
   try {
     setRemoving(departmentId, true);
@@ -225,6 +322,7 @@ watch(
     walletRelations.value = [];
     walletError.value = "";
     walletLoadedContactId.value = null;
+    closeCreateWalletModal();
     if (props.pageState === "wallet" && newId) {
       fetchWalletRelations();
     }
@@ -232,9 +330,19 @@ watch(
 );
 
 watch(
+  () => props.pageState,
+  async (pageState) => {
+    if (pageState !== "wallet") return;
+    await ensureStoresLoaded();
+  },
+  { immediate: true },
+);
+
+watch(
   () => [props.pageState, props.contactId],
-  ([newPageState, contactId]) => {
+  async ([newPageState, contactId]) => {
     if (newPageState !== "wallet") return;
+    await ensureStoresLoaded();
     if (!contactId) return;
     fetchWalletRelations();
   },
@@ -277,26 +385,49 @@ watch(
             </p>
           </div>
         </div>
-        <button
-          class="wallet-refresh-btn"
-          :disabled="walletLoading || !props.contactId"
-          @click="fetchWalletRelations({ force: true })"
-        >
-          <svg
-            class="size-3.5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2"
+        <div class="wallet-header__actions">
+          <button
+            class="wallet-add-btn"
+            :disabled="!props.contactId || walletLoading"
+            @click="openCreateWalletModal"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-            />
-          </svg>
-          <span>Atualizar</span>
-        </button>
+            <svg
+              class="size-3.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 4.5v15m7.5-7.5h-15"
+              />
+            </svg>
+            <span>Adicionar</span>
+          </button>
+
+          <button
+            class="wallet-refresh-btn"
+            :disabled="walletLoading || !props.contactId"
+            @click="fetchWalletRelations({ force: true })"
+          >
+            <svg
+              class="size-3.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
+            </svg>
+            <span>Atualizar</span>
+          </button>
+        </div>
       </header>
 
       <!-- Empty state: No contact ID -->
@@ -315,7 +446,7 @@ watch(
           />
         </svg>
         <p class="wallet-empty-text">
-          Salve o contato para visualizar as relações de carteira.
+          Salve o contato para visualizar e editar a carteira.
         </p>
       </div>
 
@@ -370,10 +501,20 @@ watch(
           :key="wallet.id"
           :wallet="wallet"
           :is-removing="isRemoving(wallet.departmentId)"
+          :can-remove="wallet.canRemove"
           @remove="removeFromWallet"
         />
       </div>
     </section>
+
+    <WalletCreateModal
+      v-model:isOpen="createWalletModalOpen"
+      :contact-id="props.contactId"
+      :existing-wallets="walletRelations"
+      :current-attendance="props.currentAttendance"
+      :supervisor="props.supervisor"
+      @saved="addWalletRelation"
+    />
   </div>
 </template>
 
@@ -398,16 +539,18 @@ watch(
   display: flex;
   justify-content: space-between;
   gap: 0.75rem;
-  align-items: flex-start;
+  align-items: center;
 }
 
 .wallet-header__text {
   display: flex;
   gap: 0.65rem;
   text-align: start;
+  align-items: center;
 }
 
-.wallet-header__icon {
+.wallet-header__icon,
+.wallet-modal-header-icon {
   width: 2rem;
   height: 2rem;
   border-radius: 0.5rem;
@@ -421,6 +564,13 @@ watch(
   justify-content: center;
   flex-shrink: 0;
   color: var(--primary);
+}
+
+.wallet-header__actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .wallet-title {
@@ -437,9 +587,12 @@ watch(
   opacity: 0.75;
 }
 
-.wallet-refresh-btn {
+.wallet-add-btn,
+.wallet-refresh-btn,
+.wallet-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.35rem;
   font-size: 0.75rem;
   line-height: 1rem;
@@ -447,15 +600,34 @@ watch(
   border-radius: 0.5rem;
   padding: 0.4rem 0.65rem;
   transition: all 140ms ease;
+}
+
+.wallet-add-btn,
+.wallet-refresh-btn {
   @apply bg-base-300 dark:bg-sky-900/10;
+}
+
+.wallet-add-btn:hover:not(:disabled),
+.wallet-refresh-btn:hover:not(:disabled) {
+  @apply text-current bg-base-100;
+}
+
+.wallet-add-btn {
+  color: var(--primary);
+}
+
+.wallet-add-btn:hover:not(:disabled) {
+  border-color: rgb(34 197 94 / 0.5);
+  @apply dark:text-green-500;
 }
 
 .wallet-refresh-btn:hover:not(:disabled) {
   border-color: rgb(56 189 248 / 0.6);
-  @apply text-current bg-base-100;
 }
 
-.wallet-refresh-btn:disabled {
+.wallet-add-btn:disabled,
+.wallet-refresh-btn:disabled,
+.wallet-btn:disabled {
   opacity: 0.55;
   cursor: not-allowed;
 }
@@ -483,7 +655,8 @@ watch(
 }
 
 .wallet-empty-text,
-.wallet-loading-text {
+.wallet-loading-text,
+.wallet-error-text {
   font-size: 0.75rem;
   line-height: 1rem;
   color: rgb(148 163 184);
@@ -497,6 +670,11 @@ watch(
   border-top-color: rgb(14 116 144);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
+}
+
+.wallet-spinner--sm {
+  width: 1rem;
+  height: 1rem;
 }
 
 @keyframes spin {
@@ -513,12 +691,6 @@ watch(
   width: 2rem;
   height: 2rem;
   color: rgb(248 113 113);
-}
-
-.wallet-error-text {
-  font-size: 0.75rem;
-  line-height: 1rem;
-  color: rgb(254 202 202);
 }
 
 .wallet-retry-btn {
@@ -546,36 +718,84 @@ watch(
   padding-right: 0.15rem;
 }
 
-.wallet-highlight {
-  border-radius: 0.65rem;
-  border: 1px solid rgb(56 189 248 / 0.35);
-  background: linear-gradient(
-    135deg,
-    rgb(8 47 73 / 0.5),
-    rgb(14 116 144 / 0.12)
-  );
-  padding: 0.65rem 0.7rem;
+.wallet-modal-header-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-.wallet-highlight__title {
-  font-size: 0.74rem;
-  line-height: 1rem;
+.wallet-modal-title {
+  font-size: 1rem;
+  line-height: 1.25rem;
   font-weight: 700;
-  color: rgb(125 211 252);
-  margin-bottom: 0.15rem;
 }
 
-.wallet-highlight__text {
-  font-size: 0.7rem;
+.wallet-modal-subtitle {
+  font-size: 0.78rem;
   line-height: 1rem;
-  color: rgb(191 219 254);
+  opacity: 0.75;
 }
 
-.wallet-highlight__text code {
-  color: rgb(224 242 254);
-  background: rgb(2 6 23 / 0.3);
-  border-radius: 0.3rem;
-  padding: 0 0.22rem;
+.wallet-modal-body {
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.wallet-select-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.wallet-select-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: start;
+}
+
+.wallet-loading-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  opacity: 0.8;
+}
+
+.wallet-warning {
+  border-radius: 0.6rem;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.78rem;
+  line-height: 1.1rem;
+  text-align: start;
+  color: rgb(234 179 8);
+  background: rgb(234 179 8 / 0.08);
+  border: 1px solid rgb(234 179 8 / 0.2);
+}
+
+.wallet-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  padding: 0 0.75rem 0.75rem;
+}
+
+.wallet-btn-secondary {
+  @apply bg-base-300 text-current;
+}
+
+.wallet-btn-secondary:hover:not(:disabled) {
+  @apply bg-base-100;
+}
+
+.wallet-btn-primary {
+  color: white;
+  background: linear-gradient(135deg, rgb(14 116 144), rgb(8 145 178));
+}
+
+.wallet-btn-primary:hover:not(:disabled) {
+  filter: brightness(1.05);
 }
 
 .wallet-list::-webkit-scrollbar {
@@ -589,5 +809,22 @@ watch(
 
 .wallet-list::-webkit-scrollbar-track {
   background: transparent;
+}
+
+@media (max-width: 768px) {
+  .wallet-header {
+    flex-direction: column;
+  }
+
+  .wallet-header__actions,
+  .wallet-modal-footer {
+    width: 100%;
+  }
+
+  .wallet-add-btn,
+  .wallet-refresh-btn,
+  .wallet-btn {
+    flex: 1;
+  }
 }
 </style>

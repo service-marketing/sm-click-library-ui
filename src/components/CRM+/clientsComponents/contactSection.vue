@@ -17,11 +17,20 @@ const props = defineProps({
     type: [String, Number, Boolean, Object],
     default: undefined,
   },
+  currentAttendance: {
+    type: Object,
+    default: () => null,
+  },
+  supervisor: { type: Boolean, default: false },
   isLargeScreen: { type: Boolean, default: true },
   viewContactNumber: { type: Boolean, default: false },
   contactId: {
     type: [String, Number],
     default: "",
+  },
+  contact: {
+    type: Object,
+    default: () => null,
   },
 });
 
@@ -162,7 +171,13 @@ const handleTelephoneInput = (value, phoneObject) => {
   </div>
 
   <div v-show="pageState === 'wallet'">
-    <WalletSection :contact-id="props.contactId" :page-state="pageState" />
+    <WalletSection
+      :contact-id="props.contactId"
+      :contact="props.contact"
+      :current-attendance="props.currentAttendance"
+      :supervisor="props.supervisor"
+      :page-state="pageState"
+    />
   </div>
 </template>
 

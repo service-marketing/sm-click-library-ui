@@ -20,6 +20,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  canRemove: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(["remove"]);
@@ -47,7 +51,9 @@ const formatDate = (value) => {
 };
 
 const formattedDate = computed(() => formatDate(updatedAt.value));
-const canRemove = computed(() => Boolean(props.wallet?.departmentId));
+const canRemove = computed(
+  () => props.canRemove && Boolean(props.wallet?.departmentId),
+);
 
 const cardClasses = computed(() => {
   const classes = ["wallet-card", "bg-base-300"];
@@ -92,7 +98,6 @@ const handleRemove = () => {
       <div class="wallet-card__main">
         <div class="wallet-card__avatar">
           <PhotoDisplay
-            v-if="attendantPhoto"
             :photo="attendantPhoto"
             :tooltip="attendantName"
             size="size-10"
@@ -114,6 +119,7 @@ const handleRemove = () => {
           Atualizado em {{ formattedDate }}
         </p> -->
         <button
+          v-if="props.canRemove"
           class="wallet-card__remove-btn"
           :disabled="isRemoving || !canRemove"
           @click="openRemoveConfirm"
@@ -152,59 +158,62 @@ const handleRemove = () => {
       </template>
 
       <template #body>
-        <div class="wallet-card__modal-content px-2 pb-2">
-          <div class="wallet-card__modal-message">
-            <p class="wallet-card__modal-text">
-              Você está removendo o responsável por este atendimento neste
-              departamento. Esta ação não pode ser desfeita.
-            </p>
-          </div>
-
-          <div class="wallet-card__modal-preview">
-            <p class="wallet-card__modal-preview-label">
-              Informações da remoção:
-            </p>
-
-            <div class="wallet-card__modal-info-group">
-              <div class="wallet-card__modal-info-item">
-                <span class="wallet-card__modal-info-label">Departamento:</span>
-                <p
-                  class="wallet-card__modal-info-value"
-                  :title="departmentName"
-                >
-                  {{ departmentName }}
-                </p>
-              </div>
+        <div class="wallet-card__modal-content bg-base-200 rounded-b-xl">
+          <section class="flex flex-col gap-2 p-2">
+            <div class="wallet-card__modal-message">
+              <p class="wallet-card__modal-text">
+                Você está removendo o responsável por este atendimento neste
+                departamento. Esta ação não pode ser desfeita.
+              </p>
             </div>
 
-            <div class="wallet-card__modal-preview-card">
-              <p class="wallet-card__modal-preview-card-label">
-                Atendente responsável:
+            <div class="wallet-card__modal-preview">
+              <p class="wallet-card__modal-preview-label">
+                Informações da remoção:
               </p>
 
-              <div class="wallet-card__modal-preview-main -mt-1">
-                <div class="wallet-card__modal-avatar">
-                  <PhotoDisplay
-                    v-if="attendantPhoto"
-                    :photo="attendantPhoto"
-                    :tooltip="attendantName"
-                    size="size-12"
-                  />
-                </div>
-
-                <div class="wallet-card__modal-info text-start">
-                  <p class="wallet-card__modal-name" :title="attendantName">
-                    {{ attendantName }}
-                  </p>
-                  <p class="wallet-card__modal-role">
-                    Responsável pelo atendimento
+              <div class="wallet-card__modal-info-group">
+                <div class="wallet-card__modal-info-item">
+                  <span class="wallet-card__modal-info-label"
+                    >Departamento:</span
+                  >
+                  <p
+                    class="wallet-card__modal-info-value"
+                    :title="departmentName"
+                  >
+                    {{ departmentName }}
                   </p>
                 </div>
               </div>
-            </div>
-          </div>
 
-          <div class="wallet-card__modal-actions">
+              <div class="wallet-card__modal-preview-card">
+                <p class="wallet-card__modal-preview-card-label">
+                  Atendente responsável:
+                </p>
+
+                <div class="wallet-card__modal-preview-main -mt-1">
+                  <div class="wallet-card__modal-avatar">
+                    <PhotoDisplay
+                      v-if="attendantPhoto"
+                      :photo="attendantPhoto"
+                      :tooltip="attendantName"
+                      size="size-12"
+                    />
+                  </div>
+
+                  <div class="wallet-card__modal-info text-start">
+                    <p class="wallet-card__modal-name" :title="attendantName">
+                      {{ attendantName }}
+                    </p>
+                    <p class="wallet-card__modal-role">
+                      Responsável pelo atendimento
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          <div class="wallet-card__modal-actions bg-base-300 rounded-b-xl">
             <button
               class="wallet-card__modal-btn wallet-card__modal-btn--cancel"
               :disabled="isRemoving"
@@ -517,7 +526,7 @@ const handleRemove = () => {
 .wallet-card__modal-message {
   padding: 0.75rem;
   background: rgba(117, 41, 41, 0.2);
-  border-radius: 0.5rem;
+  border-radius: 1rem;
   border-left: 3px solid rgba(248, 93, 93, 0.5);
   @apply dark:bg-red-300/15 dark:border-red-500/40;
 }
@@ -549,17 +558,16 @@ const handleRemove = () => {
 .wallet-card__modal-info-group {
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 0.1rem;
   padding: 0.5rem;
   border-radius: 0.5rem;
-  border: 1px solid rgb(51 65 85 / 0.5);
-  @apply dark:bg-slate-100/90 bg-base-200/40 dark:border-slate-300/40;
+  @apply dark:bg-slate-300/90 bg-base-300/80 dark:border-slate-300/40;
 }
 
 .wallet-card__modal-info-item {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0rem;
 }
 
 .wallet-card__modal-info-label {
@@ -584,10 +592,9 @@ const handleRemove = () => {
 
 .wallet-card__modal-preview-card {
   padding: 0.3rem;
-  border: 1px solid rgb(51 65 85 / 0.5);
   border-radius: 0.5rem;
   transition: all 150ms ease;
-  @apply dark:bg-slate-100/90 bg-base-200/40 dark:border-slate-300/40;
+  @apply dark:bg-slate-300/90 p-2 bg-base-300/80 dark:border-slate-300/40;
 }
 
 .wallet-card__modal-preview-card-label {
@@ -616,8 +623,7 @@ const handleRemove = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgb(34 197 94 / 0.2);
-  @apply dark:bg-cyan-100/80 dark:border-cyan-300/40;
+  @apply dark:bg-cyan-100/80;
 }
 
 .wallet-card__modal-info {
@@ -642,7 +648,7 @@ const handleRemove = () => {
 
 .wallet-card__modal-role {
   margin: 0;
-  font-size: 0.72rem;
+  font-size: 0.8rem;
   line-height: 1.1;
   color: rgb(148 163 184);
   @apply dark:text-slate-600;
@@ -650,11 +656,9 @@ const handleRemove = () => {
 
 .wallet-card__modal-actions {
   display: flex;
-  gap: 0.7rem;
+  gap: 0.5rem;
   justify-content: flex-end;
-  padding-top: 0.6rem;
-  border-top: 1px solid rgb(51 65 85 / 0.5);
-  @apply dark:border-slate-300/40;
+  @apply p-2;
 }
 
 .wallet-card__modal-btn {
