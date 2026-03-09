@@ -2,6 +2,10 @@
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from "vue";
 import { useAttendantStore } from "~/stores/attendantStore";
 import PhotoDisplay from "../../chat/components/photoDisplay.vue";
+import {
+  showEllipsisTooltip,
+  hideEllipsisTooltip,
+} from "~/utils/functions/ellipsisTooltip";
 
 const props = defineProps({
   attendance: { type: [Array, String], default: null },
@@ -373,7 +377,12 @@ function isItemDisabled(attendantId) {
                     size="size-5"
                   />
                 </template>
-                <span class="dropdown-option-label">{{ attendant.name }}</span>
+                <span
+                  class="dropdown-option-label"
+                  @mouseenter="showEllipsisTooltip"
+                  @mouseleave="hideEllipsisTooltip"
+                  >{{ attendant.name }}</span
+                >
                 <span
                   class="dropdown-option-check ml-auto"
                   v-if="attendant.selected"
@@ -535,7 +544,11 @@ function isItemDisabled(attendantId) {
                     size="size-5"
                   />
                 </div>
-                <span class="department-name h-full w-full">
+                <span
+                  class="department-name h-full w-full"
+                  @mouseenter="showEllipsisTooltip"
+                  @mouseleave="hideEllipsisTooltip"
+                >
                   {{ attendant.name }}
                 </span>
                 <span

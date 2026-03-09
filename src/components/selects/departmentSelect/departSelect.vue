@@ -9,6 +9,10 @@ import {
   useSlots,
 } from "vue";
 import { useDepartmentStore } from "~/stores/departmentStore";
+import {
+  showEllipsisTooltip,
+  hideEllipsisTooltip,
+} from "~/utils/functions/ellipsisTooltip";
 const slots = useSlots();
 
 const props = defineProps({
@@ -354,7 +358,12 @@ function isItemDisabled(departmentId) {
                 }"
                 class="dropdown-option"
               >
-                <span class="dropdown-option-label">{{ department.name }}</span>
+                <span
+                  class="dropdown-option-label"
+                  @mouseenter="showEllipsisTooltip"
+                  @mouseleave="hideEllipsisTooltip"
+                  >{{ department.name }}</span
+                >
                 <span
                   class="dropdown-option-check ml-auto"
                   v-if="department.selected"
@@ -517,6 +526,8 @@ function isItemDisabled(departmentId) {
                 <span
                   @click="selectDepartment(department)"
                   class="department-name h-full w-full"
+                  @mouseenter="showEllipsisTooltip"
+                  @mouseleave="hideEllipsisTooltip"
                   >{{ department.name }}</span
                 >
                 <span
