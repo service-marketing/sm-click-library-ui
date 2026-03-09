@@ -381,7 +381,7 @@ const handlerToggleButtons = computed(() => {
               </span>
 
               <section class="flex gap-2 items-center">
-                <!-- <Popper
+                <Popper
                   hover
                   :content="mergeFlowTooltipContent"
                   placement="bottom"
@@ -398,7 +398,7 @@ const handlerToggleButtons = computed(() => {
                       Mesclar contatos
                     </button>
                   </div>
-                </Popper> -->
+                </Popper>
 
                 <button
                   class="bg-base-200 p-1.5 rounded-md hover:bg-base-100 transition"
