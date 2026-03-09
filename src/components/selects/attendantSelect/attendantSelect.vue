@@ -633,7 +633,6 @@ function isItemDisabled(attendantId) {
   overflow-wrap: anywhere;
   word-break: break-word;
   font-weight: 500;
-  flex: 0 1 9rem;
   text-align: right;
 }
 </style>
