@@ -183,7 +183,7 @@ describe("WalletSection", () => {
       },
     });
 
-    const wrapper = buildWrapper();
+    const wrapper = buildWrapper({ currentAttendance: { id: 1 } });
     await flushPromises();
 
     const cards = wrapper.findAllComponents({ name: "WalletCard" });
@@ -339,7 +339,7 @@ describe("WalletSection", () => {
       },
     });
 
-    const wrapper = buildWrapper();
+    const wrapper = buildWrapper({ currentAttendance: { id: 1 } });
     await flushPromises();
 
     const cards = wrapper.findAllComponents({ name: "WalletCard" });
@@ -360,6 +360,39 @@ describe("WalletSection", () => {
     const remainingCards = wrapper.findAllComponents({ name: "WalletCard" });
     expect(remainingCards).toHaveLength(1);
     expect(remainingCards[0].props("wallet").departmentId).toBe(20);
+  });
+
+  it("removes any wallet when the user is a manager (no currentAttendance)", async () => {
+    vi.spyOn(api, "get").mockResolvedValue({
+      data: {
+        wallet: [
+          { attendant_id: 1, department_id: 10 },
+          { attendant_id: 2, department_id: 20 },
+        ],
+      },
+    });
+
+    const wrapper = buildWrapper({ currentAttendance: null });
+    await flushPromises();
+
+    const cards = wrapper.findAllComponents({ name: "WalletCard" });
+
+    cards[1].vm.$emit("remove", cards[1].props("wallet"));
+    await flushPromises();
+    expect(api.post).toHaveBeenCalledTimes(1);
+    expect(api.post).toHaveBeenCalledWith(expect.any(String), {
+      department_id: 20,
+      attendant_id: null,
+    });
+
+    cards[0].vm.$emit("remove", cards[0].props("wallet"));
+    await flushPromises();
+
+    expect(api.post).toHaveBeenCalledTimes(2);
+    expect(api.post).toHaveBeenCalledWith(expect.any(String), {
+      department_id: 10,
+      attendant_id: null,
+    });
   });
 
   it("does not remove the wallet when the api request fails", async () => {

@@ -89,6 +89,11 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  // --- Habilita funcionalidades de desenvolvimento ---
+  isDev: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 // --- Estado principal do formulario ---
@@ -382,6 +387,7 @@ const handlerToggleButtons = computed(() => {
 
               <section class="flex gap-2 items-center">
                 <Popper
+                  v-if="isDev"
                   hover
                   :content="mergeFlowTooltipContent"
                   placement="bottom"

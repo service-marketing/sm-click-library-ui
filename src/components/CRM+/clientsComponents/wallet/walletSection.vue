@@ -57,8 +57,9 @@ const hasDepartmentMembership = (departmentId) =>
   Boolean(findDepartmentMembership(departmentId));
 const isDepartmentSupervisor = (departmentId) =>
   findDepartmentMembership(departmentId)?.permission === "supervisor";
+const isManager = computed(() => !props.currentAttendance);
 const canManageDepartmentWallet = (departmentId) =>
-  isDepartmentSupervisor(departmentId);
+  isManager.value || isDepartmentSupervisor(departmentId);
 
 /**
  * Extrai a lista de wallets do payload da API.
