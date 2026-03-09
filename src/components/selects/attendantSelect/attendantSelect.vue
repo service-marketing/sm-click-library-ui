@@ -286,6 +286,9 @@ function selectAttendant(attendant) {
     attendanceSelected.value.push(attendant);
   }
   emit("attend", attendanceSelected.value);
+  
+  // Fechar dropdown em single select
+  if (!props.multiSelect) open_select.value = false;
 }
 
 function eraseAttendant(attendant, index) {
