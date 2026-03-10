@@ -566,7 +566,7 @@ const handlerToggleButtons = computed(() => {
                 </div>
 
                 <section
-                  v-show="!isLargeScreen && pageState !== 'contact'"
+                  v-if="!isLargeScreen && pageState !== 'contact'"
                   class="right-column bg-base-300"
                 >
                   <ContactSection
