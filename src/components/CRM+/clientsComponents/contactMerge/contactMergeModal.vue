@@ -148,11 +148,13 @@ const executeMerge = async () => {
     mergeLoading.value = true;
     mergeError.value = "";
 
+    let contact = null;
     if (typeof props.mergeContacts === "function") {
-      await props.mergeContacts(payload);
+      const response = await props.mergeContacts(payload);
+      contact = response?.object ?? null;
     }
 
-    emit("merged", payload);
+    emit("merged", { ...payload, contact });
     closeModal({ force: true });
   } catch (error) {
     mergeError.value =
