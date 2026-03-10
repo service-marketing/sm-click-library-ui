@@ -596,13 +596,14 @@ watch(
   font-size: 1rem;
   font-weight: 700;
   margin: 0;
-  @apply text-center;
+  @apply text-left;
 }
 
 .merge-subtitle {
   font-size: 0.75rem;
   color: rgb(148, 163, 184);
   margin: 0;
+  @apply text-left;
 }
 
 .merge-close-btn {

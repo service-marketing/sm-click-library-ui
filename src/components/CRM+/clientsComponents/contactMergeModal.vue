@@ -191,7 +191,7 @@ watch(
                 <path d="M16 3.13a4 4 0 0 1 0 7.75" />
               </svg>
             </div>
-            <div>
+            <div class="text-left">
               <h2 class="merge-title">Mesclar Contatos</h2>
               <p class="merge-subtitle">
                 {{
@@ -581,6 +581,7 @@ watch(
   font-size: 1rem;
   font-weight: 700;
   margin: 0;
+  text-align: left;
 }
 
 .merge-subtitle {

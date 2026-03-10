@@ -387,7 +387,6 @@ const handlerToggleButtons = computed(() => {
 
               <section class="flex gap-2 items-center">
                 <Popper
-                  v-if="isDev"
                   hover
                   :content="mergeFlowTooltipContent"
                   placement="bottom"
