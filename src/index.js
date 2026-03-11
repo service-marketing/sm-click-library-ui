@@ -1,3 +1,5 @@
+import baseTable from "~/components/apiTemplate/baseTable.vue";
+import templateTable from "~/components/apiTemplate/templateTable.vue";
 import primarySelect from "~/components/selects/primary_select/primary_select.vue";
 import simpleModal from "~/components/modals/simple_modal/simple_modal.vue";
 import simpleCard from "~/components/cards/simple_card/simple_card.vue";
@@ -47,6 +49,8 @@ export { useAttendantStore };
 export { useDepartmentStore };
 export { useInstanceStore };
 export { ContactCard };
+export { default as BaseTable } from "~/components/apiTemplate/baseTable.vue";
+export { default as TemplateTable } from "~/components/apiTemplate/templateTable.vue";
 
 export {
   formatCurrency,
@@ -104,6 +108,8 @@ function install(Vue) {
   Vue.component("WalletCard", WalletCard);
   Vue.component("ReminderModal", ReminderModal);
   Vue.component("SoundSelect", SoundSelect);
+  Vue.component("BaseTable", baseTable);
+  Vue.component("TemplateTable", templateTable);
 }
 
 export function attLibDeparts(department, action = "add") {
