@@ -1,3 +1,4 @@
+import "~/styles/tailwind.css";
 import baseTable from "~/components/apiTemplate/baseTable.vue";
 import templateTable from "~/components/apiTemplate/templateTable.vue";
 import primarySelect from "~/components/selects/primary_select/primary_select.vue";
