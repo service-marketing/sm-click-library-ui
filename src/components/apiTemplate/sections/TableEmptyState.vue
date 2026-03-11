@@ -69,19 +69,20 @@ function getFilterKey(col) {
       <span
         v-for="chip in chips"
         :key="getFilterKey(chip.col)"
-        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border border-sky-400/30 bg-sky-400/10 dark:text-sky-500 text-sky-300"
+        class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-base-200 border-base-100"
       >
-        <span class="opacity-80 uppercase tracking-wide"
+        <span
+          class="opacity-80 dark:text-sky-500 text-sky-300 uppercase tracking-wide"
           >{{ chip.col.label }}:</span
         >
         <span class="truncate max-w-32">{{ chip.label }}</span>
         <button
           type="button"
-          class="flex-shrink-0 rounded-full hover:bg-sky-400/20 transition-colors p-0.5"
+          class="flex-shrink-0 rounded-full hover:bg-sky-400/20 opacity-70 hover:opacity-100 transition-colors p-0.5"
           @click="emit('clear-filter', chip.col)"
         >
           <svg
-            class="size-2.5"
+            class="size-3.5"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -100,7 +101,7 @@ function getFilterKey(col) {
     <button
       v-if="hasActiveFilters"
       type="button"
-      class="inline-flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-semibold border dark:text-sky-500 border-sky-400/30 bg-sky-400/10 text-sky-300 hover:bg-sky-400/20 hover:border-sky-400/50 transition-all"
+      class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-semibold dark:text-amber-500 border-amber-400/30 bg-base-200 text-amber-300 hover:bg-amber-400/20 hover:border-amber-400/50 transition-all"
       @click="emit('clear-all')"
     >
       <svg

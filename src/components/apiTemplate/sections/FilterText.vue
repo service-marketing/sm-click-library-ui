@@ -44,7 +44,7 @@ function onInput(e) {
         @keydown.stop
         type="text"
         :placeholder="placeholder"
-        class="w-full py-2 pl-8 pr-3 border dark:hover:border-primary dark:active-border-primary ring-0 focus:border-primary rounded-lg text-sm border-base-200 bg-base-300 shadow shadow-gray-900 dark:shadow-gray-400 placeholder:text-gray-500 outline-none transition-colors focus:border-primary/50 focus:bg-primary/5"
+        class="w-full py-2 pl-8 pr-3 border dark:hover:border-teal-500 dark:active-border-teal-500 ring-0 focus:border-teal-500 rounded-lg text-sm border-base-200 bg-base-300 shadow shadow-gray-900 dark:shadow-gray-400 placeholder:text-gray-500 outline-none transition-colors focus:border-teal-500/50 focus:bg-teal-500/5"
       />
     </div>
   </div>

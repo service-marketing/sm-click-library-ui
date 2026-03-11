@@ -94,6 +94,7 @@ const columns = computed(() => {
       width: "w-20",
       filter: {
         type: "select",
+        key: "language",
         options: [
           { value: "pt_BR", label: "Português" },
           { value: "en", label: "Inglês" },
@@ -109,9 +110,9 @@ const columns = computed(() => {
       filter: {
         type: "select",
         options: [
-          { value: "marketing", label: "Marketing" },
-          { value: "utility", label: "Utilidade" },
-          { value: "authentication", label: "Autenticação" },
+          { value: "MARKETING", label: "Marketing" },
+          { value: "UTILITY", label: "Utilidade" },
+          { value: "AUTHENTICATION", label: "Autenticação" },
         ],
       },
     },
@@ -122,10 +123,10 @@ const columns = computed(() => {
       filter: {
         type: "select",
         options: [
-          { value: "pending", label: "Pendente" },
-          { value: "approved", label: "Aprovado" },
-          { value: "rejected", label: "Reprovado" },
-          { value: "pending_deletion", label: "Ag. deleção" },
+          { value: "PENDING", label: "Pendente" },
+          { value: "APPROVED", label: "Aprovado" },
+          { value: "REJECTED", label: "Reprovado" },
+          { value: "PENDING_DELETION", label: "Ag. deleção" },
         ],
       },
     },

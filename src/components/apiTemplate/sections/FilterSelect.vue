@@ -21,8 +21,8 @@ function toggle(value) {
         :class="[
           'px-3 py-2.5 rounded-lg shadow dark:shadow-gray-400 shadow-gray-900 text-xs font-semibold text-center cursor-pointer transition-all duration-150 border',
           modelValue === opt.value
-            ? 'border-primary text-primary dark:bg-sky-100/30 bg-primary/10 shadow-[0_0_0_3px_rgba(105,238,183,0.1)]'
-            : 'bg-base-300 border hover:border-primary border-base-200 hover:-translate-y-px',
+            ? 'border-teal-500 text-teal-500 dark:bg-sky-100/30 bg-teal-500/10 shadow-[0_0_0_3px_rgba(105,238,183,0.1)]'
+            : 'bg-base-300 border hover:border-teal-500 border-base-200 hover:-translate-y-px',
         ]"
         @click="toggle(opt.value)"
       >

@@ -383,7 +383,7 @@ function getHeaderFlexClass(align) {
           <!-- Empty state inside the table so the thead (filters) stays visible -->
           <tbody v-else>
             <tr>
-              <td :colspan="columns.length" class="bg-base-300">
+              <td :colspan="columns.length" class="bg-base-300 py-4">
                 <div
                   class="flex h-64 w-full items-center justify-center text-center"
                 >
@@ -446,7 +446,7 @@ function getHeaderFlexClass(align) {
 }
 
 .filter-trigger.active {
-  @apply text-primary;
+  @apply text-teal-500;
 }
 
 .filter-count-badge {
