@@ -32,6 +32,7 @@ import { ref, computed, watch, onMounted } from "vue";
 import baseTable from "./baseTable.vue";
 import api from "~/utils/api";
 import { templateUrl } from "~/utils/systemUrls";
+import { useDepartmentStore } from "~/stores/departmentStore";
 
 const props = defineProps({
   instanceId: {
@@ -73,6 +74,7 @@ const loading = ref(false);
 const currentPage = ref(1);
 const totalCount = ref(0);
 const columnFilters = ref({});
+const departmentStore = useDepartmentStore();
 
 // ── Columns ─────────────────────────────────────────────────────
 const columns = computed(() => {
@@ -90,7 +92,13 @@ const columns = computed(() => {
       key: "lang",
       label: "Idioma",
       width: "w-20",
-      filter: { type: "text", placeholder: "Ex: pt_BR" },
+      filter: {
+        type: "select",
+        options: [
+          { value: "pt_BR", label: "Português" },
+          { value: "en", label: "Inglês" },
+        ],
+      },
     });
   }
   cols.push(
@@ -123,7 +131,19 @@ const columns = computed(() => {
     },
   );
   if (props.showDepartments) {
-    cols.push({ key: "department", label: "Departamento(s)", width: "w-28" });
+    cols.push({
+      key: "department",
+      label: "Departamento(s)",
+      width: "w-28",
+      filter: {
+        type: "multiselect",
+        key: "departments",
+        options: departmentStore.departments.map((d) => ({
+          value: String(d.id),
+          label: d.name,
+        })),
+      },
+    });
   }
   cols.push({
     key: "actions",
@@ -147,7 +167,8 @@ async function fetchTemplates() {
 
     for (const [k, v] of Object.entries(columnFilters.value)) {
       if (Array.isArray(v)) {
-        v.forEach((val) => params.append(k, val));
+        // multiselect — emit as comma-separated string (&departments=id1,id2)
+        if (v.length) params.set(k, v.join(","));
       } else if (v != null && v !== "") {
         params.append(k, v);
       }
@@ -194,7 +215,12 @@ watch(
   { deep: true },
 );
 
-onMounted(fetchTemplates);
+onMounted(() => {
+  fetchTemplates();
+  if (props.showDepartments && !departmentStore.loaded) {
+    departmentStore.fetchDepartments();
+  }
+});
 
 // ── Format helpers ──────────────────────────────────────────────
 function formatCategory(val) {
@@ -267,7 +293,7 @@ defineExpose({ refresh: fetchTemplates });
         <div
           class="gap-2 font-semibold flex justify-center items-center min-w-19 lg:min-w-32 w-0 p-1.5 rounded-lg transition-colors"
           :class="{
-            'bg-sky-500/20 border  border-sky-500/50 hover:border-sky-400 text-sky-400':
+            'bg-sky-500/20 border border-sky-500/50 hover:border-sky-400 text-sky-400':
               row.category?.toLowerCase() === 'marketing',
             'bg-purple-500/20 border dark:hover-text-purple-700 border-purple-500/50 hover:border-purple-400 text-purple-400':
               row.category?.toLowerCase() === 'utility',

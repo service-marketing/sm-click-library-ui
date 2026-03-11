@@ -55,7 +55,9 @@ const toggleModal = () => {
                 <template v-if="!$slots['header']">
                   <span v-html="header?.svg"></span>
 
-                  <h3 class="text-xl font-semibold flex items-center gap-2">
+                  <h3
+                    class="text-xl ml-1 font-semibold flex items-center gap-2"
+                  >
                     {{ header?.title }}
                   </h3>
                 </template>

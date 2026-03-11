@@ -5,10 +5,10 @@
  * Each column can declare a `filter` object to enable a filter dropdown:
  *
  *   filter: {
- *     type:         'text' | 'select' | 'checkbox'
+ *     type:         'text' | 'select' | 'checkbox' | 'multiselect'
  *     key?:         string       — API param key (defaults to col.key)
- *     placeholder?: string       — for text type
- *     options?:     Array<{ value: string, label: string }>  — for select/checkbox
+ *     placeholder?: string       — for text / multiselect
+ *     options?:     Array<{ value: string, label: string }>  — for select/checkbox/multiselect
  *   }
  *
  * Props:
@@ -31,7 +31,11 @@
  *   empty-action
  *   loading
  */
-import { ref, watch, onBeforeUnmount } from "vue";
+import { ref, watch, computed } from "vue";
+import FilterText from "./sections/FilterText.vue";
+import FilterSelect from "./sections/FilterSelect.vue";
+import FilterMultiselect from "./sections/FilterMultiselect.vue";
+import TableEmptyState from "./sections/TableEmptyState.vue";
 
 const props = defineProps({
   columns: { type: Array, required: true },
@@ -47,13 +51,16 @@ const props = defineProps({
 const emit = defineEmits(["update:currentPage", "update:filters"]);
 
 // ── filter logic ──────────────────────────────────────────────────
+// internalFilters = committed (sent to API, shown in badges)
+// pendingFilters  = being edited inside the open dropdown
 const internalFilters = ref({ ...props.filters });
-let debounceTimer = null;
+const pendingFilters = ref({ ...props.filters });
 
 watch(
   () => props.filters,
   (v) => {
     internalFilters.value = { ...v };
+    pendingFilters.value = { ...v };
   },
   { deep: true },
 );
@@ -65,6 +72,11 @@ function getFilterKey(col) {
 function isFilterActive(col) {
   const v = internalFilters.value[getFilterKey(col)];
   return Array.isArray(v) ? v.length > 0 : v != null && v !== "";
+}
+
+function getActiveCount(col) {
+  const v = internalFilters.value[getFilterKey(col)];
+  return Array.isArray(v) ? v.length : 0;
 }
 
 function buildActiveFilters() {
@@ -80,40 +92,90 @@ function emitFilters() {
   emit("update:filters", buildActiveFilters());
 }
 
-function onTextInput(col, event) {
-  internalFilters.value[getFilterKey(col)] = event.target.value || null;
-  clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(emitFilters, 400);
+/** Write to pending — no API call yet */
+function setFilter(col, value) {
+  pendingFilters.value[getFilterKey(col)] = value;
 }
 
-function onSelectToggle(col, value) {
+/** Called when the Popper dropdown closes — commit pending → internal → API */
+function onPopperClose(col) {
   const key = getFilterKey(col);
-  internalFilters.value[key] =
-    internalFilters.value[key] === value ? null : value;
-  emitFilters();
+  const pending = pendingFilters.value[key];
+  const current = internalFilters.value[key];
+  const pendingActive = Array.isArray(pending)
+    ? pending.length > 0
+    : pending != null && pending !== "";
+  const currentActive = Array.isArray(current)
+    ? current.length > 0
+    : current != null && current !== "";
+  // Only emit if value actually changed
+  if (JSON.stringify(pending ?? null) !== JSON.stringify(current ?? null)) {
+    internalFilters.value[key] = pending ?? null;
+    emitFilters();
+  }
 }
 
+// Checkbox (inline, multi-select array) — writes pending
 function onCheckboxToggle(col, value) {
   const key = getFilterKey(col);
-  const current = internalFilters.value[key];
+  const current = pendingFilters.value[key];
   const arr = Array.isArray(current) ? [...current] : [];
   const idx = arr.indexOf(value);
   idx !== -1 ? arr.splice(idx, 1) : arr.push(value);
-  internalFilters.value[key] = arr.length ? arr : null;
+  pendingFilters.value[key] = arr.length ? arr : null;
+}
+
+/** Clear button in dropdown header — immediate full reset */
+function clearFilter(col) {
+  const key = getFilterKey(col);
+  pendingFilters.value[key] = null;
+  internalFilters.value[key] = null;
   emitFilters();
 }
 
-function clearFilter(col) {
-  internalFilters.value[getFilterKey(col)] = null;
+function clearAllFilters() {
+  for (const col of props.columns.filter((c) => c.filter)) {
+    const key = getFilterKey(col);
+    pendingFilters.value[key] = null;
+    internalFilters.value[key] = null;
+  }
   emitFilters();
 }
+
+// Derived: chips for active filters (for empty-state display)
+const activeFilterChips = computed(() => {
+  return props.columns
+    .filter((col) => col.filter && isFilterActive(col))
+    .map((col) => {
+      const v = internalFilters.value[getFilterKey(col)];
+      let label = "";
+      if (col.filter.type === "text") {
+        label = `"${v}"`;
+      } else if (col.filter.type === "select") {
+        label = col.filter.options?.find((o) => o.value === v)?.label ?? v;
+      } else if (
+        col.filter.type === "multiselect" ||
+        col.filter.type === "checkbox"
+      ) {
+        const names = (Array.isArray(v) ? v : [])
+          .map(
+            (id) =>
+              col.filter.options?.find((o) => o.value === id)?.label ?? id,
+          )
+          .filter(Boolean);
+        label = names.length ? names.join(", ") : "";
+      }
+      return { col, label };
+    })
+    .filter((c) => c.label);
+});
+
+const hasActiveFilters = computed(() => activeFilterChips.value.length > 0);
 
 function isCheckboxChecked(col, value) {
-  const current = internalFilters.value[getFilterKey(col)];
+  const current = pendingFilters.value[getFilterKey(col)];
   return Array.isArray(current) && current.includes(value);
 }
-
-onBeforeUnmount(() => clearTimeout(debounceTimer));
 // ──────────────────────────────────────────────────────────────────
 
 function getHeaderAlignClass(align) {
@@ -136,7 +198,10 @@ function getHeaderFlexClass(align) {
 <template>
   <div class="w-full">
     <!-- Loading state -->
-    <div v-if="loading" class="flex justify-center p-10 bg-base-200">
+    <div
+      v-if="loading"
+      class="flex justify-center rounded-b-xl p-10 bg-base-200"
+    >
       <slot name="loading">
         <div
           class="mx-auto size-14 animate-spin rounded-full border-4 border-teal-600 border-t-transparent"
@@ -147,7 +212,7 @@ function getHeaderFlexClass(align) {
     <template v-else>
       <!-- Table -->
       <div class="w-full overflow-x-auto">
-        <table v-if="rows.length > 0" class="w-full text-center text-sm">
+        <table class="w-full text-center text-sm">
           <thead
             class="bg-base-200 border-base-200 bg-opacity-100 shadow text-xs uppercase text-current"
           >
@@ -176,6 +241,7 @@ function getHeaderFlexClass(align) {
                     :hover="false"
                     :arrow="false"
                     class="filter-popper"
+                    @close:popper="onPopperClose(col)"
                   >
                     <template #content>
                       <div class="filter-dropdown" @click.stop>
@@ -206,45 +272,23 @@ function getHeaderFlexClass(align) {
                           </button>
                         </div>
 
-                        <!-- Text input -->
-                        <div
+                        <!-- Text input ──────────────────── -->
+                        <FilterText
                           v-if="col.filter.type === 'text'"
-                          class="filter-dropdown-body"
-                        >
-                          <input
-                            :value="internalFilters[getFilterKey(col)] ?? ''"
-                            @input="onTextInput(col, $event)"
-                            @keydown.stop
-                            type="text"
-                            class="filter-text-input"
-                            :placeholder="col.filter.placeholder || 'Buscar...'"
-                          />
-                        </div>
+                          :model-value="pendingFilters[getFilterKey(col)]"
+                          :placeholder="col.filter.placeholder"
+                          @update:model-value="(v) => setFilter(col, v)"
+                        />
 
-                        <!-- Select (single choice chips) -->
-                        <div
+                        <!-- Select / single-choice chips ── -->
+                        <FilterSelect
                           v-else-if="col.filter.type === 'select'"
-                          class="filter-dropdown-body"
-                        >
-                          <div class="filter-select-grid">
-                            <button
-                              v-for="opt in col.filter.options"
-                              :key="opt.value"
-                              type="button"
-                              class="filter-select-option"
-                              :class="{
-                                active:
-                                  internalFilters[getFilterKey(col)] ===
-                                  opt.value,
-                              }"
-                              @click="onSelectToggle(col, opt.value)"
-                            >
-                              {{ opt.label }}
-                            </button>
-                          </div>
-                        </div>
+                          :options="col.filter.options"
+                          :model-value="pendingFilters[getFilterKey(col)]"
+                          @update:model-value="(v) => setFilter(col, v)"
+                        />
 
-                        <!-- Checkbox (multi-select) -->
+                        <!-- Checkbox (legacy multi-select) ─ -->
                         <div
                           v-else-if="col.filter.type === 'checkbox'"
                           class="filter-dropdown-body"
@@ -263,10 +307,21 @@ function getHeaderFlexClass(align) {
                             <span>{{ opt.label }}</span>
                           </label>
                         </div>
+
+                        <!-- Multiselect (emits comma-separated IDs) -->
+                        <FilterMultiselect
+                          v-else-if="col.filter.type === 'multiselect'"
+                          :options="col.filter.options"
+                          :model-value="pendingFilters[getFilterKey(col)] ?? []"
+                          :placeholder="col.filter.placeholder"
+                          @update:model-value="
+                            (v) => setFilter(col, v.length ? v : null)
+                          "
+                        />
                       </div>
                     </template>
 
-                    <!-- Trigger: funnel icon -->
+                    <!-- Trigger: funnel icon + optional count badge -->
                     <button
                       :title="isFilterActive(col) ? 'Filtro ativo' : 'Filtrar'"
                       :class="[
@@ -275,7 +330,7 @@ function getHeaderFlexClass(align) {
                       ]"
                     >
                       <svg
-                        class="size-4"
+                        class="size-3.5"
                         aria-hidden="true"
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
@@ -287,13 +342,23 @@ function getHeaderFlexClass(align) {
                           d="M5.05 3C3.291 3 2.352 5.024 3.51 6.317l5.422 6.059v4.874c0 .472.227.917.613 1.2l3.069 2.25c1.01.742 2.454.036 2.454-1.2v-7.124l5.422-6.059C21.647 5.024 20.708 3 18.95 3H5.05Z"
                         />
                       </svg>
+                      <!-- Count badge for multiselect -->
+                      <span
+                        v-if="
+                          col.filter?.type === 'multiselect' &&
+                          getActiveCount(col) > 0
+                        "
+                        class="filter-count-badge"
+                      >
+                        {{ getActiveCount(col) }}
+                      </span>
                     </button>
                   </Popper>
                 </div>
               </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody v-if="rows.length > 0">
             <tr
               v-for="(row, index) in rows"
               :key="row.id ?? index"
@@ -314,47 +379,40 @@ function getHeaderFlexClass(align) {
               </td>
             </tr>
           </tbody>
-        </table>
 
-        <!-- Empty state -->
-        <div v-else class="flex justify-center bg-base-200">
-          <div class="flex h-64 w-full items-center justify-center text-center">
-            <slot name="empty">
-              <div class="mx-auto flex w-full flex-col items-center">
+          <!-- Empty state inside the table so the thead (filters) stays visible -->
+          <tbody v-else>
+            <tr>
+              <td :colspan="columns.length" class="bg-base-300">
                 <div
-                  class="mx-auto rounded-full bg-blue-100 p-3 text-blue-500 dark:bg-gray-800"
+                  class="flex h-64 w-full items-center justify-center text-center"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.5"
-                    stroke="currentColor"
-                    class="w-14"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-                    />
-                  </svg>
+                  <slot name="empty">
+                    <TableEmptyState
+                      :empty-text="emptyText"
+                      :has-active-filters="hasActiveFilters"
+                      :chips="activeFilterChips"
+                      @clear-filter="clearFilter"
+                      @clear-all="clearAllFilters"
+                    >
+                      <template #empty-action>
+                        <slot name="empty-action" />
+                      </template>
+                    </TableEmptyState>
+                  </slot>
                 </div>
-                <h1 class="mt-3 text-lg px-2 text-current">
-                  {{ emptyText }}
-                </h1>
-                <slot name="empty-action" />
-              </div>
-            </slot>
-          </div>
-        </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
       <!-- Pagination -->
       <nav
-        v-if="totalItems > itemsPerPage"
-        class="flex items-center justify-center py-3 bg-base-200"
+        class="flex items-center justify-center py-2 bg-base-200 rounded-b-xl overflow-hidden"
       >
         <vue-awesome-paginate
+          v-if="totalItems > itemsPerPage"
           :total-items="totalItems"
           :items-per-page="itemsPerPage"
           :max-pages-shown="5"
@@ -383,11 +441,30 @@ function getHeaderFlexClass(align) {
 } */
 
 .filter-trigger {
+  position: relative;
   @apply flex-shrink-0 rounded-md p-1 transition-all duration-200 cursor-pointer text-gray-500 hover:text-current;
 }
 
 .filter-trigger.active {
   @apply text-primary;
+}
+
+.filter-count-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  display: grid;
+  place-items: center;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 3px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1;
+  background: #69eeb7;
+  color: #0f172a;
+  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.9);
 }
 
 .filter-dropdown {
@@ -399,8 +476,7 @@ function getHeaderFlexClass(align) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  @apply border-b py-2 px-1 border-base-200;
 }
 
 .filter-dropdown-title {
@@ -408,7 +484,7 @@ function getHeaderFlexClass(align) {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: rgba(255, 255, 255, 0.6);
+  opacity: 0.6;
 }
 
 .filter-clear-btn {
@@ -433,60 +509,7 @@ function getHeaderFlexClass(align) {
   padding-top: 10px;
 }
 
-/* Text input */
-.filter-text-input {
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 13px;
-  outline: none;
-  transition: border-color 160ms ease;
-}
-
-.filter-text-input:focus {
-  border-color: rgba(105, 238, 183, 0.5);
-}
-
-.filter-text-input::placeholder {
-  color: rgba(255, 255, 255, 0.3);
-}
-
-/* Select chips */
-.filter-select-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-.filter-select-option {
-  padding: 10px 8px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(255, 255, 255, 0.75);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 160ms ease;
-  text-align: center;
-}
-
-.filter-select-option:hover {
-  background: rgba(255, 255, 255, 0.08);
-  transform: translateY(-1px);
-}
-
-.filter-select-option.active {
-  background: rgba(105, 238, 183, 0.15);
-  border-color: rgba(105, 238, 183, 0.3);
-  color: rgba(105, 238, 183, 0.95);
-  box-shadow: 0 0 0 3px rgba(105, 238, 183, 0.08);
-}
-
-/* Checkbox rows */
+/* Checkbox rows (legacy type) */
 .filter-checkbox-row {
   display: flex;
   align-items: center;
