@@ -1,58 +1,50 @@
 <script setup>
 /**
- * templateTable — shared WhatsApp template table used across sm-zap-front and
- * sm-click-attendance-screen.
+ * templateTable — self-contained WhatsApp template table.
  *
- * Renders: name, (lang), category badge, status badge, (departments), actions.
- * Delegates API calls and app-specific navigation to the parent via events/slots.
+ * Handles data fetching, pagination and column filtering internally.
+ * The parent provides identity props and handles business-level events.
  *
  * Props:
- *   templates      Array                               – required
- *   loading        Boolean                             – default false
- *   totalPage      Number  (total records count)       – default 0
- *   currentPage    Number                              – default 1
- *   itemsPerPage   Number                              – default 15
- *   mode           'manage' | 'send'                   – default 'manage'
- *     manage → shows edit / delete / copy-id buttons
- *     send   → shows send button (only when status === 'approved')
- *   showLang           Boolean                         – default false
- *   showDepartments    Boolean                         – default false
+ *   instanceId       String|Number   — required
+ *   departmentId     String|Number   — optional pre-filter
+ *   extraParams      Object          — extra query params (e.g. modelFilter)
+ *   mode             'manage'|'send' — default 'manage'
+ *   showLang         Boolean         — default false
+ *   showDepartments  Boolean         — default false
+ *   itemsPerPage     Number          — default 15
  *
  * Events:
- *   send(template)        mode='send' – user clicked send
- *   edit(template)        mode='manage'
- *   delete(template)      mode='manage'
- *   copy-id(template)     mode='manage'
- *   update:currentPage(page)
+ *   send(template)      mode='send'
+ *   edit(template)      mode='manage'
+ *   delete(template)    mode='manage'
+ *   copy-id(template)   mode='manage'
  *
  * Slots:
- *   preview    scoped: { template }   – content rendered inside the preview Popper
- *   empty-action                      – CTA placed below the empty-state text
- *   extra-actions  scoped: { template } – additional action buttons after built-in ones
+ *   preview          scoped: { template }
+ *   empty-action
+ *   extra-actions    scoped: { template }
+ *
+ * Exposed:
+ *   refresh()  — re-fetch templates from API
  */
-import { computed } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import baseTable from "./baseTable.vue";
+import api from "~/utils/api";
+import { templateUrl } from "~/utils/systemUrls";
 
 const props = defineProps({
-  templates: {
-    type: Array,
-    default: () => [],
+  instanceId: {
+    type: [String, Number],
+    required: true,
   },
-  loading: {
-    type: Boolean,
-    default: false,
+  departmentId: {
+    type: [String, Number],
+    default: null,
   },
-  totalPage: {
-    type: Number,
-    default: 0,
-  },
-  currentPage: {
-    type: Number,
-    default: 1,
-  },
-  itemsPerPage: {
-    type: Number,
-    default: 15,
+  extraParams: {
+    type: Object,
+    default: () => ({}),
   },
   mode: {
     type: String,
@@ -67,26 +59,72 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  itemsPerPage: {
+    type: Number,
+    default: 15,
+  },
 });
 
-const emit = defineEmits([
-  "send",
-  "edit",
-  "delete",
-  "copy-id",
-  "update:currentPage",
-]);
+const emit = defineEmits(["send", "edit", "delete", "copy-id"]);
 
+// ── Internal state ──────────────────────────────────────────────
+const templates = ref([]);
+const loading = ref(false);
+const currentPage = ref(1);
+const totalCount = ref(0);
+const columnFilters = ref({});
+
+// ── Columns ─────────────────────────────────────────────────────
 const columns = computed(() => {
-  const cols = [{ key: "name", label: "Nome", width: "w-64" }];
-  if (props.showLang)
-    cols.push({ key: "lang", label: "Idioma", width: "w-20" });
+  const cols = [
+    {
+      key: "name",
+      label: "Nome",
+      width: "w-64",
+      headerAlign: "left",
+      filter: { type: "text", placeholder: "Buscar nome..." },
+    },
+  ];
+  if (props.showLang) {
+    cols.push({
+      key: "lang",
+      label: "Idioma",
+      width: "w-20",
+      filter: { type: "text", placeholder: "Ex: pt_BR" },
+    });
+  }
   cols.push(
-    { key: "category", label: "Categoria", width: "w-32" },
-    { key: "status", label: "Status", width: "w-32" },
+    {
+      key: "category",
+      label: "Categoria",
+      width: "w-32",
+      filter: {
+        type: "select",
+        options: [
+          { value: "marketing", label: "Marketing" },
+          { value: "utility", label: "Utilidade" },
+          { value: "authentication", label: "Autenticação" },
+        ],
+      },
+    },
+    {
+      key: "status",
+      label: "Status",
+      width: "w-32",
+      filter: {
+        type: "select",
+        options: [
+          { value: "pending", label: "Pendente" },
+          { value: "approved", label: "Aprovado" },
+          { value: "rejected", label: "Reprovado" },
+          { value: "pending_deletion", label: "Ag. deleção" },
+        ],
+      },
+    },
   );
-  if (props.showDepartments)
+  if (props.showDepartments) {
     cols.push({ key: "department", label: "Departamento(s)", width: "w-28" });
+  }
   cols.push({
     key: "actions",
     label: "Ações",
@@ -96,6 +134,69 @@ const columns = computed(() => {
   return cols;
 });
 
+// ── API ─────────────────────────────────────────────────────────
+async function fetchTemplates() {
+  loading.value = true;
+  try {
+    const params = new URLSearchParams();
+    params.set("page", currentPage.value);
+    params.set("instance", props.instanceId);
+    if (props.departmentId) {
+      params.set("department", props.departmentId);
+    }
+
+    for (const [k, v] of Object.entries(columnFilters.value)) {
+      if (Array.isArray(v)) {
+        v.forEach((val) => params.append(k, val));
+      } else if (v != null && v !== "") {
+        params.append(k, v);
+      }
+    }
+
+    if (props.extraParams) {
+      for (const [k, v] of Object.entries(props.extraParams)) {
+        if (Array.isArray(v)) {
+          v.forEach((val) => params.append(k, val));
+        } else if (v != null && v !== "") {
+          params.append(k, v);
+        }
+      }
+    }
+
+    const { data } = await api.get(`${templateUrl}?${params.toString()}`);
+    templates.value = data.results;
+    totalCount.value = data.count;
+  } catch {
+    templates.value = [];
+    totalCount.value = 0;
+  } finally {
+    loading.value = false;
+  }
+}
+
+function onFiltersUpdate(newFilters) {
+  columnFilters.value = newFilters;
+  currentPage.value = 1;
+  fetchTemplates();
+}
+
+function onPageChange(page) {
+  currentPage.value = page;
+  fetchTemplates();
+}
+
+watch(
+  () => [props.instanceId, props.departmentId, props.extraParams],
+  () => {
+    currentPage.value = 1;
+    fetchTemplates();
+  },
+  { deep: true },
+);
+
+onMounted(fetchTemplates);
+
+// ── Format helpers ──────────────────────────────────────────────
 function formatCategory(val) {
   switch (val?.toLowerCase()) {
     case "marketing":
@@ -123,6 +224,8 @@ function formatStatus(val) {
       return val ?? "";
   }
 }
+
+defineExpose({ refresh: fetchTemplates });
 </script>
 
 <template>
@@ -130,11 +233,13 @@ function formatStatus(val) {
     :columns="columns"
     :rows="templates"
     :loading="loading"
-    :total-items="totalPage"
+    :total-items="totalCount"
     :items-per-page="itemsPerPage"
     :current-page="currentPage"
+    :filters="columnFilters"
     empty-text="Nenhum modelo de mensagem disponível"
-    @update:current-page="$emit('update:currentPage', $event)"
+    @update:current-page="onPageChange"
+    @update:filters="onFiltersUpdate"
   >
     <!-- Empty action passthrough -->
     <template #empty-action>
@@ -145,7 +250,7 @@ function formatStatus(val) {
     <template #cell-name="{ row }">
       <span
         :title="row.name"
-        class="block truncate text-center max-w-48 whitespace-nowrap font-medium text-sm"
+        class="block truncate text-left max-w-64 whitespace-nowrap font-medium text-sm"
       >
         {{ row.name }}
       </span>
@@ -162,9 +267,9 @@ function formatStatus(val) {
         <div
           class="gap-2 font-semibold flex justify-center items-center min-w-19 lg:min-w-32 w-0 p-1.5 rounded-lg transition-colors"
           :class="{
-            'bg-sky-500/20 border border-sky-500/50 hover:border-sky-400 text-sky-400 hover:text-sky-200':
+            'bg-sky-500/20 border  border-sky-500/50 hover:border-sky-400 text-sky-400':
               row.category?.toLowerCase() === 'marketing',
-            'bg-purple-500/20 border border-purple-500/50 hover:border-purple-400 text-purple-400 hover:text-purple-200':
+            'bg-purple-500/20 border dark:hover-text-purple-700 border-purple-500/50 hover:border-purple-400 text-purple-400':
               row.category?.toLowerCase() === 'utility',
           }"
         >
@@ -220,11 +325,11 @@ function formatStatus(val) {
       <div class="flex justify-center">
         <div
           :class="{
-            'bg-orange-500/20 border border-orange-500 text-orange-300 hover:text-orange-200 hover:border-orange-200':
+            'bg-orange-500/20 border border-orange-500 text-orange-300 dark:text-orange-500 hover:text-orange-200 hover:border-orange-200':
               row.status?.toLowerCase() === 'pending',
-            'bg-green-600/20 border border-green-600 text-green-300 hover:text-green-200 hover:border-green-200':
+            'bg-green-600/20 border border-green-600 dark:text-green-500 text-green-300 hover:text-green-200 hover:border-green-200':
               row.status?.toLowerCase() === 'approved',
-            'bg-red-500/20 border border-red-500 text-red-300 hover:text-red-200 hover:border-red-200':
+            'bg-red-500/20 border border-red-500 text-red-300 dark:text-red-500 hover:text-red-200 hover:border-red-200':
               row.status?.toLowerCase() === 'rejected' ||
               row.status?.toLowerCase() === 'pending_deletion',
           }"
