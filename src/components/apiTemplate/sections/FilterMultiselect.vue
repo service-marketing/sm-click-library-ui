@@ -129,10 +129,11 @@ function avatarColor(label) {
           </svg>
         </span> -->
 
-        <!-- Colored initial avatar -->
+        <!-- Colored initial avatar
         <span class="ms-avatar" :style="{ background: avatarColor(opt.label) }">
           {{ opt.label[0].toUpperCase() }}
         </span>
+         -->
 
         <!-- Label -->
         <span class="ms-label">{{ opt.label }}</span>
