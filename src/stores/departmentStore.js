@@ -15,6 +15,7 @@ export const useDepartmentStore = defineStore("department", {
         const response = await api.get(nextPageUrl);
         this.departments = response.data;
         this.count = this.departments.length;
+        this.loaded = true;
       } catch (error) {
         console.log("Erro ao buscar departamentos:", error);
       }

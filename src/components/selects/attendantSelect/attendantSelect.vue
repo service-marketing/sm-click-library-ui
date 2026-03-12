@@ -1,6 +1,11 @@
 <script setup>
-import { ref, computed, watch, onMounted, nextTick } from "vue";
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from "vue";
 import { useAttendantStore } from "~/stores/attendantStore";
+import PhotoDisplay from "../../chat/components/photoDisplay.vue";
+import {
+  showEllipsisTooltip,
+  hideEllipsisTooltip,
+} from "~/utils/functions/ellipsisTooltip";
 
 const props = defineProps({
   attendance: { type: [Array, String], default: null },
@@ -10,7 +15,53 @@ const props = defineProps({
   attDel: { type: Object, default: { id: null } },
   method: { type: String, default: null },
   preselect: { type: Boolean, default: true },
+  // --- Novas props de exibição ---
+  variant: {
+    type: String,
+    default: "expanded",
+    validator: (v) => ["expanded", "select", "dropdown"].includes(v),
+  },
+  showSearch: { type: Boolean, default: true },
+  showSelectedBadges: { type: Boolean, default: true },
+  showAvatar: { type: Boolean, default: true },
+  maxHeight: { type: String, default: "183.5px" },
+  placeholder: { type: String, default: "Pesquise por nome." },
+  placeholderSelect: { type: String, default: "Selecione um atendente" },
+  // --- Items desabilitados ---
+  disabledItems: { type: Array, default: () => [] },
+  disabledReason: { type: String, default: "Já encarteirado" },
+  // --- Estilo ---
+  size: {
+    type: String,
+    default: "normal",
+    validator: (v) => ["small", "normal", "large"].includes(v),
+  },
+  maxColumns: { type: Number, default: 2 },
+  minColumnWidth: { type: String, default: "170px" },
+  // --- Cores customizáveis ---
+  primaryColor: { type: String, default: "#14b8a6" },
+  primaryColorHover: { type: String, default: "#0d9488" },
+  borderRadius: { type: String, default: "0.75rem" },
 });
+
+// Ref para o wrapper do dropdown (click outside)
+const dropdownRef = ref(null);
+
+// Click outside handler
+function handleClickOutside(event) {
+  if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
+    open_select.value = false;
+  }
+}
+
+// CSS Variables para cores customizáveis
+const cssVars = computed(() => ({
+  "--primary-color": props.primaryColor,
+  "--primary-color-hover": props.primaryColorHover,
+  "--primary-color-light": `${props.primaryColor}50`,
+  "--primary-color-medium": `${props.primaryColor}cc`,
+  "--border-radius": props.borderRadius,
+}));
 
 const emit = defineEmits(["attend", "component-mounted"]);
 const attendantStore = useAttendantStore();
@@ -76,9 +127,85 @@ function filterByDepartment(attendants) {
   return attendants;
 }
 
+// Computed para variante de exibição
+const isExpanded = computed(() => props.variant === "expanded");
+const isDropdown = computed(() => props.variant === "dropdown");
+
+// Computed para classes de tamanho
+const sizeClasses = computed(() => ({
+  "size-small": props.size === "small",
+  "size-normal": props.size === "normal",
+  "size-large": props.size === "large",
+}));
+
+// Computed para estilo do grid
+const gridStyle = computed(() => ({
+  gridTemplateColumns: `repeat(auto-fit, minmax(${props.minColumnWidth}, 1fr))`,
+}));
+
+// Computed para o placeholder dinâmico
+const dynamicPlaceholder = computed(() => {
+  if (attendanceSelected.value.length > 0) {
+    return props.multiSelect
+      ? `Selecionados: ${attendanceSelected.value.length}`
+      : `Selecionado: ${attendanceSelected.value[0]?.name}`;
+  }
+  return props.placeholder;
+});
+
+// Ref para o select nativo
+const nativeSelectValue = ref(props.multiSelect ? [] : "");
+
+// Sync nativeSelectValue com attendanceSelected
+watch(
+  attendanceSelected,
+  (val) => {
+    if (props.multiSelect) {
+      nativeSelectValue.value = val.map((a) => a.id);
+    } else {
+      nativeSelectValue.value = val[0]?.id || "";
+    }
+  },
+  { deep: true },
+);
+
+// Handler para o select nativo
+function handleNativeSelect(event) {
+  const attendants = attendantStore.attendants;
+
+  if (props.multiSelect) {
+    const selectedIds = Array.from(
+      event.target.selectedOptions,
+      (option) => option.value,
+    );
+    clearSelectedAttendance();
+    selectedIds.forEach((id) => {
+      const att = attendants.find((a) => a.id === id);
+      if (att) {
+        att.selected = true;
+        attendanceSelected.value.push(att);
+      }
+    });
+  } else {
+    const selectedId = event.target.value;
+    clearSelectedAttendance();
+    const att = attendants.find((a) => a.id === selectedId);
+    if (att) {
+      att.selected = true;
+      attendanceSelected.value.push(att);
+    }
+  }
+  emit("attend", attendanceSelected.value);
+}
+
 onMounted(() => {
   initializeComponent();
   emit("component-mounted");
+  document.addEventListener("click", handleClickOutside);
+});
+
+onUnmounted(() => {
+  document.removeEventListener("click", handleClickOutside);
 });
 
 watch(
@@ -103,6 +230,12 @@ watch(
   () => initializeComponent(),
   { deep: true },
 );
+
+watch(open_select, (isOpen) => {
+  if (!isOpen) {
+    searchInput.value = "";
+  }
+});
 
 function initializeComponent() {
   clearSelectedAttendance();
@@ -140,6 +273,9 @@ function updateSelectedAttendance() {
 }
 
 function selectAttendant(attendant) {
+  // Não permite selecionar se estiver desabilitado
+  if (isItemDisabled(attendant.id)) return;
+
   const idx = attendanceSelected.value.findIndex((a) => a.id === attendant.id);
   if (idx !== -1) {
     attendant.selected = false;
@@ -150,6 +286,9 @@ function selectAttendant(attendant) {
     attendanceSelected.value.push(attendant);
   }
   emit("attend", attendanceSelected.value);
+
+  // Fechar dropdown em single select
+  if (!props.multiSelect) open_select.value = false;
 }
 
 function eraseAttendant(attendant, index) {
@@ -157,337 +296,359 @@ function eraseAttendant(attendant, index) {
   attendanceSelected.value.splice(index, 1);
   emit("attend", attendanceSelected.value);
 }
+
+// Função para verificar se um item está desabilitado
+function isItemDisabled(attendantId) {
+  return props.disabledItems.some((id) => {
+    if (typeof id === "object") return id.id === attendantId;
+    return id === attendantId;
+  });
+}
 </script>
 
 <template>
-  <div class="depart-select-container">
-    <!-- Search input -->
-    <div
-      class="search-container relative shadow shadow-gray-900 dark:shadow-gray-500"
-    >
-      <div
-        class="input-wrapper bg-base-300 border-b border-base-200"
-        @click="open_select = !open_select"
-        :class="{ expanded: open_select || attendanceSelected.length > 0 }"
-      >
-        <input
-          v-model="searchInput"
-          :placeholder="
-            attendanceSelected.length > 0
-              ? multiSelect
-                ? `Selecionados: ${attendanceSelected.length}`
-                : `Selecionado: ${attendanceSelected[0].name}`
-              : 'Pesquise por nome.'
-          "
-          class="select-depart-input"
-        />
-        <div class="icon-container">
+  <div class="depart-select-container" :class="sizeClasses" :style="cssVars">
+    <!-- Variante DROPDOWN (toggle compacto) -->
+    <template v-if="isDropdown">
+      <div class="dropdown-wrapper" ref="dropdownRef">
+        <button
+          type="button"
+          @click="open_select = !open_select"
+          class="dropdown-trigger bg-base-300"
+          :class="[sizeClasses, { 'dropdown-open': open_select }]"
+        >
+          <span class="dropdown-trigger-text">
+            {{
+              attendanceSelected.length > 0
+                ? multiSelect
+                  ? `${attendanceSelected.length} selecionado(s)`
+                  : attendanceSelected[0]?.name
+                : placeholderSelect
+            }}
+          </span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
-            stroke-width="1.5"
+            stroke-width="2"
             stroke="currentColor"
-            class="search-icon"
+            class="dropdown-arrow"
+            :class="{ 'dropdown-arrow-open': open_select }"
           >
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
-              d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+              d="m19.5 8.25-7.5 7.5-7.5-7.5"
             />
           </svg>
+        </button>
+
+        <div v-show="open_select" class="dropdown-menu bg-base-300">
+          <div v-if="showSearch" class="dropdown-search-wrapper">
+            <input
+              v-model="searchInput"
+              :placeholder="placeholder"
+              class="dropdown-search-input bg-base-200"
+            />
+          </div>
+          <div class="dropdown-options" :style="{ maxHeight: maxHeight }">
+            <!-- Loading Store State -->
+            <div v-if="!attendantStore.loaded" class="dropdown-loading">
+              <div class="library-loader"></div>
+              <span
+                style="font-size: 0.875rem; opacity: 0.7; margin-left: 0.5rem"
+                >Carregando atendentes...</span
+              >
+            </div>
+
+            <!-- Options List -->
+            <template v-else>
+              <div
+                v-for="attendant in filteredAttendants"
+                :key="attendant.id"
+                @click="selectAttendant(attendant)"
+                :class="{
+                  'dropdown-option-selected': attendant.selected,
+                  'dropdown-option-disabled': isItemDisabled(attendant.id),
+                }"
+                class="dropdown-option"
+              >
+                <template v-if="showAvatar">
+                  <PhotoDisplay
+                    :photo="attendant.photo"
+                    :clickable="false"
+                    size="size-5"
+                  />
+                </template>
+                <span
+                  class="dropdown-option-label"
+                  @mouseenter="showEllipsisTooltip"
+                  @mouseleave="hideEllipsisTooltip"
+                  >{{ attendant.name }}</span
+                >
+                <span
+                  class="dropdown-option-check ml-auto"
+                  v-if="attendant.selected"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="2"
+                    stroke="currentColor"
+                    class="size-4"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="m4.5 12.75 6 6 9-13.5"
+                    />
+                  </svg>
+                </span>
+                <span
+                  v-else-if="isItemDisabled(attendant.id)"
+                  class="disabled-reason-badge"
+                >
+                  {{ disabledReason }}
+                </span>
+              </div>
+
+              <!-- Empty State -->
+              <div
+                v-if="filteredAttendants.length === 0"
+                class="dropdown-empty"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  style="
+                    width: 1.25rem;
+                    height: 1.25rem;
+                    flex-shrink: 0;
+                    opacity: 0.5;
+                    margin-right: 0.5rem;
+                  "
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+                  />
+                </svg>
+                <p style="margin: 0; font-size: 0.875rem">
+                  {{
+                    searchInput
+                      ? 'Nenhum atendente encontrado para "' + searchInput + '"'
+                      : "Nenhum atendente disponível."
+                  }}
+                </p>
+              </div>
+            </template>
+          </div>
         </div>
       </div>
+    </template>
 
-      <main
-        v-if="
-          attendanceSelected.length > 0 && multiSelect && attendantStore.loaded
-        "
-        class="selection-container bg-base-300 border-b border-base-200"
-      >
+    <!-- Variante EXPANDED (padrão atual) -->
+    <template v-else>
+      <div class="search-container relative">
         <div
-          v-for="(attendant, index) in attendanceSelected"
-          :key="attendant"
-          class="selection-item"
+          v-if="showSearch"
+          class="input-wrapper bg-base-300"
+          @click="open_select = !open_select"
+          :class="{ expanded: open_select || attendanceSelected.length > 0 }"
         >
-          {{ attendant.name }}
-          <button @click="eraseAttendant(attendant, index)" class="close-btn">
+          <input
+            v-model="searchInput"
+            :placeholder="dynamicPlaceholder"
+            class="select-depart-input"
+          />
+          <div class="icon-container">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
               stroke-width="1.5"
               stroke="currentColor"
-              class="close-icon"
+              class="search-icon"
             >
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                d="M6 18L18 6M6 6l12 12"
+                d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
               />
             </svg>
-          </button>
-        </div>
-      </main>
-
-      <div
-        :class="
-          attendanceSelected.length > 0 && multiSelect
-            ? 'dropdown-attendance-expanded'
-            : 'dropdown-attendance'
-        "
-        class="dropdown-attendance bg-base-300"
-      >
-        <div class="department-list">
-          <div
-            :class="{ 'two-columns': filteredAttendants.length > 4 }"
-            class="grid-container"
-          >
-            <div
-              v-if="attendantStore.loaded"
-              v-for="attendant in filteredAttendants"
-              :key="attendant"
-              :class="{ selected: attendant.selected }"
-              class="department-item line-clamp-1 bg-slate-500/20 hover:bg-teal-600"
-            >
-              <div style="padding-left: 5px">
-                <img
-                  v-if="attendant.photo"
-                  :src="attendant.photo"
-                  style="
-                    pointer-events: none;
-                    border-radius: 100%;
-                    width: 24px;
-                    height: 24px;
-                  "
-                />
-                <svg
-                  v-else
-                  style="
-                    pointer-events: none;
-                    border-radius: 100%;
-                    width: 24px;
-                    height: 24px;
-                  "
-                  class="bg-base-300"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4h-4Z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-              </div>
-              <span
-                @click="selectAttendant(attendant)"
-                class="department-name h-full w-full"
-                >{{ attendant.name }}</span
-              >
-            </div>
           </div>
         </div>
-        <div
-          v-if="attendantStore.loaded && filteredAttendants.length === 0"
-          class="no-departments bg-base-300"
+
+        <main
+          v-if="
+            showSelectedBadges &&
+            attendanceSelected.length > 0 &&
+            multiSelect &&
+            attendantStore.loaded
+          "
+          class="selection-container bg-base-300 border-b border-base-200"
         >
-          Nenhum atendente disponível.
-        </div>
-        <div v-if="!attendantStore.loaded" class="library-loading-spinner">
-          Inicializando atendentes
-          <div class="library-loader"></div>
+          <div
+            v-for="(attendant, index) in attendanceSelected"
+            :key="attendant.id"
+            class="selection-item"
+          >
+            <span class="selection-item-label">{{ attendant.name }}</span>
+            <button @click="eraseAttendant(attendant, index)" class="close-btn">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="close-icon"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+        </main>
+
+        <div
+          :class="
+            attendanceSelected.length > 0 && multiSelect && showSelectedBadges
+              ? 'dropdown-attendance-expanded'
+              : 'dropdown-attendance'
+          "
+          class="dropdown-attendance bg-base-300"
+          :style="{ maxHeight: maxHeight }"
+        >
+          <div class="department-list">
+            <div class="grid-container" :style="gridStyle">
+              <div
+                v-if="attendantStore.loaded"
+                v-for="attendant in filteredAttendants"
+                :key="attendant.id"
+                @click="selectAttendant(attendant)"
+                :class="{
+                  selected: attendant.selected,
+                  'is-disabled': isItemDisabled(attendant.id),
+                }"
+                class="department-item bg-slate-500/20 hover:bg-teal-600"
+              >
+                <div v-if="showAvatar" style="padding-left: 5px">
+                  <PhotoDisplay
+                    :photo="attendant.photo"
+                    :clickable="false"
+                    size="size-5"
+                  />
+                </div>
+                <span
+                  class="department-name h-full w-full"
+                  @mouseenter="showEllipsisTooltip"
+                  @mouseleave="hideEllipsisTooltip"
+                >
+                  {{ attendant.name }}
+                </span>
+                <span
+                  v-if="isItemDisabled(attendant.id)"
+                  class="disabled-badge-expanded"
+                >
+                  {{ disabledReason }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div
+            v-if="attendantStore.loaded && filteredAttendants.length === 0"
+            class="no-departments bg-base-300"
+          >
+            Nenhum atendente disponível.
+          </div>
+          <div v-if="!attendantStore.loaded" class="library-loading-spinner">
+            Inicializando atendentes
+            <div class="library-loader"></div>
+          </div>
         </div>
       </div>
-    </div>
+    </template>
   </div>
 </template>
+
+<style scoped src="../sharedSelectStyles.css"></style>
+
 <style scoped>
-/* Adiciona as classes de estilo conforme especificado no terceiro componente */
-.shadow {
-  --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  --tw-shadow-colored:
-    0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);
-  box-shadow:
-    var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000),
-    var(--tw-shadow);
+/* ===== ESTILOS ESPECÍFICOS DO ATTENDANT SELECT ===== */
+
+/* Avatar no dropdown */
+.dropdown-avatar {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
 }
 
-.depart-select-container {
-  width: 100%;
+.dropdown-avatar-placeholder {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
   display: flex;
-  flex-direction: column;
   align-items: center;
-}
-
-.search-container {
-  width: 100%;
-  border-bottom-right-radius: 0.375rem;
-  border-bottom-left-radius: 0.375rem;
-}
-
-.input-wrapper {
-  padding: 10px;
-  padding-left: 40px;
-  width: 100%;
-  display: flex;
-  border-top-right-radius: 4px;
-  border-top-left-radius: 4px;
-  position: relative;
-}
-
-.select-depart-input {
-  width: 100%;
-  border: none;
-  outline: none;
-  background: transparent;
+  justify-content: center;
+  flex-shrink: 0;
   color: currentColor;
 }
 
-.select-depart-input:focus {
-  border: none;
-  outline: none;
-  @apply ring-0;
+/* ===== ESTILOS PARA ITEMS DESABILITADOS ===== */
+
+.dropdown-option-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: rgba(148, 163, 184, 0.05);
 }
 
-.ring-0 {
-  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0
-    var(--tw-ring-offset-width) var(--tw-ring-offset-color);
-  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0
-    calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color);
-  box-shadow:
-    var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
-    var(--tw-shadow, 0 0 #0000);
+.dropdown-option-disabled:hover {
+  background-color: rgba(148, 163, 184, 0.05);
 }
 
-.icon-container {
-  position: absolute;
-  left: 10px;
-  top: 11px;
-  display: flex;
-  align-items: center;
+.disabled-reason-badge {
+  font-size: 0.65rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  background: rgba(148, 163, 184, 0.15);
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  margin-left: auto;
+  font-weight: 500;
+  text-align: right;
 }
 
-.search-icon {
-  background-color: #14b8a6;
-  color: white;
-  padding: 4px;
-  border-radius: 50%;
-  width: 22px;
-  height: 22px;
+.department-item.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: rgba(148, 163, 184, 0.05) !important;
 }
 
-.selection-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding: 6px;
-  width: 100%;
-  overflow-y: auto;
-  height: 48px;
+.department-item.is-disabled:hover {
+  background-color: rgba(148, 163, 184, 0.05) !important;
 }
 
-.selection-item {
-  display: flex;
-  align-items: center;
-  background-color: rgba(20, 184, 166, 0.8);
-  padding: 5px 10px;
-  border-radius: 4px;
-  color: white;
-}
-
-.close-btn {
-  margin-left: 8px;
-  background-color: rgba(55, 65, 81, 0.3);
-  border-radius: 4px;
-  padding: 2px;
-}
-
-.close-icon {
-  width: 16px;
-  height: 16px;
-}
-
-.dropdown-attendance {
-  width: 100%;
-  max-height: 150px;
-  overflow-y: auto;
-  border-radius: 0 0 4px 4px;
-  padding-bottom: 3px;
-}
-
-.dropdown-attendance-expanded {
-  top: 93px;
-}
-
-.department-list {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-
-.grid-container {
-  display: grid;
-  gap: 1px;
-  width: 100%;
-}
-
-.two-columns {
-  grid-template-columns: repeat(2, 1fr);
-}
-
-.department-item {
-  cursor: pointer;
-  width: 100%;
-  align-items: center;
-  display: flex;
-}
-
-.department-name {
-  padding: 8px;
-}
-
-.selected {
-  background-color: rgba(20, 184, 166, 0.8);
-}
-
-.infinite-loading {
-  padding: 12px;
-}
-
-.no-departments {
-  display: flex;
-  justify-content: center;
-  padding: 12px;
-}
-
-.library-loading-spinner {
-  display: flex;
-  justify-content: center;
-  padding: 26px;
-  gap: 12px;
-}
-
-@keyframes library-loader-rotate {
-  0% {
-    transform: rotate(0);
-  }
-
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-.library-loader {
-  width: 24px;
-  height: 24px;
-  border: 4px solid #14b8a6;
-  border-right-color: transparent;
-  border-radius: 50%;
-  animation: library-loader-rotate 1s linear infinite;
+.disabled-badge-expanded {
+  font-size: 0.65rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  background: rgba(148, 163, 184, 0.15);
+  color: rgb(148 163 184);
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  font-weight: 500;
+  text-align: right;
 }
 </style>

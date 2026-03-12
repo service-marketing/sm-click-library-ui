@@ -23,7 +23,7 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  canBlockedContacts: {
+  canBlockContacts: {
     type: Boolean,
     default: true,
   },
@@ -71,7 +71,7 @@ const toggleBlocked = () => {
             <Popper
               hover
               :content="
-                !canBlockedContacts
+                !canBlockContacts
                   ? 'Sem permissão para esta ação'
                   : blocked
                     ? 'Desbloquear contato'
@@ -83,7 +83,7 @@ const toggleBlocked = () => {
               <template #content>
                 <div class="p-1 text-xs w-[150px] text-center">
                   {{
-                    !canBlockedContacts
+                    !canBlockContacts
                       ? "Sem permissão para esta ação"
                       : blocked
                         ? "Desbloquear contato"
@@ -93,11 +93,11 @@ const toggleBlocked = () => {
               </template>
               <button
                 @click="toggleBlocked"
-                :disabled="!canBlockedContacts"
+                :disabled="!canBlockContacts"
                 class="lock-button transition-all duration-200"
                 :class="[
                   blocked ? 'lock-button-blocked' : 'lock-button-unblocked',
-                  canBlockedContacts
+                  canBlockContacts
                     ? 'lock-button-enabled'
                     : 'lock-button-disabled',
                 ]"

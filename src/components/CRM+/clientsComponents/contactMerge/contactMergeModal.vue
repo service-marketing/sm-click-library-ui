@@ -93,6 +93,10 @@ const canConfirmMerge = computed(() => {
   );
 });
 
+const filteredCandidates = computed(() =>
+  candidates.value.filter((contact) => contact.id !== parentContact.value?.id),
+);
+
 // ========== METHODS ==========
 const resetState = () => {
   step.value = "select";
@@ -144,11 +148,13 @@ const executeMerge = async () => {
     mergeLoading.value = true;
     mergeError.value = "";
 
+    let contact = null;
     if (typeof props.mergeContacts === "function") {
-      await props.mergeContacts(payload);
+      const response = await props.mergeContacts(payload);
+      contact = response?.object ?? null;
     }
 
-    emit("merged", payload);
+    emit("merged", { ...payload, contact });
     closeModal({ force: true });
   } catch (error) {
     mergeError.value =
@@ -307,9 +313,9 @@ watch(
 
             <!-- Candidates List -->
             <div class="candidates-list" :key="infiniteKey">
-              <template v-if="candidates.length > 0">
+              <template v-if="filteredCandidates.length > 0">
                 <MergeContactCard
-                  v-for="contact in candidates"
+                  v-for="contact in filteredCandidates"
                   :key="contact.id"
                   :contact="contact"
                   :selectable="true"
@@ -592,13 +598,14 @@ watch(
   font-size: 1rem;
   font-weight: 700;
   margin: 0;
-  @apply text-center;
+  @apply text-left;
 }
 
 .merge-subtitle {
   font-size: 0.75rem;
   color: rgb(148, 163, 184);
   margin: 0;
+  @apply text-left;
 }
 
 .merge-close-btn {

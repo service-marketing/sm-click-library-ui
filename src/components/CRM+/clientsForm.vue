@@ -31,6 +31,7 @@ const props = defineProps({
       photo: null,
       raw_telephone: "",
       telephone: "",
+      instagram_user_name: "",
       whatsapp_id: "",
       whatsapp_jid: "",
       whatsapp_lid: null,
@@ -56,7 +57,7 @@ const props = defineProps({
     default: false,
   },
   // --- Checa se tem permissao para bloquear contatos ---
-  canBlockedContacts: {
+  canBlockContacts: {
     type: Boolean,
     default: true,
   },
@@ -75,8 +76,21 @@ const props = defineProps({
     type: String,
     default: "",
   },
+  currentAttendance: {
+    type: Object,
+    default: () => null,
+  },
+  supervisor: {
+    type: Boolean,
+    default: false,
+  },
   // --- Exibe acao de mesclagem no formulario ---
   canMergeContacts: {
+    type: Boolean,
+    default: false,
+  },
+  // --- Habilita funcionalidades de desenvolvimento ---
+  isDev: {
     type: Boolean,
     default: false,
   },
@@ -302,6 +316,14 @@ const toggleButtons = [
     disabled:
       props.form.status === "screening" || props.form.status === "finished",
   },
+  {
+    label: "Carteira",
+    value: "wallet",
+    disabled:
+      !form.id ||
+      props.form.status === "screening" ||
+      props.form.status === "finished",
+  },
 ];
 
 const handlerToggleButtons = computed(() => {
@@ -312,7 +334,9 @@ const handlerToggleButtons = computed(() => {
   if (!props.hasCrmPlus) {
     return [
       contactItem,
-      ...baseList.filter((item) => item.value !== "products"),
+      ...baseList.filter(
+        (item) => item.value !== "products" && item.value !== "wallet",
+      ),
     ];
   }
 
@@ -431,7 +455,7 @@ const handlerToggleButtons = computed(() => {
                     :rating="form.rating"
                     :photo="form.photo"
                     :blocked="form.blocked"
-                    :canBlockedContacts="canBlockedContacts"
+                    :canBlockContacts="canBlockContacts"
                     @update:outcome="form.outcome = $event"
                     @update:rating="form.rating = $event"
                     @update:blocked="form.blocked = $event"
@@ -541,7 +565,7 @@ const handlerToggleButtons = computed(() => {
                 </div>
 
                 <section
-                  v-show="!isLargeScreen && pageState !== 'contact'"
+                  v-if="!isLargeScreen && pageState !== 'contact'"
                   class="right-column bg-base-300"
                 >
                   <ContactSection
@@ -550,10 +574,15 @@ const handlerToggleButtons = computed(() => {
                     :handlerToggleButtons="handlerToggleButtons"
                     :allProducts="allProducts"
                     :departmentBypass="departmentBypass"
+                    :currentAttendance="currentAttendance"
+                    :supervisor="props.supervisor"
                     :isLargeScreen="isLargeScreen"
+                    :contactId="form.id"
+                    :contact="form"
                     v-model:pageState="pageState"
                     v-model:telephone="form.telephone"
                     v-model:country="form.country"
+                    v-model:instagramUserName="form.instagram_user_name"
                     v-model:segmentationFields="form.segmentation_fields"
                     v-model:products="form.products"
                   />
@@ -568,10 +597,15 @@ const handlerToggleButtons = computed(() => {
                   :handlerToggleButtons="handlerToggleButtons"
                   :allProducts="allProducts"
                   :departmentBypass="departmentBypass"
+                  :currentAttendance="currentAttendance"
+                  :supervisor="props.supervisor"
                   :isLargeScreen="isLargeScreen"
+                  :contactId="form.id"
+                  :contact="form"
                   v-model:pageState="pageState"
                   v-model:telephone="form.telephone"
                   v-model:country="form.country"
+                  v-model:instagramUserName="form.instagram_user_name"
                   v-model:segmentationFields="form.segmentation_fields"
                   v-model:products="form.products"
                 />
@@ -733,8 +767,8 @@ const handlerToggleButtons = computed(() => {
 
 @media (max-width: 639px) {
   .right-column {
-    padding: 0.25rem 0.5rem 0.5rem;
-    border-radius: 0.75rem;
+    padding: 0.25rem 0.1rem 0.5rem;
+    border-radius: 0.9rem;
   }
 }
 
@@ -788,7 +822,7 @@ const handlerToggleButtons = computed(() => {
 }
 
 .clients-form-background.noCrmPlus {
-  max-height: 350px;
+  max-height: 450px;
 }
 
 @media (min-width: 1920px) {

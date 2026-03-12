@@ -1,3 +1,6 @@
+import "~/styles/tailwind.css";
+import baseTable from "~/components/apiTemplate/baseTable.vue";
+import templateTable from "~/components/apiTemplate/templateTable.vue";
 import primarySelect from "~/components/selects/primary_select/primary_select.vue";
 import simpleModal from "~/components/modals/simple_modal/simple_modal.vue";
 import simpleCard from "~/components/cards/simple_card/simple_card.vue";
@@ -29,6 +32,7 @@ import FloatingDev from "./components/devHelpers/floating-dev.vue";
 import OutcomeButton from "./components/CRM+/clientsComponents/outcomeButton.vue";
 import ListProducts from "./components/CRM+/clientsComponents/listProducts.vue";
 import ContactCard from "./components/CRM+/clientsComponents/contactMerge/contactCard.vue";
+import WalletCard from "./components/CRM+/clientsComponents/wallet/walletCard.vue";
 import { useDebugStore } from "~/stores/debugStore";
 import { useAuthStore } from "~/stores/authStore";
 import { useAttendantStore } from "./stores/attendantStore";
@@ -42,7 +46,13 @@ import {
 } from "./utils/currencyUtils.js";
 export { useScheduledStore } from "./stores/useScheduledStore";
 export { useAuthStore };
+export { useAttendantStore };
+export { useDepartmentStore };
+export { useInstanceStore };
 export { ContactCard };
+export { default as BaseTable } from "~/components/apiTemplate/baseTable.vue";
+export { default as TemplateTable } from "~/components/apiTemplate/templateTable.vue";
+
 export {
   formatCurrency,
   getCurrencySymbol,
@@ -53,7 +63,6 @@ import CallHistory from "./components/chat/CallHistory.vue";
 import CallMessage from "./components/chat/CallMessage.vue";
 import ReminderModal from "./components/CRM+/reminders/reminderModal/reminderModal.vue";
 import { moveReminderToCompleted } from "./components/CRM+/reminders/reminderFunctions.js";
-export { useInstanceStore };
 
 import api, {
   setApiBaseURL,
@@ -97,8 +106,11 @@ function install(Vue) {
   Vue.component("CallMessage", CallMessage);
   Vue.component("ListProducts", ListProducts);
   Vue.component("ContactCard", ContactCard);
+  Vue.component("WalletCard", WalletCard);
   Vue.component("ReminderModal", ReminderModal);
   Vue.component("SoundSelect", SoundSelect);
+  Vue.component("BaseTable", baseTable);
+  Vue.component("TemplateTable", templateTable);
 }
 
 export function attLibDeparts(department, action = "add") {

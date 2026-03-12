@@ -12,7 +12,7 @@ const props = defineProps({
     type: Object,
     default: {
       title: "title",
-      svg: "<svg class='w-5 mr-2 text-primary inline-block' aria-hidden='true' xmlns='http://www.w3.org/2000/svg' fill='currentColor' viewBox='0 0 24 24'> <path d='M18 3h-5.7a2 2 0 0 0-1.4.6L3.6 11a2 2 0 0 0 0 2.8l6.6 6.6a2 2 0 0 0 2.8 0l7.4-7.5a2 2 0 0 0 .6-1.4V6a3 3 0 0 0-3-3Zm-2.4 6.4a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z' /> </svg>",
+      svg: "<svg class='w-5 mr-2 text-teal-500 inline-block' aria-hidden='true' xmlns='http://www.w3.org/2000/svg' fill='currentColor' viewBox='0 0 24 24'> <path d='M18 3h-5.7a2 2 0 0 0-1.4.6L3.6 11a2 2 0 0 0 0 2.8l6.6 6.6a2 2 0 0 0 2.8 0l7.4-7.5a2 2 0 0 0 .6-1.4V6a3 3 0 0 0-3-3Zm-2.4 6.4a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z' /> </svg>",
     },
   },
   size: {
@@ -36,6 +36,9 @@ const toggleModal = () => {
     leave-active-class="transition-opacity duration-200 ease-in"
     leave-from-class="opacity-100"
     leave-to-class="opacity-0"
+    enter-active-class="transition-opacity duration-200 ease-out"
+    enter-from-class="opacity-0"
+    enter-to-class="opacity-100"
   >
     <div v-if="isOpen" class="modal_head">
       <div
@@ -52,7 +55,9 @@ const toggleModal = () => {
                 <template v-if="!$slots['header']">
                   <span v-html="header?.svg"></span>
 
-                  <h3 class="text-xl font-semibold flex items-center gap-2">
+                  <h3
+                    class="text-xl ml-1 font-semibold flex items-center gap-2"
+                  >
                     {{ header?.title }}
                   </h3>
                 </template>
@@ -105,7 +110,7 @@ const toggleModal = () => {
 <style scoped>
 /* simple_modal CSS  */
 .modal_head {
-  @apply my_modal backdrop-blur-[2px] z-50 fixed w-full h-full top-0 left-0 flex items-center justify-center;
+  @apply my_modal backdrop-blur-[1px] z-50 fixed w-full h-full top-0 left-0 flex items-center justify-center;
 }
 
 .my_modal {
