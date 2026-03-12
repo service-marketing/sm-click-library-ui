@@ -218,6 +218,9 @@ watch(
 
 onMounted(() => {
   fetchTemplates();
+  if (props.showDepartments && !departmentStore.loaded) {
+    departmentStore.fetchDepartments();
+  }
 });
 
 // ── Format helpers ──────────────────────────────────────────────
