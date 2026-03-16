@@ -233,11 +233,11 @@ const load = async ($state) => {
 
   <!-- Botão de criar grupo -->
   <button
-    class="create-group-button bg-base-300"
+    class="create-group-button bg-base-300 hover:bg-primary border-primary text-primary"
     v-if="isGroup"
     @click="handlerOpenCreateOrEdit()"
   >
-    <span class="create-group-tooltip">Criar grupo</span>
+    <span class="create-group-tooltip bg-primary">Criar grupo</span>
     <svg
       class="size-6"
       xmlns="http://www.w3.org/2000/svg"
@@ -393,7 +393,7 @@ const load = async ($state) => {
   align-items: center;
   padding: 0.5rem;
   overflow: visible;
-  @apply shadow-lg border hover:border-l-0 hover:bg-primary border-primary rounded-full hover:rounded-l-none p-2 absolute bottom-4 right-4 cursor-pointer transition-colors text-primary hover:text-white;
+  @apply shadow-lg border hover:border-l-0 rounded-full hover:rounded-l-none p-2 absolute bottom-4 right-4 cursor-pointer transition-colors hover:text-white;
 }
 
 .create-group-tooltip {
@@ -411,7 +411,6 @@ const load = async ($state) => {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease, transform 0.3s ease;
-  @apply bg-primary;
 }
 
 .create-group-button:hover .create-group-tooltip {
