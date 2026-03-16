@@ -1,16 +1,15 @@
 import { computed, ref } from "vue";
 import { useAttendantStore } from "~/stores/attendantStore";
-import { useChannelStore } from "~/stores/channelStore";
 import { v4 as uuidv4 } from "uuid";
 import api from "~/utils/api";
 import { internalChatUrl } from "~/utils/systemUrls";
 
 export function useChat() {
   const attendantStore = useAttendantStore();
-  const channelStore = useChannelStore();
 
   // Estados globais de carregamento usados pelo UI do chat interno
   const loadingMessages = ref(false);
+  const loadingMoreMessages = ref(false);
   const loadingAttendants = ref(false);
 
   function getValueByKey(object, key) {
@@ -26,7 +25,7 @@ export function useChat() {
 
     // Se não encontrar, procura nos canais (grupos) pelo channel_id
     if (!entity) {
-      entity = channelStore.channels.find(
+      entity = listGroups.value.find(
         (ch) => ch.internal_chat?.channel_id === channelId,
       );
     }
@@ -85,10 +84,10 @@ export function useChat() {
       ? entity.chat_info?.hasNextPage
       : entity?.hasNextPage;
 
-    if (!entity || !hasNext) return;
+    if (!entity || !hasNext || loadingMoreMessages.value) return;
 
     try {
-      loadingMessages.value = true;
+      loadingMoreMessages.value = true;
       const currentPage = entity.is_group
         ? entity.chat_info.currentPage
         : entity.currentPage;
@@ -120,18 +119,7 @@ export function useChat() {
     } catch (error) {
       console.error("Erro ao carregar mais mensagens:", error);
     } finally {
-      loadingMessages.value = false;
-    }
-  };
-
-  const fetchAttendants = async () => {
-    try {
-      loadingAttendants.value = true;
-      // O attendantStore já possui sua rotina de fetch; aqui só encapsulamos
-      // para expor estado de loading pro UI.
-      await attendantStore.fetchAttendants();
-    } finally {
-      loadingAttendants.value = false;
+      loadingMoreMessages.value = false;
     }
   };
 
@@ -184,10 +172,6 @@ export function useChat() {
         entity.internal_chat.unread = (entity.internal_chat.unread || 0) + 1;
       }
     }
-  };
-
-  const addGroupParticipant = (event) => {
-    channelStore.channels.unshift(event.message);
   };
 
   const resetUnreadMessages = (channelId) => {
@@ -256,16 +240,284 @@ export function useChat() {
       : entity.hasNextPage || false;
   };
 
+  // --- Seção que controla o fetch do grupo dos canais de grupo ---
+  const listGroups = ref([]);
+  // const count = ref(0);
+  const loadingGroupList = ref(false);
+  const loadingMoreGroupList = ref(false);
+  const loadedGroupList = ref(false);
+
+  const nextPage = ref(null);
+  const previousPage = ref(null);
+  const currentPage = ref(1);
+
+  const fetchGroupChannels = async (page = 1) => {
+    const isInitialLoad = page === 1;
+
+    try {
+      if (loadedGroupList.value && isInitialLoad) return;
+      if (loadingGroupList.value || loadingMoreGroupList.value) return;
+
+      if (isInitialLoad) {
+        loadingGroupList.value = true;
+      } else {
+        loadingMoreGroupList.value = true;
+      }
+
+      const response = await api.get(
+        `${internalChatUrl}channels/?page=${page}`,
+      );
+
+      // Se for a primeira página, substitui os canais
+      // Caso contrário, adiciona aos canais existentes
+      if (isInitialLoad) {
+        listGroups.value = response.data.results;
+      } else {
+        listGroups.value = [...listGroups.value, ...response.data.results];
+      }
+
+      // count.value = response.data.count;
+      nextPage.value = response.data.next;
+      previousPage.value = response.data.previous;
+      currentPage.value = page;
+
+      // Marca como loaded após carregar a primeira página
+      if (isInitialLoad) {
+        loadedGroupList.value = true;
+      }
+    } catch (error) {
+      console.log(error);
+      console.error("Erro ao buscar canais de grupo:", JSON.stringify(error));
+    } finally {
+      if (isInitialLoad) {
+        loadingGroupList.value = false;
+      } else {
+        loadingMoreGroupList.value = false;
+      }
+    }
+  };
+
+  const loadMoreChannels = async () => {
+    if (
+      !nextPage.value ||
+      loadingGroupList.value ||
+      loadingMoreGroupList.value
+    ) {
+      return Boolean(nextPage.value);
+    }
+
+    const nextPageNumber = currentPage.value + 1;
+    await fetchGroupChannels(nextPageNumber);
+
+    return Boolean(nextPage.value);
+  };
+  // --------------------------------------------------------------
+
+  // --- Seção que controla o modal de criação/edição de grupos ---
+  const showCreateOrEditModal = ref({
+    show: false,
+    mode: "create",
+    groupData: null,
+  });
+
+  const openCreateOrEdit = (mode = "create", groupData = null) => {
+    showCreateOrEditModal.value = { show: true, mode, groupData };
+  };
+  const closeCreateOrEdit = () =>
+    (showCreateOrEditModal.value = {
+      show: false,
+      mode: "create",
+      groupData: null,
+    });
+
+  const createOrEditGroup = async () => {
+    console.log("Grupo criado");
+  };
+
+  const createGroup = async (body, mode) => {
+    console.log("Criando grupo com body:", body, "e modo:", mode);
+
+    if (mode === "edit") {
+      const channelId = body?.channel_id;
+      const previousParticipants = Array.isArray(body?.previousParticipants)
+        ? body.previousParticipants
+        : [];
+      const nextParticipants = Array.isArray(body?.participants)
+        ? body.participants
+        : [];
+
+      const participantsToAdd = nextParticipants.filter(
+        (participantId) => !previousParticipants.includes(participantId),
+      );
+      const participantsToRemove = previousParticipants.filter(
+        (participantId) => !nextParticipants.includes(participantId),
+      );
+
+      try {
+        const requests = [];
+
+        if (participantsToAdd.length > 0) {
+          requests.push(
+            api.post(
+              `/v1/api/attendances/internal_chat/${channelId}/add_attendant/`,
+              { participants: participantsToAdd },
+            ),
+          );
+        }
+
+        if (participantsToRemove.length > 0) {
+          requests.push(
+            api.post(
+              `/v1/api/attendances/internal_chat/${channelId}/remove_attendant/`,
+              { participants: participantsToRemove },
+            ),
+          );
+        }
+
+        await Promise.all(requests);
+
+        const group = findEntityByChannelId(channelId);
+        if (group) {
+          group.participants = [...nextParticipants];
+        }
+
+        return true;
+      } catch (error) {
+        notifyActionError(
+          "Erro ao editar grupo",
+          error,
+          "Nao foi possivel atualizar os participantes do grupo.",
+        );
+        throw error;
+      }
+    }
+
+    try {
+      const response = await api.post(`${internalChatUrl}create_group/`, body);
+      listGroups.value.unshift(response.data);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const notifyActionError = (title, error, fallbackMessage) => {
+    const message = getErrorMessage(error, fallbackMessage);
+    console.error(title, error);
+    notify(
+      {
+        group: "deletado",
+        title,
+        text: message,
+      },
+      4000,
+    );
+  };
+
+  const removeGroupFromState = (channelId) => {
+    if (!channelId) return;
+
+    listGroups.value = listGroups.value.filter(
+      (group) =>
+        group.internal_chat?.channel_id !== channelId && group.id !== channelId,
+    );
+  };
+
+  const removeParticipantFromGroupState = (channelId, participantId) => {
+    if (!channelId || !participantId) return;
+
+    const group = findEntityByChannelId(channelId);
+    if (!group || !Array.isArray(group.participants)) return;
+
+    group.participants = group.participants.filter(
+      (id) => id !== participantId,
+    );
+  };
+
+  const leaveGroup = async (channelId) => {
+    if (!channelId) return false;
+
+    try {
+      const url = `/v1/api/attendances/internal_chat/${channelId}/leave_channel/`;
+      await api.post(url);
+      removeGroupFromState(channelId);
+      return true;
+    } catch (error) {
+      notifyActionError(
+        "Erro ao sair do grupo",
+        error,
+        "Nao foi possivel sair do grupo.",
+      );
+      return false;
+    }
+  };
+
+  const addGroupParticipant = async (participantId) => {
+    // if (!participantId || participantId === props.attendant?.id) return;
+
+    try {
+      const url = `/v1/api/attendances/internal_chat/${participantId}/add_attendant/`;
+      await api.post(url, {
+        participants: ["da20f5a0-c8bc-4afe-b308-fd7e0915e3bd"],
+      });
+
+      listGroups.value.unshift(event.message);
+    } catch (error) {
+      notifyActionError(
+        "Erro ao adicionar participante",
+        error,
+        "Nao foi possivel adicionar o participante.",
+      );
+    }
+  };
+
+  const removeGroupParticipant = async (channelId, participantId) => {
+    if (!channelId || !participantId) return false;
+
+    const removeList = [];
+
+    removeList.push(participantId);
+
+    try {
+      const url = `/v1/api/attendances/internal_chat/${channelId}/remove_attendant/`;
+      await api.post(url, {
+        participants: removeList,
+      });
+      removeParticipantFromGroupState(channelId, participantId);
+      return true;
+    } catch (error) {
+      notifyActionError(
+        "Erro ao remover participante",
+        error,
+        "Nao foi possivel remover o participante.",
+      );
+      return false;
+    }
+  };
+  // --------------------------------------------------------------
+
   return {
-    attendants: computed(() => attendantStore.attendants),
+    listAttendants: computed(() => attendantStore.attendants),
     count: computed(() => attendantStore.count),
     loadingMessages,
+    loadingMoreMessages,
     loadingAttendants,
-    fetchAttendants,
+    showCreateOrEditModal,
+    listGroups,
+    loadingGroupList,
+    loadingMoreGroupList,
+    createGroup,
+    fetchGroupChannels,
+    loadMoreChannels,
+    openCreateOrEdit,
+    closeCreateOrEdit,
+    createOrEditGroup,
     fetchMessagesByChannel,
     loadMessagesByChannel,
     addMessageToChannel,
     addGroupParticipant,
+    leaveGroup,
+    removeGroupParticipant,
     sendMessageToChannel,
     hasNextPageForChannel,
     resetUnreadMessages,
