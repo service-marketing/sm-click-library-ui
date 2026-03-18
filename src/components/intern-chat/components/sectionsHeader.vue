@@ -61,7 +61,7 @@ const buttons = [
   <div class="p-2 flex items-center gap-2 relative">
     <svg
       style="left: 1rem"
-      class="text-white size-4 absolute left-4 top-1/2 -translate-y-1/2"
+      class="text-gray-500 size-4 absolute left-4 top-1/2 -translate-y-1/2"
       aria-hidden="true"
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
@@ -79,7 +79,7 @@ const buttons = [
       style="padding-left: 2rem"
       :value="searchQuery"
       @input="emit('update:searchQuery', $event.target.value)"
-      class="bg-base-300 w-full p-1 border-none focus:border-primary rounded-full text-white placeholder:text-white text-sm"
+      class="bg-base-300 w-full p-1 border-none focus:border-primary rounded-full text-white placeholder:text-gray-500 text-sm"
       :placeholder="getSearchPlaceholder"
     />
   </div>
