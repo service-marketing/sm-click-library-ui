@@ -104,15 +104,18 @@ const load = async ($state) => {
       class="border-b even:bg-base-300 bg-blue-400/10 border-base-200 hover:bg-base-200 relative"
     >
       <!-- Informações principais do atendente -->
-      <section class="atendente-main bg-red-200">
-        <div class="relative">
+      <section class="atendente-main">
+        <div
+          style="background-color: rgba(2, 169, 219, 0.3)"
+          class="relative rounded-full"
+        >
           <Avatar v-if="att.photo" :url="att.photo" />
 
           <Avatar v-else :url="att.photo">
             <div class="flex items-center justify-center mt-0.5 mr-0.8">
               <svg
                 v-if="isGroup"
-                class="size-8"
+                class="size-8 mt-0.5"
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="currentColor"

@@ -5,7 +5,7 @@
     "dist",
     "src/test-utils"
   ],
-  "version": "0.0.539",
+  "version": "0.0.540-dev.0",
   "main": "dist/sm-click-library-ui.es.js",
   "module": "dist/sm-click-library-ui.umd.js",
   "private": false,
@@ -13,6 +13,7 @@
     "dev": "vite",
     "build": "pnpm run build:lib && pnpm run build:style",
     "build:deploy": "pnpm version patch && pnpm run build && pnpm publish",
+    "build:deploy:dev": "pnpm version prerelease --preid dev --no-git-tag-version && pnpm run build && pnpm publish --tag dev --no-git-checks",
     "test": "vitest",
     "test:unit": "vitest",
     "test:coverage": "vitest run --coverage",
