@@ -6,40 +6,28 @@ import V3InfiniteLoading from "v3-infinite-loading";
 const props = defineProps({
   content: { type: Object, default: () => ({}) },
   mode: { type: String, default: false },
+  loader: { type: Boolean, default: false },
 });
 
 const isGroup = computed(() => props.mode === "grupos");
 
 // --- Injects recebidos de ChatWindow ---
-const openCreateOrEdit = inject("openCreateOrEdit");
-const selectChatToOpen = inject("selectChatToOpen");
-const loadMoreChannels = inject("loadMoreChannels");
+const useChat = inject("useChat");
 // --------------------------------------
 
 // --- Seção que controla o estado das telas ---
 const handlerOpenCreateOrEdit = () => {
-  if (typeof openCreateOrEdit !== "function") return;
-  openCreateOrEdit("create");
+  if (typeof useChat.openCreateOrEdit !== "function") return;
+  useChat.openCreateOrEdit("create");
 };
 
 const openChat = (att) => {
-  if (typeof selectChatToOpen !== "function") return;
-  selectChatToOpen(att);
+  if (typeof useChat.selectChatToOpen !== "function") return;
+  useChat.selectChatToOpen(att);
 };
 // ---------------------------------------------
 
 // --- Map para retornar o status dos atendentes ---
-// const mapStatusToClass = {
-//   Busy: "bg-red-500",
-//   Online: "bg-green-500",
-//   Away: "bg-yellow-500",
-//   Offline: "bg-gray-500",
-// };
-
-// const getStatusClass = (status) => {
-//   return mapStatusToClass[status] || "bg-gray-500";
-// };
-
 const getStatusStyle = (status, groupLength) => {
   const mountStyle = {
     Busy: {
@@ -62,6 +50,11 @@ const getStatusStyle = (status, groupLength) => {
       textStyle: { color: "rgb(209 213 219)" },
       label: "Offline",
     },
+    null: {
+      indicatorStyle: { backgroundColor: "rgb(107 114 128)" },
+      textStyle: { color: "rgb(209 213 219)" },
+      label: "Offline",
+    },
   };
 
   return (
@@ -75,13 +68,13 @@ const getStatusStyle = (status, groupLength) => {
 // -------------------------------------------------
 
 const load = async ($state) => {
-  if (!isGroup.value || typeof loadMoreChannels !== "function") {
+  if (!isGroup.value || typeof useChat.loadMoreChannels !== "function") {
     $state.complete();
     return;
   }
 
   try {
-    const hasNextPage = await loadMoreChannels();
+    const hasNextPage = await useChat.loadMoreChannels();
 
     if (hasNextPage) {
       $state.loaded();
@@ -181,14 +174,10 @@ const load = async ($state) => {
       </section>
 
       <!-- Indicador de status -->
-      <footer v-if="!isGroup" class="flex items-center gap-4">
+      <footer class="flex items-center gap-4">
         <span v-if="att.internal_chat.unread > 0" class="message-indicator">
           {{ att.internal_chat.unread }}
         </span>
-
-        <!-- <div
-          :class="['status-indicator', getStatusClass(att.login_status)]"
-        ></div> -->
       </footer>
 
       <!-- Indicador de "conversar" no hover -->
@@ -234,7 +223,7 @@ const load = async ($state) => {
   <!-- Botão de criar grupo -->
   <button
     class="create-group-button bg-base-300 hover:bg-primary border-primary text-primary"
-    v-if="isGroup"
+    v-if="!loader && isGroup"
     @click="handlerOpenCreateOrEdit()"
   >
     <span class="create-group-tooltip bg-primary">Criar grupo</span>

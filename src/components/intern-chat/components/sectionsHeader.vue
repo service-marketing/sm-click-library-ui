@@ -2,7 +2,10 @@
 import { computed } from "vue";
 
 const props = defineProps({
-  hasUnread: { type: Boolean, default: false },
+  hasUnread: {
+    type: Object,
+    default: () => ({ attendants: false, groups: false }),
+  },
   currentState: { type: String, default: "" },
   searchQuery: { type: String, default: "" },
 });
@@ -46,7 +49,7 @@ const buttons = [
         <span class="selector-text">{{ btn.label }}</span>
 
         <span
-          v-if="hasUnread"
+          v-if="props.hasUnread[btn.value]"
           class="unread-dot"
           aria-label="Há mensagens não lidas"
         ></span>

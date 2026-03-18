@@ -250,22 +250,27 @@ export function useChat() {
   const nextPage = ref(null);
   const previousPage = ref(null);
   const currentPage = ref(1);
+  const currentFilter = ref("");
 
-  const fetchGroupChannels = async (page = 1) => {
+  const fetchGroupChannels = async (page = 1, filter = "") => {
     const isInitialLoad = page === 1;
+    const filterChanged = filter !== currentFilter.value;
 
     try {
-      if (loadedGroupList.value && isInitialLoad) return;
+      // Se o filtro mudou, permite recarregar mesmo que já tenha carregado
+      if (loadedGroupList.value && isInitialLoad && !filterChanged) return;
       if (loadingGroupList.value || loadingMoreGroupList.value) return;
 
       if (isInitialLoad) {
         loadingGroupList.value = true;
+        currentFilter.value = filter;
       } else {
         loadingMoreGroupList.value = true;
       }
 
+      const filterParam = filter ? `&filter=${encodeURIComponent(filter)}` : "";
       const response = await api.get(
-        `${internalChatUrl}channels/?page=${page}`,
+        `${internalChatUrl}channels/?page=${page}${filterParam}`,
       );
 
       // Se for a primeira página, substitui os canais
@@ -307,7 +312,7 @@ export function useChat() {
     }
 
     const nextPageNumber = currentPage.value + 1;
-    await fetchGroupChannels(nextPageNumber);
+    await fetchGroupChannels(nextPageNumber, currentFilter.value);
 
     return Boolean(nextPage.value);
   };

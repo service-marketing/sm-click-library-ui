@@ -28,15 +28,15 @@ const props = defineProps({
 const emit = defineEmits(["createGroup"]);
 
 // --- Injects recebidos de ChatWindow ---
-const closeCreateOrEdit = inject("closeCreateOrEdit");
+const useChat = inject("useChat");
 // --------------------------------------
 
 // --- Controle de estado do modal ---
 const popperPanelRef = ref(null);
 
 const closeModal = () => {
-  if (typeof closeCreateOrEdit === "function") {
-    closeCreateOrEdit();
+  if (typeof useChat.closeCreateOrEdit === "function") {
+    useChat.closeCreateOrEdit();
     return;
   }
 };

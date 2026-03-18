@@ -4,44 +4,46 @@
     ref="chatContainer"
     :class="{ 'mobile-chat-container': isMobile }"
   >
+    <!-- Mobile -->
     <template v-if="isMobile">
       <div class="chat-content mobile-chat-content">
-        <loading v-if="showChatLoading" />
-        <div v-else-if="selectedAttendant && !showChatLoading" class="h-full">
-          <DropFilesArea
-            ref="dropFilesRef"
-            :isMobile="isMobile"
-            :attendant="currentAttendant"
-            :selectedAttendant="selectedAttendant"
-            :sendFilesToAttendant="sendMessageToChannel"
-          >
-            <ChatMessages
-              :isMobile="isMobile"
-              :isLoadingMessages="loadingMessages"
-              :attendant="currentAttendant"
-              :selectedAttendant="selectedAttendant"
-              :loadMessagesForAtendente="loadMessagesByChannel"
-              :sendMessageToAtendente="sendMessageToChannel"
-              :hasNextPageForAtendente="hasNextPageForChannel"
-              :downloadFilesMobile="downloadFilesMobile"
-              :openMobilePdf="openMobilePdf"
-              @voltar="handleVoltar"
-              @send-files="onSendFiles"
-            />
-          </DropFilesArea>
-        </div>
-
-        <ChatList
-          v-if="!selectedAttendant"
-          v-model:currentList="currentList"
-          :mobile="isMobile"
+        <ChatContent
+          ref="chatContentRef"
+          :isMobile="isMobile"
+          :showChatLoading="showChatLoading"
+          :selectedAttendant="selectedAttendant"
           :currentAttendant="currentAttendant"
+          :isLoadingMessages="loadingMessages"
           :listAttendants="filteredListAttendants"
           :listGroups="listGroups"
-        />
+          :listAttendancesByGroup="listAttendants"
+          v-model:currentList="currentList"
+          v-model:searchQuery="searchQuery"
+          :sendFilesToAttendant="sendMessageToChannel"
+          :loadMessagesForAtendente="loadMessagesByChannel"
+          :sendMessageToAtendente="sendMessageToChannel"
+          :hasNextPageForAtendente="hasNextPageForChannel"
+          :downloadFilesMobile="downloadFilesMobile"
+          :openMobilePdf="openMobilePdf"
+          @voltar="handleVoltar"
+          @send-files="onSendFiles"
+        >
+          <template #modals>
+            <CreateOrEditModal
+              v-if="showCreateOrEditModal.show"
+              :mode="showCreateOrEditModal.mode"
+              :selectedGroup="showCreateOrEditModal.groupData"
+              :listAttendances="filteredListAttendants"
+              @createGroup="handleCreateGroup"
+              :errorMap="[]"
+              :isCreatingGroup="false"
+            />
+          </template>
+        </ChatContent>
       </div>
     </template>
 
+    <!-- Desktop -->
     <template v-else>
       <div
         @click.stop="toggleChat"
@@ -110,57 +112,39 @@
 
         <transition name="fade">
           <div v-if="isChatOpen && !isClosing" class="chat-content">
-            <!-- {{ selectedAttendant }}
-            {{ loadingGroupList }} -->
-
-            <loading v-if="showChatLoading" />
-
-            <div
-              v-else-if="selectedAttendant && !showChatLoading"
-              class="h-full"
-            >
-              <DropFilesArea
-                ref="dropFilesRef"
-                :isMobile="isMobile"
-                :attendant="currentAttendant"
-                :selectedAttendant="selectedAttendant"
-                :sendFilesToAttendant="sendMessageToChannel"
-              >
-                <ChatMessages
-                  :listAttendancesByGroup="listAttendants"
-                  :isMobile="isMobile"
-                  :isLoadingMessages="loadingMessages"
-                  :attendant="currentAttendant"
-                  :selectedAttendant="selectedAttendant"
-                  :loadMessagesForAtendente="loadMessagesByChannel"
-                  :sendMessageToAtendente="sendMessageToChannel"
-                  :hasNextPageForAtendente="hasNextPageForChannel"
-                  :downloadFilesMobile="downloadFilesMobile"
-                  :openMobilePdf="openMobilePdf"
-                  @send-files="onSendFiles"
-                  @voltar="handleVoltar"
-                />
-              </DropFilesArea>
-            </div>
-
-            <CreateOrEditModal
-              v-if="showCreateOrEditModal.show"
-              :mode="showCreateOrEditModal.mode"
-              :selectedGroup="showCreateOrEditModal.groupData"
-              :listAttendances="filteredListAttendants"
-              @createGroup="handleCreateGroup"
-              :errorMap="[]"
-              :isCreatingGroup="false"
-            />
-
-            <ChatList
-              v-if="!selectedAttendant"
-              v-model:currentList="currentList"
-              :mobile="isMobile"
+            <ChatContent
+              ref="chatContentRef"
+              :isMobile="isMobile"
+              :showChatLoading="showChatLoading"
+              :selectedAttendant="selectedAttendant"
               :currentAttendant="currentAttendant"
+              :isLoadingMessages="loadingMessages"
               :listAttendants="filteredListAttendants"
               :listGroups="listGroups"
-            />
+              :listAttendancesByGroup="listAttendants"
+              v-model:currentList="currentList"
+              v-model:searchQuery="searchQuery"
+              :sendFilesToAttendant="sendMessageToChannel"
+              :loadMessagesForAtendente="loadMessagesByChannel"
+              :sendMessageToAtendente="sendMessageToChannel"
+              :hasNextPageForAtendente="hasNextPageForChannel"
+              :downloadFilesMobile="downloadFilesMobile"
+              :openMobilePdf="openMobilePdf"
+              @voltar="handleVoltar"
+              @send-files="onSendFiles"
+            >
+              <template #modals>
+                <CreateOrEditModal
+                  v-if="showCreateOrEditModal.show"
+                  :mode="showCreateOrEditModal.mode"
+                  :selectedGroup="showCreateOrEditModal.groupData"
+                  :listAttendances="filteredListAttendants"
+                  @createGroup="handleCreateGroup"
+                  :errorMap="[]"
+                  :isCreatingGroup="false"
+                />
+              </template>
+            </ChatContent>
           </div>
         </transition>
       </div>
@@ -169,11 +153,16 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch, onBeforeUnmount, provide } from "vue";
-import ChatList from "./ChatList.vue";
-import ChatMessages from "./ChatMessages.vue";
-import loading from "./loading.vue";
-import DropFilesArea from "./dropFilesArea.vue";
+import {
+  ref,
+  onMounted,
+  computed,
+  watch,
+  onBeforeUnmount,
+  provide,
+  reactive,
+} from "vue";
+import ChatContent from "./ChatContent.vue";
 import { notify } from "notiwind";
 
 const props = defineProps({
@@ -211,6 +200,18 @@ const props = defineProps({
   downloadFilesMobile: { type: Function },
   openMobilePdf: { type: Function },
 });
+
+const emit = defineEmits(["unreadMessagesEmit"]);
+
+// --- Seção que controla o estado da lista de chats ---
+const currentList = ref("atendentes");
+const searchQuery = ref("");
+const lastSelectedList = ref("atendentes");
+const isChatOpen = ref(false);
+const selectedAttendant = ref(null);
+const chatContainer = ref(null);
+const chatContentRef = ref(null);
+// -----------------------------------------------------
 
 // --- importes das funções de controle geral do chat interno ---
 import { useChat } from "./useChat";
@@ -269,15 +270,25 @@ const selectChatToOpen = async (atendente) => {
   }
 };
 
+function handleVoltar() {
+  // Ao sair do chat, volta para a lista correspondente ao último chat selecionado.
+  currentList.value = lastSelectedList.value;
+  selectedAttendant.value = null;
+}
+
 // --- Seção que passa o provide de funções e dados para os componentes filhos ---
-provide("openCreateOrEdit", openCreateOrEdit);
-provide("closeCreateOrEdit", closeCreateOrEdit);
-provide("fetchGroupChannels", fetchGroupChannels);
-provide("loadMoreChannels", loadMoreChannels);
-provide("selectChatToOpen", selectChatToOpen);
-provide("leaveGroup", leaveGroup);
-provide("removeGroupParticipant", removeGroupParticipant);
-provide("closeSelectedChat", handleVoltar);
+const exportUseChatToChildren = reactive({
+  openCreateOrEdit,
+  closeCreateOrEdit,
+  fetchGroupChannels,
+  loadMoreChannels,
+  selectChatToOpen,
+  leaveGroup,
+  removeGroupParticipant,
+  handleVoltar,
+});
+
+provide("useChat", exportUseChatToChildren);
 // -------------------------------------------------------------------------------
 
 // --- Seção que controla o modal de criação/edição de grupos ---
@@ -302,23 +313,21 @@ const handleCreateGroup = (payload, mode) => {
 };
 // --------------------------------------------------------------
 
-// --- Seção que controla o estado da lista de chats ---
-const currentList = ref("atendentes");
-const lastSelectedList = ref("atendentes");
-
-// -----------------------------------------------------
-
-const isChatOpen = ref(false);
-const selectedAttendant = ref(null);
-const chatContainer = ref(null); // Ref para o contêiner do chat
-const emit = defineEmits(["unreadMessagesEmit"]);
-const dropFilesRef = ref(null);
-
 const onSendFiles = () => {
-  dropFilesRef.value?.chooseFiles();
+  chatContentRef.value?.chooseFiles();
 };
 
 const isChatVisible = computed(() => props.isMobile || isChatOpen.value);
+
+watch(
+  () => isChatVisible.value,
+  () => {
+    if (listGroups.value.length === 0) {
+      fetchGroupChannels();
+    }
+  }
+);
+
 const showChatLoading = computed(
   () => loadingMessages.value || loadingGroupList.value
 );
@@ -414,12 +423,6 @@ const handleChatClick = () => {
   if (props.isMobile) return;
   if (!isChatOpen.value) toggleChat();
 };
-
-function handleVoltar() {
-  // Ao sair do chat, volta para a lista correspondente ao último chat selecionado.
-  currentList.value = lastSelectedList.value;
-  selectedAttendant.value = null;
-}
 
 watch(
   () => props.socketMessage,
