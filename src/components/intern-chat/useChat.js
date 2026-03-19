@@ -2,7 +2,7 @@ import { computed, ref } from "vue";
 import { useAttendantStore } from "~/stores/attendantStore";
 import { v4 as uuidv4 } from "uuid";
 import api from "~/utils/api";
-import { internalChatUrl } from "~/utils/systemUrls";
+import { internalChatUrl, managerChatGroup } from "~/utils/systemUrls";
 
 export function useChat() {
   const attendantStore = useAttendantStore();
@@ -357,19 +357,17 @@ export function useChat() {
 
         if (participantsToAdd.length > 0) {
           requests.push(
-            api.post(
-              `/v1/api/attendances/internal_chat/${channelId}/add_attendant/`,
-              { participants: participantsToAdd },
-            ),
+            api.post(managerChatGroup(channelId, "add"), {
+              participants: participantsToAdd,
+            }),
           );
         }
 
         if (participantsToRemove.length > 0) {
           requests.push(
-            api.post(
-              `/v1/api/attendances/internal_chat/${channelId}/remove_attendant/`,
-              { participants: participantsToRemove },
-            ),
+            api.post(managerChatGroup(channelId, "remove"), {
+              participants: participantsToRemove,
+            }),
           );
         }
 
@@ -382,11 +380,7 @@ export function useChat() {
 
         return true;
       } catch (error) {
-        notifyActionError(
-          "Erro ao editar grupo",
-          error,
-          "Nao foi possivel atualizar os participantes do grupo.",
-        );
+        console.error("Erro ao editar grupo:", error);
         throw error;
       }
     }
@@ -400,19 +394,6 @@ export function useChat() {
     }
   };
 
-  const notifyActionError = (title, error, fallbackMessage) => {
-    const message = getErrorMessage(error, fallbackMessage);
-    console.error(title, error);
-    notify(
-      {
-        group: "deletado",
-        title,
-        text: message,
-      },
-      4000,
-    );
-  };
-
   const removeGroupFromState = (channelId) => {
     if (!channelId) return;
 
@@ -420,6 +401,25 @@ export function useChat() {
       (group) =>
         group.internal_chat?.channel_id !== channelId && group.id !== channelId,
     );
+  };
+
+  const clearEntityMessages = (channelId) => {
+    if (!channelId) return;
+
+    const entity = findEntityByChannelId(channelId);
+    if (!entity) return;
+
+    if (entity.is_group) {
+      entity.chat_info = {
+        messages: [],
+        hasNextPage: false,
+        currentPage: 1,
+      };
+    } else {
+      entity.messages = [];
+      entity.hasNextPage = false;
+      entity.currentPage = 1;
+    }
   };
 
   const removeParticipantFromGroupState = (channelId, participantId) => {
@@ -437,16 +437,13 @@ export function useChat() {
     if (!channelId) return false;
 
     try {
-      const url = `/v1/api/attendances/internal_chat/${channelId}/leave_channel/`;
+      const url = managerChatGroup(channelId, "leave");
       await api.post(url);
+      clearEntityMessages(channelId);
       removeGroupFromState(channelId);
       return true;
     } catch (error) {
-      notifyActionError(
-        "Erro ao sair do grupo",
-        error,
-        "Nao foi possivel sair do grupo.",
-      );
+      console.error("Erro ao sair do grupo:", error);
       return false;
     }
   };
@@ -455,18 +452,14 @@ export function useChat() {
     // if (!participantId || participantId === props.attendant?.id) return;
 
     try {
-      const url = `/v1/api/attendances/internal_chat/${participantId}/add_attendant/`;
+      const url = managerChatGroup(participantId, "add");
       await api.post(url, {
         participants: ["da20f5a0-c8bc-4afe-b308-fd7e0915e3bd"],
       });
 
       listGroups.value.unshift(event.message);
     } catch (error) {
-      notifyActionError(
-        "Erro ao adicionar participante",
-        error,
-        "Nao foi possivel adicionar o participante.",
-      );
+      console.error("Erro ao adicionar participante:", error);
     }
   };
 
@@ -478,18 +471,14 @@ export function useChat() {
     removeList.push(participantId);
 
     try {
-      const url = `/v1/api/attendances/internal_chat/${channelId}/remove_attendant/`;
+      const url = managerChatGroup(channelId, "remove");
       await api.post(url, {
         participants: removeList,
       });
       removeParticipantFromGroupState(channelId, participantId);
       return true;
     } catch (error) {
-      notifyActionError(
-        "Erro ao remover participante",
-        error,
-        "Nao foi possivel remover o participante.",
-      );
+      console.error("Erro ao remover participante:", error);
       return false;
     }
   };

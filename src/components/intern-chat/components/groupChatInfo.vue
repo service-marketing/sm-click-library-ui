@@ -100,6 +100,7 @@ const handleLeaveGroup = async () => {
   if (typeof useChat.leaveGroup !== "function") return;
 
   const hasLeftGroup = await useChat.leaveGroup(channelId);
+  
   if (!hasLeftGroup) {
     loadingLeaveGroup.value = false;
     closeLeaveConfirmation();

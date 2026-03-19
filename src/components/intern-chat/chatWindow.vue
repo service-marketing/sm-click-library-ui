@@ -277,6 +277,10 @@ function handleVoltar() {
   selectedAttendant.value = null;
 }
 
+function closeSelectedChat() {
+  handleVoltar();
+}
+
 // --- Seção que passa o provide de funções e dados para os componentes filhos ---
 const exportUseChatToChildren = reactive({
   openCreateOrEdit,
@@ -287,6 +291,7 @@ const exportUseChatToChildren = reactive({
   leaveGroup,
   removeGroupParticipant,
   handleVoltar,
+  closeSelectedChat,
 });
 
 provide("useChat", exportUseChatToChildren);
