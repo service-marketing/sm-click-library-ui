@@ -113,7 +113,33 @@
           </div>
         </template>
       </v3-infinite-loading>
+      <div
+        class="h-screen flex flex-col items-center justify-center opacity-70"
+        v-if="mensagens.length === 0"
+      >
+        <svg
+          class="size-32 text-gray-400 dark:text-white"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M4 3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h1v2a1 1 0 0 0 1.707.707L9.414 13H15a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H4Z"
+            clip-rule="evenodd"
+          />
+          <path
+            fill-rule="evenodd"
+            d="M8.023 17.215c.033-.03.066-.062.098-.094L10.243 15H15a3 3 0 0 0 3-3V8h2a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-1v2a1 1 0 0 1-1.707.707L14.586 18H9a1 1 0 0 1-.977-.785Z"
+            clip-rule="evenodd"
+          />
+        </svg>
 
+        <p class="text-center text-gray-300">Nenhuma mensagem disponível</p>
+      </div>
       <!-- Mensagens -->
       <div>
         <div v-for="(msg, index) in mensagens" :key="index">
@@ -127,6 +153,7 @@
           </div>
 
           <!-- Mensagem -->
+
           <div
             :class="[
               'message',

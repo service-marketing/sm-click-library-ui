@@ -434,10 +434,15 @@ watch(
           isChatVisible.value,
           selectedAttendant.value?.internal_chat?.channel_id
         );
-      } 
-      // else if (event === "new-chat-internal-group") {
-      //   listGroups.value.unshift(newVal.message);
-      // }
+      } else if (event === "new-chat-internal-group") {
+        const existingGroup = listGroups.value.find(
+          (group) => group.id === newVal.message.id
+        );
+
+        if (!existingGroup) {
+          listGroups.value.unshift(newVal.message);
+        }
+      }
     }
   }
 );
