@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from "vue";
+import { computed, inject } from "vue";
 
 const props = defineProps({
   hasUnread: {
@@ -11,6 +11,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["update:currentState", "update:searchQuery"]);
+const currentTheme = inject("currentTheme");
 
 const isGroup = computed(() => props.currentState === "grupos");
 const isAttendant = computed(() => props.currentState === "atendentes");
@@ -79,7 +80,8 @@ const buttons = [
       style="padding-left: 2rem"
       :value="searchQuery"
       @input="emit('update:searchQuery', $event.target.value)"
-      class="bg-base-300 w-full p-1 border-none focus:border-primary rounded-full text-white placeholder:text-gray-500 text-sm"
+      class="bg-base-300 w-full p-1 border-none focus:border-primary rounded-full placeholder:text-gray-500 text-sm"
+      :class="[currentTheme === 'dark' ? 'text-black' : 'text-white']"
       :placeholder="getSearchPlaceholder"
     />
   </div>

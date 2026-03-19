@@ -321,15 +321,6 @@ const onSendFiles = () => {
 
 const isChatVisible = computed(() => props.isMobile || isChatOpen.value);
 
-watch(
-  () => isChatVisible.value,
-  () => {
-    if (listGroups.value.length === 0) {
-      fetchGroupChannels();
-    }
-  }
-);
-
 const showChatLoading = computed(
   () => loadingMessages.value || loadingGroupList.value
 );
@@ -439,7 +430,7 @@ watch(
           selectedAttendant.value?.internal_chat?.channel_id
         );
       } else if (event === "new-chat-internal-group") {
-        addGroupParticipant(newVal);
+        listGroups.value.unshift(newVal.message);
       }
     }
   }
