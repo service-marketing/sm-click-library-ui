@@ -291,7 +291,7 @@ export function useChat() {
         loadedGroupList.value = true;
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       console.error("Erro ao buscar canais de grupo:", JSON.stringify(error));
     } finally {
       if (isInitialLoad) {
@@ -335,13 +335,7 @@ export function useChat() {
       groupData: null,
     });
 
-  const createOrEditGroup = async () => {
-    console.log("Grupo criado");
-  };
-
   const createGroup = async (body, mode) => {
-    console.log("Criando grupo com body:", body, "e modo:", mode);
-
     if (mode === "edit") {
       const channelId = body?.channel_id;
       const previousParticipants = Array.isArray(body?.previousParticipants)
@@ -516,7 +510,6 @@ export function useChat() {
     loadMoreChannels,
     openCreateOrEdit,
     closeCreateOrEdit,
-    createOrEditGroup,
     fetchMessagesByChannel,
     loadMessagesByChannel,
     addMessageToChannel,

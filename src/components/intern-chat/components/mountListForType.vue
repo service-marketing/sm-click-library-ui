@@ -13,6 +13,7 @@ const isGroup = computed(() => props.mode === "grupos");
 
 // --- Injects recebidos de ChatWindow ---
 const useChat = inject("useChat");
+const currentTheme = inject("currentTheme");
 // --------------------------------------
 
 // --- Seção que controla o estado das telas ---
@@ -29,6 +30,13 @@ const openChat = (att) => {
 
 // --- Map para retornar o status dos atendentes ---
 const getStatusStyle = (status, groupLength) => {
+  const darkColor = "black";
+  const lightColor = "rgb(209 213 219)";
+
+  const getOfflineColor = () => {
+    return currentTheme.value === "dark" ? darkColor : lightColor;
+  };
+
   const mountStyle = {
     Busy: {
       indicatorStyle: { backgroundColor: "rgb(239 68 68)" },
@@ -47,12 +55,12 @@ const getStatusStyle = (status, groupLength) => {
     },
     Offline: {
       indicatorStyle: { backgroundColor: "rgb(107 114 128)" },
-      textStyle: { color: "rgb(209 213 219)" },
+      textStyle: { color: getOfflineColor() },
       label: "Offline",
     },
     null: {
       indicatorStyle: { backgroundColor: "rgb(107 114 128)" },
-      textStyle: { color: "rgb(209 213 219)" },
+      textStyle: { color: getOfflineColor() },
       label: "Offline",
     },
   };
@@ -60,7 +68,7 @@ const getStatusStyle = (status, groupLength) => {
   return (
     mountStyle[status] || {
       indicatorStyle: { backgroundColor: "rgb(107 114 128)" },
-      textStyle: { color: "rgb(209 213 219)" },
+      textStyle: { color: getOfflineColor() },
       label: groupLength ? `Grupo • ${groupLength} membros` : "Grupo",
     }
   );
@@ -168,7 +176,7 @@ const load = async ($state) => {
             "
             class="atendente-name"
           >
-            <a class="opacity-50">
+            <a :class="currentTheme === 'dark' ? '' : 'opacity-50'">
               {{
                 getStatusStyle(att.login_status, att?.participants?.length)
                   .label

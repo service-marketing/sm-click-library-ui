@@ -118,10 +118,7 @@
       <div>
         <div v-for="(msg, index) in mensagens" :key="index">
           <!-- Exibir separador de datas -->
-          <div
-            v-if="shouldShowDateSeparator(index)"
-            class="date-separator bg-base-100/50"
-          >
+          <div v-if="shouldShowDateSeparator(index)" class="date-separator">
             <div class="date-separator-line"></div>
             <div class="date-separator-text">
               {{ formatDateSeparator(msg.created_at) }}

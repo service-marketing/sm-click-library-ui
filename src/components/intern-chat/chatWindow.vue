@@ -161,6 +161,7 @@ import {
   onBeforeUnmount,
   provide,
   reactive,
+  toRef,
 } from "vue";
 import ChatContent from "./ChatContent.vue";
 import { notify } from "notiwind";
@@ -289,6 +290,7 @@ const exportUseChatToChildren = reactive({
 });
 
 provide("useChat", exportUseChatToChildren);
+provide("currentTheme", toRef(props, "mode"));
 // -------------------------------------------------------------------------------
 
 // --- Seção que controla o modal de criação/edição de grupos ---
