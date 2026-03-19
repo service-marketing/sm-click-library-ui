@@ -436,7 +436,9 @@ watch(
         );
       } else if (event === "new-chat-internal-group") {
         const existingGroup = listGroups.value.find(
-          (group) => group.id === newVal.message.id
+          (group) =>
+            group.internal_chat?.channel_id ===
+            newVal.message.internal_chat?.channel_id
         );
 
         if (!existingGroup) {
