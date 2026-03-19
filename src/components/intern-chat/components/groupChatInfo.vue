@@ -100,7 +100,7 @@ const handleLeaveGroup = async () => {
   if (typeof useChat.leaveGroup !== "function") return;
 
   const hasLeftGroup = await useChat.leaveGroup(channelId);
-  
+
   if (!hasLeftGroup) {
     loadingLeaveGroup.value = false;
     closeLeaveConfirmation();
@@ -117,12 +117,12 @@ const handleLeaveGroup = async () => {
 };
 
 const isAdmin = computed(() => {
-  return props.selectedAttendant.group_created_by === props.attendant.id;
+  return props.selectedAttendant.created_by === props.attendant.id;
 });
 
 const groupAdmin = computed(() => {
   const creator = props.participantsGroup.find(
-    (item) => props.selectedAttendant.group_created_by === item.id
+    (item) => props.selectedAttendant.created_by === item.id
   );
 
   return creator ? creator.name : "Desconhecido";
@@ -204,7 +204,8 @@ onBeforeUnmount(() => {
       </h2>
 
       <h3 class="text-sm font-sans text-gray-500">
-        Criado por {{ groupAdmin }}, 10/09/1998
+        Criado por {{ groupAdmin }},
+        {{ selectedAttendant.created_at || " data desconhecida" }}
       </h3>
     </div>
 
