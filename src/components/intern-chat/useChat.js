@@ -2,7 +2,7 @@ import { computed, ref } from "vue";
 import { useAttendantStore } from "~/stores/attendantStore";
 import { v4 as uuidv4 } from "uuid";
 import api from "~/utils/api";
-import { internalChatUrl } from "~/utils/systemUrls";
+import { internalChatUrl, managerChatGroup } from "~/utils/systemUrls";
 
 export function useChat() {
   const attendantStore = useAttendantStore();
@@ -250,22 +250,27 @@ export function useChat() {
   const nextPage = ref(null);
   const previousPage = ref(null);
   const currentPage = ref(1);
+  const currentFilter = ref("");
 
-  const fetchGroupChannels = async (page = 1) => {
+  const fetchGroupChannels = async (page = 1, filter = "") => {
     const isInitialLoad = page === 1;
+    const filterChanged = filter !== currentFilter.value;
 
     try {
-      if (loadedGroupList.value && isInitialLoad) return;
+      // Se o filtro mudou, permite recarregar mesmo que já tenha carregado
+      if (loadedGroupList.value && isInitialLoad && !filterChanged) return;
       if (loadingGroupList.value || loadingMoreGroupList.value) return;
 
       if (isInitialLoad) {
         loadingGroupList.value = true;
+        currentFilter.value = filter;
       } else {
         loadingMoreGroupList.value = true;
       }
 
+      const filterParam = filter ? `&filter=${encodeURIComponent(filter)}` : "";
       const response = await api.get(
-        `${internalChatUrl}channels/?page=${page}`,
+        `${internalChatUrl}channels/?page=${page}${filterParam}`,
       );
 
       // Se for a primeira página, substitui os canais
@@ -286,7 +291,7 @@ export function useChat() {
         loadedGroupList.value = true;
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       console.error("Erro ao buscar canais de grupo:", JSON.stringify(error));
     } finally {
       if (isInitialLoad) {
@@ -307,7 +312,7 @@ export function useChat() {
     }
 
     const nextPageNumber = currentPage.value + 1;
-    await fetchGroupChannels(nextPageNumber);
+    await fetchGroupChannels(nextPageNumber, currentFilter.value);
 
     return Boolean(nextPage.value);
   };
@@ -330,13 +335,7 @@ export function useChat() {
       groupData: null,
     });
 
-  const createOrEditGroup = async () => {
-    console.log("Grupo criado");
-  };
-
   const createGroup = async (body, mode) => {
-    console.log("Criando grupo com body:", body, "e modo:", mode);
-
     if (mode === "edit") {
       const channelId = body?.channel_id;
       const previousParticipants = Array.isArray(body?.previousParticipants)
@@ -358,19 +357,17 @@ export function useChat() {
 
         if (participantsToAdd.length > 0) {
           requests.push(
-            api.post(
-              `/v1/api/attendances/internal_chat/${channelId}/add_attendant/`,
-              { participants: participantsToAdd },
-            ),
+            api.post(managerChatGroup(channelId, "add"), {
+              participants: participantsToAdd,
+            }),
           );
         }
 
         if (participantsToRemove.length > 0) {
           requests.push(
-            api.post(
-              `/v1/api/attendances/internal_chat/${channelId}/remove_attendant/`,
-              { participants: participantsToRemove },
-            ),
+            api.post(managerChatGroup(channelId, "remove"), {
+              participants: participantsToRemove,
+            }),
           );
         }
 
@@ -383,11 +380,7 @@ export function useChat() {
 
         return true;
       } catch (error) {
-        notifyActionError(
-          "Erro ao editar grupo",
-          error,
-          "Nao foi possivel atualizar os participantes do grupo.",
-        );
+        console.error("Erro ao editar grupo:", error);
         throw error;
       }
     }
@@ -401,19 +394,6 @@ export function useChat() {
     }
   };
 
-  const notifyActionError = (title, error, fallbackMessage) => {
-    const message = getErrorMessage(error, fallbackMessage);
-    console.error(title, error);
-    notify(
-      {
-        group: "deletado",
-        title,
-        text: message,
-      },
-      4000,
-    );
-  };
-
   const removeGroupFromState = (channelId) => {
     if (!channelId) return;
 
@@ -421,6 +401,25 @@ export function useChat() {
       (group) =>
         group.internal_chat?.channel_id !== channelId && group.id !== channelId,
     );
+  };
+
+  const clearEntityMessages = (channelId) => {
+    if (!channelId) return;
+
+    const entity = findEntityByChannelId(channelId);
+    if (!entity) return;
+
+    if (entity.is_group) {
+      entity.chat_info = {
+        messages: [],
+        hasNextPage: false,
+        currentPage: 1,
+      };
+    } else {
+      entity.messages = [];
+      entity.hasNextPage = false;
+      entity.currentPage = 1;
+    }
   };
 
   const removeParticipantFromGroupState = (channelId, participantId) => {
@@ -438,16 +437,13 @@ export function useChat() {
     if (!channelId) return false;
 
     try {
-      const url = `/v1/api/attendances/internal_chat/${channelId}/leave_channel/`;
+      const url = managerChatGroup(channelId, "leave");
       await api.post(url);
+      clearEntityMessages(channelId);
       removeGroupFromState(channelId);
       return true;
     } catch (error) {
-      notifyActionError(
-        "Erro ao sair do grupo",
-        error,
-        "Nao foi possivel sair do grupo.",
-      );
+      console.error("Erro ao sair do grupo:", error);
       return false;
     }
   };
@@ -456,18 +452,14 @@ export function useChat() {
     // if (!participantId || participantId === props.attendant?.id) return;
 
     try {
-      const url = `/v1/api/attendances/internal_chat/${participantId}/add_attendant/`;
+      const url = managerChatGroup(participantId, "add");
       await api.post(url, {
         participants: ["da20f5a0-c8bc-4afe-b308-fd7e0915e3bd"],
       });
 
       listGroups.value.unshift(event.message);
     } catch (error) {
-      notifyActionError(
-        "Erro ao adicionar participante",
-        error,
-        "Nao foi possivel adicionar o participante.",
-      );
+      console.error("Erro ao adicionar participante:", error);
     }
   };
 
@@ -479,18 +471,14 @@ export function useChat() {
     removeList.push(participantId);
 
     try {
-      const url = `/v1/api/attendances/internal_chat/${channelId}/remove_attendant/`;
+      const url = managerChatGroup(channelId, "remove");
       await api.post(url, {
         participants: removeList,
       });
       removeParticipantFromGroupState(channelId, participantId);
       return true;
     } catch (error) {
-      notifyActionError(
-        "Erro ao remover participante",
-        error,
-        "Nao foi possivel remover o participante.",
-      );
+      console.error("Erro ao remover participante:", error);
       return false;
     }
   };
@@ -511,7 +499,6 @@ export function useChat() {
     loadMoreChannels,
     openCreateOrEdit,
     closeCreateOrEdit,
-    createOrEditGroup,
     fetchMessagesByChannel,
     loadMessagesByChannel,
     addMessageToChannel,

@@ -2,17 +2,18 @@
   <div class="attendants-container">
     <!-- Seletor de tipo de lista -->
     <SectionsHeader
-      :hasUnread="hasUnreadAttendants || hasUnreadGroups"
+      :hasUnread="{ atendentes: hasUnreadAttendants, grupos: hasUnreadGroups }"
       v-model:currentState="currentList"
       v-model:searchQuery="searchQuery"
     />
 
     <!-- Lista de atendentes -->
     <MountListForType
-      :content=" 
+      :content="
         currentList === 'atendentes' ? filteredAtendentes : filteredGrupos
       "
       :mode="currentList"
+      :loader="loaderList"
     />
 
     <!-- Footer fixo -->
@@ -24,15 +25,7 @@
 </template>
 
 <script setup>
-import {
-  ref,
-  computed,
-  onMounted,
-  onBeforeUnmount,
-  watch,
-  nextTick,
-  inject,
-} from "vue";
+import { ref, computed, onBeforeUnmount, watch, inject } from "vue";
 
 import SectionsHeader from "./components/sectionsHeader.vue";
 import MountListForType from "./components/mountListForType.vue";
@@ -43,15 +36,14 @@ const props = defineProps({
   currentAttendant: { type: Object, required: true },
   mobile: { type: Boolean, default: false },
   currentList: { type: String, default: undefined },
+  searchQuery: { type: String, default: undefined },
 });
 
 // --- Injects recebidos de ChatWindow ---
-const fetchGroupChannels = inject("fetchGroupChannels");
+const useChat = inject("useChat");
 // --------------------------------------
 
-const emit = defineEmits(["update:currentList"]);
-
-const searchQuery = ref("");
+const emit = defineEmits(["update:currentList", "update:searchQuery"]);
 
 // Se o pai não controlar a aba, mantém estado local.
 const uncontrolledCurrentList = ref(props.currentList ?? "atendentes");
@@ -69,6 +61,21 @@ const currentList = computed({
   },
 });
 
+const uncontrolledSearchQuery = ref(props.searchQuery ?? "");
+
+const searchQuery = computed({
+  get() {
+    return props.searchQuery ?? uncontrolledSearchQuery.value;
+  },
+  set(value) {
+    if (props.searchQuery === undefined) {
+      uncontrolledSearchQuery.value = value;
+      return;
+    }
+    emit("update:searchQuery", value);
+  },
+});
+
 // Computed property para filtrar os atendentes
 const filteredAtendentes = computed(() => {
   if (!searchQuery.value) {
@@ -83,14 +90,9 @@ const filteredAtendentes = computed(() => {
   );
 });
 
-// Computed property para filtrar os grupos (usa searchQueryGroups)
+// Computed property para filtrar os grupos (já vem filtrado do backend)
 const filteredGrupos = computed(() => {
-  const channels = (props.listGroups || []).filter((ch) => ch?.is_group);
-
-  const q = searchQuery.value.trim().toLowerCase();
-  if (!q) return channels;
-
-  return channels.filter((ch) => (ch?.name || "").toLowerCase().includes(q));
+  return (props.listGroups || []).filter((ch) => ch?.is_group);
 });
 
 watch(
@@ -100,15 +102,37 @@ watch(
     const isGroup = value === "grupos";
     const isMobile = !props.mobile;
 
-    if (isGroup) handleGroups();
+    if (isGroup) await handleGroups();
     if (isMobile) return;
   }
 );
 
-const handleGroups = async () => {
-  if (typeof fetchGroupChannels !== "function") return;
-  fetchGroupChannels();
+const loaderList = ref(false);
+
+const handleGroups = async (filter = "") => {
+  if (typeof useChat.fetchGroupChannels !== "function") return;
+  loaderList.value = true;
+  await useChat.fetchGroupChannels(1, filter);
+  loaderList.value = false;
 };
+
+// Debounce para busca de grupos no backend
+let searchTimeout = null;
+watch(
+  () => searchQuery.value,
+  (newQuery) => {
+    if (currentList.value !== "grupos") return;
+
+    if (searchTimeout) clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      handleGroups(newQuery.trim());
+    }, 400);
+  }
+);
+
+onBeforeUnmount(() => {
+  if (searchTimeout) clearTimeout(searchTimeout);
+});
 
 // Unread helpers (for the green dot in the list selector)
 const unreadAttendantsTotal = computed(() => {
