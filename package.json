@@ -5,9 +5,10 @@
     "dist",
     "src/test-utils"
   ],
-  "version": "0.0.535",
+  "version": "0.0.537",
   "main": "dist/sm-click-library-ui.es.js",
   "module": "dist/sm-click-library-ui.umd.js",
+  "style": "dist/style.css",
   "private": false,
   "scripts": {
     "dev": "vite",
@@ -24,7 +25,8 @@
   },
   "exports": {
     ".": "./dist/sm-click-library-ui.es.js",
-    "./dist/style.css": "./dist/style.css",
+    "./style.css": "./dist/style.css",
+    "./tailwind.css": "./dist/tailwind.css",
     "./test-utils/setup": "./dist/test-utils/setup.js"
   },
   "dependencies": {

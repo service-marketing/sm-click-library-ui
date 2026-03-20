@@ -2,17 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom border class */
-.bg-border-300 {
-  border-color: var(--bg-base-300);
-}
-
-.bg-border-100 {
-  border-color: var(--bg-base-100);
-}
-
-.bg-border-200 {
-  border-color: var(--bg-base-200);
+.table-td {
+  @apply bg-base-300 hover:bg-base-300/70;
 }
 
 .action-btn {

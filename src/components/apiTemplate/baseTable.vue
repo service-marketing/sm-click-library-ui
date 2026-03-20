@@ -425,10 +425,6 @@ function getHeaderFlexClass(align) {
 </template>
 
 <style scoped>
-.table-td {
-  @apply bg-base-300 hover:bg-base-300/70;
-}
-
 /* ── Filter Dropdown ── */
 /* .filter-popper {
   --popper-theme-background-color: rgba(15, 23, 42, 0.98);
