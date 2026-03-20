@@ -153,7 +153,6 @@
           </div>
 
           <!-- Mensagem -->
-
           <div
             :class="[
               'message',
@@ -270,6 +269,13 @@
                 </section>
               </div>
             </div>
+          </div>
+
+          <div
+            v-if="msg.content?.type === 'system'"
+            class="flex w-full items-center justify-center mt-4 mb-4"
+          >
+            <div class="date-separator-text">{{ msg.content.content }}</div>
           </div>
         </div>
       </div>
@@ -667,16 +673,17 @@ watch(
 watch(
   () => mensagens.value?.length,
   (newVal, oldVal) => {
-    if (mensagens.value) {
-      const isNearBottom = checkIsNearBottom();
-      if (isNearBottom) {
-        setTimeout(() => {
-          chatArea.value.scrollTo({
-            top: chatArea.value.scrollHeight,
-            behavior: "instant",
-          });
-        }, 100);
-      }
+    if (!mensagens.value || !chatArea.value) return;
+
+    const isNearBottom = checkIsNearBottom();
+    if (isNearBottom) {
+      setTimeout(() => {
+        if (!chatArea.value) return;
+        chatArea.value.scrollTo({
+          top: chatArea.value.scrollHeight,
+          behavior: "instant",
+        });
+      }, 100);
     }
   }
 );
@@ -687,6 +694,8 @@ watch(novaMensagem, async () => {
 });
 
 function checkIsNearBottom() {
+  if (!chatArea.value) return false;
+
   const threshold = 80; // pixels do final do scroll considerados "perto do final"
   const position = chatArea.value.scrollTop + chatArea.value.clientHeight;
   const height = chatArea.value.scrollHeight;
