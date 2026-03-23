@@ -15,3 +15,13 @@ export const segmentation_field = "/v1/api/contacts/segmentation_field/";
 export const callsUrl = "v1/api/attendances/calls/";
 export const reminders = "v1/api/crm/event/attendant_reminder/";
 export const templateUrl = "v1/api/instances/template/";
+
+export const managerChatGroup = (channelId, finalParam = "") => {
+  const mapFinalParam = {
+    add: "add_attendant/",
+    remove: "remove_attendant/",
+    leave: "leave_channel/",
+  };
+
+  return `${internalChatUrl}${channelId}/${mapFinalParam[finalParam] || ""}`;
+};

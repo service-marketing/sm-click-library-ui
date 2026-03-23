@@ -15,7 +15,6 @@ export const useAttendantStore = defineStore("attendant", {
   actions: {
     async fetchAttendants() {
       try {
-        this.attendants = []; // Resetar a lista de atendentes
         let nextPageUrl = `${attendantUrl}`;
         const response = await api.get(nextPageUrl);
         this.attendants = response.data;

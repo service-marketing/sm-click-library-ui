@@ -10,7 +10,6 @@ import calendar from "./components/calendar/scheduledCalendar.vue";
 import MFA from "./components/mfa/mfa.vue";
 import MfaQrCode from "./components/mfa/MfaQrCode.vue";
 import chatWindow from "./components/intern-chat/chatWindow.vue";
-import MobileInternalChat from "./components/intern-chat/mobileChatWindow.vue";
 import departSelect from "./components/selects/departmentSelect/departSelect.vue";
 import attendantSelect from "./components/selects/attendantSelect/attendantSelect.vue";
 import FilterSelectLib from "./components/selects/filterSelect/filterSelect.vue";
@@ -64,6 +63,7 @@ import CallHistory from "./components/chat/CallHistory.vue";
 import CallMessage from "./components/chat/CallMessage.vue";
 import ReminderModal from "./components/CRM+/reminders/reminderModal/reminderModal.vue";
 import { moveReminderToCompleted } from "./components/CRM+/reminders/reminderFunctions.js";
+import { preloadAllGroupChannels } from "./components/intern-chat/useChat";
 
 import api, {
   setApiBaseURL,
@@ -72,6 +72,7 @@ import api, {
 } from "~/utils/api";
 
 export { api, setRefreshTokenUrl };
+export { preloadAllGroupChannels };
 
 function install(Vue) {
   Vue.component("primarySelect", primarySelect);
@@ -85,7 +86,6 @@ function install(Vue) {
   Vue.component("MfaQrCode", MfaQrCode);
   Vue.component("chatWindow", chatWindow);
   Vue.component("FilterSelectLib", FilterSelectLib);
-  Vue.component("MobileInternalChat", MobileInternalChat);
   Vue.component("RandomAvatar", RandomAvatar);
   Vue.component("MinModal", MinModal);
   Vue.component("LibPatchNotes", libPatchNotes);
@@ -245,7 +245,6 @@ export default {
   departSelect,
   attendantSelect,
   FilterSelectLib,
-  MobileInternalChat,
   RandomAvatar,
   MinModal,
   libPatchNotes,

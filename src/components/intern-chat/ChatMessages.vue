@@ -1,4 +1,13 @@
 <template>
+  <GroupChatInfo
+    v-if="toggleDescriptionChat && selectedAttendant && isGroupChat"
+    :selectedAttendant="selectedAttendant"
+    :attendant="attendant"
+    :participantsGroup="participantsGroup"
+    :participantCount="participantCount"
+    @close="handlerDescriptionChat"
+  />
+
   <div class="messages-container bg-base-300">
     <!-- Cabeçalho -->
     <div class="header-intern bg-base-300">
@@ -15,8 +24,55 @@
           />
         </svg>
       </button>
-      <Avatar :url="selectedAtendente.photo" />
-      <h3 class="atendente-name">{{ selectedAtendente.name }}</h3>
+
+      <button @click="handlerDescriptionChat()">
+        <Avatar
+          v-if="selectedAttendant.photo"
+          :style="'size-10'"
+          :url="selectedAttendant.photo"
+        />
+
+        <Avatar v-else :style="'size-10'">
+          <div class="flex items-center justify-center mt-0.5 mr-0.5">
+            <svg
+              v-if="isGroupChat"
+              class="size-9"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M12 6a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Zm-1.5 8a4 4 0 0 0-4 4 2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 4 4 0 0 0-4-4h-3Zm6.82-3.096a5.51 5.51 0 0 0-2.797-6.293 3.5 3.5 0 1 1 2.796 6.292ZM19.5 18h.5a2 2 0 0 0 2-2 4 4 0 0 0-4-4h-1.1a5.503 5.503 0 0 1-.471.762A5.998 5.998 0 0 1 19.5 18ZM4 7.5a3.5 3.5 0 0 1 5.477-2.889 5.5 5.5 0 0 0-2.796 6.293A3.501 3.501 0 0 1 4 7.5ZM7.1 12H6a4 4 0 0 0-4 4 2 2 0 0 0 2 2h.5a5.998 5.998 0 0 1 3.071-5.238A5.505 5.505 0 0 1 7.1 12Z"
+                clip-rule="evenodd"
+              />
+            </svg>
+
+            <svg
+              v-else
+              class="size-9"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4h-4Z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </div>
+        </Avatar>
+      </button>
+
+      <span class="flex flex-col">
+        <h3 class="atendente-name">{{ selectedAttendant.name }}</h3>
+        <h2 v-if="isGroupChat" class="text-xs text-gray-500">
+          {{ participantCount }} Membros
+        </h2>
+      </span>
     </div>
 
     <!-- Área de mensagens -->
@@ -57,20 +113,47 @@
           </div>
         </template>
       </v3-infinite-loading>
+      <div
+        class="h-screen flex flex-col items-center justify-center opacity-70"
+        v-if="mensagens.length === 0"
+      >
+        <svg
+          class="size-32 text-gray-400 dark:text-white"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M4 3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h1v2a1 1 0 0 0 1.707.707L9.414 13H15a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H4Z"
+            clip-rule="evenodd"
+          />
+          <path
+            fill-rule="evenodd"
+            d="M8.023 17.215c.033-.03.066-.062.098-.094L10.243 15H15a3 3 0 0 0 3-3V8h2a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-1v2a1 1 0 0 1-1.707.707L14.586 18H9a1 1 0 0 1-.977-.785Z"
+            clip-rule="evenodd"
+          />
+        </svg>
 
+        <p class="text-center text-gray-300">Nenhuma mensagem disponível</p>
+      </div>
       <!-- Mensagens -->
       <div>
         <div v-for="(msg, index) in mensagens" :key="index">
           <!-- Exibir separador de datas -->
           <div
             v-if="shouldShowDateSeparator(index)"
-            class="date-separator bg-base-100/50"
+            class="date-separator flex items-center justify-center my-4"
           >
-            <div class="date-separator-line"></div>
-            <div class="date-separator-text">
-              {{ formatDateSeparator(msg.created_at) }}
+            <div
+              style="background-color: rgb(17 27 33 / 0.5)"
+              class="p-1 px-2 rounded-md text-xs text-gray-400"
+            >
+              <p>{{ formatDateSeparator(msg.created_at) }}</p>
             </div>
-            <div class="date-separator-line"></div>
           </div>
 
           <!-- Mensagem -->
@@ -191,6 +274,18 @@
               </div>
             </div>
           </div>
+
+          <div
+            v-if="msg.content?.type === 'system'"
+            class="flex items-center justify-center my-4"
+          >
+            <div
+              style="background-color: rgb(17 27 33 / 0.5)"
+              class="p-1 px-2 rounded-md text-xs text-gray-400"
+            >
+              <p>{{ msg.content.content }}</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -206,78 +301,81 @@
         @keydown="handleKeydown"
         :disabled="isLoadingMessages"
       />
-      <button
-        @click="handleSendFilesClick"
-        class="send-files-button"
-        :disabled="isLoadingMessages"
-        :class="{ disabled: isLoadingMessages }"
-        :title="isLoadingMessages ? 'Aguarde as mensagens carregarem' : ''"
-      >
-        <svg
-          class="size-5 text-white"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M7 8v8a5 5 0 1 0 10 0V6.5a3.5 3.5 0 1 0-7 0V15a2 2 0 0 0 4 0V8"
-          />
-        </svg>
-      </button>
 
-      <button
-        v-if="novaMensagem.length > 0"
-        @click="handleButtonClick"
-        class="send-button"
-        :disabled="isLoadingMessages"
-        :class="{ disabled: isLoadingMessages }"
-        :title="isLoadingMessages ? 'Aguarde as mensagens carregarem' : ''"
-      >
-        <svg
-          class="size-5 text-white rotate-90"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          fill="currentColor"
-          viewBox="0 0 24 24"
+      <div class="buttons-container">
+        <button
+          @click="handleSendFilesClick"
+          class="send-files-button"
+          :disabled="isLoadingMessages"
+          :class="{ disabled: isLoadingMessages }"
+          :title="isLoadingMessages ? 'Aguarde as mensagens carregarem' : ''"
         >
-          <path
-            fill-rule="evenodd"
-            d="M12 2a1 1 0 0 1 .932.638l7 18a1 1 0 0 1-1.326 1.281L13 19.517V13a1 1 0 1 0-2 0v6.517l-5.606 2.402a1 1 0 0 1-1.326-1.281l7-18A1 1 0 0 1 12 2Z"
-            clip-rule="evenodd"
-          />
-        </svg>
-      </button>
+          <svg
+            class="size-5 text-white"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M7 8v8a5 5 0 1 0 10 0V6.5a3.5 3.5 0 1 0-7 0V15a2 2 0 0 0 4 0V8"
+            />
+          </svg>
+        </button>
 
-      <section
-        class="bg-base-300"
-        v-else
-        :class="['send-audio-button', { recording: isRecording }]"
-      >
-        <MobileAudioRecorder
-          v-if="isMobile"
-          :attendant="attendant"
-          :selectedAttendant="selectedAtendente"
-          :sendAudioToAttendant="sendMessageToAtendente"
-          @recording="(rec) => (isRecording = rec)"
-        />
-        <AudioRecorder
+        <button
+          v-if="novaMensagem.length > 0"
+          @click="handleButtonClick"
+          class="send-button"
+          :disabled="isLoadingMessages"
+          :class="{ disabled: isLoadingMessages }"
+          :title="isLoadingMessages ? 'Aguarde as mensagens carregarem' : ''"
+        >
+          <svg
+            class="size-5 text-white rotate-90"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M12 2a1 1 0 0 1 .932.638l7 18a1 1 0 0 1-1.326 1.281L13 19.517V13a1 1 0 1 0-2 0v6.517l-5.606 2.402a1 1 0 0 1-1.326-1.281l7-18A1 1 0 0 1 12 2Z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </button>
+
+        <section
+          class="bg-base-300"
           v-else
-          :can-send-message="!isLoadingMessages"
-          :attendant="attendant"
-          :selectedAttendant="selectedAtendente"
-          :sendAudioToAttendant="sendMessageToAtendente"
-          @recording="(rec) => (isRecording = rec)"
-        />
-      </section>
+          :class="['send-audio-button', { recording: isRecording }]"
+        >
+          <MobileAudioRecorder
+            v-if="isMobile"
+            :attendant="attendant"
+            :selectedAttendant="selectedAttendant"
+            :sendAudioToAttendant="sendMessageToAtendente"
+            @recording="(rec) => (isRecording = rec)"
+          />
+          <AudioRecorder
+            v-else
+            :can-send-message="!isLoadingMessages"
+            :attendant="attendant"
+            :selectedAttendant="selectedAttendant"
+            :sendAudioToAttendant="sendMessageToAtendente"
+            @recording="(rec) => (isRecording = rec)"
+          />
+        </section>
+      </div>
     </div>
   </div>
 </template>
@@ -288,14 +386,17 @@ import V3InfiniteLoading from "v3-infinite-loading";
 import { format, isToday, isYesterday, isThisWeek } from "date-fns";
 import { ptBR } from "date-fns/locale"; // Para formatação em português
 import Avatar from "./Avatar.vue";
+import GroupChatInfo from "./components/groupChatInfo.vue";
 import PreviewFiles from "./previewFiles.vue";
+
 import AudioRecorder from "../audio-misc/audioRecorder.vue";
 import MobileAudioRecorder from "../audio-misc/mobile/mobileAudioRecorder.vue";
 
 const props = defineProps({
+  listAttendancesByGroup: { type: Array, default: () => [] },
   isMobile: { type: Boolean, default: false },
   isLoadingMessages: { type: Boolean, default: false },
-  selectedAtendente: { type: Object, required: true },
+  selectedAttendant: { type: Object, required: true },
   attendant: { required: true },
   loadMessagesForAtendente: { type: Function, required: true }, // Recebe do pai
   sendMessageToAtendente: { type: Function, required: true }, // Recebe do pai
@@ -303,6 +404,38 @@ const props = defineProps({
   downloadFilesMobile: { type: Function },
   openMobilePdf: { type: Function },
 });
+
+// --- Controle de estado da tela de informações de grupo ---
+const toggleDescriptionChat = ref(false);
+
+const handlerDescriptionChat = () => {
+  if (!isGroupChat.value) return;
+  toggleDescriptionChat.value = !toggleDescriptionChat.value;
+};
+// ----------------------------------------------------------
+
+const isGroupChat = computed(() => Boolean(props.selectedAttendant?.is_group));
+
+const participantIds = computed(
+  () => props.selectedAttendant?.participants || [],
+);
+
+// Participantes reais do grupo (ordenados, com o usuário atual primeiro)
+const participantsGroup = computed(() => {
+  if (!isGroupChat.value || participantIds.value.length === 0) {
+    return [];
+  }
+
+  return props.listAttendancesByGroup
+    .filter((item) => participantIds.value.includes(item.id))
+    .sort((a, b) => {
+      if (a.id === props.attendant.id) return -1;
+      if (b.id === props.attendant.id) return 1;
+      return 0;
+    });
+});
+
+const participantCount = computed(() => participantsGroup.value.length);
 
 const emits = defineEmits(["send-files", "voltar"]);
 
@@ -314,12 +447,12 @@ const isRecording = ref(false);
 
 const isLoading = ref(false);
 const mensagens = computed(() => {
-  if (!props.selectedAtendente) return [];
+  if (!props.selectedAttendant) return [];
 
   // Se for um grupo, usa chat_info.messages, senão usa messages diretamente
-  return props.selectedAtendente.is_group
-    ? props.selectedAtendente.chat_info?.messages || []
-    : props.selectedAtendente.messages || [];
+  return props.selectedAttendant.is_group
+    ? props.selectedAttendant.chat_info?.messages || []
+    : props.selectedAttendant.messages || [];
 });
 
 const openPdf = (url) => {
@@ -350,9 +483,10 @@ const toggleDownloadFunctions = (file, name) => {
 
 const hasNextPage = computed(() =>
   props.hasNextPageForAtendente(
-    props.selectedAtendente.internal_chat.channel_id,
+    props.selectedAttendant.internal_chat.channel_id,
   ),
 );
+
 const formatMessageTime = (dateStr) => {
   const date = new Date(dateStr);
   // Obtém a hora local ajustada automaticamente pelo navegador
@@ -418,7 +552,7 @@ const loadMoreMessages = async ($state) => {
 
     // Carrega mais mensagens
     await props.loadMessagesForAtendente(
-      props.selectedAtendente.internal_chat.channel_id,
+      props.selectedAttendant.internal_chat.channel_id,
     );
 
     // Aguarda a renderização das novas mensagens
@@ -443,7 +577,7 @@ const enviarMensagem = async () => {
   if (novaMensagem.value.trim() !== "") {
     try {
       const newMessage = JSON.parse(JSON.stringify(novaMensagem.value));
-      const channel_id = props.selectedAtendente?.internal_chat?.channel_id;
+      const channel_id = props.selectedAttendant?.internal_chat?.channel_id;
 
       novaMensagem.value = "";
       await props.sendMessageToAtendente(
@@ -459,24 +593,51 @@ const enviarMensagem = async () => {
   }
 };
 
-const handleButtonClick = () => {
+const handleButtonClick = (event) => {
   if (props.isLoadingMessages) return;
   enviarMensagem();
-  const button = document.querySelector(".send-button");
+  const button = event?.currentTarget;
+  if (!button) return;
   button.classList.add("clicked");
   setTimeout(() => {
     button.classList.remove("clicked");
   }, 200);
 };
 
-const handleSendFilesClick = () => {
+const handleSendFilesClick = (event) => {
   if (props.isLoadingMessages) return;
   emits("send-files");
-  const button = document.querySelector(".send-files-button");
+  const button = event?.currentTarget;
+  if (!button) return;
   button.classList.add("clicked");
   setTimeout(() => {
     button.classList.remove("clicked");
   }, 200);
+};
+
+const autoResize = () => {
+  const textarea = messageInputRef.value;
+  if (!textarea) return;
+
+  const baseHeight = 50; // h-10
+  const maxHeight = 120;
+
+  // Se vazio, volta para altura base
+  if (!textarea.value.trim()) {
+    textarea.style.height = `${baseHeight}px`;
+    textarea.style.overflowY = "hidden";
+    return;
+  }
+
+  // Temporariamente seta para 1px para medir o scrollHeight real
+  textarea.style.height = "1px";
+  const scrollHeight = textarea.scrollHeight;
+
+  // Só aumenta se o conteúdo precisar de mais espaço que a altura base
+  const nextHeight = Math.max(baseHeight, Math.min(scrollHeight, maxHeight));
+
+  textarea.style.height = `${nextHeight}px`;
+  textarea.style.overflowY = scrollHeight > maxHeight ? "auto" : "hidden";
 };
 
 onMounted(async () => {
@@ -486,6 +647,7 @@ onMounted(async () => {
   });
 
   // Ao abrir a conversa, já deixa o input pronto pra digitação.
+  autoResize();
   focusMessageInput();
 });
 
@@ -501,7 +663,7 @@ const focusMessageInput = async () => {
 };
 
 watch(
-  () => props.selectedAtendente?.internal_chat?.channel_id,
+  () => props.selectedAttendant?.internal_chat?.channel_id,
   () => {
     focusMessageInput();
   },
@@ -517,21 +679,29 @@ watch(
 watch(
   () => mensagens.value?.length,
   (newVal, oldVal) => {
-    if (mensagens.value) {
-      const isNearBottom = checkIsNearBottom();
-      if (isNearBottom) {
-        setTimeout(() => {
-          chatArea.value.scrollTo({
-            top: chatArea.value.scrollHeight,
-            behavior: "instant",
-          });
-        }, 100);
-      }
+    if (!mensagens.value || !chatArea.value) return;
+
+    const isNearBottom = checkIsNearBottom();
+    if (isNearBottom) {
+      setTimeout(() => {
+        if (!chatArea.value) return;
+        chatArea.value.scrollTo({
+          top: chatArea.value.scrollHeight,
+          behavior: "instant",
+        });
+      }, 100);
     }
   },
 );
 
+watch(novaMensagem, async () => {
+  await nextTick();
+  autoResize();
+});
+
 function checkIsNearBottom() {
+  if (!chatArea.value) return false;
+
   const threshold = 80; // pixels do final do scroll considerados "perto do final"
   const position = chatArea.value.scrollTop + chatArea.value.clientHeight;
   const height = chatArea.value.scrollHeight;
@@ -628,9 +798,7 @@ const downloadFiles = async (url, name = "undefined") => {
   display: flex;
   flex-direction: column;
   height: 100%;
-  /* background-color: white; */
   border-radius: 7px;
-  /* color: black; */
 }
 
 /* Cabeçalho */
@@ -672,20 +840,30 @@ const downloadFiles = async (url, name = "undefined") => {
 }
 
 .atendente-name {
-  font-size: 0.875rem;
+  font-size: 0.975rem;
 }
 
 /* Área de mensagens */
+.buttons-container {
+  padding-right: 0.6rem;
+  padding-bottom: 0.6rem;
+  @apply gap-1 pr-2 flex items-end h-full;
+}
+
 .message-area {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: linear-gradient(
-    to top right,
-    rgba(59, 107, 184, 0.3),
-    rgba(55, 61, 150, 0.5)
-  );
-  padding: 0.25rem;
+  background:
+    linear-gradient(
+      to top right,
+      rgba(59, 107, 184, 0.85),
+      rgba(55, 61, 150, 0.95)
+    ),
+    url("https://smzap-bucket.s3.us-east-1.amazonaws.com/arquivos_site/background-whats.png");
+  background-repeat: no-repeat, repeat;
+  background-size: cover, auto;
+  background-attachment: scroll, local;
   overflow-y: auto;
   position: relative;
 }
@@ -797,95 +975,6 @@ const downloadFiles = async (url, name = "undefined") => {
   white-space: nowrap;
 }
 
-/* Área de input e botão de enviar */
-.input-area {
-  display: flex;
-  align-items: center;
-  position: relative;
-  width: 100%;
-  flex-shrink: 0;
-}
-
-.message-input {
-  width: 100%;
-  /* background-color: white; */
-  /* color: black; */
-  resize: none;
-  padding: 0.5rem;
-  height: 56px;
-  border: none;
-  outline: none;
-  padding-right: 110px;
-  max-height: 56px;
-  min-height: 56px;
-  border-radius: 0 0 7px 7px;
-  outline: 2px solid transparent;
-  outline-offset: 2px;
-  border-style: none;
-}
-
-.message-input:focus {
-  outline: 2px solid transparent;
-  outline-offset: 2px;
-  border-style: none;
-  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0
-    var(--tw-ring-offset-width) var(--tw-ring-offset-color);
-  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0
-    calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color);
-  box-shadow: var(--tw-ring-offset-shadow);
-}
-
-.send-button {
-  position: absolute;
-  right: 0.5rem;
-  top: 0.65rem;
-  background-color: #3b82f6;
-  color: white;
-  padding: 0.3rem 0.7rem;
-  border-radius: 9999px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  font-size: 15px;
-}
-
-.send-audio-button.recording {
-  position: absolute;
-  width: 100%;
-  /* background-color: #111b21; */
-  inset: 0px;
-  display: flex;
-  justify-content: flex-end;
-  padding-left: 0.75rem;
-  padding-right: 0.75rem;
-  border-radius: 0.375rem;
-}
-
-.send-files-button {
-  position: absolute;
-  right: 3.5rem;
-  top: 0.65rem;
-  background-color: #3b82f6;
-  color: white;
-  padding: 0.3rem 0.7rem;
-  border-radius: 9999px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  font-size: 15px;
-}
-
-.send-files-button:hover {
-  background-color: #2563eb;
-}
-
-.send-button.disabled,
-.send-files-button.disabled,
-.send-button:disabled,
-.send-files-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
 /* Animação para a mensagem */
 /* .new-message { animation: bounce-in 0.6s ease-in-out; } */
 
@@ -947,5 +1036,106 @@ const downloadFiles = async (url, name = "undefined") => {
     transform: translateX(0);
     opacity: 1;
   }
+}
+
+.input-area {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.message-input {
+  width: 100%;
+  /* background-color: white; */
+  /* color: black; */
+  resize: none;
+  padding: 0.5rem;
+  height: 56px;
+  border: none;
+  outline: none;
+  /* padding-right: 110px; */
+  border-radius: 0 0 7px 7px;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  border-style: none;
+  @apply hide-scrollbar;
+}
+
+.message-input:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  border-style: none;
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0
+    var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0
+    calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow);
+}
+
+.send-button {
+  /* position: absolute;
+  right: 0.5rem;
+  top: 0.65rem; */
+  background-color: #3b82f6;
+  color: white;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 15px;
+  @apply size-8 flex items-center justify-center;
+}
+
+.send-audio-button.recording {
+  position: absolute;
+  width: 100%;
+  /* background-color: #111b21; */
+  inset: 0px;
+  display: flex;
+  justify-content: flex-end;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  border-radius: 0.375rem;
+}
+
+.send-files-button {
+  /* position: absolute;
+  right: 3.5rem;
+  top: 0.65rem; */
+  background-color: #3b82f6;
+  color: white;
+  /* padding: 0.4rem; */
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 15px;
+  @apply w-8 h-8 flex items-center justify-center;
+}
+
+.send-files-button:hover {
+  background-color: #2563eb;
+}
+
+.send-button.disabled,
+.send-files-button.disabled,
+.send-button:disabled,
+.send-files-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* --- Classe para esconder a barra de rolagem, mantendo a rolagem funcional --- */
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE 10+ */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* --- Chrome, Edge (Blink), Safari, Opera --- */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 </style>
