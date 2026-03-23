@@ -33,10 +33,10 @@
               v-if="showCreateOrEditModal.show"
               :mode="showCreateOrEditModal.mode"
               :selectedGroup="showCreateOrEditModal.groupData"
+              :submitGroup="handleCreateGroup"
               :listAttendances="filteredListAttendants"
-              @createGroup="handleCreateGroup"
-              :errorMap="[]"
-              :isCreatingGroup="false"
+              :errorMap="groupActionErrors"
+              :isCreatingGroup="isSubmittingGroupAction"
             />
           </template>
         </ChatContent>
@@ -71,15 +71,15 @@
       </div>
 
       <section
-        v-if="!isChatOpen && countMessages > 0"
+        v-if="!isChatOpen && countTotalUnreadMessages > 0"
         :style="
-          countMessages > 10
+          countTotalUnreadMessages > 10
             ? 'padding: 0.2rem 0.500rem;'
             : 'padding: 0.2rem 0.625rem;'
         "
-        class="chat-count"
+        class="chat-count flex flex-col"
       >
-        {{ countMessages }}
+        {{ countTotalUnreadMessages }}
       </section>
 
       <div
@@ -138,10 +138,10 @@
                   v-if="showCreateOrEditModal.show"
                   :mode="showCreateOrEditModal.mode"
                   :selectedGroup="showCreateOrEditModal.groupData"
+                  :submitGroup="handleCreateGroup"
                   :listAttendances="filteredListAttendants"
-                  @createGroup="handleCreateGroup"
-                  :errorMap="[]"
-                  :isCreatingGroup="false"
+                  :errorMap="groupActionErrors"
+                  :isCreatingGroup="isSubmittingGroupAction"
                 />
               </template>
             </ChatContent>
@@ -192,17 +192,11 @@ const props = defineProps({
       created_at: "2024-09-17T09:45:19.286087Z",
     },
   },
-  countMessages: {
-    type: Number,
-    default: null,
-  },
   mode: { type: String, default: "dark" },
   isMobile: { type: Boolean, default: false },
   downloadFilesMobile: { type: Function },
   openMobilePdf: { type: Function },
 });
-
-const emit = defineEmits(["unreadMessagesEmit"]);
 
 // --- Seção que controla o estado da lista de chats ---
 const currentList = ref("atendentes");
@@ -212,6 +206,8 @@ const isChatOpen = ref(false);
 const selectedAttendant = ref(null);
 const chatContainer = ref(null);
 const chatContentRef = ref(null);
+const isSubmittingGroupAction = ref(false);
+const groupActionErrors = ref([]);
 // -----------------------------------------------------
 
 // --- importes das funções de controle geral do chat interno ---
@@ -224,10 +220,10 @@ const {
   listGroups, // Ref que contém a lista de grupos do chat interno
   listAttendants,
   loadingMessages,
+  loadingAttendants,
   loadingGroupList,
   createGroup,
   fetchGroupChannels,
-  loadMoreChannels,
   fetchMessagesByChannel,
   addMessageToChannel,
   addGroupParticipant,
@@ -238,6 +234,7 @@ const {
   loadMessagesByChannel,
   resetUnreadMessages,
   findEntityByChannelId,
+  refreshAttendantsOnListOpen,
 } = useChat();
 // --------------------------------------------------------------
 
@@ -249,10 +246,6 @@ const selectChatToOpen = async (atendente) => {
     console.error("Canal sem channel_id:", atendente);
     return;
   }
-
-  const entity = findEntityByChannelId(channelId);
-  const attendantCount = entity ? entity.internal_chat?.unread : 0;
-  emit("unreadMessagesEmit", attendantCount);
 
   // Garante que, ao sair do chat, o usuário volte para a lista correta.
   lastSelectedList.value = atendente?.is_group ? "grupos" : "atendentes";
@@ -271,8 +264,9 @@ const selectChatToOpen = async (atendente) => {
   }
 };
 
-function handleVoltar() {
+async function handleVoltar() {
   // Ao sair do chat, volta para a lista correspondente ao último chat selecionado.
+  await refreshAttendantsOnListOpen();
   currentList.value = lastSelectedList.value;
   selectedAttendant.value = null;
 }
@@ -286,7 +280,6 @@ const exportUseChatToChildren = reactive({
   openCreateOrEdit,
   closeCreateOrEdit,
   fetchGroupChannels,
-  loadMoreChannels,
   selectChatToOpen,
   leaveGroup,
   removeGroupParticipant,
@@ -309,16 +302,87 @@ const filteredListAttendants = computed(() => {
     : [];
 
   const listAttendantsExcludingCurrent = listAttendantsList.filter(
-    (att) => att.id !== currentAttendantId
+    (att) => att.id !== currentAttendantId,
   );
 
   return listAttendantsExcludingCurrent || [];
 });
 
-const handleCreateGroup = (payload, mode) => {
-  createGroup(payload, mode);
+const normalizeGroupActionErrors = (error) => {
+  const responseData = error?.response?.data;
+
+  if (!responseData) {
+    return [
+      {
+        key: "erro",
+        message: "Nao foi possivel concluir a acao do grupo.",
+      },
+    ];
+  }
+
+  if (typeof responseData === "string") {
+    return [{ key: "erro", message: responseData }];
+  }
+
+  if (Array.isArray(responseData)) {
+    return responseData.map((message, index) => ({
+      key: `erro-${index + 1}`,
+      message: String(message),
+    }));
+  }
+
+  return Object.entries(responseData).flatMap(([key, value]) => {
+    const messages = Array.isArray(value) ? value : [value];
+
+    return messages.map((message, index) => ({
+      key: `${key}-${index + 1}`,
+      message: String(message),
+    }));
+  });
+};
+
+const handleCreateGroup = async (payload, mode) => {
+  groupActionErrors.value = [];
+  isSubmittingGroupAction.value = true;
+
+  try {
+    const hasSavedGroup = await createGroup(payload, mode);
+    return Boolean(hasSavedGroup);
+  } catch (error) {
+    groupActionErrors.value = normalizeGroupActionErrors(error);
+    return false;
+  } finally {
+    isSubmittingGroupAction.value = false;
+  }
 };
 // --------------------------------------------------------------
+
+watch(
+  () => showCreateOrEditModal.value.show,
+  (isOpen) => {
+    if (isOpen) {
+      groupActionErrors.value = [];
+      return;
+    }
+
+    groupActionErrors.value = [];
+    isSubmittingGroupAction.value = false;
+  },
+);
+
+// --- Seção que lista o total de mensagens não lidas ---
+const countTotalUnreadMessages = computed(() => {
+  const attendantsUnread = listAttendants.value.reduce((total, att) => {
+    return total + (att.internal_chat?.unread || 0);
+  }, 0);
+
+  const groupsUnread = listGroups.value.reduce((total, group) => {
+    return total + (group.internal_chat?.unread || 0);
+  }, 0);
+
+  return attendantsUnread + groupsUnread;
+});
+// ------------------------------------------------------
 
 const onSendFiles = () => {
   chatContentRef.value?.chooseFiles();
@@ -327,14 +391,15 @@ const onSendFiles = () => {
 const isChatVisible = computed(() => props.isMobile || isChatOpen.value);
 
 const showChatLoading = computed(
-  () => loadingMessages.value || loadingGroupList.value
+  () =>
+    loadingMessages.value || loadingGroupList.value || loadingAttendants.value,
 );
 
 // Computed property para obter o número de mensagens não lidas
 const unreadMessagesCount = computed(() => {
   if (selectedAttendant.value) {
     const atendente = listAttendants.value.find(
-      (att) => att.id === selectedAttendant.value.id
+      (att) => att.id === selectedAttendant.value.id,
     );
     return atendente ? atendente.internal_chat.unread : 0;
   }
@@ -419,7 +484,10 @@ const toggleChat = () => {
 
 const handleChatClick = () => {
   if (props.isMobile) return;
-  if (!isChatOpen.value) toggleChat();
+  if (!isChatOpen.value) {
+    toggleChat();
+    void refreshAttendantsOnListOpen();
+  }
 };
 
 watch(
@@ -432,13 +500,24 @@ watch(
         addMessageToChannel(
           newVal,
           isChatVisible.value,
-          selectedAttendant.value?.internal_chat?.channel_id
+          selectedAttendant.value?.internal_chat?.channel_id,
         );
       } else if (event === "new-chat-internal-group") {
+        if (newVal.message.content.action === "add-participant") {
+          // addGroupParticipant(newVal.message);
+          console.log("Participante adicionado ao grupo:");
+        } else if (newVal.message.content.action === "remove-participant") {
+          // removeGroupParticipant(newVal.message);
+          console.log("Participante removido do grupo:");
+        } else if (newVal.message.content.action === "leave-group") {
+          console.log("Participante saiu do grupo:");
+          // leaveGroup(newVal.message);
+        }
+
         const existingGroup = listGroups.value.find(
           (group) =>
             group.internal_chat?.channel_id ===
-            newVal.message.internal_chat?.channel_id
+            newVal.message.internal_chat?.channel_id,
         );
 
         if (!existingGroup) {
@@ -446,7 +525,7 @@ watch(
         }
       }
     }
-  }
+  },
 );
 
 let loadingToastOpen = false;
@@ -462,14 +541,14 @@ watch(
           title: "Carregando",
           text: "Carregando mensagens…",
         },
-        2000
+        2000,
       );
     }
 
     if (!isLoading) {
       loadingToastOpen = false;
     }
-  }
+  },
 );
 </script>
 

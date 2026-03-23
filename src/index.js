@@ -62,6 +62,7 @@ import CallHistory from "./components/chat/CallHistory.vue";
 import CallMessage from "./components/chat/CallMessage.vue";
 import ReminderModal from "./components/CRM+/reminders/reminderModal/reminderModal.vue";
 import { moveReminderToCompleted } from "./components/CRM+/reminders/reminderFunctions.js";
+import { preloadAllGroupChannels } from "./components/intern-chat/useChat";
 
 import api, {
   setApiBaseURL,
@@ -70,6 +71,7 @@ import api, {
 } from "~/utils/api";
 
 export { api, setRefreshTokenUrl };
+export { preloadAllGroupChannels };
 
 function install(Vue) {
   Vue.component("primarySelect", primarySelect);

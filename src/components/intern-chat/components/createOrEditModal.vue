@@ -7,6 +7,10 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  submitGroup: {
+    type: Function,
+    default: null,
+  },
   errorMap: {
     type: Array,
     default: () => [],
@@ -24,8 +28,6 @@ const props = defineProps({
     default: null,
   },
 });
-
-const emit = defineEmits(["createGroup"]);
 
 // --- Injects recebidos de ChatWindow ---
 const useChat = inject("useChat");
@@ -57,7 +59,7 @@ const isEditMode = computed(() => props.mode === "edit");
 const syncFormWithMode = () => {
   groupNameModel.value = props.selectedGroup?.name || "";
   localSelectedParticipants.value = Array.isArray(
-    props.selectedGroup?.participants
+    props.selectedGroup?.participants,
   )
     ? [...props.selectedGroup.participants]
     : [];
@@ -68,14 +70,14 @@ watch(
   () => {
     syncFormWithMode();
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 const canCreateGroup = computed(
   () =>
     localSelectedParticipants.value.length > 1 &&
     (isEditMode.value || groupNameModel.value.trim() !== "") &&
-    !props.isCreatingGroup
+    !props.isCreatingGroup,
 );
 
 const isSelected = (attendant) =>
@@ -90,6 +92,8 @@ const selectAttendant = (attendant) => {
 };
 
 const createGroup = async () => {
+  if (typeof props.submitGroup !== "function") return;
+
   const mountPayload = {
     participants: localSelectedParticipants.value.map((id) => id),
     chat_name: isEditMode.value
@@ -99,8 +103,11 @@ const createGroup = async () => {
     previousParticipants: props.selectedGroup?.participants || [],
   };
 
-  await emit("createGroup", mountPayload, props.mode);
-  resetForm();
+  const hasSavedGroup = await props.submitGroup(mountPayload, props.mode);
+
+  if (hasSavedGroup) {
+    resetForm();
+  }
 };
 // -----------------------------------------------------------------------
 </script>
@@ -189,8 +196,8 @@ const createGroup = async () => {
               isCreatingGroup
                 ? "Salvando..."
                 : isEditMode
-                ? "Salvar alteracoes"
-                : "Criar Grupo"
+                  ? "Salvar alteracoes"
+                  : "Criar Grupo"
             }}
           </span>
         </button>
@@ -264,7 +271,9 @@ const createGroup = async () => {
   gap: 0.5rem;
   cursor: pointer;
   width: 100%;
-  transition: transform 0.3s ease, background-color 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    background-color 0.3s ease;
   padding: 0.5rem;
   border-radius: 6px;
   border: 1px solid transparent;

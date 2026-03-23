@@ -30,15 +30,25 @@ const handleEditGroup = () => {
 };
 
 const handleRemoveParticipant = async (participant) => {
-  if (!participant) return;
-  if (participant.id === props.attendant?.id) return;
+  if (
+    !participant ||
+    participant.id === props.attendant?.id ||
+    participant.loading
+  ) {
+    return;
+  }
 
   if (typeof useChat.removeGroupParticipant !== "function") return;
+  participant.loading = true;
 
-  await useChat.removeGroupParticipant(
-    props.selectedAttendant?.internal_chat?.channel_id,
-    participant.id
-  );
+  try {
+    await useChat.removeGroupParticipant(
+      props.selectedAttendant?.internal_chat?.channel_id,
+      participant.id,
+    );
+  } finally {
+    participant.loading = false;
+  }
 };
 
 const loadingLeaveGroup = ref(false);
@@ -94,10 +104,11 @@ const closeLeaveConfirmation = () => {
 };
 
 const handleLeaveGroup = async () => {
-  loadingLeaveGroup.value = true;
   const channelId = props.selectedAttendant?.internal_chat?.channel_id;
   if (!channelId) return;
   if (typeof useChat.leaveGroup !== "function") return;
+
+  loadingLeaveGroup.value = true;
 
   const hasLeftGroup = await useChat.leaveGroup(channelId);
 
@@ -122,7 +133,7 @@ const isAdmin = computed(() => {
 
 const groupAdmin = computed(() => {
   const creator = props.participantsGroup.find(
-    (item) => props.selectedAttendant.created_by === item.id
+    (item) => props.selectedAttendant.created_by === item.id,
   );
 
   return creator ? creator.name : "Desconhecido";
@@ -205,7 +216,11 @@ onBeforeUnmount(() => {
 
       <h3 class="text-sm font-sans text-gray-500">
         Criado por {{ groupAdmin }},
-        {{ selectedAttendant.created_at || " data desconhecida" }}
+        {{
+          selectedAttendant.created_at
+            ? new Date(selectedAttendant.created_at).toLocaleDateString()
+            : " data desconhecida"
+        }}
       </h3>
     </div>
 
@@ -258,8 +273,12 @@ onBeforeUnmount(() => {
             </span>
 
             <button
-              class="rounded-md p-0.5 text-sm w-20"
-              :disabled="!isAdmin"
+              class="rounded-md p-0.5 text-sm w-20 flex items-center justify-center"
+              :disabled="
+                !isAdmin ||
+                participant.id === attendant.id ||
+                participant.loading
+              "
               :class="
                 participant.id === attendant.id
                   ? 'bg-primary hover:bg-primary'
@@ -269,19 +288,22 @@ onBeforeUnmount(() => {
               @mouseenter="
                 openActionTooltip(
                   $event,
-                  getRemoveParticipantTooltipMessage(participant)
+                  getRemoveParticipantTooltipMessage(participant),
                 )
               "
               @mouseleave="closeActionTooltip"
               @focus="
                 openActionTooltip(
                   $event,
-                  getRemoveParticipantTooltipMessage(participant)
+                  getRemoveParticipantTooltipMessage(participant),
                 )
               "
               @blur="closeActionTooltip"
             >
-              {{ participant.id === attendant.id ? "Eu" : "Remover" }}
+              <div class="loader-sm" v-if="participant.loading" />
+              <p v-else>
+                {{ participant.id === attendant.id ? "Eu" : "Remover" }}
+              </p>
             </button>
           </div>
         </li>
@@ -326,8 +348,6 @@ onBeforeUnmount(() => {
     </button>
   </span>
 </template>
-
-
 
 <style scoped>
 .loader {

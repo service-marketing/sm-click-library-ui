@@ -41,7 +41,7 @@ const buttons = [
     <button
       v-for="btn in buttons"
       :key="btn.value"
-      class="selector-button"
+      class="selector-button flex flex-col"
       :class="{ active: props.currentState === btn.value }"
       @click="$emit('update:currentState', btn.value)"
     >
@@ -50,7 +50,7 @@ const buttons = [
         <span class="selector-text">{{ btn.label }}</span>
 
         <span
-          v-if="props.hasUnread[btn.value]"
+          v-if="hasUnread[btn.value] > 0"
           class="unread-dot"
           aria-label="Há mensagens não lidas"
         ></span>

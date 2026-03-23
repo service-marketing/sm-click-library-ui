@@ -4,6 +4,140 @@ import { v4 as uuidv4 } from "uuid";
 import api from "~/utils/api";
 import { internalChatUrl, managerChatGroup } from "~/utils/systemUrls";
 
+const isSuccessfulStatus = (status) => status >= 200 && status < 300;
+const ATTENDANTS_REFRESH_INTERVAL_MS = 5 * 60 * 1000;
+
+const listGroups = ref([]);
+const loadingGroupList = ref(false);
+const loadingMoreGroupList = ref(false);
+const loadedGroupList = ref(false);
+
+const nextPage = ref(null);
+const previousPage = ref(null);
+const currentPage = ref(1);
+let preloadGroupChannelsPromise = null;
+let attendantsRefreshStartedAt = null;
+
+const getPageNumberFromNext = (next) => {
+  if (!next) return null;
+
+  try {
+    const parsedUrl = new URL(
+      next,
+      window?.location?.origin || "http://localhost",
+    );
+    const page = Number(parsedUrl.searchParams.get("page"));
+    return Number.isFinite(page) && page > 0 ? page : null;
+  } catch (error) {
+    console.error("Erro ao interpretar a próxima página dos grupos:", error);
+    return null;
+  }
+};
+
+const mergeGroups = (groups = [], replace = false) => {
+  if (replace) {
+    listGroups.value = groups;
+    return;
+  }
+
+  const existingGroups = new Map(
+    listGroups.value.map((group) => [
+      group.internal_chat?.channel_id || group.id,
+      group,
+    ]),
+  );
+
+  groups.forEach((group) => {
+    const groupKey = group.internal_chat?.channel_id || group.id;
+    existingGroups.set(groupKey, group);
+  });
+
+  listGroups.value = Array.from(existingGroups.values());
+};
+
+const setGroupPaginationState = (responseData, page) => {
+  nextPage.value = responseData?.next ?? null;
+  previousPage.value = responseData?.previous ?? null;
+  currentPage.value = page;
+};
+
+const fetchGroupChannels = async (page = 1, options = {}) => {
+  const { force = false } = options;
+  const isInitialLoad = page === 1;
+
+  try {
+    if (loadedGroupList.value && isInitialLoad && !force) {
+      return {
+        results: listGroups.value,
+        next: nextPage.value,
+        previous: previousPage.value,
+      };
+    }
+
+    if (loadingGroupList.value || loadingMoreGroupList.value) {
+      return {
+        results: listGroups.value,
+        next: nextPage.value,
+        previous: previousPage.value,
+      };
+    }
+
+    if (isInitialLoad) {
+      loadingGroupList.value = true;
+    } else {
+      loadingMoreGroupList.value = true;
+    }
+
+    const response = await api.get(`${internalChatUrl}channels/?page=${page}`);
+
+    mergeGroups(response.data?.results || [], isInitialLoad);
+    setGroupPaginationState(response.data, page);
+
+    if (isInitialLoad) {
+      loadedGroupList.value = true;
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    console.error("Erro ao buscar canais de grupo:", JSON.stringify(error));
+    throw error;
+  } finally {
+    if (isInitialLoad) {
+      loadingGroupList.value = false;
+    } else {
+      loadingMoreGroupList.value = false;
+    }
+  }
+};
+
+export const preloadAllGroupChannels = async () => {
+  if (preloadGroupChannelsPromise) {
+    return preloadGroupChannelsPromise;
+  }
+
+  preloadGroupChannelsPromise = (async () => {
+    let responseData = await fetchGroupChannels(1, { force: true });
+
+    while (responseData?.next) {
+      const nextPageNumber = getPageNumberFromNext(responseData.next);
+      if (!nextPageNumber) {
+        break;
+      }
+
+      responseData = await fetchGroupChannels(nextPageNumber);
+    }
+
+    return listGroups.value;
+  })();
+
+  try {
+    return await preloadGroupChannelsPromise;
+  } finally {
+    preloadGroupChannelsPromise = null;
+  }
+};
+
 export function useChat() {
   const attendantStore = useAttendantStore();
 
@@ -11,6 +145,36 @@ export function useChat() {
   const loadingMessages = ref(false);
   const loadingMoreMessages = ref(false);
   const loadingAttendants = ref(false);
+
+  const refreshAttendantsOnListOpen = async () => {
+    if (loadingAttendants.value) {
+      return attendantStore.attendants;
+    }
+
+    if (!attendantsRefreshStartedAt) {
+      attendantsRefreshStartedAt = Date.now();
+      return attendantStore.attendants;
+    }
+
+    const shouldRefreshAttendants =
+      Date.now() - attendantsRefreshStartedAt >= ATTENDANTS_REFRESH_INTERVAL_MS;
+
+    if (!shouldRefreshAttendants) {
+      return attendantStore.attendants;
+    }
+
+    try {
+      loadingAttendants.value = true;
+      await attendantStore.fetchAttendants();
+      attendantsRefreshStartedAt = Date.now();
+      return attendantStore.attendants;
+    } catch (error) {
+      console.error("Erro ao atualizar atendentes do chat:", error);
+      return attendantStore.attendants;
+    } finally {
+      loadingAttendants.value = false;
+    }
+  };
 
   function getValueByKey(object, key) {
     return object[key];
@@ -241,81 +405,6 @@ export function useChat() {
   };
 
   // --- Seção que controla o fetch do grupo dos canais de grupo ---
-  const listGroups = ref([]);
-  // const count = ref(0);
-  const loadingGroupList = ref(false);
-  const loadingMoreGroupList = ref(false);
-  const loadedGroupList = ref(false);
-
-  const nextPage = ref(null);
-  const previousPage = ref(null);
-  const currentPage = ref(1);
-  const currentFilter = ref("");
-
-  const fetchGroupChannels = async (page = 1, filter = "") => {
-    const isInitialLoad = page === 1;
-    const filterChanged = filter !== currentFilter.value;
-
-    try {
-      // Se o filtro mudou, permite recarregar mesmo que já tenha carregado
-      if (loadedGroupList.value && isInitialLoad && !filterChanged) return;
-      if (loadingGroupList.value || loadingMoreGroupList.value) return;
-
-      if (isInitialLoad) {
-        loadingGroupList.value = true;
-        currentFilter.value = filter;
-      } else {
-        loadingMoreGroupList.value = true;
-      }
-
-      const filterParam = filter ? `&filter=${encodeURIComponent(filter)}` : "";
-      const response = await api.get(
-        `${internalChatUrl}channels/?page=${page}${filterParam}`,
-      );
-
-      // Se for a primeira página, substitui os canais
-      // Caso contrário, adiciona aos canais existentes
-      if (isInitialLoad) {
-        listGroups.value = response.data.results;
-      } else {
-        listGroups.value = [...listGroups.value, ...response.data.results];
-      }
-
-      // count.value = response.data.count;
-      nextPage.value = response.data.next;
-      previousPage.value = response.data.previous;
-      currentPage.value = page;
-
-      // Marca como loaded após carregar a primeira página
-      if (isInitialLoad) {
-        loadedGroupList.value = true;
-      }
-    } catch (error) {
-      console.error(error);
-      console.error("Erro ao buscar canais de grupo:", JSON.stringify(error));
-    } finally {
-      if (isInitialLoad) {
-        loadingGroupList.value = false;
-      } else {
-        loadingMoreGroupList.value = false;
-      }
-    }
-  };
-
-  const loadMoreChannels = async () => {
-    if (
-      !nextPage.value ||
-      loadingGroupList.value ||
-      loadingMoreGroupList.value
-    ) {
-      return Boolean(nextPage.value);
-    }
-
-    const nextPageNumber = currentPage.value + 1;
-    await fetchGroupChannels(nextPageNumber, currentFilter.value);
-
-    return Boolean(nextPage.value);
-  };
   // --------------------------------------------------------------
 
   // --- Seção que controla o modal de criação/edição de grupos ---
@@ -371,7 +460,13 @@ export function useChat() {
           );
         }
 
-        await Promise.all(requests);
+        const responses = await Promise.all(requests);
+
+        if (
+          responses.some((response) => !isSuccessfulStatus(response?.status))
+        ) {
+          throw new Error("Erro ao sincronizar participantes do grupo.");
+        }
 
         const group = findEntityByChannelId(channelId);
         if (group) {
@@ -387,8 +482,14 @@ export function useChat() {
 
     try {
       const response = await api.post(`${internalChatUrl}create_group/`, body);
+
+      if (!isSuccessfulStatus(response?.status)) {
+        throw new Error("Erro ao criar grupo.");
+      }
+
       listGroups.value.unshift(response.data);
-      return response;
+
+      return true;
     } catch (error) {
       throw error;
     }
@@ -438,9 +539,15 @@ export function useChat() {
 
     try {
       const url = managerChatGroup(channelId, "leave");
-      await api.post(url);
+      const response = await api.post(url);
+
+      if (!isSuccessfulStatus(response?.status)) {
+        return false;
+      }
+
       clearEntityMessages(channelId);
       removeGroupFromState(channelId);
+
       return true;
     } catch (error) {
       console.error("Erro ao sair do grupo:", error);
@@ -472,9 +579,14 @@ export function useChat() {
 
     try {
       const url = managerChatGroup(channelId, "remove");
-      await api.post(url, {
+      const response = await api.post(url, {
         participants: removeList,
       });
+
+      if (!isSuccessfulStatus(response?.status)) {
+        return false;
+      }
+
       removeParticipantFromGroupState(channelId, participantId);
       return true;
     } catch (error) {
@@ -490,13 +602,13 @@ export function useChat() {
     loadingMessages,
     loadingMoreMessages,
     loadingAttendants,
+    refreshAttendantsOnListOpen,
     showCreateOrEditModal,
     listGroups,
     loadingGroupList,
     loadingMoreGroupList,
     createGroup,
     fetchGroupChannels,
-    loadMoreChannels,
     openCreateOrEdit,
     closeCreateOrEdit,
     fetchMessagesByChannel,

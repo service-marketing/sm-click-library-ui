@@ -2,7 +2,10 @@
   <div class="attendants-container">
     <!-- Seletor de tipo de lista -->
     <SectionsHeader
-      :hasUnread="{ atendentes: hasUnreadAttendants, grupos: hasUnreadGroups }"
+      :hasUnread="{
+        atendentes: unreadAttendantsTotal,
+        grupos: unreadGroupsTotal,
+      }"
       v-model:currentState="currentList"
       v-model:searchQuery="searchQuery"
     />
@@ -25,7 +28,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onBeforeUnmount, watch, inject } from "vue";
+import { ref, computed, watch, inject } from "vue";
 
 import SectionsHeader from "./components/sectionsHeader.vue";
 import MountListForType from "./components/mountListForType.vue";
@@ -80,19 +83,42 @@ const searchQuery = computed({
 const filteredAtendentes = computed(() => {
   if (!searchQuery.value) {
     return props.listAttendants.filter(
-      (att) => att.id !== props.currentAttendant.id
+      (att) => att.id !== props.currentAttendant.id,
     );
   }
   return props.listAttendants.filter(
     (att) =>
       att.name.toLowerCase().includes(searchQuery.value.toLowerCase()) &&
-      att.id !== props.currentAttendant.id
+      att.id !== props.currentAttendant.id,
   );
 });
 
-// Computed property para filtrar os grupos (já vem filtrado do backend)
+const normalizeSearchValue = (value) =>
+  String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+
+const getGroupSearchTarget = (group) => {
+  return [group?.name, group?.internal_chat?.name, group?.description]
+    .filter(Boolean)
+    .join(" ");
+};
+
+// Computed property para filtrar os grupos localmente
 const filteredGrupos = computed(() => {
-  return (props.listGroups || []).filter((ch) => ch?.is_group);
+  const baseGroups = (props.listGroups || []).filter((ch) => ch?.is_group);
+  const normalizedQuery = normalizeSearchValue(searchQuery.value);
+
+  if (!normalizedQuery) {
+    return baseGroups;
+  }
+
+  return baseGroups.filter((group) => {
+    const searchTarget = normalizeSearchValue(getGroupSearchTarget(group));
+    return searchTarget.includes(normalizedQuery);
+  });
 });
 
 watch(
@@ -104,35 +130,17 @@ watch(
 
     if (isGroup) await handleGroups();
     if (isMobile) return;
-  }
+  },
 );
 
 const loaderList = ref(false);
 
-const handleGroups = async (filter = "") => {
+const handleGroups = async () => {
   if (typeof useChat.fetchGroupChannels !== "function") return;
   loaderList.value = true;
-  await useChat.fetchGroupChannels(1, filter);
+  await useChat.fetchGroupChannels(1);
   loaderList.value = false;
 };
-
-// Debounce para busca de grupos no backend
-let searchTimeout = null;
-watch(
-  () => searchQuery.value,
-  (newQuery) => {
-    if (currentList.value !== "grupos") return;
-
-    if (searchTimeout) clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
-      handleGroups(newQuery.trim());
-    }, 400);
-  }
-);
-
-onBeforeUnmount(() => {
-  if (searchTimeout) clearTimeout(searchTimeout);
-});
 
 // Unread helpers (for the green dot in the list selector)
 const unreadAttendantsTotal = computed(() => {
@@ -146,9 +154,6 @@ const unreadGroupsTotal = computed(() => {
     .filter((ch) => ch.is_group)
     .reduce((sum, ch) => sum + (Number(ch?.internal_chat?.unread) || 0), 0);
 });
-
-const hasUnreadAttendants = computed(() => unreadAttendantsTotal.value > 0);
-const hasUnreadGroups = computed(() => unreadGroupsTotal.value > 0);
 </script>
 
 <style scoped>

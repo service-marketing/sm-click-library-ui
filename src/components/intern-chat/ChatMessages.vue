@@ -144,12 +144,16 @@
       <div>
         <div v-for="(msg, index) in mensagens" :key="index">
           <!-- Exibir separador de datas -->
-          <div v-if="shouldShowDateSeparator(index)" class="date-separator">
-            <div class="date-separator-line"></div>
-            <div class="date-separator-text">
-              {{ formatDateSeparator(msg.created_at) }}
+          <div
+            v-if="shouldShowDateSeparator(index)"
+            class="date-separator flex items-center justify-center my-4"
+          >
+            <div
+              style="background-color: rgb(17 27 33 / 0.5)"
+              class="p-1 px-2 rounded-md text-xs text-gray-400"
+            >
+              <p>{{ formatDateSeparator(msg.created_at) }}</p>
             </div>
-            <div class="date-separator-line"></div>
           </div>
 
           <!-- Mensagem -->
@@ -205,7 +209,7 @@
                       @click="
                         toggleDownloadFunctions(
                           msg.content.media,
-                          msg.content.media.name
+                          msg.content.media.name,
                         )
                       "
                     >
@@ -236,7 +240,7 @@
                   @download="
                     toggleDownloadFunctions(
                       msg.content.media,
-                      msg.content.media.name
+                      msg.content.media.name,
                     )
                   "
                   @open-mobile-pdf="openPdf(msg.content.media.data)"
@@ -273,18 +277,20 @@
 
           <div
             v-if="msg.content?.type === 'system'"
-            class="flex w-full items-center justify-center mt-4 mb-4"
+            class="flex items-center justify-center my-4"
           >
-            <div class="date-separator-text">{{ msg.content.content }}</div>
+            <div
+              style="background-color: rgb(17 27 33 / 0.5)"
+              class="p-1 px-2 rounded-md text-xs text-gray-400"
+            >
+              <p>{{ msg.content.content }}</p>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Área de input e botão de enviar -->
-
-    <!-- <TextInput v-model:newMessage="novaMensagem" /> -->
-
     <div class="input-area">
       <textarea
         ref="messageInputRef"
@@ -411,7 +417,7 @@ const handlerDescriptionChat = () => {
 const isGroupChat = computed(() => Boolean(props.selectedAttendant?.is_group));
 
 const participantIds = computed(
-  () => props.selectedAttendant?.participants || []
+  () => props.selectedAttendant?.participants || [],
 );
 
 // Participantes reais do grupo (ordenados, com o usuário atual primeiro)
@@ -477,8 +483,8 @@ const toggleDownloadFunctions = (file, name) => {
 
 const hasNextPage = computed(() =>
   props.hasNextPageForAtendente(
-    props.selectedAttendant.internal_chat.channel_id
-  )
+    props.selectedAttendant.internal_chat.channel_id,
+  ),
 );
 
 const formatMessageTime = (dateStr) => {
@@ -546,7 +552,7 @@ const loadMoreMessages = async ($state) => {
 
     // Carrega mais mensagens
     await props.loadMessagesForAtendente(
-      props.selectedAttendant.internal_chat.channel_id
+      props.selectedAttendant.internal_chat.channel_id,
     );
 
     // Aguarda a renderização das novas mensagens
@@ -577,7 +583,7 @@ const enviarMensagem = async () => {
       await props.sendMessageToAtendente(
         channel_id,
         newMessage,
-        props.attendant
+        props.attendant,
       );
       await nextTick();
       scrollToBottom();
@@ -660,14 +666,14 @@ watch(
   () => props.selectedAttendant?.internal_chat?.channel_id,
   () => {
     focusMessageInput();
-  }
+  },
 );
 
 watch(
   () => props.isLoadingMessages,
   (isLoading) => {
     if (!isLoading) focusMessageInput();
-  }
+  },
 );
 
 watch(
@@ -685,7 +691,7 @@ watch(
         });
       }, 100);
     }
-  }
+  },
 );
 
 watch(novaMensagem, async () => {
@@ -848,7 +854,8 @@ const downloadFiles = async (url, name = "undefined") => {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: linear-gradient(
+  background:
+    linear-gradient(
       to top right,
       rgba(59, 107, 184, 0.85),
       rgba(55, 61, 150, 0.95)
@@ -989,7 +996,9 @@ const downloadFiles = async (url, name = "undefined") => {
 
 /* Animação para as mensagens enviadas pelo usuário (vindo da esquerda) */
 .message-enter-active {
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
 }
 
 .message.me.new-message {

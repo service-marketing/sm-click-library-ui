@@ -1,7 +1,6 @@
 <script setup>
 import { inject, computed } from "vue";
 import Avatar from "../Avatar.vue";
-import V3InfiniteLoading from "v3-infinite-loading";
 
 const props = defineProps({
   content: { type: Object, default: () => ({}) },
@@ -74,26 +73,6 @@ const getStatusStyle = (status, groupLength) => {
   );
 };
 // -------------------------------------------------
-
-const load = async ($state) => {
-  if (!isGroup.value || typeof useChat.loadMoreChannels !== "function") {
-    $state.complete();
-    return;
-  }
-
-  try {
-    const hasNextPage = await useChat.loadMoreChannels();
-
-    if (hasNextPage) {
-      $state.loaded();
-      return;
-    }
-
-    $state.complete();
-  } catch (error) {
-    $state.error();
-  }
-};
 </script>
 
 <template>
@@ -243,41 +222,6 @@ const load = async ($state) => {
       <!-- Indicador de "conversar" no hover -->
       <div class="hover-action">Conversar</div>
     </li>
-
-    <V3InfiniteLoading
-      v-if="isGroup && content.length > 0"
-      @infinite="load"
-      :distance="30"
-      class="p-3"
-    >
-      <template #complete>
-        <span></span>
-      </template>
-      <template #spinner>
-        <div class="loading">
-          <svg
-            class="spinner"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              class="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              stroke-width="4"
-            ></circle>
-            <path
-              class="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-            ></path>
-          </svg>
-        </div>
-      </template>
-    </V3InfiniteLoading>
   </ul>
 
   <!-- Botão de criar grupo -->
@@ -343,7 +287,9 @@ const load = async ($state) => {
 }
 
 .atendente-item {
-  transition: transform 0.3s ease, background-color 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    background-color 0.3s ease;
 }
 
 .atendente-item.moved {
@@ -471,7 +417,10 @@ const load = async ($state) => {
   white-space: nowrap;
   pointer-events: none;
   transform: translateX(0.35rem);
-  transition: max-width 0.3s ease, opacity 0.2s ease, transform 0.3s ease;
+  transition:
+    max-width 0.3s ease,
+    opacity 0.2s ease,
+    transform 0.3s ease;
 }
 
 .create-group-button:hover .create-group-label,
