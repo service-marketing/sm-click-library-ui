@@ -51,6 +51,7 @@ export { useInstanceStore };
 export { ContactCard };
 export { default as BaseTable } from "~/components/apiTemplate/baseTable.vue";
 export { default as TemplateTable } from "~/components/apiTemplate/templateTable.vue";
+export { default as FileBadgePopper } from "./components/calendar/components/EventItem/FileBadgePopper.vue";
 
 export {
   formatCurrency,
