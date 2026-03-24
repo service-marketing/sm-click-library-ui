@@ -170,7 +170,7 @@ const filteredInstances = computed(() => {
         </div>
 
         <nav v-if="open"
-            class="absolute top-[48px] w-full z-20 text-sm ">
+            class="absolute w-full z-20 text-sm ">
             <ul class="gap-2 rounded-b-lg flex overflow-y-auto p-2 shadow shadow-black dark:shadow-gray-400 bg-base-300  max-h-[200px] flex-col">
                 <li v-if="filteredInstances.length > 0" v-for="inst, index in filteredInstances"
                     class="select-none cursor-pointer w-full">
