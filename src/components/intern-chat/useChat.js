@@ -229,9 +229,15 @@ export function useChat() {
     currentParticipants,
     nextParticipants,
     action,
+    allParticipants,
   ) => {
     const currentIds = normalizeParticipantIds(currentParticipants);
     const nextIds = normalizeParticipantIds(nextParticipants);
+    const allIds = normalizeParticipantIds(allParticipants);
+
+    if (allIds.length > 0) {
+      return Array.from(new Set(allIds));
+    }
 
     if (nextIds.length === 0) {
       return currentIds;
@@ -289,15 +295,20 @@ export function useChat() {
     const action =
       message.content?.type === "system" ? message.content?.body?.action : null;
 
-    const participantIdsFromPayload = [
+    const allParticipantIdsFromPayload = [
       ...normalizeParticipantIds(groupInfo?.participants),
+      ...normalizeParticipantIds(message.content?.body?.participants),
+    ];
+    const changedParticipantIdsFromPayload = [
       ...normalizeParticipantIds(message.content?.body?.attendant),
     ];
 
     const removedLoggedAttendant =
       (action === "remove-participant" || action === "leave-group") &&
       loggedAttendantId &&
-      participantIdsFromPayload.includes(loggedAttendantId);
+      (changedParticipantIdsFromPayload.includes(loggedAttendantId) ||
+        (allParticipantIdsFromPayload.length > 0 &&
+          !allParticipantIdsFromPayload.includes(loggedAttendantId)));
 
     if (removedLoggedAttendant) {
       clearEntityMessages(channelId);
@@ -307,9 +318,12 @@ export function useChat() {
 
     const participants = mergeParticipantsByAction(
       existingGroup?.participants,
-      participantIdsFromPayload,
+      changedParticipantIdsFromPayload,
       action,
+      allParticipantIdsFromPayload,
     );
+    console.log(existingGroup);
+    const getGroupName = message.content?.body?.group_name || "Grupo interno";
 
     const unreadValue =
       groupInfo?.internal_chat?.unread ??
@@ -321,11 +335,11 @@ export function useChat() {
       ...(groupInfo || {}),
       id: existingGroup?.id || groupInfo?.id || channelId,
       name:
-        groupInfo?.name ||
-        existingGroup?.name ||
+        groupInfo?.content?.body?.group_name ||
+        existingGroup?.content?.body?.group_name ||
         groupInfo?.internal_chat?.name ||
         existingGroup?.internal_chat?.name ||
-        "Grupo interno",
+        getGroupName,
       photo:
         groupInfo?.photo ??
         existingGroup?.photo ??
