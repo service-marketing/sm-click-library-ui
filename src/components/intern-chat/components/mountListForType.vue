@@ -143,7 +143,9 @@ const getStatusStyle = (status, groupLength) => {
           style="background-color: rgba(2, 169, 219, 0.3)"
           class="relative rounded-full"
         >
-          <Avatar v-if="att.photo" :url="att.photo" />
+          <div class="size-10" v-if="att.photo">
+            <Avatar :url="att.photo" />
+          </div>
 
           <Avatar v-else :url="att.photo">
             <div class="flex items-center justify-center mt-0.5 mr-0.8">
