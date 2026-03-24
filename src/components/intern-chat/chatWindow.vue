@@ -234,6 +234,7 @@ const {
   loadMessagesByChannel,
   resetUnreadMessages,
   findEntityByChannelId,
+  syncGroupFromSocketEvent,
   refreshAttendantsOnListOpen,
 } = useChat();
 // --------------------------------------------------------------
@@ -490,6 +491,37 @@ const handleChatClick = () => {
   }
 };
 
+const getSocketGroupChannelId = (message) => {
+  if (message?.internal_chat?.channel_id) {
+    return message.internal_chat.channel_id;
+  }
+
+  if (message?.channel_id?.channel_id) {
+    return message.channel_id.channel_id;
+  }
+
+  if (typeof message?.channel_id === "string") {
+    return message.channel_id;
+  }
+
+  if (message?.group_info?.internal_chat?.channel_id) {
+    return message.group_info.internal_chat.channel_id;
+  }
+
+  return null;
+};
+
+const getSocketParticipantIds = (message) => {
+  const attendants = message?.content?.body?.attendant;
+  if (!Array.isArray(attendants)) return [];
+
+  return attendants
+    .map((attendant) =>
+      typeof attendant === "string" ? attendant : attendant?.id,
+    )
+    .filter(Boolean);
+};
+
 watch(
   () => props.socketMessage,
   (newVal, oldVal) => {
@@ -503,25 +535,28 @@ watch(
           selectedAttendant.value?.internal_chat?.channel_id,
         );
       } else if (event === "new-chat-internal-group") {
-        if (newVal.message.content.action === "add-participant") {
-          // addGroupParticipant(newVal.message);
-          console.log("Participante adicionado ao grupo:");
-        } else if (newVal.message.content.action === "remove-participant") {
-          // removeGroupParticipant(newVal.message);
-          console.log("Participante removido do grupo:");
-        } else if (newVal.message.content.action === "leave-group") {
-          console.log("Participante saiu do grupo:");
-          // leaveGroup(newVal.message);
-        }
+        const message = newVal?.message;
+        const action =
+          message?.content?.type === "system"
+            ? message.content?.body?.action
+            : null;
+        const socketChannelId = getSocketGroupChannelId(message);
+        const selectedChannelId =
+          selectedAttendant.value?.internal_chat?.channel_id ||
+          selectedAttendant.value?.id;
+        const removedParticipantIds = getSocketParticipantIds(message);
+        const wasCurrentAttendantRemoved =
+          (action === "remove-participant" || action === "leave-group") &&
+          removedParticipantIds.includes(props.currentAttendant?.id);
 
-        const existingGroup = listGroups.value.find(
-          (group) =>
-            group.internal_chat?.channel_id ===
-            newVal.message.internal_chat?.channel_id,
-        );
+        syncGroupFromSocketEvent(newVal);
 
-        if (!existingGroup) {
-          listGroups.value.unshift(newVal.message);
+        if (
+          wasCurrentAttendantRemoved &&
+          socketChannelId &&
+          selectedChannelId === socketChannelId
+        ) {
+          handleVoltar();
         }
       }
     }

@@ -180,6 +180,76 @@ export function useChat() {
     return object[key];
   }
 
+  const normalizeUnreadValue = (unreadValue, attendantId) => {
+    if (typeof unreadValue === "number") {
+      return unreadValue;
+    }
+
+    if (unreadValue && typeof unreadValue === "object" && attendantId) {
+      const unreadCount = getValueByKey(unreadValue, attendantId);
+      return Number(unreadCount) || 0;
+    }
+
+    return Number(unreadValue) || 0;
+  };
+
+  const normalizeParticipantIds = (participants) => {
+    if (!Array.isArray(participants)) return [];
+
+    return participants
+      .map((participant) =>
+        typeof participant === "string" ? participant : participant?.id,
+      )
+      .filter(Boolean);
+  };
+
+  const getSocketGroupChannelId = (message) => {
+    if (!message) return null;
+
+    if (message.internal_chat?.channel_id) {
+      return message.internal_chat.channel_id;
+    }
+
+    if (message.channel_id?.channel_id) {
+      return message.channel_id.channel_id;
+    }
+
+    if (typeof message.channel_id === "string") {
+      return message.channel_id;
+    }
+
+    if (message.group_info?.internal_chat?.channel_id) {
+      return message.group_info.internal_chat.channel_id;
+    }
+
+    return null;
+  };
+
+  const mergeParticipantsByAction = (
+    currentParticipants,
+    nextParticipants,
+    action,
+  ) => {
+    const currentIds = normalizeParticipantIds(currentParticipants);
+    const nextIds = normalizeParticipantIds(nextParticipants);
+
+    if (nextIds.length === 0) {
+      return currentIds;
+    }
+
+    if (action === "remove-participant" || action === "leave-group") {
+      return currentIds.filter(
+        (participantId) => !nextIds.includes(participantId),
+      );
+    }
+
+    if (action === "add-participant") {
+      return Array.from(new Set([...currentIds, ...nextIds]));
+    }
+
+    return nextIds;
+  };
+
   // Busca a entidade (atendente ou grupo) pelo channel_id ou id
   const findEntityByChannelId = (channelId) => {
     // Procura primeiro nos atendentes pelo channel_id
@@ -200,6 +270,91 @@ export function useChat() {
     }
 
     return entity;
+  };
+
+  const syncGroupFromSocketEvent = (event) => {
+    const message = event?.message;
+    if (!message) return null;
+
+    const channelId = getSocketGroupChannelId(message);
+    if (!channelId) return null;
+
+    const loggedAttendantId = attendantStore.logged_attendant?.()?.id;
+    const existingGroup = findEntityByChannelId(channelId);
+    const groupInfo = message.group_info?.is_group
+      ? message.group_info
+      : message.is_group
+        ? message
+        : null;
+    const action =
+      message.content?.type === "system" ? message.content?.body?.action : null;
+
+    const participantIdsFromPayload = [
+      ...normalizeParticipantIds(groupInfo?.participants),
+      ...normalizeParticipantIds(message.content?.body?.attendant),
+    ];
+
+    const removedLoggedAttendant =
+      (action === "remove-participant" || action === "leave-group") &&
+      loggedAttendantId &&
+      participantIdsFromPayload.includes(loggedAttendantId);
+
+    if (removedLoggedAttendant) {
+      clearEntityMessages(channelId);
+      removeGroupFromState(channelId);
+      return null;
+    }
+
+    const participants = mergeParticipantsByAction(
+      existingGroup?.participants,
+      participantIdsFromPayload,
+      action,
+    );
+
+    const unreadValue =
+      groupInfo?.internal_chat?.unread ??
+      message.channel_id?.unread ??
+      existingGroup?.internal_chat?.unread;
+
+    const normalizedGroup = {
+      ...(existingGroup || {}),
+      ...(groupInfo || {}),
+      id: existingGroup?.id || groupInfo?.id || channelId,
+      name:
+        groupInfo?.name ||
+        existingGroup?.name ||
+        groupInfo?.internal_chat?.name ||
+        existingGroup?.internal_chat?.name ||
+        "Grupo interno",
+      photo:
+        groupInfo?.photo ??
+        existingGroup?.photo ??
+        groupInfo?.internal_chat?.photo ??
+        existingGroup?.internal_chat?.photo ??
+        null,
+      is_group: true,
+      participants,
+      internal_chat: {
+        ...(existingGroup?.internal_chat || {}),
+        ...(groupInfo?.internal_chat || {}),
+        channel_id: channelId,
+        unread: normalizeUnreadValue(unreadValue, loggedAttendantId),
+      },
+      chat_info: existingGroup?.chat_info ||
+        groupInfo?.chat_info || {
+          messages: [],
+          hasNextPage: false,
+          currentPage: 1,
+        },
+    };
+
+    if (existingGroup?.is_group) {
+      Object.assign(existingGroup, normalizedGroup);
+      return existingGroup;
+    }
+
+    listGroups.value.unshift(normalizedGroup);
+    return normalizedGroup;
   };
 
   const fetchMessagesByChannel = async (channelId) => {
@@ -291,21 +446,18 @@ export function useChat() {
     let entity = null;
     const message = event?.message;
     if (!message) return;
+    const messageChannelId =
+      getSocketGroupChannelId(message) || message.channel_id;
 
     const loggedAttendant = attendantStore.logged_attendant?.();
     const loggedAttendantId = loggedAttendant?.id;
 
     // Busca a entidade pelo channel_id da mensagem
-    entity = findEntityByChannelId(message.channel_id);
+    entity = findEntityByChannelId(messageChannelId);
 
     // Se a entidade não existir e for um grupo, cria a partir do group_info
     if (!entity && message.is_group && message.group_info) {
-      entity = message.group_info;
-      const logged_attendant = attendantStore.logged_attendant();
-      entity.internal_chat.unread = getValueByKey(
-        entity.internal_chat.unread,
-        logged_attendant.id,
-      );
+      entity = syncGroupFromSocketEvent(event);
     }
 
     if (!entity) return;
@@ -621,5 +773,6 @@ export function useChat() {
     hasNextPageForChannel,
     resetUnreadMessages,
     findEntityByChannelId,
+    syncGroupFromSocketEvent,
   };
 }
