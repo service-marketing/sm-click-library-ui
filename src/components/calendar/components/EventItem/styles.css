@@ -274,32 +274,7 @@
 }
 
 /* --- recurrence & file badges --- */
-.sched-badge {
-  display: inline-flex;
-  align-items: center;
-  border-radius: 9999px;
-  padding: 0.2rem 0.6rem;
-  font-size: 0.7rem;
-  font-weight: 600;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-.sched-badge--xs {
-  padding: 0.1rem 0.45rem;
-  font-size: 0.65rem;
-}
-.sched-badge--primary {
-  background: rgba(59, 130, 246, 0.15);
-  color: #3b82f6;
-}
-.sched-badge--success {
-  background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
-}
-.sched-badge--neutral {
-  background: rgba(100, 116, 139, 0.15);
-  color: #94a3b8;
-}
+/* Moved to calendarTheme.css for global theme reuse */
 
 /* --- sidebar meta row --- */
 .itemsb-meta {

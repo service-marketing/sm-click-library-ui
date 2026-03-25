@@ -34,25 +34,70 @@ const getPageNumberFromNext = (next) => {
   }
 };
 
+const getGroupEntityKey = (group) => {
+  if (!group) return null;
+
+  if (group.internal_chat?.channel_id) {
+    return group.internal_chat.channel_id;
+  }
+
+  if (group.channel_id?.channel_id) {
+    return group.channel_id.channel_id;
+  }
+
+  if (typeof group.channel_id === "string") {
+    return group.channel_id;
+  }
+
+  return group.id || null;
+};
+
+const upsertGroup = (group, options = {}) => {
+  const { prepend = false } = options;
+  const groupKey = getGroupEntityKey(group);
+
+  if (!groupKey) {
+    if (prepend) {
+      listGroups.value.unshift(group);
+    } else {
+      listGroups.value.push(group);
+    }
+    return group;
+  }
+
+  const existingIndex = listGroups.value.findIndex(
+    (item) => getGroupEntityKey(item) === groupKey,
+  );
+
+  if (existingIndex === -1) {
+    if (prepend) {
+      listGroups.value.unshift(group);
+    } else {
+      listGroups.value.push(group);
+    }
+    return group;
+  }
+
+  const existingGroup = listGroups.value[existingIndex];
+  Object.assign(existingGroup, group);
+
+  if (prepend && existingIndex > 0) {
+    listGroups.value.splice(existingIndex, 1);
+    listGroups.value.unshift(existingGroup);
+  }
+
+  return existingGroup;
+};
+
 const mergeGroups = (groups = [], replace = false) => {
   if (replace) {
     listGroups.value = groups;
     return;
   }
 
-  const existingGroups = new Map(
-    listGroups.value.map((group) => [
-      group.internal_chat?.channel_id || group.id,
-      group,
-    ]),
-  );
-
   groups.forEach((group) => {
-    const groupKey = group.internal_chat?.channel_id || group.id;
-    existingGroups.set(groupKey, group);
+    upsertGroup(group);
   });
-
-  listGroups.value = Array.from(existingGroups.values());
 };
 
 const setGroupPaginationState = (responseData, page) => {
@@ -229,9 +274,15 @@ export function useChat() {
     currentParticipants,
     nextParticipants,
     action,
+    allParticipants,
   ) => {
     const currentIds = normalizeParticipantIds(currentParticipants);
     const nextIds = normalizeParticipantIds(nextParticipants);
+    const allIds = normalizeParticipantIds(allParticipants);
+
+    if (allIds.length > 0) {
+      return Array.from(new Set(allIds));
+    }
 
     if (nextIds.length === 0) {
       return currentIds;
@@ -260,7 +311,7 @@ export function useChat() {
     // Se não encontrar, procura nos canais (grupos) pelo channel_id
     if (!entity) {
       entity = listGroups.value.find(
-        (ch) => ch.internal_chat?.channel_id === channelId,
+        (ch) => getGroupEntityKey(ch) === channelId,
       );
     }
 
@@ -289,15 +340,20 @@ export function useChat() {
     const action =
       message.content?.type === "system" ? message.content?.body?.action : null;
 
-    const participantIdsFromPayload = [
+    const allParticipantIdsFromPayload = [
       ...normalizeParticipantIds(groupInfo?.participants),
+      ...normalizeParticipantIds(message.content?.body?.participants),
+    ];
+    const changedParticipantIdsFromPayload = [
       ...normalizeParticipantIds(message.content?.body?.attendant),
     ];
 
     const removedLoggedAttendant =
       (action === "remove-participant" || action === "leave-group") &&
       loggedAttendantId &&
-      participantIdsFromPayload.includes(loggedAttendantId);
+      (changedParticipantIdsFromPayload.includes(loggedAttendantId) ||
+        (allParticipantIdsFromPayload.length > 0 &&
+          !allParticipantIdsFromPayload.includes(loggedAttendantId)));
 
     if (removedLoggedAttendant) {
       clearEntityMessages(channelId);
@@ -307,9 +363,17 @@ export function useChat() {
 
     const participants = mergeParticipantsByAction(
       existingGroup?.participants,
-      participantIdsFromPayload,
+      changedParticipantIdsFromPayload,
       action,
+      allParticipantIdsFromPayload,
     );
+    const getGroupName =
+      groupInfo?.name ||
+      message?.name ||
+      message.content?.body?.group_name ||
+      existingGroup?.name ||
+      existingGroup?.internal_chat?.name ||
+      "Grupo interno";
 
     const unreadValue =
       groupInfo?.internal_chat?.unread ??
@@ -323,9 +387,11 @@ export function useChat() {
       name:
         groupInfo?.name ||
         existingGroup?.name ||
+        groupInfo?.content?.body?.group_name ||
+        existingGroup?.content?.body?.group_name ||
         groupInfo?.internal_chat?.name ||
         existingGroup?.internal_chat?.name ||
-        "Grupo interno",
+        getGroupName,
       photo:
         groupInfo?.photo ??
         existingGroup?.photo ??
@@ -353,8 +419,7 @@ export function useChat() {
       return existingGroup;
     }
 
-    listGroups.value.unshift(normalizedGroup);
-    return normalizedGroup;
+    return upsertGroup(normalizedGroup, { prepend: true });
   };
 
   const fetchMessagesByChannel = async (channelId) => {
@@ -639,7 +704,22 @@ export function useChat() {
         throw new Error("Erro ao criar grupo.");
       }
 
-      listGroups.value.unshift(response.data);
+      upsertGroup(
+        {
+          ...response.data,
+          is_group: response.data?.is_group ?? true,
+          name:
+            response.data?.name ||
+            response.data?.internal_chat?.name ||
+            body?.chat_name ||
+            "Grupo interno",
+          participants:
+            normalizeParticipantIds(response.data?.participants).length > 0
+              ? normalizeParticipantIds(response.data?.participants)
+              : normalizeParticipantIds(body?.participants),
+        },
+        { prepend: true },
+      );
 
       return true;
     } catch (error) {

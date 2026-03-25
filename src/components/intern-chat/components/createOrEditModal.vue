@@ -144,7 +144,9 @@ const createGroup = async () => {
           @click.stop
           @click="selectAttendant(att)"
         >
-          <Avatar :url="att.photo" :style="'size-8'" />
+          <div class="size-8">
+            <Avatar :url="att.photo" :style="'size-8'" />
+          </div>
           <span class="popper-item-name">{{ att.name }}</span>
 
           <span class="checkmark" aria-hidden="true">
