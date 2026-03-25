@@ -131,9 +131,9 @@
     <p v-if="ev.content" class="itemsb-content">{{ ev.content }}</p>
     <p
       v-else-if="ev.raw?.params?.files?.length"
-      class="itemsb-content itemsb-content--muted"
+      class="itemsb-content text-opacity-50 itemsb-content--muted"
     >
-      Essa mensagem será enviada apenas com anexos.
+      Essa mensagem será enviada apenas com anexos
     </p>
   </template>
 
@@ -141,7 +141,7 @@
   <template v-if="isSched">
     <div class="itemsb-meta cursor-pointer">
       <span
-        class="sched-badge"
+        class="sched-badge h-7"
         :class="
           isRecurringSchedule(ev.raw?.params?.schedule)
             ? 'sched-badge--primary'
@@ -150,7 +150,7 @@
       >
         {{ getScheduleRecurrenceLabel(ev.raw?.params?.schedule) }}
       </span>
-      <FileBadgePopper :files="allFiles" />
+      <FileBadgePopper :files="allFiles" badgeClass="sched-badge h-7 sched-badge--neutral" />
     </div>
   </template>
 
