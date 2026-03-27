@@ -6,11 +6,11 @@
         ? 'daylist--compact has-border border-base-200'
         : 'daylist--sidebar has-border border-base-200 supports-blur',
       {
-        'daylist--tight': mode === 'compact' && !loading && events.length === 0,
+        'daylist--tight': mode === 'compact' && !loading && totalCount === 0,
       },
     ]"
     :data-mode="mode"
-    :data-empty="!loading && events.length === 0 ? '1' : '0'"
+    :data-empty="!loading && totalCount === 0 ? '1' : '0'"
   >
     <div
       :class="[
@@ -35,7 +35,7 @@
         @click="$emit('reload')"
         :disabled="loading"
       >
-        {{ loading ? "Atualizando…" : "Atualizar" }}
+        {{ loading ? "Atualizando..." : "Atualizar" }}
       </button>
     </div>
 
@@ -46,11 +46,11 @@
           mode === 'compact' ? 'is-compact' : 'is-sidebar',
         ]"
       >
-        Carregando…
+        Carregando...
       </div>
     </Transition>
 
-    <Transition name="fade" v-else-if="events.length === 0">
+    <Transition name="fade" v-else-if="totalCount === 0">
       <div class="empty-text">Sem eventos.</div>
     </Transition>
 
@@ -67,8 +67,8 @@
       ]"
     >
       <li
-        v-for="(ev, i) in events"
-        :key="ev.id"
+        v-for="(item, i) in displayItems"
+        :key="itemRenderKey(item)"
         :style="{ '--i': i }"
         :class="
           mode === 'compact'
@@ -76,8 +76,18 @@
             : 'item-sidebar hover:z-10 has-border hover:bg-base-100 border-base-100 bg-base-200 '
         "
       >
+        <RecurringGroupItem
+          v-if="item?.kind === 'recurring-group'"
+          :group="item"
+          :mode="mode === 'compact' ? 'compact' : 'sidebar'"
+          @open-message="$emit('open-message', $event)"
+          @open-chat="$emit('open-chat', $event)"
+          @delete-message="($event) => $emit('delete-message', $event)"
+          @edit-reminder="$emit('edit-reminder', $event)"
+        />
         <EventItem
-          :ev="ev"
+          v-else
+          :ev="item"
           :mode="mode === 'compact' ? 'compact' : 'sidebar'"
           @open-message="$emit('open-message', $event)"
           @open-chat="$emit('open-chat', $event)"
@@ -91,13 +101,15 @@
 
 <script setup>
 import EventItem from "./EventItem.vue";
+import RecurringGroupItem from "./RecurringGroupItem.vue";
 import { computed } from "vue";
 
 const props = defineProps({
   loading: { type: Boolean, default: false },
   selectedLabel: { type: String, default: "" },
   selectedLabelLong: { type: String, default: "" },
-  events: { type: Array, default: () => [] },
+  recurringGroups: { type: Array, default: () => [] },
+  singleEvents: { type: Array, default: () => [] },
   mode: { type: String, default: "compact" }, // 'compact' | 'sidebar'
 });
 defineEmits([
@@ -111,7 +123,34 @@ defineEmits([
 const headerLabel = computed(() =>
   props.mode === "compact"
     ? props.selectedLabelLong || "Hoje"
-    : `Eventos em ${props.selectedLabel || "—"}`,
+    : `Eventos em ${props.selectedLabel || "-"}`,
+);
+
+const totalCount = computed(
+  () => props.recurringGroups.length + props.singleEvents.length,
+);
+
+function itemSortDate(item) {
+  if (item?.firstExecutionAt instanceof Date) return item.firstExecutionAt;
+  if (item?.date instanceof Date) return item.date;
+  return new Date(0);
+}
+
+function itemRenderKey(item) {
+  return String(item?.key || item?.id || item?.sourceId || "");
+}
+
+function compareDisplayItems(a, b) {
+  const diff = itemSortDate(a) - itemSortDate(b);
+  if (diff !== 0) return diff;
+  const aIsRecurring = a?.kind === "recurring-group";
+  const bIsRecurring = b?.kind === "recurring-group";
+  if (aIsRecurring !== bIsRecurring) return aIsRecurring ? -1 : 1;
+  return itemRenderKey(a).localeCompare(itemRenderKey(b));
+}
+
+const displayItems = computed(() =>
+  [...props.recurringGroups, ...props.singleEvents].sort(compareDisplayItems),
 );
 </script>
 
@@ -147,24 +186,19 @@ const headerLabel = computed(() =>
   --muted: #6b8c8a;
   --btn-primary: #2563eb;
   --btn-primary-hover: #1d4ed8;
-  --btn-alt: #0ea5a4; /* usado no botão Recarregar */
+  --btn-alt: #0ea5a4; /* usado no botao Recarregar */
   --btn-alt-hover: #0b8685;
 }
 
-/* util para adicionar largura de borda mantendo a cor via token border-base-* */
 .has-border {
   border-width: 1px;
 }
 
-/* blur que substitui 'backdrop-blur' */
 .supports-blur {
   -webkit-backdrop-filter: saturate(120%) blur(8px);
   backdrop-filter: saturate(120%) blur(8px);
 }
 
-/* =========================
-   WRAPPER
-   ========================= */
 .daylist {
   position: relative;
   overflow: auto;
@@ -176,9 +210,6 @@ const headerLabel = computed(() =>
   border-top-width: 1px;
 }
 
-/* =========================
-   HEADER
-   ========================= */
 .daylist-header {
   position: sticky;
   top: 0;
@@ -204,9 +235,6 @@ const headerLabel = computed(() =>
   font-weight: 600;
 }
 
-/* =========================
-   ESTADOS DE CARREGAMENTO/VAZIO
-   ========================= */
 .loading-text,
 .empty-text {
   font-size: 0.875rem;
@@ -214,14 +242,10 @@ const headerLabel = computed(() =>
   text-align: center;
 }
 
-/* =========================
-   LISTAS
-   ========================= */
 .list-compact {
   display: flex;
   flex-direction: column;
   border-radius: var(--radius-xl);
-  /* overflow: hidden; */
 }
 .list-sidebar {
   display: flex;
@@ -229,9 +253,6 @@ const headerLabel = computed(() =>
   gap: 0.5rem;
 }
 
-/* =========================
-   ITENS
-   ========================= */
 .item-compact {
   display: flex;
   align-items: center;
@@ -264,7 +285,6 @@ const headerLabel = computed(() =>
   box-shadow: var(--shadow);
 }
 
-/* --- compacto: bloco esquerdo --- */
 .itemc-head {
   display: flex;
   align-items: center;
@@ -282,9 +302,6 @@ const headerLabel = computed(() =>
   box-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
 }
 
-/* =========================
-   BOTÕES
-   ========================= */
 .reload-btn {
   padding: 0.5rem 0.75rem;
   color: #fff;
@@ -311,7 +328,6 @@ const headerLabel = computed(() =>
   pointer-events: none;
 }
 
-/* tamanhos */
 .btn-xs,
 .btn-sm {
   color: #fff;
@@ -328,12 +344,12 @@ const headerLabel = computed(() =>
 .btn-xs {
   padding: 0.25rem;
   font-size: 0.75rem;
-} /* p-1 */
+}
 .btn-sm {
   padding: 0 0.75rem;
   height: 2rem;
   font-size: 0.75rem;
-} /* px-3 h-8 */
+}
 
 .btn-primary {
   background: var(--primary, #2563eb);
@@ -356,7 +372,6 @@ const headerLabel = computed(() =>
   transform: scale(0.98);
 }
 
-/* ícones */
 .icon-4 {
   width: 1rem;
   height: 1rem;
@@ -366,17 +381,11 @@ const headerLabel = computed(() =>
   height: 1.25rem;
 }
 
-/* =========================
-   TRANSIÇÕES — rápidas + sem “pulo” ao reduzir muito
-   ========================= */
-
-/* Melhora render e evita thrash */
 .item-compact,
 .item-sidebar {
   will-change: transform, opacity, box-shadow;
   transform-origin: 20% 50%;
   backface-visibility: hidden;
-  /* contain: content; */
 }
 
 .item-compact:hover,
@@ -384,7 +393,6 @@ const headerLabel = computed(() =>
   z-index: 10;
 }
 
-/* ENTRADA (inclui appear) */
 .list-enter-from,
 .list-appear-from {
   opacity: 0;
@@ -398,12 +406,10 @@ const headerLabel = computed(() =>
   filter: saturate(1);
 }
 
-/* SAÍDA — itens ficam absolutos pra não colapsar layout ao remover muitos */
 .list-leave-active {
   position: absolute;
   left: 0;
   right: 0;
-  /* garante que o item mantenha largura do container durante a animação */
 }
 .list-leave-from {
   opacity: 0.9;
@@ -414,7 +420,6 @@ const headerLabel = computed(() =>
   transform: translateY(-6px) scale(0.985);
 }
 
-/* Timings mais rápidos + STAGGER com teto (min 180ms) */
 .list-enter-active,
 .list-appear-active {
   animation: list-pop-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
@@ -424,22 +429,17 @@ const headerLabel = computed(() =>
   animation: list-pop-out 160ms cubic-bezier(0.2, 0.6, 0.2, 1) both;
 }
 
-/* FLIP para reordenação/movimentação */
 .list-move {
   transition:
     transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
     opacity 140ms linear;
 }
 
-/* Keyframes enxutos */
 @keyframes list-pop-in {
   0% {
     opacity: 0;
     transform: translateY(10px) scale(0.98);
     box-shadow: none;
-  }
-  60% {
-    /* transform: translateY(-1px) scale(1.006); */
   }
   100% {
     opacity: 1;
@@ -457,7 +457,6 @@ const headerLabel = computed(() =>
   }
 }
 
-/* Fades rápidos */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 140ms ease-out;
@@ -467,7 +466,6 @@ const headerLabel = computed(() =>
   opacity: 0;
 }
 
-/* motion reduzido */
 @media (prefers-reduced-motion: reduce) {
   .list-enter-active,
   .list-leave-active,
@@ -482,9 +480,6 @@ const headerLabel = computed(() =>
   }
 }
 
-/* =========================
-   RESPONSIVIDADE FINO AJUSTE
-   ========================= */
 @media (max-width: 480px) {
   .item-sidebar {
     border-radius: 0.75rem;
@@ -494,7 +489,6 @@ const headerLabel = computed(() =>
   }
 }
 
-/* Toque extra no hover (sutil) */
 .item-sidebar:hover,
 .item-compact:hover {
   transform: translateY(-1px);

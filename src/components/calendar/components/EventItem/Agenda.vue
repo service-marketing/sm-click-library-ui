@@ -1,25 +1,26 @@
-<template>
+﻿<template>
   <div class="event-left">
     <div class="sched-pop sched-pop--right" tabindex="0" aria-haspopup="true">
       <span :style="{ background: color }" class="event-color-bar"></span>
       <div class="sched-pop__card bg-base-300" role="dialog">
-        <strong>Tipo</strong><br />
-        {{ ev.type === "attendant_reminder" ? "Lembrete" : "Mensagem programada" }}
+        <strong>Evento</strong><br />
+        {{ typeLabel }}
       </div>
     </div>
 
-    <div class="event-line">
-      <template v-if="isSched">{{ agendaLine }}</template>
-      <template v-else-if="isReminder">{{ ev.raw.params.message[0].title }}</template>
-    </div>
+    <div class="event-line">{{ agendaLine }}</div>
 
-    <span
-      v-if="isSched"
+    <!-- <span
+      v-if="showRecurrenceBadge && isSched"
       class="sched-badge sched-badge--xs"
-      :class="isRecurringSchedule(ev.raw?.params?.schedule) ? 'sched-badge--primary' : 'sched-badge--success'"
+      :class="
+        isRecurringSchedule(ev.raw?.params?.schedule)
+          ? 'sched-badge--primary'
+          : 'sched-badge--success'
+      "
     >
       {{ getScheduleRecurrenceLabel(ev.raw?.params?.schedule) }}
-    </span>
+    </span> -->
     <span
       v-if="isSched && fileCount > 0"
       class="sched-badge sched-badge--xs sched-badge--neutral"
@@ -29,7 +30,12 @@
   </div>
 
   <footer class="event-actions">
-    <div class="sched-pop" tabindex="0" aria-haspopup="true" aria-label="Agendado por">
+    <div
+      class="sched-pop"
+      tabindex="0"
+      aria-haspopup="true"
+      aria-label="Agendado por"
+    >
       <svg
         class="icon-4"
         aria-hidden="true"
@@ -51,21 +57,46 @@
       </div>
     </div>
 
-    <div class="sched-pop" tabindex="0" aria-haspopup="true" aria-label="Status">
+    <div
+      class="sched-pop"
+      tabindex="0"
+      aria-haspopup="true"
+      :aria-label="statusTooltipTitle"
+    >
+      <svg
+        v-if="useRecurringStatusIcon"
+        class="size-4 recurring-status-icon"
+        aria-hidden="true"
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="m16 10 3-3m0 0-3-3m3 3H5v3m3 4-3 3m0 0 3 3m-3-3h14v-3"
+        />
+      </svg>
       <span
-        v-if="ev.status !== undefined"
+        v-else-if="ev.status !== undefined"
         class="status-bar"
         :class="!ev?.status ? 'status--down' : 'status--up'"
       />
       <div class="sched-pop__card bg-base-300" role="dialog">
-        <strong>Status</strong><br />
-        {{ ev.status === true ? "Ativo" : "Executado" }}
+        <strong>{{ statusTooltipTitle }}</strong
+        ><br />
+        {{ statusTooltipText }}
       </div>
     </div>
 
-    <div class="event-time">{{ ev.time }}</div>
+    <div class="event-time">{{ displayTime }}</div>
 
     <ActionButtons
+      v-if="!viewOnly"
       :ev="ev"
       :isSched="isSched"
       :isReminder="isReminder"
@@ -82,20 +113,38 @@
 import { computed } from "vue";
 import ActionButtons from "./ActionButtons.vue";
 import { useEventItem } from "./useEventItem";
-import { isRecurringSchedule, getScheduleRecurrenceLabel, extractFilesFromScheduledMessage } from "../../useScheduledEvents";
+import {
+  isRecurringSchedule,
+  getScheduleRecurrenceLabel,
+  extractFilesFromScheduledMessage,
+} from "../../useScheduledEvents";
 
 const props = defineProps({
   ev: { type: Object, required: true },
   getEventColor: { type: Function, default: null },
+  viewOnly: { type: Boolean, default: false },
+  recurringMeta: { type: Object, default: null },
 });
 
 defineEmits(["open-message", "open-chat", "delete-message", "edit-reminder"]);
 
-const { color, isSched, isReminder, attendantName, agendaLine } = useEventItem(props);
+const {
+  color,
+  isSched,
+  isReminder,
+  attendantName,
+  agendaLine,
+  displayTime,
+  typeLabel,
+  statusTooltipTitle,
+  statusTooltipText,
+  useRecurringStatusIcon,
+  showRecurrenceBadge,
+} = useEventItem(props);
 
-const fileCount = computed(() => {
-  return extractFilesFromScheduledMessage(props.ev?.raw?.params)?.length ?? 0;
-});
+const fileCount = computed(
+  () => extractFilesFromScheduledMessage(props.ev?.raw?.params)?.length ?? 0,
+);
 </script>
 
 <style src="../../utils/calendarTheme.css"></style>
