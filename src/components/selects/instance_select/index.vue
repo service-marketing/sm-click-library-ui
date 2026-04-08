@@ -8,8 +8,12 @@ const selectedInstance = ref(null);
 
 const props = defineProps({
   modelValue: {
-    type: Object,
+    type: [Object, Array],
     default: null,
+  },
+  multiple: {
+    type: Boolean,
+    default: false,
   },
   type: {
     type: String,
@@ -26,17 +30,55 @@ const props = defineProps({
 
 const emit = defineEmits(["update:modelValue", "function", "component-mounted"]);
 
-// Emite a função quando uma instância é selecionada
-function functionEmit(value) {
-  selectedInstance.value = value;
-  emit("function", value);
+const hasSelection = computed(() => {
+  if (props.multiple) {
+    return Array.isArray(selectedInstance.value) && selectedInstance.value.length > 0;
+  }
+  return selectedInstance.value !== null;
+});
+
+const selectionLabel = computed(() => {
+  if (props.multiple) {
+    const arr = Array.isArray(selectedInstance.value) ? selectedInstance.value : [];
+    if (arr.length === 1) return arr[0].name;
+    return `${arr.length} instâncias selecionadas`;
+  }
+  return selectedInstance.value?.name ?? null;
+});
+
+function isInstSelected(inst) {
+  if (props.multiple) {
+    return Array.isArray(selectedInstance.value) && selectedInstance.value.some((i) => i.id === inst.id);
+  }
+  return selectedInstance.value?.id === inst.id;
+}
+
+function handleInstClick(inst) {
+  if (props.multiple) {
+    const arr = Array.isArray(selectedInstance.value) ? selectedInstance.value : [];
+    const idx = arr.findIndex((i) => i.id === inst.id);
+    if (idx >= 0) {
+      selectedInstance.value = arr.filter((_, i) => i !== idx);
+    } else {
+      selectedInstance.value = [...arr, inst];
+    }
+    emit("function", selectedInstance.value);
+  } else {
+    selectedInstance.value = inst;
+    open.value = false;
+    emit("function", inst);
+  }
 }
 
 // Watch para atualizar a instância selecionada
 watch(
   () => props.modelValue,
   (newValue) => {
-    selectedInstance.value = newValue;
+    if (props.multiple) {
+      selectedInstance.value = Array.isArray(newValue) ? newValue : newValue ? [newValue] : [];
+    } else {
+      selectedInstance.value = newValue;
+    }
   },
   { immediate: true }
 );
@@ -47,12 +89,21 @@ watch(selectedInstance, (newValue) => {
 
 // No onMounted, se houver uma instância selecionada, atualiza o status
 onMounted(async () => {
-  if (selectedInstance.value) {
-    const selected = instanceStore.instances.find(
-      (inst) => inst.id === selectedInstance.value.id
-    );
-    if (selected) {
-      selectedInstance.value.status = selected.status;
+  if (props.multiple) {
+    if (Array.isArray(selectedInstance.value)) {
+      selectedInstance.value = selectedInstance.value.map((sel) => {
+        const found = instanceStore.instances.find((inst) => inst.id === sel.id);
+        return found ? { ...sel, status: found.status } : sel;
+      });
+    }
+  } else {
+    if (selectedInstance.value) {
+      const selected = instanceStore.instances.find(
+        (inst) => inst.id === selectedInstance.value.id
+      );
+      if (selected) {
+        selectedInstance.value.status = selected.status;
+      }
     }
   }
   emit("component-mounted");
@@ -63,7 +114,7 @@ function clearSelectedInstance() {
   instanceStore.instances.forEach((instance) => {
     instance.selected = false;
   });
-  selectedInstance.value = null;
+  selectedInstance.value = props.multiple ? [] : null;
 }
 
 // Computed para filtrar instâncias que não estão na deny list
@@ -80,9 +131,13 @@ const filteredInstances = computed(() => {
             <div class="flex cursor-pointer justify-between items-center">
                 <p @click="open = !open" class="w-full p-3 px-4 select-none">
                 <div v-if="instanceStore.loaded">
-                    <span v-if="!selectedInstance">{{ filteredInstances ? filteredInstances.length : 'Sem' }} Instâncias
+                    <span v-if="!hasSelection">{{ filteredInstances ? filteredInstances.length : 'Sem' }} Instâncias
                         disponíveis</span>
                     <span class="flex items-center  gap-2" v-else>
+                        <template v-if="multiple">
+                            <span class="text-sm font-medium">{{ selectionLabel }}</span>
+                        </template>
+                        <template v-else>
                         <header class="flex gap-3 items-center flex-shrink-0">
                             <svg v-if="selectedInstance.type === 'whatsapp-qrcode'" xmlns="http://www.w3.org/2000/svg"
                                 fill="currentColor" class="w-5 h-5 text-green-400" viewBox="0 0 16 16">
@@ -139,6 +194,7 @@ const filteredInstances = computed(() => {
                         </header>
                         <div class="w-full">{{
             selectedInstance.name }}</div>
+                        </template>
                     </span>
                 </div>
                 <div v-else class="flex items-center gap-2 justify-center"><svg aria-hidden="true"
@@ -152,7 +208,7 @@ const filteredInstances = computed(() => {
                             fill="currentFill" />
                     </svg>Inicializando instâncias...</div>
                 </p>
-                <footer class="flex px-4 items-center gap-2"><button @click="selectedInstance = null, open = false"><svg
+                <footer class="flex px-4 items-center gap-2"><button @click="clearSelectedInstance(); open = false"><svg
                             class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                             fill="none" viewBox="0 0 24 24">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -175,9 +231,9 @@ const filteredInstances = computed(() => {
                 <li v-if="filteredInstances.length > 0" v-for="inst, index in filteredInstances"
                     class="select-none cursor-pointer w-full">
                     <button
-                        :class="selectedInstance && selectedInstance.id === inst.id ? 'bg-base-100' : 'bg-base-200 hover:bg-base-100'"
-                        @click="selectedInstance = inst, open = false, functionEmit(inst)"
-                        :disabled="selectedInstance && selectedInstance.id === inst.id || (type && inst.type !== type) || (webhooks !== undefined && (webhooks !== inst.config?.webhooks))"
+                        :class="isInstSelected(inst) ? 'bg-base-100' : 'bg-base-200 hover:bg-base-100'"
+                        @click="handleInstClick(inst)"
+                        :disabled="(!multiple && isInstSelected(inst)) || (type && inst.type !== type) || (webhooks !== undefined && (webhooks !== inst.config?.webhooks))"
                         class="flex rounded-md justify-between items-center p-2 px-1 w-full">
                         <div class="flex w-full items-center pl-2 gap-3">
                             <svg v-if="inst.type === 'whatsapp-qrcode'" xmlns="http://www.w3.org/2000/svg"
