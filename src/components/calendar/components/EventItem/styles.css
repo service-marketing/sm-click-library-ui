@@ -61,7 +61,8 @@
 }
 .itemsb-row {
   display: flex;
-  align-items: center;
+  align-items: start;
+  justify-content: space-between;
   gap: 0.5rem;
   min-width: 0;
 }
@@ -157,8 +158,8 @@
 }
 .event-color-bar {
   display: inline-block;
-  height: 0.5rem;
-  width: 0.25rem;
+  height: 0.875rem;
+  width: 0.35rem;
   border-radius: 0.25rem;
   box-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
   flex-shrink: 0;
@@ -188,8 +189,8 @@
 
 /* --- status como barra horizontal (compacto + agenda) --- */
 .status-bar {
-  width: 8px;
-  height: 4px;
+  width: 14px;
+  height: 6px;
   border-radius: 2px;
   display: inline-block;
   vertical-align: middle;
@@ -216,10 +217,10 @@
 /* --- status como bolinha no avatar (sidebar) --- */
 .status-dot-avatar {
   position: absolute;
-  bottom: -2px;
-  right: -2px;
-  width: 10px;
-  height: 10px;
+  bottom: -1px;
+  right: -1px;
+  width: 12px;
+  height: 12px;
   border-radius: 9999px;
   border: 1px solid rgba(0, 0, 0, 0.25);
   transition: all 0.2s ease;

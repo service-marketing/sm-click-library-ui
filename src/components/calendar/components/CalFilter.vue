@@ -38,6 +38,17 @@
               <span class="label-cpk">Exibir somente meus eventos</span>
             </label>
 
+            <label class="row">
+              <input
+                class="switch"
+                type="checkbox"
+                :checked="state.recurringOnly"
+                @change="onToggleRecurringOnly($event)"
+                aria-label="Exibir somente eventos recorrentes"
+              />
+              <span class="label-cpk">Exibir somente eventos recorrentes</span>
+            </label>
+
             <!-- Status de execução (sem opção 'Todos'): marcar = aplica, desmarcar = remove chave -->
             <div
               class="row row--status"
@@ -165,6 +176,7 @@ const me = computed(
 /* ======== UI local (derivada de props.filters) ======== */
 const state = reactive({
   onlyMine: false,
+  recurringOnly: false,
   // status NÃO tem 'todos' no modelo: internamente usamos null pra UI,
   // mas nunca emitimos status=null (removemos a chave).
   status: null, // true = pendente, false = executado, null = sem filtro (não emitido)
@@ -179,6 +191,7 @@ watch(
     const mineNow = me.value?.id ? String(me.value.id) : null;
     state.onlyMine =
       !!mineNow && String(props.filters?.scheduled_by ?? "") === mineNow;
+    state.recurringOnly = props.filters?.recurring_only === true;
 
     // hidrata status (somente true/false; se vier qualquer outra coisa, limpa)
     const stNow = props.filters?.status;
@@ -205,6 +218,16 @@ function onToggleOnlyMine(e) {
   } else {
     // remove scheduled_by
     emit("update:filters", omit(props.filters, "scheduled_by"));
+  }
+}
+
+function onToggleRecurringOnly(e) {
+  state.recurringOnly = !!e.target.checked;
+
+  if (state.recurringOnly) {
+    emit("update:filters", { ...props.filters, recurring_only: true });
+  } else {
+    emit("update:filters", omit(props.filters, "recurring_only"));
   }
 }
 
