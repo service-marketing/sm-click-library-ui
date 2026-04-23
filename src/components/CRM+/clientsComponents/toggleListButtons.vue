@@ -24,7 +24,8 @@ const props = defineProps({
       @click="$emit('update:modelValue', btn.value)"
       :title="
         btn.disabled
-          ? 'Este recurso não está disponível para conversas em leads ou finalizadas'
+          ? btn.disabledReason ||
+            'Este recurso não está disponível para conversas em leads ou finalizadas'
           : ''
       "
     >
