@@ -1,5 +1,6 @@
 <template>
   <header class="cpk-header bg-base-200">
+    <!-- ESQUERDA: X (só mobile) + navegação -->
     <div class="left">
       <button
         @click="$emit('close-page')"
@@ -63,10 +64,12 @@
       </button>
     </div>
 
+    <!-- CENTRO: TÍTULO -->
     <h2 class="month-title" :title="`${month} ${year}`">
       {{ month }} {{ year }}
     </h2>
 
+    <!-- DIREITA: toggle de visão + compacto -->
     <div class="right">
       <button
         type="button"
@@ -88,6 +91,7 @@
           />
         </svg>
 
+        <!-- Badge de filtros aplicados -->
         <span
           v-if="filterCount > 0"
           class="filter-badge"
@@ -201,6 +205,7 @@ defineEmits([
 </script>
 
 <style scoped>
+/* ===== Layout básico ===== */
 .cpk-header {
   display: flex;
   align-items: center;
@@ -222,6 +227,7 @@ defineEmits([
   min-width: 0;
 }
 
+/* Título no centro com prioridade */
 .month-title {
   flex: 1 1 auto;
   min-width: 0;
@@ -236,6 +242,7 @@ defineEmits([
   padding: 0 0.25rem;
 }
 
+/* ===== Toggle (container) ===== */
 .toggle {
   display: inline-flex;
   gap: var(--gap);
@@ -245,12 +252,17 @@ defineEmits([
   background: var(--cyber-bg-light);
 }
 
+/* Botões “fantasma” (neutros) usando cyber-button base */
 .btn-ghost {
+  /* mantém a borda sempre 1px -> sem flicada */
   border-color: var(--cyber-border);
   background: var(--cyber-bg);
   color: var(--fg-dim);
 }
 
+/* Botão “Hoje” com destaque de accent via classe util */
+
+/* Estado ativo no toggle (sem trocar largura de borda) */
 .toggle .cyber-button.is-active {
   color: #061512;
   background: var(--chip-active);
@@ -258,6 +270,7 @@ defineEmits([
   border-color: var(--cyber-border);
 }
 
+/* Ícones: usam os tokens do theme */
 .icon-4 {
   width: var(--icon-4);
   height: var(--icon-4);
@@ -267,6 +280,7 @@ defineEmits([
   height: var(--icon-5);
 }
 
+/* ===== Visibilidade herdada ===== */
 .hide-md-up {
   display: inline-flex;
 }
@@ -290,6 +304,7 @@ defineEmits([
   }
 }
 
+/* ===== Responsividade progressiva priorizando o título ===== */
 @media (max-width: 1280px) {
   .left,
   .right {
@@ -346,19 +361,25 @@ defineEmits([
   }
 }
 
+/* ===== Correções anti-flicker (Chrome com backdrop-filter) ===== */
+/* 1) Não altere largura de borda no :hover (já garantido acima) */
+/* 2) Force camada própria p/ evitar “piscada” nas bordas */
 .cpk-header .cyber-button {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   transform: translateZ(0);
   will-change: box-shadow, transform;
+  /* fix extra: evita clipping do glow na borda */
   background-clip: padding-box;
 }
+/* 3) Em hover, só mexe no box-shadow; borda fica estável */
 .cpk-header .cyber-button:hover {
+  /* mantém a mesma border-color e largura -> zero jiggle */
   border-color: var(--cyber-border);
 }
-
+/* Badge em cima do botão de filtro */
 .filter-btn {
-  position: relative;
+  position: relative; /* para o badge se posicionar dentro */
 }
 
 .filter-badge {

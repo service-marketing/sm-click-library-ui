@@ -1,4 +1,4 @@
-﻿import { computed } from "vue";
+import { computed } from "vue";
 import { getEventColor as utilGetEventColor } from "../../utils/eventColors";
 import { useAttendantStore } from "~/stores/attendantStore";
 import { getFileIconType } from "../../useScheduledEvents";
@@ -13,7 +13,6 @@ export function useEventItem(props) {
 
   const isSched = computed(() => props.ev?.type === "scheduled_messages");
   const isReminder = computed(() => props.ev?.type === "attendant_reminder");
-  const recurringMeta = computed(() => props.recurringMeta || null);
 
   const isMe = computed(() => attendantStore.attendants.find((a) => a.is_me) || {});
 
@@ -24,35 +23,12 @@ export function useEventItem(props) {
     return att.name || "Desconhecido";
   }
 
-  const displayTitle = computed(() => {
-    if (recurringMeta.value?.title) return recurringMeta.value.title;
-    if (isSched.value) {
-      const parts = [];
-      if (props.ev?.contactName) parts.push(props.ev.contactName);
-      parts.push(props.ev?.departmentName || "sem depto");
-      return parts.join(" • ");
-    }
-    if (isReminder.value) {
-      return props.ev?.raw?.params?.message?.[0]?.title || "Lembrete";
-    }
-    return "";
+  const agendaLine = computed(() => {
+    const parts = [];
+    if (props.ev?.contactName) parts.push(props.ev.contactName);
+    parts.push(props.ev?.departmentName || "sem depto");
+    return parts.join(" • ");
   });
-
-  const agendaLine = computed(() => recurringMeta.value?.title || displayTitle.value);
-  const displayTime = computed(() => recurringMeta.value?.timeLabel || props.ev?.time || "-");
-  const typeLabel = computed(() => {
-    if (recurringMeta.value?.typeLabel) return recurringMeta.value.typeLabel;
-    return props.ev?.type === "attendant_reminder" ? "Lembrete" : "Mensagem programada";
-  });
-  const contentText = computed(() => {
-    if (typeof recurringMeta.value?.content === "string") return recurringMeta.value.content;
-    if (isReminder.value) return props.ev?.raw?.params?.message?.[0]?.content || "";
-    return props.ev?.content || "";
-  });
-  const statusTooltipTitle = computed(() => recurringMeta.value?.statusTooltipTitle || "Status");
-  const statusTooltipText = computed(() => recurringMeta.value?.statusTooltipText || (props.ev?.status === true ? "Ativo" : "Executado"));
-  const useRecurringStatusIcon = computed(() => recurringMeta.value?.useStatusIcon === true);
-  const showRecurrenceBadge = computed(() => recurringMeta.value?.showRecurrenceBadge !== false);
 
   function fileTypeClass(file) {
     const type = getFileIconType(file?.fileName, file?.mimeType);
@@ -65,21 +41,5 @@ export function useEventItem(props) {
     };
   }
 
-  return {
-    color,
-    isSched,
-    isReminder,
-    recurringMeta,
-    attendantName,
-    displayTitle,
-    agendaLine,
-    displayTime,
-    typeLabel,
-    contentText,
-    statusTooltipTitle,
-    statusTooltipText,
-    useRecurringStatusIcon,
-    showRecurrenceBadge,
-    fileTypeClass,
-  };
+  return { color, isSched, isReminder, attendantName, agendaLine, fileTypeClass };
 }
