@@ -1,4 +1,7 @@
 <script setup>
+import { ref } from "vue";
+import Popper from "vue3-popper";
+
 const emit = defineEmits(["update:modelValue"]);
 
 const props = defineProps({
@@ -12,42 +15,62 @@ const props = defineProps({
     default: () => [],
   },
 });
+
+const activePoppers = ref({});
+
+const togglePopper = (buttonValue) => {
+  activePoppers.value[buttonValue] = !activePoppers.value[buttonValue];
+};
+
+const closePopper = (buttonValue) => {
+  activePoppers.value[buttonValue] = false;
+};
 </script>
 
 <template>
   <main class="toggle-page-buttons-wrapper">
-    <button
+    <Popper
       v-for="btn in buttons"
       :key="btn.value"
-      :disabled="btn.disabled"
-      :class="['toggle-page-button', { selected: modelValue === btn.value }]"
-      @click="$emit('update:modelValue', btn.value)"
-      :title="
-        btn.disabled
-          ? btn.disabledReason ||
-            'Este recurso não está disponível para conversas em leads ou finalizadas'
-          : ''
-      "
+      class="dark:popper-light w-full popper-dark"
+      :show="btn.disabled && activePoppers[btn.value]"
+      placement="bottom"
+      @show="() => (activePoppers[btn.value] = true)"
+      @hide="() => (activePoppers[btn.value] = false)"
     >
-      <svg
-        v-if="btn.disabled"
-        class="size-4 text-white/80"
-        aria-hidden="true"
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        fill="currentColor"
-        viewBox="0 0 24 24"
+      <button
+        :disabled="btn.disabled"
+        :class="['toggle-page-button', { selected: modelValue === btn.value }]"
+        @click="$emit('update:modelValue', btn.value)"
+        @mouseenter="btn.disabled && togglePopper(btn.value)"
+        @mouseleave="closePopper(btn.value)"
       >
-        <path
-          fill-rule="evenodd"
-          d="M8 10V7a4 4 0 1 1 8 0v3h1a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h1Zm2-3a2 2 0 1 1 4 0v3h-4V7Zm2 6a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1Z"
-          clip-rule="evenodd"
-        />
-      </svg>
+        <svg
+          v-if="btn.disabled"
+          class="size-4 text-white/80"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          fill="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M8 10V7a4 4 0 1 1 8 0v3h1a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h1Zm2-3a2 2 0 1 1 4 0v3h-4V7Zm2 6a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1Z"
+            clip-rule="evenodd"
+          />
+        </svg>
 
-      <p v-else class="toggle-page-button-label">{{ btn.label }}</p>
-    </button>
+        <p v-else class="toggle-page-button-label">{{ btn.label }}</p>
+      </button>
+
+      <template #content>
+        <div v-if="btn.disabled && btn.disabledReason" class="popper-content">
+          {{ btn.disabledReason }}
+        </div>
+      </template>
+    </Popper>
   </main>
 </template>
 
