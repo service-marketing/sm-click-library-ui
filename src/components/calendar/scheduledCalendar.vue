@@ -1,9 +1,7 @@
 <template>
   <div
     class="calendar-main bg-base-300"
-    :class="{
-      'calendar-main--compact': isCompact,
-    }"
+    :class="{ 'calendar-main--compact': isCompact }"
   >
     <!-- Área principal -->
     <div class="calendar-content">
@@ -47,12 +45,15 @@
               :start-offset="startOffset"
               :month-days="monthDays"
               :view-date="viewDate"
+              :is-compact="isCompact"
               :is-same-month-fn="isSameMonth"
               :is-selected-day-fn="isSelectedDay"
               :is-today-fn="isToday"
               :select-day-fn="selectDay"
-              :day-summary-fn="daySummary"
-              :day-visual-entries-fn="dayVisualEntries"
+              :events-by-day-fn="eventsByDay"
+              :day-event-count-fn="dayEventCount"
+              :event-bars-to-show-fn="eventBarsToShow"
+              :day-event-overflow-fn="dayEventOverflow"
             />
           </div>
 
@@ -61,8 +62,7 @@
             class="calendar-daylist calendar-daylist--mobile"
             :loading="loading"
             :selected-label-long="selectedLabelLong"
-            :recurring-groups="selectedRecurringGroups"
-            :single-events="selectedSingleEventsSorted"
+            :events="selectedEventsSorted"
             :mode="'compact'"
             @reload="forceReloadCurrentMonth"
             @open-chat="(ev) => $emit('open-chat', ev)"
@@ -93,8 +93,7 @@
       :loading="loading"
       :selected-label="selectedLabel"
       :selected-label-long="selectedLabelLong"
-      :recurring-groups="selectedRecurringGroups"
-      :single-events="selectedSingleEventsSorted"
+      :events="selectedEventsSorted"
       :mode="isCompact ? 'compact' : 'sidebar'"
       @reload="forceReloadCurrentMonth"
       @open-chat="(ev) => $emit('open-chat', ev)"
@@ -157,14 +156,14 @@ import {
   computed,
   onMounted,
   watch,
+  reactive,
+  onBeforeUnmount,
 } from "vue";
 import { crm_scheduled } from "../../utils/systemUrls";
 import {
   sameYMD,
   yearMonthKey,
   eraseScheduledEvent,
-  buildRecurringGroupForDay,
-  isRecurringSchedule,
 } from "./useScheduledEvents";
 import { storeToRefs } from "pinia";
 import EventItem from "./components/EventItem.vue";
@@ -177,6 +176,7 @@ import CalendarGrid from "./components/CalendarGrid.vue";
 import AgendaList from "./components/AgendaList.vue";
 import EventsList from "./components/EventsList.vue";
 import CalFilter from "./components/CalFilter.vue";
+import { fi } from "date-fns/locale";
 
 const props = defineProps({
   sourceUrl: { type: String, default: "/crm_scheduled" },
@@ -447,7 +447,6 @@ const FILTER_RESOLVERS = {
     const id = typeof sb === "object" && sb ? (sb.id ?? sb.attendant_id) : sb;
     return id != null ? String(id) : "";
   },
-  recurring_only: (ev) => isRecurringSchedule(ev?.raw?.params?.schedule || {}),
   // exemplo: status: (ev) => String(ev.status ?? ev.raw?.status ?? ""),
 };
 
@@ -512,156 +511,53 @@ function matchesFilters(ev, f) {
 }
 
 // ===== Lista ATIVA (aplica filtros genéricos) =====
-const filteredBaseEvents = computed(() => {
+const currentMonthEvents = computed(() => {
   const list = currentMonthEventsRaw.value || [];
   return list.filter((ev) => matchesFilters(ev, filters));
 });
 
-function dayKey(date) {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
-    date.getDate(),
-  ).padStart(2, "0")}`;
+// ===== Eventos atuais =====
+function eventsByDay(date) {
+  return currentMonthEvents.value.filter((e) => sameYMD(e.date, date));
+}
+const selectedEvents = computed(() => eventsByDay(selectedDate.value));
+const selectedEventsSorted = computed(() =>
+  [...selectedEvents.value].sort((a, b) => a.date - b.date),
+);
+function dayEventCount(date) {
+  return eventsByDay(date).length;
+}
+function eventBarsToShow(date) {
+  return Math.min(3, dayEventCount(date));
+}
+function dayEventOverflow(date) {
+  const c = dayEventCount(date);
+  return c > 3 ? c - 3 : 0;
 }
 
-function createEmptyDayBucket(date) {
-  return {
-    key: `ag-${dayKey(date)}`,
-    date: new Date(date.getFullYear(), date.getMonth(), date.getDate()),
-    singles: [],
-    recurringGroups: [],
-    visualEntries: [],
-    leadEvent: null,
-    summary: {
-      totalOccurrences: 0,
-      singleCount: 0,
-      recurringRulesCount: 0,
-      recurringOccurrencesCount: 0,
-      peakGroupCount: 0,
-      visualCount: 0,
-    },
-  };
-}
-
-function eventSortDate(item) {
-  if (item?.firstExecutionAt instanceof Date) return item.firstExecutionAt;
-  if (item?.date instanceof Date) return item.date;
-  return new Date(0);
-}
-
-function comparePresentationItems(a, b) {
-  const diff = eventSortDate(a) - eventSortDate(b);
-  if (diff !== 0) return diff;
-  const aIsRecurring = a?.kind === "recurring-group";
-  const bIsRecurring = b?.kind === "recurring-group";
-  if (aIsRecurring !== bIsRecurring) return aIsRecurring ? -1 : 1;
-  return String(a?.key || a?.id || "").localeCompare(
-    String(b?.key || b?.id || ""),
-  );
-}
-
-function summarizeBucket(bucket) {
-  const recurringOccurrencesCount = bucket.recurringGroups.reduce(
-    (sum, group) => sum + Number(group?.count || 0),
-    0,
-  );
-  const peakGroupCount = bucket.recurringGroups.reduce(
-    (max, group) => Math.max(max, Number(group?.count || 0)),
-    0,
-  );
-  return {
-    totalOccurrences: bucket.singles.length + recurringOccurrencesCount,
-    singleCount: bucket.singles.length,
-    recurringRulesCount: bucket.recurringGroups.length,
-    recurringOccurrencesCount,
-    peakGroupCount,
-    visualCount: bucket.visualEntries.length,
-  };
-}
-
-function buildMonthPresentation(events, monthDate) {
-  const y = monthDate.getFullYear();
-  const m = monthDate.getMonth();
-  const totalDays = daysInMonth(monthDate);
-  const buckets = new Map();
-
-  for (let day = 1; day <= totalDays; day++) {
-    const bucketDate = new Date(y, m, day);
-    buckets.set(dayKey(bucketDate), createEmptyDayBucket(bucketDate));
-  }
-
-  for (const ev of events) {
-    const schedule = ev?.raw?.params?.schedule || {};
-    if (isRecurringSchedule(schedule)) {
-      for (let day = 1; day <= totalDays; day++) {
-        const bucketDate = new Date(y, m, day);
-        const group = buildRecurringGroupForDay(ev, bucketDate, {
-          previewLimit: 4,
-        });
-        if (!group) continue;
-
-        const key = dayKey(bucketDate);
-        const bucket = buckets.get(key);
-        bucket.recurringGroups.push(group);
-      }
-      continue;
-    }
-
+// ===== Agenda =====
+const agendaDays = computed(() => {
+  const y = viewDate.value.getFullYear();
+  const m = viewDate.value.getMonth();
+  const map = new Map();
+  for (const ev of currentMonthEvents.value) {
     const d = ev?.date;
     if (!(d instanceof Date)) continue;
     if (d.getFullYear() !== y || d.getMonth() !== m) continue;
-    const key = dayKey(d);
-    const bucket = buckets.get(key);
-    if (!bucket) continue;
-    bucket.singles.push(ev);
+    const key = `${y}-${m + 1}-${d.getDate()}`;
+    if (!map.has(key))
+      map.set(key, {
+        key: `ag-${key}`,
+        date: new Date(y, m, d.getDate()),
+        events: [],
+      });
+    map.get(key).events.push(ev);
   }
-
-  const agenda = [];
-  buckets.forEach((bucket) => {
-    bucket.singles.sort((a, b) => a.date - b.date);
-    bucket.recurringGroups.sort(comparePresentationItems);
-    bucket.visualEntries = [...bucket.recurringGroups, ...bucket.singles].sort(
-      comparePresentationItems,
-    );
-    bucket.leadEvent =
-      bucket.recurringGroups[0]?.representative ||
-      bucket.singles[0] ||
-      null;
-    bucket.summary = summarizeBucket(bucket);
-    if (bucket.summary.totalOccurrences > 0) agenda.push(bucket);
-  });
-  agenda.sort((a, b) => a.date - b.date);
-
-  return { buckets, agenda };
-}
-
-const monthPresentation = computed(() =>
-  buildMonthPresentation(filteredBaseEvents.value, viewDate.value),
-);
-
-function dayBucket(date) {
-  return (
-    monthPresentation.value.buckets.get(dayKey(date)) || createEmptyDayBucket(date)
-  );
-}
-
-function daySummary(date) {
-  return dayBucket(date).summary;
-}
-
-function dayVisualEntries(date) {
-  return dayBucket(date).visualEntries || [];
-}
-
-const selectedDayBucket = computed(() => dayBucket(selectedDate.value));
-const selectedRecurringGroups = computed(() =>
-  [...selectedDayBucket.value.recurringGroups].sort(comparePresentationItems),
-);
-const selectedSingleEventsSorted = computed(() =>
-  [...selectedDayBucket.value.singles].sort((a, b) => a.date - b.date),
-);
-
-// ===== Agenda =====
-const agendaDays = computed(() => monthPresentation.value.agenda);
+  const arr = Array.from(map.values());
+  for (const g of arr) g.events.sort((a, b) => a.date - b.date);
+  arr.sort((a, b) => a.date - b.date);
+  return arr;
+});
 
 // ===== Responsivo =====
 const compact = ref(false);
@@ -680,6 +576,8 @@ function setupMedia() {
 
 // ===== Loading/Erro por mês =====
 const loading = computed(() => scheduled.isLoading(currentYM.value));
+const error = computed(() => scheduled.errorOf(currentYM.value));
+
 // ===== Ações =====
 const confirmCtl = ref({
   open: false,
@@ -759,6 +657,17 @@ async function eraseEvent(event) {
 onMounted(async () => {
   setupMedia();
   await scheduled.ensureMonthLoaded(currentYM.value);
+  // if (
+  //   !eventsByDay(selectedDate.value).length &&
+  //   currentMonthEvents.value.length
+  // ) {
+  //   const first = currentMonthEvents.value[0];
+  //   selectedDate.value = new Date(
+  //     first.date.getFullYear(),
+  //     first.date.getMonth(),
+  //     first.date.getDate()
+  //   );
+  // }
 });
 
 watch(
@@ -767,6 +676,17 @@ watch(
     scheduled.setBaseUrl(val);
     scheduled.resetAll();
     await scheduled.ensureMonthLoaded(currentYM.value);
+    // if (
+    //   !eventsByDay(selectedDate.value).length &&
+    //   currentMonthEvents.value.length
+    // ) {
+    //   const first = currentMonthEvents.value[0];
+    //   selectedDate.value = new Date(
+    //     first.date.getFullYear(),
+    //     first.date.getMonth(),
+    //     first.date.getDate()
+    //   );
+    // }
   },
 );
 
@@ -780,6 +700,18 @@ watch(currentYM, async () => {
   selectedDate.value = new Date(y, m, day);
 
   await scheduled.ensureMonthLoaded(currentYM.value);
+
+  // if (
+  //   !eventsByDay(selectedDate.value).length &&
+  //   currentMonthEvents.value.length
+  // ) {
+  //   const first = currentMonthEvents.value[0];
+  //   selectedDate.value = new Date(
+  //     first.date.getFullYear(),
+  //     first.date.getMonth(),
+  //     first.date.getDate()
+  //   );
+  // }
 });
 
 defineExpose({ updateEvent: scheduled.applyUpdateToCache });
@@ -896,5 +828,92 @@ defineExpose({ updateEvent: scheduled.applyUpdateToCache });
 }
 .calendar-stage--compact .calendar-daylist--mobile.daylist--tight {
   max-height: 82px;
+}
+.nav-button {
+  height: 32px;
+  width: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background-color: var(--cyber-bg);
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+.nav-button:hover {
+  background-color: var(--cyber-bg-light);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+.nav-button:active {
+  transform: scale(0.98);
+}
+.action-button {
+  padding: 8px 12px;
+  color: white;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+.action-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+.action-button:active {
+  transform: translateY(0);
+}
+.text-neo-muted {
+  color: #79e3d9;
+  opacity: 0.95;
+}
+.month-title {
+  color: #d0fff6;
+  text-shadow:
+    0 0 8px rgba(31, 227, 158, 0.35),
+    0 0 20px rgba(31, 227, 158, 0.18);
+  font-weight: 700;
+  font-size: clamp(0.9rem, 2.2vw, 1.12rem);
+  letter-spacing: 0.16em;
+  text-align: center;
+}
+@media (prefers-color-scheme: dark) {
+  .text-neo-muted {
+    color: #7ecdc2;
+  }
+  .month-title {
+    color: #71a49d;
+    text-shadow:
+      0 0 8px rgba(113, 164, 157, 0.35),
+      0 0 20px rgba(113, 164, 157, 0.18);
+  }
+}
+.flex {
+  display: flex;
+}
+.flex-col {
+  flex-direction: column;
+}
+.min-h-0 {
+  min-height: 0;
+}
+.overflow-auto {
+  overflow: auto;
+}
+.overflow-hidden {
+  overflow: hidden;
+}
+.relative {
+  position: relative;
+}
+.hidden {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .lg-hidden {
+    display: none;
+  }
+  .lg-block {
+    display: block;
+  }
 }
 </style>

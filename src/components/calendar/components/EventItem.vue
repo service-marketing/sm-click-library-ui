@@ -1,10 +1,7 @@
 <template>
   <component
     :is="currentMode"
-    :ev="ev"
-    :get-event-color="getEventColor"
-    :view-only="viewOnly"
-    :recurring-meta="recurringMeta"
+    v-bind="$props"
     @open-message="$emit('open-message', $event)"
     @open-chat="$emit('open-chat', $event)"
     @delete-message="$emit('delete-message', $event)"
@@ -20,10 +17,9 @@ import Agenda from "./EventItem/Agenda.vue";
 
 const props = defineProps({
   ev: { type: Object, required: true },
-  mode: { type: String, default: "compact" },
+  mode: { type: String, default: "compact" }, // 'compact' | 'sidebar' | 'agenda'
   getEventColor: { type: Function, default: null },
   viewOnly: { type: Boolean, default: false },
-  recurringMeta: { type: Object, default: null },
 });
 
 defineEmits(["open-message", "open-chat", "delete-message", "edit-reminder"]);
