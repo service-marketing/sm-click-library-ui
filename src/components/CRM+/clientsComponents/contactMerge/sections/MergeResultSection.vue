@@ -32,10 +32,22 @@ const previewContact = computed(() => {
       props.childContact?.instagram_user_name,
   };
 
+  // Combina as conexões de ambos os contatos no resultado da mesclagem
+  const whatsappInfos = [
+    ...(props.parentContact?.whatsapp_infos || []),
+    ...(props.childContact?.whatsapp_infos || []),
+  ];
+  const instagramInfos = [
+    ...(props.parentContact?.instagram_infos || []),
+    ...(props.childContact?.instagram_infos || []),
+  ];
+
   return {
     ...base,
     photo:
       base.photo || props.parentContact?.photo || props.childContact?.photo,
+    whatsapp_infos: whatsappInfos,
+    instagram_infos: instagramInfos,
   };
 });
 
@@ -44,12 +56,61 @@ const tagsChangesCount = ref(0);
 const productsChangesCount = ref(0);
 const segmentationChangesCount = ref(0);
 
+const connectionsMerge = computed(() => {
+  const parentWa = (props.parentContact?.whatsapp_infos || [])
+    .filter((item) => item?.instance)
+    .map((item, i) => ({
+      id: item.id || `pwa-${i}`,
+      platform: "whatsapp",
+      instanceName: item.instance,
+      userName: item.whatsapp_user_name || "",
+      fromChild: false,
+    }));
+
+  const childWa = (props.childContact?.whatsapp_infos || [])
+    .filter((item) => item?.instance)
+    .map((item, i) => ({
+      id: item.id || `cwa-${i}`,
+      platform: "whatsapp",
+      instanceName: item.instance,
+      userName: item.whatsapp_user_name || "",
+      fromChild: true,
+    }));
+
+  const parentIg = (props.parentContact?.instagram_infos || [])
+    .filter((item) => item?.instance)
+    .map((item, i) => ({
+      id: item.id || `pig-${i}`,
+      platform: "instagram",
+      instanceName: item.instance,
+      userName: item.instagram_user_name || "",
+      fromChild: false,
+    }));
+
+  const childIg = (props.childContact?.instagram_infos || [])
+    .filter((item) => item?.instance)
+    .map((item, i) => ({
+      id: item.id || `cig-${i}`,
+      platform: "instagram",
+      instanceName: item.instance,
+      userName: item.instagram_user_name || "",
+      fromChild: true,
+    }));
+
+  return [...parentWa, ...childWa, ...parentIg, ...childIg];
+});
+
+const connectionsNewCount = computed(
+  () => connectionsMerge.value.filter((c) => c.fromChild).length,
+);
+
 const totalChanges = computed(() => {
   return (
     fieldChangesCount.value +
     tagsChangesCount.value +
     productsChangesCount.value +
-    segmentationChangesCount.value
+    segmentationChangesCount.value +
+    connectionsNewCount.value
   );
 });
 </script>

@@ -3,6 +3,8 @@
  * Componente que auxilia na secao de contato do formulario de clientes.
  */
 
+import { computed } from "vue";
+
 import ListProducts from "./listProducts.vue";
 import ListSegmentationsFields from "./listSegmentationsFields.vue";
 import ToggleListButtons from "./toggleListButtons.vue";
@@ -48,7 +50,6 @@ const segmentationFields = defineModel("segmentationFields", {
 });
 const products = defineModel("products", { type: Array, default: () => [] });
 
-// Handler para garantir apenas numeros no telefone
 const handleTelephoneInput = (value, phoneObject) => {
   // vue-tel-input pode retornar um objeto ou string
   const phoneValue = phoneObject?.number || value || "";
@@ -56,6 +57,38 @@ const handleTelephoneInput = (value, phoneObject) => {
   const sanitized = String(phoneValue).replace(/[^\d\s()-]/g, "");
   telephone.value = sanitized;
 };
+
+const whatsappBindings = computed(() => {
+  const items = props.contact?.whatsapp_infos || [];
+  return items
+    .filter((item) => item?.meta_business_acc_id || item?.whatsapp_bsuid)
+    .map((item, index) => ({
+      id: item.id || `wa-${index}`,
+      instanceName: item.instance || "",
+      bsuid: item.whatsapp_bsuid || "BSUID não informado",
+      user_name: item.whatsapp_user_name || "",
+    }))
+    .filter((item) => item.instanceName);
+});
+
+const instagramBindings = computed(() => {
+  const items = props.contact?.instagram_infos || [];
+
+  return items
+    .filter((item) => item?.instagram_account_id || item?.instagram_bsuid)
+    .map((item, index) => ({
+      id: item.id || `ig-${index}`,
+      instanceName: item.instance || "",
+      bsuid: item.instagram_bsuid || "BSUID não informado",
+      user_name: item.instagram_user_name || "",
+    }))
+    .filter((item) => item.instanceName);
+});
+
+const hasContactBindings = computed(
+  () =>
+    whatsappBindings.value.length > 0 || instagramBindings.value.length > 0,
+);
 </script>
 
 <template>
@@ -78,6 +111,94 @@ const handleTelephoneInput = (value, phoneObject) => {
     >
       <h1 class="text-start w-full items-center justify-between flex p-1 pb-2">
         <p class="text-xs font-semibold">Contatos</p>
+
+        <Popper v-if="hasContactBindings" class="dark:popper-light popper-dark" placement="bottom" :arrow="true" :offsetDistance="4">
+          <button
+            type="button"
+            class="bindings-info-btn"
+            title="IDs por conta conectada"
+          >
+            <svg
+              class="size-3.5"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm9.408-5.5a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2h-.01ZM10 10a1 1 0 1 0 0 2h1v3h-1a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2h-1v-4a1 1 0 0 0-1-1h-2Z"
+              />
+            </svg>
+          </button>
+
+          <template #content>
+            <div class="bindings-popover">
+              <p class="bindings-header">IDs por conta conectada</p>
+
+              <section v-if="whatsappBindings.length">
+                <div class="bindings-platform-title">
+                  <svg class="size-3 text-emerald-400" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 17 17">
+                    <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z" />
+                  </svg>
+                  <span class="text-emerald-400">WhatsApp</span>
+                </div>
+                <ul class="bindings-list">
+                  <li v-for="item in whatsappBindings" :key="item.id" class="bindings-popover-item">
+                    <div class="bindings-row">
+                      <span class="bindings-label">Instância</span>
+                      <span class="bindings-value">{{ item.instanceName }}</span>
+                    </div>
+                    <div class="bindings-row">
+                      <span class="bindings-label">BSUID</span>
+                      <span class="bindings-value">{{ item.bsuid }}</span>
+                    </div>
+                    <div class="bindings-row">
+                      <span class="bindings-label">Nome</span>
+                      <span class="bindings-value">{{ item.user_name }}</span>
+                    </div>
+                  </li>
+                </ul>
+              </section>
+
+              <hr v-if="whatsappBindings.length && instagramBindings.length" class="bindings-divider" />
+
+              <section v-if="instagramBindings.length">
+                <div class="bindings-platform-title">
+                  <svg class="size-3" style="fill: url(#ig-grad)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+                    <defs>
+                      <linearGradient id="ig-grad" x1="0%" y1="100%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#f58529" />
+                        <stop offset="40%" stop-color="#dd2a7b" />
+                        <stop offset="70%" stop-color="#8134af" />
+                        <stop offset="100%" stop-color="#515bd4" />
+                      </linearGradient>
+                    </defs>
+                    <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.917 3.917 0 0 0-1.417.923A3.927 3.927 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.916 3.916 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.926 3.926 0 0 0-.923-1.417A3.911 3.911 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0h.003zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599.28.28.453.546.598.92.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.47 2.47 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.478 2.478 0 0 1-.92-.598 2.48 2.48 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233 0-2.136.008-2.388.046-3.231.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92.28-.28.546-.453.92-.598.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045v.002zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92zm-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217zm0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334z" />
+                  </svg>
+                  <span class="ig-gradient-text">Instagram</span>
+                </div>
+                <ul class="bindings-list">
+                  <li v-for="item in instagramBindings" :key="item.id"  class="bindings-popover-item">
+                    <div class="bindings-row">
+                      <span class="bindings-label">Instância</span>
+                      <span class="bindings-value">{{ item.instanceName }}</span>
+                    </div>
+                    <div class="bindings-row">
+                      <span class="bindings-label">BSUID</span>
+                      <span class="bindings-value">{{ item.bsuid }}</span>
+                    </div>
+                    <div class="bindings-row">
+                      <span class="bindings-label">Nome</span>
+                      <span class="bindings-value">{{ item.user_name }}</span>
+                    </div>
+                  </li>
+                </ul>
+              </section>
+            </div>
+          </template>
+        </Popper>
       </h1>
 
       <div
@@ -155,6 +276,7 @@ const handleTelephoneInput = (value, phoneObject) => {
           />
         </div>
       </div>
+
     </div>
 
     <div class="segmentation-fields-container bg-base-200">
@@ -197,5 +319,128 @@ const handleTelephoneInput = (value, phoneObject) => {
   min-height: 0px;
   overflow-y: auto;
   border-radius: 0.625rem;
+}
+
+/* Normaliza o tema do Popper independente do app consumidor */
+.popper-dark {
+  --popper-theme-background-color: #111b21;
+  --popper-theme-background-color-hover: #111b21;
+  --popper-theme-text-color: #ffffff;
+  --popper-theme-border-width: 0px;
+  --popper-theme-border-radius: 8px;
+  --popper-theme-padding: 8px;
+  --popper-theme-box-shadow: 0 6px 30px -6px rgba(0, 0, 0, 0.9);
+}
+
+.popper-light {
+  --popper-theme-background-color: #ffffff;
+  --popper-theme-background-color-hover: #ffffff;
+  --popper-theme-text-color: #333333;
+  --popper-theme-border-width: 1px;
+  --popper-theme-border-style: solid;
+  --popper-theme-border-color: #eeeeee;
+  --popper-theme-border-radius: 8px;
+  --popper-theme-padding: 8px;
+  --popper-theme-box-shadow: 0 6px 30px -6px rgba(0, 0, 0, 0.5);
+}
+
+.bindings-info-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem;
+  border-radius: 9999px;
+  opacity: 0.5;
+  transition: opacity 150ms ease, color 150ms ease;
+}
+
+.bindings-info-btn:hover {
+  opacity: 1;
+}
+
+/* Popover container */
+.bindings-popover {
+  font-size: 0.72rem;
+  line-height: 1.25rem;
+  min-width: 15rem;
+  max-width: 20rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+/* Subtle overline header */
+.bindings-header {
+  font-size: 0.63rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  opacity: 0.4;
+}
+
+/* Platform row: icon + name */
+.bindings-platform-title {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-weight: 600;
+  font-size: 0.72rem;
+  margin-bottom: 0.35rem;
+}
+
+/* List of binding items */
+.bindings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+/* Each binding card */
+.bindings-popover-item {
+  border-radius: 0.375rem;
+  padding: 0.35rem 0.5rem;
+  background: rgb(255 255 255 / 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+/* Label + value row */
+.bindings-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.bindings-label {
+  font-size: 0.62rem;
+  opacity: 0.45;
+  flex-shrink: 0;
+  min-width: 2.6rem;
+}
+
+.bindings-value {
+  word-break: break-all;
+}
+
+.bindings-value.mono {
+  font-family: ui-monospace, 'Cascadia Code', monospace;
+  font-size: 0.67rem;
+  letter-spacing: -0.01em;
+}
+
+/* Divider between platforms */
+.bindings-divider {
+  border: none;
+  border-top: 1px solid rgb(255 255 255 / 0.08);
+  margin: 0;
+}
+
+.ig-gradient-text {
+  background: linear-gradient(45deg, #f58529, #dd2a7b, #8134af, #515bd4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 600;
 }
 </style>
