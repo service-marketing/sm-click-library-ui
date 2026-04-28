@@ -3,8 +3,9 @@
  * Componente que auxilia na secao de contato do formulario de clientes.
  */
 
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
+import SimpleModal from "../../modals/simple_modal/simple_modal.vue";
 import ListProducts from "./listProducts.vue";
 import ListSegmentationsFields from "./listSegmentationsFields.vue";
 import ToggleListButtons from "./toggleListButtons.vue";
@@ -89,6 +90,8 @@ const hasContactBindings = computed(
   () =>
     whatsappBindings.value.length > 0 || instagramBindings.value.length > 0,
 );
+
+const showBsuidHelp = ref(false);
 </script>
 
 <template>
@@ -135,7 +138,17 @@ const hasContactBindings = computed(
 
           <template #content>
             <div class="bindings-popover">
-              <p class="bindings-header">IDs por conta conectada</p>
+              <div class="bindings-header-row">
+                <p class="bindings-header">IDs por conta conectada</p>
+                <button
+                  type="button"
+                  class="bindings-help-btn"
+                  title="O que é o BSUID?"
+                  @click.stop="showBsuidHelp = true"
+                >
+                  ?
+                </button>
+              </div>
 
               <section v-if="whatsappBindings.length">
                 <div class="bindings-platform-title">
@@ -301,6 +314,70 @@ const hasContactBindings = computed(
       :page-state="pageState"
     />
   </div>
+
+<Teleport to="body">
+  <SimpleModal
+    v-model:is-open="showBsuidHelp"
+    size="w-max"
+    class="text-white"
+    :header="{
+      title: 'O que é o BSUID?',
+      svg: `<svg class='w-5 mr-2 text-blue-400 inline-block' viewBox='0 0 20 20' fill='currentColor'><path fill-rule='evenodd' d='M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z' clip-rule='evenodd'/></svg>`,
+    }"
+  >
+    <template #body>
+      <div class="bsuid-help-body">
+        <p class="bsuid-help-intro">
+          O <strong>BSUID</strong> (Business-Scoped User ID) é um identificador único criado pela Meta para cada usuário do WhatsApp ou Instagram, específico para cada portfólio de negócios.
+        </p>
+
+        <div class="bsuid-help-rule">
+          <svg class="bsuid-help-icon bsuid-help-icon--blue" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 2a8 8 0 100 16A8 8 0 0010 2zm0 3a1 1 0 011 1v4a1 1 0 11-2 0V6a1 1 0 011-1zm0 8a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd" />
+          </svg>
+          <span>O mesmo contato terá um <strong>BSUID diferente para cada instância</strong> conectada ao sistema — mesmo que seja o mesmo número, cada instância de negócio enxerga o usuário com seu próprio ID único.</span>
+        </div>
+
+        <div class="bsuid-help-rule">
+          <svg class="bsuid-help-icon bsuid-help-icon--green" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+          </svg>
+          <span>O BSUID é <strong>permanente</strong> enquanto o usuário não trocar de número de telefone — diferente do nome, que pode mudar a qualquer momento.</span>
+        </div>
+
+        <div class="bsuid-help-rule">
+          <svg class="bsuid-help-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+          </svg>
+          <span>O mesmo vale para o <strong>Instagram</strong>: cada instância terá um BSUID diferente para o mesmo perfil do usuário.</span>
+        </div>
+
+        <div class="bsuid-help-rule">
+          <svg class="bsuid-help-icon bsuid-help-icon--yellow" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+          </svg>
+          <span>Se um usuário <strong>trocar de número</strong>, o BSUID anterior se tornará inválido e um novo será gerado automaticamente pela Meta.</span>
+        </div>
+
+        <div class="bsuid-help-example">
+          <span class="bsuid-help-example__label">Exemplo de BSUID</span>
+          <code class="bsuid-help-example__code">BR.13491208655302741918</code>
+          <span class="bsuid-help-example__note">Prefixo com o código do país (ISO 3166) + identificador único de até 128 caracteres</span>
+        </div>
+      </div>
+    </template>
+
+    <template #footer>
+      <button
+        class="bsuid-help-close-btn"
+        type="button"
+        @click="showBsuidHelp = false"
+      >
+        Entendi
+      </button>
+    </template>
+  </SimpleModal>
+</Teleport>
 </template>
 
 <style scoped>
@@ -442,5 +519,130 @@ const hasContactBindings = computed(
   -webkit-text-fill-color: transparent;
   background-clip: text;
   font-weight: 600;
+}
+
+/* Header row with help button */
+.bindings-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+
+.bindings-help-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  font-size: 0.6rem;
+  font-weight: 700;
+  line-height: 1;
+  background: rgba(148, 163, 184, 0.15);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  color: rgba(148, 163, 184, 0.7);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.bindings-help-btn:hover {
+  background: rgba(96, 165, 250, 0.2);
+  border-color: rgba(96, 165, 250, 0.4);
+  color: rgb(147, 197, 253);
+}
+
+/* BSUID help modal styles */
+.bsuid-help-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem 1.25rem;
+  text-align: left;
+}
+
+.bsuid-help-intro {
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: rgba(203, 213, 225, 0.85);
+}
+
+.bsuid-help-intro strong {
+  color: rgb(226, 232, 240);
+}
+
+.bsuid-help-rule {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: rgba(203, 213, 225, 0.75);
+}
+
+.bsuid-help-rule strong {
+  color: rgb(226, 232, 240);
+}
+
+.bsuid-help-icon {
+  width: 0.9rem;
+  height: 0.9rem;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  color: rgba(148, 163, 184, 0.5);
+}
+
+.bsuid-help-icon--blue { color: rgb(96, 165, 250); }
+.bsuid-help-icon--green { color: rgb(74, 222, 128); }
+.bsuid-help-icon--yellow { color: rgb(250, 204, 21); }
+
+.bsuid-help-example {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  background: rgba(148, 163, 184, 0.07);
+  border: 1px dashed rgba(148, 163, 184, 0.2);
+}
+
+.bsuid-help-example__label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.4;
+}
+
+.bsuid-help-example__code {
+  font-family: ui-monospace, 'Cascadia Code', monospace;
+  font-size: 0.75rem;
+  color: rgb(147, 197, 253);
+  letter-spacing: 0.01em;
+}
+
+.bsuid-help-example__note {
+  font-size: 0.67rem;
+  opacity: 0.5;
+  line-height: 1.4;
+}
+
+.bsuid-help-close-btn {
+  margin-left: auto;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.375rem 1rem;
+  border-radius: 0.5rem;
+  background: rgba(96, 165, 250, 0.15);
+  border: 1px solid rgba(96, 165, 250, 0.25);
+  color: rgb(147, 197, 253);
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.bsuid-help-close-btn:hover {
+  background: rgba(96, 165, 250, 0.25);
+  border-color: rgba(96, 165, 250, 0.4);
 }
 </style>
