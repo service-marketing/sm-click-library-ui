@@ -3,9 +3,14 @@
  * Componente que auxilia na secao de contato do formulario de clientes.
  */
 
-import { computed, ref } from "vue";
+import { ref } from "vue";
 
 import SimpleModal from "../../modals/simple_modal/simple_modal.vue";
+import {
+  useWhatsappBindings,
+  useInstagramBindings,
+  useHasContactBindings,
+} from "./connectionsBindings.js";
 import ListProducts from "./listProducts.vue";
 import ListSegmentationsFields from "./listSegmentationsFields.vue";
 import ToggleListButtons from "./toggleListButtons.vue";
@@ -59,36 +64,9 @@ const handleTelephoneInput = (value, phoneObject) => {
   telephone.value = sanitized;
 };
 
-const whatsappBindings = computed(() => {
-  const items = props.contact?.whatsapp_infos || [];
-  return items
-    .filter((item) => item?.meta_business_acc_id || item?.whatsapp_bsuid)
-    .map((item, index) => ({
-      id: item.id || `wa-${index}`,
-      instanceName: item.instance || "",
-      bsuid: item.whatsapp_bsuid || "BSUID não informado",
-      user_name: item.whatsapp_user_name || "",
-    }))
-    .filter((item) => item.instanceName);
-});
-
-const instagramBindings = computed(() => {
-  const items = props.contact?.instagram_infos || [];
-
-  return items
-    .filter((item) => item?.instagram_account_id || item?.instagram_bsuid)
-    .map((item, index) => ({
-      id: item.id || `ig-${index}`,
-      instanceName: item.instance || "",
-      bsuid: item.instagram_bsuid || "BSUID não informado",
-      user_name: item.instagram_user_name || "",
-    }))
-    .filter((item) => item.instanceName);
-});
-
-const hasContactBindings = computed(
-  () => whatsappBindings.value.length > 0 || instagramBindings.value.length > 0,
-);
+const whatsappBindings = useWhatsappBindings(() => props.contact);
+const instagramBindings = useInstagramBindings(() => props.contact);
+const hasContactBindings = useHasContactBindings(whatsappBindings, instagramBindings);
 
 const showBsuidHelp = ref(false);
 </script>

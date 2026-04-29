@@ -1,6 +1,11 @@
 <script setup>
 import { computed } from "vue";
 import InstagramBadge from "../instagramBadge.vue";
+import {
+  useWhatsappBindings,
+  useInstagramBindings,
+  useHasContactBindings,
+} from "../connectionsBindings.js";
 
 const props = defineProps({
   contact: {
@@ -213,35 +218,10 @@ const onRootClick = () => {
   }
 };
 
-const whatsappBindings = computed(() => {
-  const items = props.contact?.whatsapp_infos || [];
-  return items
-    .filter((item) => item?.meta_business_acc_id || item?.whatsapp_bsuid)
-    .map((item, index) => ({
-      id: item.id || `wa-${index}`,
-      instanceName: item.instance || "",
-      bsuid: item.whatsapp_bsuid || "",
-      user_name: item.whatsapp_user_name || "",
-    }))
-    .filter((item) => item.instanceName);
-});
+const whatsappBindings = useWhatsappBindings(() => props.contact);
+const instagramBindings = useInstagramBindings(() => props.contact);
+const hasContactBindings = useHasContactBindings(whatsappBindings, instagramBindings);
 
-const instagramBindings = computed(() => {
-  const items = props.contact?.instagram_infos || [];
-  return items
-    .filter((item) => item?.instagram_account_id || item?.instagram_bsuid)
-    .map((item, index) => ({
-      id: item.id || `ig-${index}`,
-      instanceName: item.instance || "",
-      bsuid: item.instagram_bsuid || "",
-      user_name: item.instagram_user_name || "",
-    }))
-    .filter((item) => item.instanceName);
-});
-
-const hasContactBindings = computed(
-  () => whatsappBindings.value.length > 0 || instagramBindings.value.length > 0,
-);
 </script>
 
 <template>
