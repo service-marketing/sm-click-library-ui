@@ -148,24 +148,14 @@ const showBsuidHelp = ref(false);
                   <span class="text-emerald-400">WhatsApp</span>
                 </div>
                 <ul class="bindings-list">
-                  <li
-                    v-for="item in whatsappBindings"
-                    :key="item.id"
-                    class="bindings-popover-item"
-                  >
-                    <div class="bindings-row">
-                      <span class="bindings-label">Instância</span>
-                      <span class="bindings-value">{{
-                        item.instanceName
-                      }}</span>
+                  <li v-for="item in whatsappBindings" :key="item.id" class="bindings-card bindings-card--wa">
+                    <div class="bindings-card__top">
+                      <span class="bindings-card__instance">{{ item.instanceName }}</span>
+                      <span v-if="item.user_name" class="bindings-card__username">{{ item.user_name }}</span>
                     </div>
-                    <div class="bindings-row">
-                      <span class="bindings-label">BSUID</span>
-                      <span class="bindings-value">{{ item.bsuid }}</span>
-                    </div>
-                    <div class="bindings-row">
-                      <span class="bindings-label">Nome</span>
-                      <span class="bindings-value">{{ item.user_name }}</span>
+                    <div v-if="item.bsuid" class="bindings-card__bsuid-row">
+                      <span class="bindings-card__bsuid-label">BSUID</span>
+                      <code class="bindings-card__bsuid-code">{{ item.bsuid }}</code>
                     </div>
                   </li>
                 </ul>
@@ -205,24 +195,14 @@ const showBsuidHelp = ref(false);
                   <span class="ig-gradient-text">Instagram</span>
                 </div>
                 <ul class="bindings-list">
-                  <li
-                    v-for="item in instagramBindings"
-                    :key="item.id"
-                    class="bindings-popover-item"
-                  >
-                    <div class="bindings-row">
-                      <span class="bindings-label">Instância</span>
-                      <span class="bindings-value">{{
-                        item.instanceName
-                      }}</span>
+                  <li v-for="item in instagramBindings" :key="item.id" class="bindings-card bindings-card--ig">
+                    <div class="bindings-card__top">
+                      <span class="bindings-card__instance">{{ item.instanceName }}</span>
+                      <span v-if="item.user_name" class="bindings-card__username">@{{ item.user_name }}</span>
                     </div>
-                    <div class="bindings-row">
-                      <span class="bindings-label">ID do Instagram</span>
-                      <span class="bindings-value">{{ item.bsuid }}</span>
-                    </div>
-                    <div class="bindings-row">
-                      <span class="bindings-label">Nome</span>
-                      <span class="bindings-value">{{ item.user_name }}</span>
+                    <div v-if="item.bsuid" class="bindings-card__bsuid-row">
+                      <span class="bindings-card__bsuid-label">ID Instagram</span>
+                      <code class="bindings-card__bsuid-code">{{ item.bsuid }}</code>
                     </div>
                   </li>
                 </ul>
@@ -541,40 +521,85 @@ const showBsuidHelp = ref(false);
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
+  max-height: 12.6rem;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.2) transparent;
+  padding-right: 0.1rem;
 }
 
-/* Each binding card */
-.bindings-popover-item {
-  border-radius: 0.375rem;
-  padding: 0.35rem 0.5rem;
-  background: rgb(255 255 255 / 0.06);
+/* Binding card */
+.bindings-card {
+  list-style: none;
+  border-radius: 0.4rem;
+  padding: 0.4rem 0.55rem;
+  background: rgb(255 255 255 / 0.05);
+  border: 1px solid rgb(255 255 255 / 0.06);
+  border-left: 2px solid transparent;
   display: flex;
   flex-direction: column;
-  gap: 0.1rem;
+  gap: 0.28rem;
+  transition: background 120ms ease;
 }
 
-/* Label + value row */
-.bindings-row {
+.bindings-card:hover {
+  background: rgb(255 255 255 / 0.09);
+}
+
+.bindings-card--wa { border-left-color: rgba(52, 211, 153, 0.5); }
+.bindings-card--ig { border-left-color: rgba(221, 42, 123, 0.5); }
+
+.bindings-card__top {
   display: flex;
-  align-items: baseline;
+  align-items: center;
+  justify-content: space-between;
   gap: 0.4rem;
+  min-width: 0;
 }
 
-.bindings-label {
-  font-size: 0.62rem;
+.bindings-card__instance {
+  font-weight: 600;
+  font-size: 0.72rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.bindings-card__username {
+  font-size: 0.63rem;
   opacity: 0.45;
   flex-shrink: 0;
-  min-width: 2.6rem;
 }
 
-.bindings-value {
-  word-break: break-all;
+.bindings-card__bsuid-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 
-.bindings-value.mono {
+.bindings-card__bsuid-label {
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.35;
+  flex-shrink: 0;
+}
+
+.bindings-card__bsuid-code {
   font-family: ui-monospace, "Cascadia Code", monospace;
-  font-size: 0.67rem;
-  letter-spacing: -0.01em;
+  font-size: 0.62rem;
+  color: rgba(147, 197, 253, 0.8);
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  border-radius: 0.25rem;
+  padding: 0.05rem 0.3rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 12rem;
+  display: block;
 }
 
 /* Divider between platforms */
