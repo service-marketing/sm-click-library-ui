@@ -29,6 +29,7 @@ import FloatingDev from "./components/devHelpers/floating-dev.vue";
 import OutcomeButton from "./components/CRM+/clientsComponents/outcomeButton.vue";
 import ListProducts from "./components/CRM+/clientsComponents/listProducts.vue";
 import ContactCard from "./components/CRM+/clientsComponents/contactMerge/contactCard.vue";
+import WalletCard from "./components/CRM+/clientsComponents/wallet/walletCard.vue";
 import { useDebugStore } from "~/stores/debugStore";
 import { useAuthStore } from "~/stores/authStore";
 import { useAttendantStore } from "./stores/attendantStore";
@@ -42,7 +43,11 @@ import {
 } from "./utils/currencyUtils.js";
 export { useScheduledStore } from "./stores/useScheduledStore";
 export { useAuthStore };
+export { useAttendantStore };
+export { useDepartmentStore };
+export { useInstanceStore };
 export { ContactCard };
+
 export {
   formatCurrency,
   getCurrencySymbol,
@@ -53,7 +58,6 @@ import CallHistory from "./components/chat/CallHistory.vue";
 import CallMessage from "./components/chat/CallMessage.vue";
 import ReminderModal from "./components/CRM+/reminders/reminderModal/reminderModal.vue";
 import { moveReminderToCompleted } from "./components/CRM+/reminders/reminderFunctions.js";
-export { useInstanceStore };
 
 import api, {
   setApiBaseURL,
@@ -97,6 +101,7 @@ function install(Vue) {
   Vue.component("CallMessage", CallMessage);
   Vue.component("ListProducts", ListProducts);
   Vue.component("ContactCard", ContactCard);
+  Vue.component("WalletCard", WalletCard);
   Vue.component("ReminderModal", ReminderModal);
   Vue.component("SoundSelect", SoundSelect);
 }

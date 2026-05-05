@@ -36,6 +36,9 @@ const toggleModal = () => {
     leave-active-class="transition-opacity duration-200 ease-in"
     leave-from-class="opacity-100"
     leave-to-class="opacity-0"
+    enter-active-class="transition-opacity duration-200 ease-out"
+    enter-from-class="opacity-0"
+    enter-to-class="opacity-100"
   >
     <div v-if="isOpen" class="modal_head">
       <div
@@ -105,7 +108,7 @@ const toggleModal = () => {
 <style scoped>
 /* simple_modal CSS  */
 .modal_head {
-  @apply my_modal backdrop-blur-[2px] z-50 fixed w-full h-full top-0 left-0 flex items-center justify-center;
+  @apply my_modal backdrop-blur-[1px] z-50 fixed w-full h-full top-0 left-0 flex items-center justify-center;
 }
 
 .my_modal {

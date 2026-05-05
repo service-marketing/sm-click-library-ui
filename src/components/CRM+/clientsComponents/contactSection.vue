@@ -1,12 +1,12 @@
 <script setup>
 /**
- * 📋 Descrição:
- * Componente que auxilia na seção de contato do formulário de clientes, se ajustando para o mobile.
+ * Componente que auxilia na secao de contato do formulario de clientes.
  */
 
 import ListProducts from "./listProducts.vue";
 import ListSegmentationsFields from "./listSegmentationsFields.vue";
 import ToggleListButtons from "./toggleListButtons.vue";
+import { WalletSection } from "./wallet/index.js";
 import InstagramBadge from "./instagramBadge.vue";
 
 const props = defineProps({
@@ -17,8 +17,21 @@ const props = defineProps({
     type: [String, Number, Boolean, Object],
     default: undefined,
   },
+  currentAttendance: {
+    type: Object,
+    default: () => null,
+  },
+  supervisor: { type: Boolean, default: false },
   isLargeScreen: { type: Boolean, default: true },
   viewContactNumber: { type: Boolean, default: false },
+  contactId: {
+    type: [String, Number],
+    default: "",
+  },
+  contact: {
+    type: Object,
+    default: () => null,
+  },
 });
 
 // --- v-model separados para atualizar o form ---
@@ -35,11 +48,11 @@ const segmentationFields = defineModel("segmentationFields", {
 });
 const products = defineModel("products", { type: Array, default: () => [] });
 
-// Handler para garantir apenas números no telefone
+// Handler para garantir apenas numeros no telefone
 const handleTelephoneInput = (value, phoneObject) => {
   // vue-tel-input pode retornar um objeto ou string
   const phoneValue = phoneObject?.number || value || "";
-  // Remove tudo que não for número, espaço, parênteses ou hífen
+  // Remove tudo que nao for numero, espaco, parenteses ou hifen
   const sanitized = String(phoneValue).replace(/[^\d\s()-]/g, "");
   telephone.value = sanitized;
 };
@@ -154,6 +167,16 @@ const handleTelephoneInput = (value, phoneObject) => {
       v-model="products"
       :allProducts="props.allProducts"
       :departmentBypass="props.departmentBypass"
+    />
+  </div>
+
+  <div v-show="pageState === 'wallet'">
+    <WalletSection
+      :contact-id="props.contactId"
+      :contact="props.contact"
+      :current-attendance="props.currentAttendance"
+      :supervisor="props.supervisor"
+      :page-state="pageState"
     />
   </div>
 </template>

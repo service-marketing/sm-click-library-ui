@@ -76,8 +76,21 @@ const props = defineProps({
     type: String,
     default: "",
   },
+  currentAttendance: {
+    type: Object,
+    default: () => null,
+  },
+  supervisor: {
+    type: Boolean,
+    default: false,
+  },
   // --- Exibe acao de mesclagem no formulario ---
   canMergeContacts: {
+    type: Boolean,
+    default: false,
+  },
+  // --- Habilita funcionalidades de desenvolvimento ---
+  isDev: {
     type: Boolean,
     default: false,
   },
@@ -303,6 +316,14 @@ const toggleButtons = [
     disabled:
       props.form.status === "screening" || props.form.status === "finished",
   },
+  {
+    label: "Carteira",
+    value: "wallet",
+    disabled:
+      !form.id ||
+      props.form.status === "screening" ||
+      props.form.status === "finished",
+  },
 ];
 
 const handlerToggleButtons = computed(() => {
@@ -313,7 +334,9 @@ const handlerToggleButtons = computed(() => {
   if (!props.hasCrmPlus) {
     return [
       contactItem,
-      ...baseList.filter((item) => item.value !== "products"),
+      ...baseList.filter(
+        (item) => item.value !== "products" && item.value !== "wallet",
+      ),
     ];
   }
 
@@ -363,7 +386,8 @@ const handlerToggleButtons = computed(() => {
               </span>
 
               <section class="flex gap-2 items-center">
-                <!-- <Popper
+                <Popper
+                  v-if="isDev"
                   hover
                   :content="mergeFlowTooltipContent"
                   placement="bottom"
@@ -380,7 +404,7 @@ const handlerToggleButtons = computed(() => {
                       Mesclar contatos
                     </button>
                   </div>
-                </Popper> -->
+                </Popper>
 
                 <button
                   class="bg-base-200 p-1.5 rounded-md hover:bg-base-100 transition"
@@ -551,7 +575,11 @@ const handlerToggleButtons = computed(() => {
                     :handlerToggleButtons="handlerToggleButtons"
                     :allProducts="allProducts"
                     :departmentBypass="departmentBypass"
+                    :currentAttendance="currentAttendance"
+                    :supervisor="props.supervisor"
                     :isLargeScreen="isLargeScreen"
+                    :contactId="form.id"
+                    :contact="form"
                     v-model:pageState="pageState"
                     v-model:telephone="form.telephone"
                     v-model:country="form.country"
@@ -570,7 +598,11 @@ const handlerToggleButtons = computed(() => {
                   :handlerToggleButtons="handlerToggleButtons"
                   :allProducts="allProducts"
                   :departmentBypass="departmentBypass"
+                  :currentAttendance="currentAttendance"
+                  :supervisor="props.supervisor"
                   :isLargeScreen="isLargeScreen"
+                  :contactId="form.id"
+                  :contact="form"
                   v-model:pageState="pageState"
                   v-model:telephone="form.telephone"
                   v-model:country="form.country"
@@ -736,8 +768,8 @@ const handlerToggleButtons = computed(() => {
 
 @media (max-width: 639px) {
   .right-column {
-    padding: 0.25rem 0.5rem 0.5rem;
-    border-radius: 0.75rem;
+    padding: 0.25rem 0.1rem 0.5rem;
+    border-radius: 0.9rem;
   }
 }
 
