@@ -53,6 +53,7 @@ export { default as BaseTable } from "~/components/apiTemplate/baseTable.vue";
 export { default as TemplateTable } from "~/components/apiTemplate/templateTable.vue";
 export { default as FileBadgePopper } from "./components/calendar/components/EventItem/FileBadgePopper.vue";
 export { default as WafCaptchaModal } from "./components/waf/WafCaptchaModal.vue";
+export { default as CaptchaModal } from "./components/waf/WafCaptchaModal.vue";
 
 export {
   formatCurrency,
@@ -78,6 +79,11 @@ export {
   useWafProtection,
   setupWafProtection,
 } from "./composables/useWafProtection.js";
+
+export {
+  setupSdkConfig,
+  useCaptchaProtection,
+} from "./composables/recaptcha/useRecaptcha.js";
 
 function install(Vue) {
   Vue.component("primarySelect", primarySelect);

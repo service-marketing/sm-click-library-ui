@@ -1,13 +1,28 @@
 import { ref, computed, readonly } from "vue";
+import { useAwsWafSdk } from "./recaptchaSdks/aws_waf_sdk.js";
+import { useGoogleSdk } from "./recaptchaSdks/google_sdk.js";
 
-// --- Configuração injetável via setupWafProtection() ---
-let _config = {
-  integrationUrl: "",
-  apiKey: "",
+// --- Provider registry ---
+const sdkInitializers = {
+  awswaf: (config) => useAwsWafSdk(config),
+  google: (config) => useGoogleSdk(config),
 };
 
-export function setupWafProtection({ integrationUrl, apiKey }) {
-  _config = { ..._config, integrationUrl, apiKey };
+let _activeProvider = null;
+
+export function setupSdkConfig({ provider, ...config }) {
+  const initSdk = sdkInitializers[provider];
+
+  if (!initSdk) {
+    console.error("Provedor de SDK não suportado:", provider);
+    return;
+  }
+
+  _activeProvider = initSdk(config);
+}
+
+export function getActiveProvider() {
+  return _activeProvider;
 }
 // -------------------------------------------------------
 
@@ -22,21 +37,16 @@ const DELAY_MAP = {
 const MAX_DELAY = 5000;
 // ------------------
 
-// --- Estado singleton ---
-let sdkLoaded = false;
-let sdkLoadPromise = null;
-// ------------------------
-
-// --- Configuração do SDK ---
-export function useWafProtection() {
+// --- Composable multi-provider ---
+export function useCaptchaProtection() {
   const attempts = ref(0);
-  const wafToken = ref("");
+  const captchaToken = ref("");
   const isDelayActive = ref(false);
   const delayRemaining = ref(0);
   const captchaSolved = ref(false);
   const backendRequiresCaptcha = ref(false);
   const isUserBlocked = ref(false);
-  const sdkReady = ref(sdkLoaded);
+  const sdkReady = ref(false);
 
   let delayTimer = null;
 
@@ -44,95 +54,49 @@ export function useWafProtection() {
     return DELAY_MAP[attempts.value] ?? MAX_DELAY;
   });
 
-  const wafEnabled = computed(() => !!_config.integrationUrl);
+  const captchaEnabled = computed(() => !!_activeProvider);
 
   // ---- Mount do SDK ----
   async function loadSdk() {
-    if (sdkLoaded || !_config.integrationUrl) return;
-
-    if (sdkLoadPromise) return sdkLoadPromise;
-
-    sdkLoadPromise = new Promise((resolve) => {
-      const script = document.createElement("script");
-      script.type = "text/javascript";
-      script.src = `${_config.integrationUrl}/jsapi.js`;
-      script.defer = true;
-
-      script.onload = () => {
-        sdkLoaded = true;
-        sdkReady.value = true;
-        resolve();
-      };
-
-      script.onerror = () => {
-        // console.error(
-        //   "[WAF] Falha ao carregar jsapi.js — proteção WAF indisponível",
-        // );
-        sdkLoadPromise = null;
-        resolve();
-      };
-
-      document.head.appendChild(script);
-    });
-
-    return sdkLoadPromise;
+    if (!_activeProvider) return;
+    await _activeProvider.loadSdk();
+    sdkReady.value = _activeProvider.isReady();
   }
 
   // ---- Resgate do token invisível ----
   async function getInvisibleToken() {
-    if (!_config.integrationUrl) return "";
+    if (!_activeProvider) return "";
 
     await loadSdk();
 
-    if (!window.AwsWafIntegration) return "";
-
     try {
-      const token = await Promise.race([
-        window.AwsWafIntegration.getToken(),
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("WAF getToken timeout")), 5000),
-        ),
-      ]);
-      wafToken.value = token;
+      const token = await _activeProvider.getInvisibleToken();
+      captchaToken.value = token;
       return token;
     } catch (error) {
-      console.warn("[WAF] Falha ao obter token invisível:", error);
+      console.warn("[Captcha] Falha ao obter token invisível:", error);
       return "";
     }
   }
 
-  // ---- Mount do componente de CAPTCHA ----
+  // ---- Render do CAPTCHA visível ----
   function renderVisibleCaptcha(containerId) {
     return new Promise((resolve, reject) => {
-      if (!window.AwsWafCaptcha) {
-        // console.warn("[WAF] AwsWafCaptcha não disponível");
+      if (!_activeProvider) {
         captchaSolved.value = true;
         resolve("");
         return;
       }
 
-      const container = document.getElementById(containerId);
-      if (!container) {
-        reject(new Error(`Container #${containerId} não encontrado`));
-        return;
-      }
-
-      container.innerHTML = "";
-
-      window.AwsWafCaptcha.renderCaptcha(container, {
-        apiKey: _config.apiKey,
+      _activeProvider.renderCaptcha(containerId, {
         onSuccess: (token) => {
-          wafToken.value = token;
+          captchaToken.value = token;
           captchaSolved.value = true;
           resolve(token);
         },
         onError: (error) => {
-          // console.error("[WAF] Erro no CAPTCHA:", error);
           reject(error);
         },
-        dynamicWidth: false,
-        disableLanguageSelector: true,
-        skipTitle: true,
       });
     });
   }
@@ -197,7 +161,7 @@ export function useWafProtection() {
   return {
     // Estado
     attempts: readonly(attempts),
-    wafToken: readonly(wafToken),
+    captchaToken: readonly(captchaToken),
     isDelayActive: readonly(isDelayActive),
     delayRemaining: readonly(delayRemaining),
     captchaSolved: readonly(captchaSolved),
@@ -206,7 +170,7 @@ export function useWafProtection() {
 
     // Computeds
     requiredDelay,
-    wafEnabled,
+    captchaEnabled,
 
     // Funções
     loadSdk,

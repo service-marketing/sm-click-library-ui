@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <Transition name="waf-fade">
-      <div v-if="modelValue" class="waf-overlay">
+      <div @click="closeBlocked" v-if="modelValue" class="waf-overlay">
         <div class="waf-modal">
           <!-- Loading -->
           <div v-if="loading" class="waf-loading">
@@ -29,8 +29,15 @@
             </p>
           </span>
 
+          <!-- Label de bloqueio -->
+          <p v-if="isBlocked" class="text-sm text-red-500">
+            Sua conta está temporariamente bloqueada devido a muitas tentativas
+            de login.
+          </p>
+
           <!-- componente CAPTCHA -->
           <div
+            v-else
             ref="captchaContainerRef"
             :id="containerId"
             class="waf-captcha-body"
@@ -48,6 +55,7 @@ import { ref, watch, nextTick, onBeforeUnmount } from "vue";
 const props = defineProps({
   modelValue: { type: Boolean, default: false },
   renderCaptcha: { type: Function, required: true },
+  isBlocked: { type: Boolean, default: false },
   anchorEl: { type: Object, default: null },
 });
 
@@ -61,13 +69,18 @@ const modalPosition = ref({});
 
 let observer = null;
 
+const closeBlocked = () => {
+  if (!props.isBlocked) return;
+  emit("update:modelValue", false);
+};
+
 function calcPosition() {
   if (!props.anchorEl) return;
 
   const el =
     props.anchorEl instanceof HTMLElement
       ? props.anchorEl
-      : (props.anchorEl?.$el ?? props.anchorEl?.value);
+      : props.anchorEl?.$el ?? props.anchorEl?.value;
 
   if (!el || !el.getBoundingClientRect) return;
 
@@ -149,7 +162,7 @@ watch(
       hasError.value = false;
       if (observer) observer.disconnect();
     }
-  },
+  }
 );
 
 onBeforeUnmount(() => {
@@ -177,8 +190,7 @@ onBeforeUnmount(() => {
   padding: 12px;
   background: #ffffff;
   border: 1px solid #374151;
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.45),
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45),
     0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
