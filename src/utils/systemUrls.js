@@ -16,6 +16,9 @@ export const callsUrl = "v1/api/attendances/calls/";
 export const reminders = "v1/api/crm/event/attendant_reminder/";
 export const templateUrl = "v1/api/instances/template/";
 
+export const smsPoolUrl = "v1/api/campaigns/sms-pool/";
+export const smsPoolSendUrl = (chatId) => `v1/api/attendances/message/`;
+
 export const managerChatGroup = (channelId, finalParam = "") => {
   const mapFinalParam = {
     add: "add_attendant/",
