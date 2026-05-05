@@ -75,10 +75,6 @@ import api, {
 
 export { api, setRefreshTokenUrl };
 export { preloadAllGroupChannels };
-export {
-  useWafProtection,
-  setupWafProtection,
-} from "./composables/useWafProtection.js";
 
 export {
   setupSdkConfig,

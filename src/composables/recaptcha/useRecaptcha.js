@@ -2,7 +2,7 @@ import { ref, computed, readonly } from "vue";
 import { useAwsWafSdk } from "./recaptchaSdks/aws_waf_sdk.js";
 import { useGoogleSdk } from "./recaptchaSdks/google_sdk.js";
 
-// --- Provider registry ---
+// --- Registra o provedor que será utilizado no recaptcha ---
 const sdkInitializers = {
   awswaf: (config) => useAwsWafSdk(config),
   google: (config) => useGoogleSdk(config),
@@ -24,7 +24,7 @@ export function setupSdkConfig({ provider, ...config }) {
 export function getActiveProvider() {
   return _activeProvider;
 }
-// -------------------------------------------------------
+// -----------------------------------------------------------
 
 // --- Constantes ---
 const DELAY_MAP = {
@@ -37,7 +37,7 @@ const DELAY_MAP = {
 const MAX_DELAY = 5000;
 // ------------------
 
-// --- Composable multi-provider ---
+// --- SDK do CAPTCHA ---
 export function useCaptchaProtection() {
   const attempts = ref(0);
   const captchaToken = ref("");
