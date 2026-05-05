@@ -128,111 +128,114 @@ const handleRemove = () => {
         </button>
       </div>
     </div>
-
-    <MinModal
-      v-if="confirmRemoveOpen"
-      defineWidth="max-w-sm"
-      @close="closeRemoveConfirm"
-    >
-      <template #header>
-        <div class="wallet-card__modal-header">
-          <div class="wallet-card__modal-icon">
-            <svg
-              class="size-5"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
-                clip-rule="evenodd"
-              />
-            </svg>
-          </div>
-          <p class="wallet-card__modal-title">Remover atendente da carteira</p>
-        </div>
-      </template>
-
-      <template #body>
-        <div class="wallet-card__modal-content bg-base-200 rounded-b-xl">
-          <section class="flex flex-col gap-2 p-2">
-            <div class="wallet-card__modal-message">
-              <p class="wallet-card__modal-text">
-                Você está removendo o responsável por este atendimento neste
-                departamento. Esta ação não pode ser desfeita.
-              </p>
+    <Transition name="fade">
+      <MinModal
+        v-if="confirmRemoveOpen"
+        defineWidth="max-w-sm"
+        @close="closeRemoveConfirm"
+      >
+        <template #header>
+          <div class="wallet-card__modal-header">
+            <div class="wallet-card__modal-icon">
+              <svg
+                class="size-5"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+                  clip-rule="evenodd"
+                />
+              </svg>
             </div>
+            <p class="wallet-card__modal-title">
+              Remover atendente da carteira
+            </p>
+          </div>
+        </template>
 
-            <div class="wallet-card__modal-preview">
-              <p class="wallet-card__modal-preview-label">
-                Informações da remoção:
-              </p>
-
-              <div class="wallet-card__modal-info-group">
-                <div class="wallet-card__modal-info-item">
-                  <span class="wallet-card__modal-info-label"
-                    >Departamento:</span
-                  >
-                  <p
-                    class="wallet-card__modal-info-value"
-                    :title="departmentName"
-                  >
-                    {{ departmentName }}
-                  </p>
-                </div>
+        <template #body>
+          <div class="wallet-card__modal-content bg-base-200 rounded-b-xl">
+            <section class="flex flex-col gap-2 p-2">
+              <div class="wallet-card__modal-message">
+                <p class="wallet-card__modal-text">
+                  Você está removendo o responsável por este atendimento neste
+                  departamento. Esta ação não pode ser desfeita.
+                </p>
               </div>
 
-              <div class="wallet-card__modal-preview-card">
-                <p class="wallet-card__modal-preview-card-label">
-                  Atendente responsável:
+              <div class="wallet-card__modal-preview">
+                <p class="wallet-card__modal-preview-label">
+                  Informações da remoção:
                 </p>
 
-                <div class="wallet-card__modal-preview-main -mt-1">
-                  <div class="wallet-card__modal-avatar">
-                    <PhotoDisplay
-                      v-if="attendantPhoto"
-                      :photo="attendantPhoto"
-                      :tooltip="attendantName"
-                      size="size-12"
-                    />
-                  </div>
-
-                  <div class="wallet-card__modal-info text-start">
-                    <p class="wallet-card__modal-name" :title="attendantName">
-                      {{ attendantName }}
-                    </p>
-                    <p class="wallet-card__modal-role">
-                      Responsável pelo atendimento
+                <div class="wallet-card__modal-info-group">
+                  <div class="wallet-card__modal-info-item">
+                    <span class="wallet-card__modal-info-label"
+                      >Departamento:</span
+                    >
+                    <p
+                      class="wallet-card__modal-info-value"
+                      :title="departmentName"
+                    >
+                      {{ departmentName }}
                     </p>
                   </div>
                 </div>
+
+                <div class="wallet-card__modal-preview-card">
+                  <p class="wallet-card__modal-preview-card-label">
+                    Atendente responsável:
+                  </p>
+
+                  <div class="wallet-card__modal-preview-main -mt-1">
+                    <div class="wallet-card__modal-avatar">
+                      <PhotoDisplay
+                        v-if="attendantPhoto"
+                        :photo="attendantPhoto"
+                        :tooltip="attendantName"
+                        size="size-12"
+                      />
+                    </div>
+
+                    <div class="wallet-card__modal-info text-start">
+                      <p class="wallet-card__modal-name" :title="attendantName">
+                        {{ attendantName }}
+                      </p>
+                      <p class="wallet-card__modal-role">
+                        Responsável pelo atendimento
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
+            </section>
+            <div class="wallet-card__modal-actions bg-base-300 rounded-b-xl">
+              <button
+                class="wallet-card__modal-btn wallet-card__modal-btn--cancel"
+                :disabled="isRemoving"
+                @click="closeRemoveConfirm"
+              >
+                Cancelar
+              </button>
+              <button
+                class="wallet-card__modal-btn wallet-card__modal-btn--danger"
+                :disabled="isRemoving || !canRemove"
+                @click="handleRemove"
+              >
+                <span v-if="!isRemoving">Remover atendente</span>
+                <span v-else>Removendo...</span>
+              </button>
             </div>
-          </section>
-          <div class="wallet-card__modal-actions bg-base-300 rounded-b-xl">
-            <button
-              class="wallet-card__modal-btn wallet-card__modal-btn--cancel"
-              :disabled="isRemoving"
-              @click="closeRemoveConfirm"
-            >
-              Cancelar
-            </button>
-            <button
-              class="wallet-card__modal-btn wallet-card__modal-btn--danger"
-              :disabled="isRemoving || !canRemove"
-              @click="handleRemove"
-            >
-              <span v-if="!isRemoving">Remover atendente</span>
-              <span v-else>Removendo...</span>
-            </button>
           </div>
-        </div>
-      </template>
-    </MinModal>
+        </template>
+      </MinModal>
+    </Transition>
   </article>
 </template>
 

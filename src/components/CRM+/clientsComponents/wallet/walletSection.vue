@@ -99,8 +99,57 @@ const findDepartment = (departmentId) => {
   );
 };
 
+const getCurrentDepartmentId = () => {
+  if (!props.currentAttendance) return null;
+  return (
+    props.currentAttendance?.department_id ||
+    props.currentAttendance?.departmentId ||
+    props.currentAttendance?.department?.id ||
+    null
+  );
+};
+
+/**
+ * Filtra as carteiras baseado no tipo de acesso do usuário
+ * - Gestor: vê todas as carteiras
+ * - Supervisor: vê carteiras dos departamentos onde é supervisor + departamento atual do chat
+ * - Normal: vê apenas a carteira do departamento atual do chat
+ */
+const getVisibleWalletRelations = () => {
+  const allWallets = walletRelations.value;
+
+  // Gestor: vê todas
+  if (isManager.value) {
+    return allWallets;
+  }
+
+  const currentDeptId = getCurrentDepartmentId();
+
+  // Supervisor: vê carteiras dos departamentos onde é supervisor + departamento atual
+  const supervisorDepartmentIds = loggedAttendantDepartments.value
+    .filter((dept) => dept?.permission === "supervisor")
+    .map((dept) => String(dept?.id));
+
+  if (supervisorDepartmentIds.length > 0) {
+    const visibleIds = new Set(supervisorDepartmentIds);
+    if (currentDeptId) visibleIds.add(String(currentDeptId));
+    return allWallets.filter((wallet) =>
+      visibleIds.has(String(wallet?.department_id)),
+    );
+  }
+
+  // Normal: vê apenas do departamento atual
+  if (currentDeptId) {
+    return allWallets.filter(
+      (wallet) => String(wallet?.department_id) === String(currentDeptId),
+    );
+  }
+
+  return [];
+};
+
 const walletItems = computed(() =>
-  walletRelations.value.map((item, index) => {
+  getVisibleWalletRelations().map((item, index) => {
     const attendantId = item?.attendant_id;
     const departmentId = item?.department_id;
 
@@ -176,10 +225,12 @@ const fetchWalletRelations = async ({ force = false } = {}) => {
     walletLoading.value = true;
     walletError.value = "";
 
-    // Garante que as stores estejam carregadas antes de buscar as wallets
-    await ensureStoresLoaded();
+    // Executa stores e wallets em paralelo
+    const [, { data }] = await Promise.all([
+      ensureStoresLoaded(),
+      api.get(contactWalletUrl(contactId)),
+    ]);
 
-    const { data } = await api.get(contactWalletUrl(contactId));
     walletRelations.value = extractWalletList(data);
     walletLoadedContactId.value = contactId;
   } catch (error) {
@@ -300,39 +351,10 @@ const removeFromWallet = async (wallet) => {
   }
 };
 
-onMounted(async () => {
-  // Carrega as stores ao montar o componente
-  await ensureStoresLoaded();
-});
-
-watch(
-  () => props.contactId,
-  (newId, oldId) => {
-    if (newId === oldId) return;
-    walletRelations.value = [];
-    walletError.value = "";
-    walletLoadedContactId.value = null;
-    closeCreateWalletModal();
-    if (props.pageState === "wallet" && newId) {
-      fetchWalletRelations();
-    }
-  },
-);
-
-watch(
-  () => props.pageState,
-  async (pageState) => {
-    if (pageState !== "wallet") return;
-    await ensureStoresLoaded();
-  },
-  { immediate: true },
-);
-
 watch(
   () => [props.pageState, props.contactId],
   async ([newPageState, contactId]) => {
     if (newPageState !== "wallet") return;
-    await ensureStoresLoaded();
     if (!contactId) return;
     fetchWalletRelations();
   },

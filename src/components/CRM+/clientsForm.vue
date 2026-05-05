@@ -315,6 +315,15 @@ const toggleButtons = [
     value: "products",
     disabled:
       props.form.status === "screening" || props.form.status === "finished",
+    get disabledReason() {
+      if (props.form.status === "screening") {
+        return "Este recurso não está disponível para conversas em leads.";
+      }
+      if (props.form.status === "finished") {
+        return "Este recurso não está disponível para conversas finalizadas.";
+      }
+      return undefined;
+    },
   },
   {
     label: "Carteira",
@@ -323,6 +332,18 @@ const toggleButtons = [
       !form.id ||
       props.form.status === "screening" ||
       props.form.status === "finished",
+    get disabledReason() {
+      if (!form.id) {
+        return "Salve o contato para habilitar a carteira.";
+      }
+      if (props.form.status === "screening") {
+        return "Este recurso não está disponível para conversas em leads.";
+      }
+      if (props.form.status === "finished") {
+        return "Este recurso não está disponível para conversas finalizadas.";
+      }
+      return undefined;
+    },
   },
 ];
 
@@ -387,7 +408,6 @@ const handlerToggleButtons = computed(() => {
 
               <section class="flex gap-2 items-center">
                 <Popper
-                  v-if="isDev"
                   hover
                   :content="mergeFlowTooltipContent"
                   placement="bottom"
@@ -566,7 +586,7 @@ const handlerToggleButtons = computed(() => {
                 </div>
 
                 <section
-                  v-show="!isLargeScreen && pageState !== 'contact'"
+                  v-if="!isLargeScreen && pageState !== 'contact'"
                   class="right-column bg-base-300"
                 >
                   <ContactSection

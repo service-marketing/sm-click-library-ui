@@ -1,122 +1,154 @@
 <template>
-  <div class="chat-container" ref="chatContainer">
-    <div
-      @click.stop="toggleChat"
-      v-if="isChatOpen"
-      style="
-        width: 42px;
-        height: 42px;
-        border-radius: 50%;
-        background-color: #02a9db;
-        display: flex;
-        justify-content: center;
-      "
-    >
-      <span
-        style="margin-top: auto; margin-bottom: auto"
-        class="chat-icon my-auto"
+  <div
+    class="chat-container"
+    ref="chatContainer"
+    :class="{ 'mobile-chat-container': isMobile }"
+  >
+    <!-- Mobile -->
+    <template v-if="isMobile">
+      <div class="chat-content mobile-chat-content">
+        <ChatContent
+          ref="chatContentRef"
+          :isMobile="isMobile"
+          :showChatLoading="showChatLoading"
+          :selectedAttendant="selectedAttendant"
+          :currentAttendant="currentAttendant"
+          :isLoadingMessages="loadingMessages"
+          :listAttendants="filteredListAttendants"
+          :listGroups="listGroups"
+          :listAttendancesByGroup="listAttendants"
+          v-model:currentList="currentList"
+          v-model:searchQuery="searchQuery"
+          :sendFilesToAttendant="sendMessageToChannel"
+          :loadMessagesForAtendente="loadMessagesByChannel"
+          :sendMessageToAtendente="sendMessageToChannel"
+          :hasNextPageForAtendente="hasNextPageForChannel"
+          :downloadFilesMobile="downloadFilesMobile"
+          :openMobilePdf="openMobilePdf"
+          @voltar="handleVoltar"
+          @send-files="onSendFiles"
+        >
+          <template #modals>
+            <CreateOrEditModal
+              v-if="showCreateOrEditModal.show"
+              :mode="showCreateOrEditModal.mode"
+              :selectedGroup="showCreateOrEditModal.groupData"
+              :submitGroup="handleCreateGroup"
+              :listAttendances="filteredListAttendants"
+              :errorMap="groupActionErrors"
+              :isCreatingGroup="isSubmittingGroupAction"
+            />
+          </template>
+        </ChatContent>
+      </div>
+    </template>
+
+    <!-- Desktop -->
+    <template v-else>
+      <div
+        @click.stop="toggleChat"
+        v-if="isChatOpen"
+        style="
+          width: 42px;
+          height: 42px;
+          border-radius: 50%;
+          background-color: #02a9db;
+          display: flex;
+          justify-content: center;
+        "
       >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
-          <path
-            fill="currentColor"
-            d="M208 352c114.9 0 208-78.8 208-176S322.9 0 208 0S0 78.8 0 176c0 38.6 14.7 74.3 39.6 103.4c-3.5 9.4-8.7 17.7-14.2 24.7c-4.8 6.2-9.7 11-13.3 14.3c-1.8 1.6-3.3 2.9-4.3 3.7c-.5 .4-.9 .7-1.1 .8l-.2 .2s0 0 0 0s0 0 0 0C1 327.2-1.4 334.4 .8 340.9S9.1 352 16 352c21.8 0 43.8-5.6 62.1-12.5c9.2-3.5 17.8-7.4 25.2-11.4C134.1 343.3 169.8 352 208 352zM448 176c0 112.3-99.1 196.9-216.5 207C255.8 457.4 336.4 512 432 512c38.2 0 73.9-8.7 104.7-23.9c7.5 4 16 7.9 25.2 11.4c18.3 6.9 40.3 12.5 62.1 12.5c6.9 0 13.1-4.5 15.2-11.1c2.1-6.6-.2-13.8-5.8-17.9c0 0 0 0 0 0s0 0 0 0l-.2-.2c-.2-.2-.6-.4-1.1-.8c-1-.8-2.5-2-4.3-3.7c-3.6-3.3-8.5-8.1-13.3-14.3c-5.5-7-10.7-15.4-14.2-24.7c24.9-29 39.6-64.7 39.6-103.4c0-92.8-84.9-168.9-192.6-175.5c.4 5.1 .6 10.3 .6 15.5z"
-          />
-        </svg>
-      </span>
-    </div>
-    <section
-      v-if="!isChatOpen && countMessages > 0"
-      :style="
-        countMessages > 10
-          ? 'padding: 0.2rem 0.500rem;'
-          : 'padding: 0.2rem 0.625rem;'
-      "
-      class="chat-count"
-    >
-      {{ countMessages }}
-    </section>
-    <div
-      @click.stop="handleChatClick"
-      class="group relative"
-      :class="
-        isChatOpen
-          ? 'chat-box border-base-200 open bg-base-200'
-          : 'chat-box closed'
-      "
-      :style="chatBoxStyle"
-    >
-      <!-- Ícone de chat com contador de mensagens não lidas -->
-      <span v-if="!isChatOpen" class="chat-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
-          <path
-            :class="
-              mode === 'dark' ? 'dark-chat-window-icon' : 'chat-window-icon'
-            "
-            fill="currentColor"
-            d="M208 352c114.9 0 208-78.8 208-176S322.9 0 208 0S0 78.8 0 176c0 38.6 14.7 74.3 39.6 103.4c-3.5 9.4-8.7 17.7-14.2 24.7c-4.8 6.2-9.7 11-13.3 14.3c-1.8 1.6-3.3 2.9-4.3 3.7c-.5 .4-.9 .7-1.1 .8l-.2 .2s0 0 0 0s0 0 0 0C1 327.2-1.4 334.4 .8 340.9S9.1 352 16 352c21.8 0 43.8-5.6 62.1-12.5c9.2-3.5 17.8-7.4 25.2-11.4C134.1 343.3 169.8 352 208 352zM448 176c0 112.3-99.1 196.9-216.5 207C255.8 457.4 336.4 512 432 512c38.2 0 73.9-8.7 104.7-23.9c7.5 4 16 7.9 25.2 11.4c18.3 6.9 40.3 12.5 62.1 12.5c6.9 0 13.1-4.5 15.2-11.1c2.1-6.6-.2-13.8-5.8-17.9c0 0 0 0 0 0s0 0 0 0l-.2-.2c-.2-.2-.6-.4-1.1-.8c-1-.8-2.5-2-4.3-3.7c-3.6-3.3-8.5-8.1-13.3-14.3c-5.5-7-10.7-15.4-14.2-24.7c24.9-29 39.6-64.7 39.6-103.4c0-92.8-84.9-168.9-192.6-175.5c.4 5.1 .6 10.3 .6 15.5z"
-          />
-        </svg>
-        <!-- Exibe o número de mensagens não lidas -->
-        <span v-if="unreadMessagesCount > 0" class="unread-count">{{
-          unreadMessagesCount
-        }}</span>
-        <div class="chat-tooltip">
-          <div class="text-sm my-auto text-center">Chat interno</div>
-        </div>
-      </span>
+        <span
+          style="margin-top: auto; margin-bottom: auto"
+          class="chat-icon my-auto"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
+            <path
+              fill="currentColor"
+              d="M208 352c114.9 0 208-78.8 208-176S322.9 0 208 0S0 78.8 0 176c0 38.6 14.7 74.3 39.6 103.4c-3.5 9.4-8.7 17.7-14.2 24.7c-4.8 6.2-9.7 11-13.3 14.3c-1.8 1.6-3.3 2.9-4.3 3.7c-.5 .4-.9 .7-1.1 .8l-.2 .2s0 0 0 0s0 0 0 0C1 327.2-1.4 334.4 .8 340.9S9.1 352 16 352c21.8 0 43.8-5.6 62.1-12.5c9.2-3.5 17.8-7.4 25.2-11.4C134.1 343.3 169.8 352 208 352zM448 176c0 112.3-99.1 196.9-216.5 207C255.8 457.4 336.4 512 432 512c38.2 0 73.9-8.7 104.7-23.9c7.5 4 16 7.9 25.2 11.4c18.3 6.9 40.3 12.5 62.1 12.5c6.9 0 13.1-4.5 15.2-11.1c2.1-6.6-.2-13.8-5.8-17.9c0 0 0 0 0 0s0 0 0 0l-.2-.2c-.2-.2-.6-.4-1.1-.8c-1-.8-2.5-2-4.3-3.7c-3.6-3.3-8.5-8.1-13.3-14.3c-5.5-7-10.7-15.4-14.2-24.7c24.9-29 39.6-64.7 39.6-103.4c0-92.8-84.9-168.9-192.6-175.5c.4 5.1 .6 10.3 .6 15.5z"
+            />
+          </svg>
+        </span>
+      </div>
 
-      <transition name="fade">
-        <div v-if="isChatOpen && !isClosing" class="chat-content">
-          <button @click.stop="toggleChat" class="close-button">
-            <svg
-              class="w-5 h-5"
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L17.94 6M18 18L6.06 6"
-              />
-            </svg>
-          </button>
-          <loading v-if="loadingMessages || loadingAttendants" />
-          <div v-else-if="selectedAtendente && !loadingMessages" class="h-full">
-            <DropFilesArea
-              ref="dropFilesRef"
-              :attendant="attendant"
-              :selectedAttendant="selectedAtendente"
-              :sendFilesToAttendant="sendMessageToChannel"
-            >
-              <ChatMessages
-                :isMobile="false"
-                :isLoadingMessages="loadingMessages"
-                @send-files="onSendFiles"
-                :attendant="attendant"
-                :selectedAtendente="selectedAtendente"
-                @voltar="handleVoltar"
-                :loadMessagesForAtendente="loadMessagesByChannel"
-                :sendMessageToAtendente="sendMessageToChannel"
-                :hasNextPageForAtendente="hasNextPageForChannel"
-              />
-            </DropFilesArea>
+      <section
+        v-if="!isChatOpen && countTotalUnreadMessages > 0"
+        :style="
+          countTotalUnreadMessages > 10
+            ? 'padding: 0.2rem 0.500rem;'
+            : 'padding: 0.2rem 0.625rem;'
+        "
+        class="chat-count flex flex-col"
+      >
+        {{ countTotalUnreadMessages }}
+      </section>
+
+      <div
+        @click.stop="handleChatClick"
+        class="group relative"
+        :class="
+          isChatOpen
+            ? 'chat-box border-base-200 open bg-base-200'
+            : 'chat-box closed'
+        "
+        :style="chatBoxStyle"
+      >
+        <span v-if="!isChatOpen" class="chat-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
+            <path
+              :class="
+                mode === 'dark' ? 'dark-chat-window-icon' : 'chat-window-icon'
+              "
+              fill="currentColor"
+              d="M208 352c114.9 0 208-78.8 208-176S322.9 0 208 0S0 78.8 0 176c0 38.6 14.7 74.3 39.6 103.4c-3.5 9.4-8.7 17.7-14.2 24.7c-4.8 6.2-9.7 11-13.3 14.3c-1.8 1.6-3.3 2.9-4.3 3.7c-.5 .4-.9 .7-1.1 .8l-.2 .2s0 0 0 0s0 0 0 0C1 327.2-1.4 334.4 .8 340.9S9.1 352 16 352c21.8 0 43.8-5.6 62.1-12.5c9.2-3.5 17.8-7.4 25.2-11.4C134.1 343.3 169.8 352 208 352zM448 176c0 112.3-99.1 196.9-216.5 207C255.8 457.4 336.4 512 432 512c38.2 0 73.9-8.7 104.7-23.9c7.5 4 16 7.9 25.2 11.4c18.3 6.9 40.3 12.5 62.1 12.5c6.9 0 13.1-4.5 15.2-11.1c2.1-6.6-.2-13.8-5.8-17.9c0 0 0 0 0 0s0 0 0 0l-.2-.2c-.2-.2-.6-.4-1.1-.8c-1-.8-2.5-2-4.3-3.7c-3.6-3.3-8.5-8.1-13.3-14.3c-5.5-7-10.7-15.4-14.2-24.7c24.9-29 39.6-64.7 39.6-103.4c0-92.8-84.9-168.9-192.6-175.5c.4 5.1 .6 10.3 .6 15.5z"
+            />
+          </svg>
+          <span v-if="unreadMessagesCount > 0" class="unread-count">{{
+            unreadMessagesCount
+          }}</span>
+          <div class="chat-tooltip">
+            <div class="text-sm my-auto text-center">Chat interno</div>
           </div>
+        </span>
 
-          <ChatList
-            v-if="!selectedAtendente && !loadingAttendants"
-            v-model:currentList="currentList"
-            :attendant="attendant"
-            :atendentes="attendants"
-            @atendenteSelecionado="selecionarAtendente"
-          />
-        </div>
-      </transition>
-    </div>
+        <transition name="fade">
+          <div v-if="isChatOpen && !isClosing" class="chat-content">
+            <ChatContent
+              ref="chatContentRef"
+              :isMobile="isMobile"
+              :showChatLoading="showChatLoading"
+              :selectedAttendant="selectedAttendant"
+              :currentAttendant="currentAttendant"
+              :isLoadingMessages="loadingMessages"
+              :listAttendants="filteredListAttendants"
+              :listGroups="listGroups"
+              :listAttendancesByGroup="listAttendants"
+              v-model:currentList="currentList"
+              v-model:searchQuery="searchQuery"
+              :sendFilesToAttendant="sendMessageToChannel"
+              :loadMessagesForAtendente="loadMessagesByChannel"
+              :sendMessageToAtendente="sendMessageToChannel"
+              :hasNextPageForAtendente="hasNextPageForChannel"
+              :downloadFilesMobile="downloadFilesMobile"
+              :openMobilePdf="openMobilePdf"
+              @voltar="handleVoltar"
+              @send-files="onSendFiles"
+            >
+              <template #modals>
+                <CreateOrEditModal
+                  v-if="showCreateOrEditModal.show"
+                  :mode="showCreateOrEditModal.mode"
+                  :selectedGroup="showCreateOrEditModal.groupData"
+                  :submitGroup="handleCreateGroup"
+                  :listAttendances="filteredListAttendants"
+                  :errorMap="groupActionErrors"
+                  :isCreatingGroup="isSubmittingGroupAction"
+                />
+              </template>
+            </ChatContent>
+          </div>
+        </transition>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -126,24 +158,21 @@ import {
   onMounted,
   computed,
   watch,
-  nextTick,
   onBeforeUnmount,
+  provide,
+  reactive,
+  toRef,
 } from "vue";
-import { useChat } from "./useChat"; // Importe o composable
-import { useChannelStore } from "~/stores/channelStore";
-import ChatList from "./ChatList.vue";
-import ChatMessages from "./ChatMessages.vue";
-import loading from "./loading.vue";
-import DropFilesArea from "./dropFilesArea.vue";
+import ChatContent from "./ChatContent.vue";
 import { notify } from "notiwind";
 
 const props = defineProps({
-  attendant: {
+  currentAttendant: {
     default: {
       id: "dea5c13f-4464-4cc6-8653-8c8524acdd3b",
       name: "Joao Pedro Souto Santos",
       photo:
-        "https://sm-click.s3.us-east-1.amazonaws.com/clients/624dfe23-92d0-43f1-8061-a2321f2b5ebb/attendants/dea5c13f-4464-4cc6-8653-8c8524acdd3b.png",
+        "https://sm-click.s3.us-east-1.amazonaws.com/clients/624dfe23-92d0-43f1-8061-a2321f2b5ebb/listAttendants/dea5c13f-4464-4cc6-8653-8c8524acdd3b.png",
     },
   },
   socketMessage: {
@@ -154,7 +183,7 @@ const props = defineProps({
         id: "dea5c13f-4464-4cc6-8653-8c8524acdd3b",
         name: "Joao Pedro Souto Santos",
         photo:
-          "https://sm-click.s3.us-east-1.amazonaws.com/clients/624dfe23-92d0-43f1-8061-a2321f2b5ebb/attendants/dea5c13f-4464-4cc6-8653-8c8524acdd3b.png",
+          "https://sm-click.s3.us-east-1.amazonaws.com/clients/624dfe23-92d0-43f1-8061-a2321f2b5ebb/listAttendants/dea5c13f-4464-4cc6-8653-8c8524acdd3b.png",
       },
       content: {
         type: "text",
@@ -163,47 +192,215 @@ const props = defineProps({
       created_at: "2024-09-17T09:45:19.286087Z",
     },
   },
-  countMessages: {
-    type: Number,
-    default: null,
-  },
   mode: { type: String, default: "dark" },
+  isMobile: { type: Boolean, default: false },
+  downloadFilesMobile: { type: Function },
+  openMobilePdf: { type: Function },
 });
 
+// --- Seção que controla o estado da lista de chats ---
+const currentList = ref("atendentes");
+const searchQuery = ref("");
+const lastSelectedList = ref("atendentes");
+const isChatOpen = ref(false);
+const selectedAttendant = ref(null);
+const chatContainer = ref(null);
+const chatContentRef = ref(null);
+const isSubmittingGroupAction = ref(false);
+const groupActionErrors = ref([]);
+// -----------------------------------------------------
+
+// --- importes das funções de controle geral do chat interno ---
+import { useChat } from "./useChat";
+
 const {
-  attendants,
+  showCreateOrEditModal, //Ref que controla a exibição do modal de criação/edição de grupos
+  openCreateOrEdit, // função para abrir o modal de criação/edição de grupos
+  closeCreateOrEdit, // função para fechar o modal de criação/edição de grupos,
+  listGroups, // Ref que contém a lista de grupos do chat interno
+  listAttendants,
   loadingMessages,
+  loadingAttendants,
+  loadingGroupList,
+  createGroup,
+  fetchGroupChannels,
   fetchMessagesByChannel,
   addMessageToChannel,
   addGroupParticipant,
+  leaveGroup,
+  removeGroupParticipant,
   hasNextPageForChannel,
   sendMessageToChannel,
   loadMessagesByChannel,
   resetUnreadMessages,
-  loadingAttendants,
   findEntityByChannelId,
+  syncGroupFromSocketEvent,
+  refreshAttendantsOnListOpen,
 } = useChat();
+// --------------------------------------------------------------
 
-const channelStore = useChannelStore();
+// --- Função para abrir os chats e mudar para o <chatMessage /> ---
+const selectChatToOpen = async (atendente) => {
+  const channelId = atendente.internal_chat?.channel_id || atendente.id;
 
-const isChatOpen = ref(false);
-const showContent = ref(false);
-const selectedAtendente = ref(null);
-const currentList = ref("atendentes");
-const lastSelectedList = ref("atendentes");
-const chatContainer = ref(null); // Ref para o contêiner do chat
-const emit = defineEmits(["unreadMessagesEmit"]);
-const dropFilesRef = ref(null);
+  if (!channelId) {
+    console.error("Canal sem channel_id:", atendente);
+    return;
+  }
+
+  // Garante que, ao sair do chat, o usuário volte para a lista correta.
+  lastSelectedList.value = atendente?.is_group ? "grupos" : "atendentes";
+  currentList.value = lastSelectedList.value;
+
+  selectedAttendant.value = atendente;
+  resetUnreadMessages(channelId);
+
+  // Verifica se precisa buscar mensagens baseado no tipo de entidade
+  const hasMessages = atendente.is_group
+    ? atendente.chat_info?.messages?.length > 0
+    : atendente.messages?.length > 0;
+
+  if (!hasMessages) {
+    await fetchMessagesByChannel(channelId);
+  }
+};
+
+async function handleVoltar() {
+  // Ao sair do chat, volta para a lista correspondente ao último chat selecionado.
+  await refreshAttendantsOnListOpen();
+  currentList.value = lastSelectedList.value;
+  selectedAttendant.value = null;
+}
+
+function closeSelectedChat() {
+  handleVoltar();
+}
+
+// --- Seção que passa o provide de funções e dados para os componentes filhos ---
+const exportUseChatToChildren = reactive({
+  openCreateOrEdit,
+  closeCreateOrEdit,
+  fetchGroupChannels,
+  selectChatToOpen,
+  leaveGroup,
+  removeGroupParticipant,
+  handleVoltar,
+  closeSelectedChat,
+});
+
+provide("useChat", exportUseChatToChildren);
+provide("currentTheme", toRef(props, "mode"));
+// -------------------------------------------------------------------------------
+
+// --- Seção que controla o modal de criação/edição de grupos ---
+import CreateOrEditModal from "./components/createOrEditModal.vue";
+
+const filteredListAttendants = computed(() => {
+  const currentAttendantId = props.currentAttendant?.id;
+
+  const listAttendantsList = Array.isArray(listAttendants.value)
+    ? listAttendants.value
+    : [];
+
+  const listAttendantsExcludingCurrent = listAttendantsList.filter(
+    (att) => att.id !== currentAttendantId,
+  );
+
+  return listAttendantsExcludingCurrent || [];
+});
+
+const normalizeGroupActionErrors = (error) => {
+  const responseData = error?.response?.data;
+
+  if (!responseData) {
+    return [
+      {
+        key: "erro",
+        message: "Nao foi possivel concluir a acao do grupo.",
+      },
+    ];
+  }
+
+  if (typeof responseData === "string") {
+    return [{ key: "erro", message: responseData }];
+  }
+
+  if (Array.isArray(responseData)) {
+    return responseData.map((message, index) => ({
+      key: `erro-${index + 1}`,
+      message: String(message),
+    }));
+  }
+
+  return Object.entries(responseData).flatMap(([key, value]) => {
+    const messages = Array.isArray(value) ? value : [value];
+
+    return messages.map((message, index) => ({
+      key: `${key}-${index + 1}`,
+      message: String(message),
+    }));
+  });
+};
+
+const handleCreateGroup = async (payload, mode) => {
+  groupActionErrors.value = [];
+  isSubmittingGroupAction.value = true;
+
+  try {
+    const hasSavedGroup = await createGroup(payload, mode);
+    return Boolean(hasSavedGroup);
+  } catch (error) {
+    groupActionErrors.value = normalizeGroupActionErrors(error);
+    return false;
+  } finally {
+    isSubmittingGroupAction.value = false;
+  }
+};
+// --------------------------------------------------------------
+
+watch(
+  () => showCreateOrEditModal.value.show,
+  (isOpen) => {
+    if (isOpen) {
+      groupActionErrors.value = [];
+      return;
+    }
+
+    groupActionErrors.value = [];
+    isSubmittingGroupAction.value = false;
+  },
+);
+
+// --- Seção que lista o total de mensagens não lidas ---
+const countTotalUnreadMessages = computed(() => {
+  const attendantsUnread = listAttendants.value.reduce((total, att) => {
+    return total + (att.internal_chat?.unread || 0);
+  }, 0);
+
+  const groupsUnread = listGroups.value.reduce((total, group) => {
+    return total + (group.internal_chat?.unread || 0);
+  }, 0);
+
+  return attendantsUnread + groupsUnread;
+});
+// ------------------------------------------------------
 
 const onSendFiles = () => {
-  dropFilesRef.value?.chooseFiles();
+  chatContentRef.value?.chooseFiles();
 };
+
+const isChatVisible = computed(() => props.isMobile || isChatOpen.value);
+
+const showChatLoading = computed(
+  () =>
+    loadingMessages.value || loadingGroupList.value || loadingAttendants.value,
+);
 
 // Computed property para obter o número de mensagens não lidas
 const unreadMessagesCount = computed(() => {
-  if (selectedAtendente.value) {
-    const atendente = attendants.value.find(
-      (att) => att.id === selectedAtendente.value.id,
+  if (selectedAttendant.value) {
+    const atendente = listAttendants.value.find(
+      (att) => att.id === selectedAttendant.value.id,
     );
     return atendente ? atendente.internal_chat.unread : 0;
   }
@@ -211,6 +408,8 @@ const unreadMessagesCount = computed(() => {
 });
 
 const handleClickOutside = (event) => {
+  if (props.isMobile) return;
+
   // Se o clique foi fora do chatContainer, fecha o chat
   const clickedInsideChat = chatContainer.value?.contains(event.target);
   const clickedInsideFancybox = event.target.closest(".fancybox__container");
@@ -218,19 +417,22 @@ const handleClickOutside = (event) => {
   if (!clickedInsideChat && !clickedInsideFancybox) {
     if (isChatOpen.value) toggleChat();
   }
+
+  if (showCreateOrEditModal.value && typeof closeCreateOrEdit === "function") {
+    closeCreateOrEdit();
+  }
 };
 
 onMounted(() => {
-  document.addEventListener("click", handleClickOutside);
-
-  // Busca os grupos ao inicializar a página
-  if (!channelStore.loaded) {
-    channelStore.fetchChannel("group");
+  if (!props.isMobile) {
+    document.addEventListener("click", handleClickOutside);
   }
 });
 
 onBeforeUnmount(() => {
-  document.removeEventListener("click", handleClickOutside);
+  if (!props.isMobile) {
+    document.removeEventListener("click", handleClickOutside);
+  }
 });
 
 const isAnimating = ref(false); // Controla a animação de abertura/fechamento
@@ -262,6 +464,8 @@ const chatBoxStyle = computed(() => {
 });
 
 const toggleChat = () => {
+  if (props.isMobile) return;
+
   if (isChatOpen.value) {
     // Inicia o processo de fechamento
     isClosing.value = true;
@@ -280,42 +484,42 @@ const toggleChat = () => {
 };
 
 const handleChatClick = () => {
-  if (!isChatOpen.value) toggleChat();
+  if (props.isMobile) return;
+  if (!isChatOpen.value) {
+    toggleChat();
+    void refreshAttendantsOnListOpen();
+  }
 };
 
-const handleVoltar = () => {
-  // Ao sair do chat, volta para a lista correspondente ao último chat selecionado.
-  currentList.value = lastSelectedList.value;
-  selectedAtendente.value = null;
+const getSocketGroupChannelId = (message) => {
+  if (message?.internal_chat?.channel_id) {
+    return message.internal_chat.channel_id;
+  }
+
+  if (message?.channel_id?.channel_id) {
+    return message.channel_id.channel_id;
+  }
+
+  if (typeof message?.channel_id === "string") {
+    return message.channel_id;
+  }
+
+  if (message?.group_info?.internal_chat?.channel_id) {
+    return message.group_info.internal_chat.channel_id;
+  }
+
+  return null;
 };
 
-const selecionarAtendente = async (atendente) => {
-  const channelId = atendente.internal_chat?.channel_id || atendente.id;
+const getSocketParticipantIds = (message) => {
+  const attendants = message?.content?.body?.attendant;
+  if (!Array.isArray(attendants)) return [];
 
-  if (!channelId) {
-    console.error("Canal sem channel_id:", atendente);
-    return;
-  }
-
-  const entity = findEntityByChannelId(channelId);
-  const attendantCount = entity ? entity.internal_chat?.unread : 0;
-  emit("unreadMessagesEmit", attendantCount);
-
-  // Garante que, ao sair do chat, o usuário volte para a lista correta.
-  lastSelectedList.value = atendente?.is_group ? "grupos" : "atendentes";
-  currentList.value = lastSelectedList.value;
-
-  selectedAtendente.value = atendente;
-  resetUnreadMessages(channelId);
-
-  // Verifica se precisa buscar mensagens baseado no tipo de entidade
-  const hasMessages = atendente.is_group
-    ? atendente.chat_info?.messages?.length > 0
-    : atendente.messages?.length > 0;
-
-  if (!hasMessages) {
-    await fetchMessagesByChannel(channelId);
-  }
+  return attendants
+    .map((attendant) =>
+      typeof attendant === "string" ? attendant : attendant?.id,
+    )
+    .filter(Boolean);
 };
 
 watch(
@@ -327,23 +531,37 @@ watch(
       if (event === "new-chat-internal-message") {
         addMessageToChannel(
           newVal,
-          isChatOpen.value,
-          selectedAtendente.value?.internal_chat?.channel_id,
+          isChatVisible.value,
+          selectedAttendant.value?.internal_chat?.channel_id,
         );
       } else if (event === "new-chat-internal-group") {
-        addGroupParticipant(newVal);
+        const message = newVal?.message;
+        const action =
+          message?.content?.type === "system"
+            ? message.content?.body?.action
+            : null;
+        const socketChannelId = getSocketGroupChannelId(message);
+        const selectedChannelId =
+          selectedAttendant.value?.internal_chat?.channel_id ||
+          selectedAttendant.value?.id;
+        const removedParticipantIds = getSocketParticipantIds(message);
+        const wasCurrentAttendantRemoved =
+          (action === "remove-participant" || action === "leave-group") &&
+          removedParticipantIds.includes(props.currentAttendant?.id);
+
+        syncGroupFromSocketEvent(newVal);
+
+        if (
+          wasCurrentAttendantRemoved &&
+          socketChannelId &&
+          selectedChannelId === socketChannelId
+        ) {
+          handleVoltar();
+        }
       }
     }
   },
 );
-
-watch(isChatOpen, (newVal) => {
-  if (newVal) {
-    setTimeout(() => {
-      showContent.value = true;
-    }, 400);
-  }
-});
 
 let loadingToastOpen = false;
 watch(
@@ -373,6 +591,14 @@ watch(
 /* Posicionamento fixo do chat no canto inferior direito */
 .chat-container {
   position: relative;
+}
+
+.mobile-chat-container {
+  height: 100%;
+}
+
+.mobile-chat-content {
+  height: 100%;
 }
 
 /* Animação de transição ao abrir e fechar o chat */

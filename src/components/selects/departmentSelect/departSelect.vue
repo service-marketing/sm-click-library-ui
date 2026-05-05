@@ -266,7 +266,7 @@ function selectDepartment(department) {
     departmentSelected.value.push(department);
   }
   emit("depart", departmentSelected.value);
-  
+
   // Fechar dropdown em single select
   if (!props.multiSelect) open_select.value = false;
 }

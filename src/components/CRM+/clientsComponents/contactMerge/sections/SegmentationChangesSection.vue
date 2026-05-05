@@ -18,13 +18,41 @@ const showSegmentationChanges = ref(false);
 
 const normalizeText = (value) => (value ?? "").toString().trim();
 
-const formatSegmentationValue = (field) => {
+const isEmptySegmentationValue = (value) =>
+  value === null || value === undefined || normalizeText(value) === "";
+
+const normalizeSegmentationComparableValue = (field) => {
+  if (!field) return "";
+
   if (field.type === "bool") {
-    const value =
-      typeof field.content === "string"
-        ? field.content.toLowerCase() === "true"
-        : field.content;
-    return value ? "Verdadeiro" : "Falso";
+    if (typeof field.content === "boolean") {
+      return field.content ? "true" : "false";
+    }
+
+    const normalized = normalizeText(field.content).toLowerCase();
+    if (!normalized) return "";
+
+    return normalized === "true" ? "true" : "false";
+  }
+
+  if (field.type === "list") {
+    if (Array.isArray(field.content)) {
+      return field.content.map((item) => normalizeText(item)).join("|");
+    }
+  }
+
+  return normalizeText(field.content);
+};
+
+const formatSegmentationValue = (field) => {
+  if (isEmptySegmentationValue(field?.content)) {
+    return "—";
+  }
+
+  if (field.type === "bool") {
+    return normalizeSegmentationComparableValue(field) === "true"
+      ? "Verdadeiro"
+      : "Falso";
   }
   if (field.type === "list") {
     return field.content;
@@ -46,27 +74,28 @@ const segmentationComparison = computed(() => {
     const parentField = parentMap.get(fieldId);
     const childField = childMap.get(fieldId);
 
-    const parentContent = normalizeText(parentField?.content);
-    const childContent = normalizeText(childField?.content);
+    const parentComparable = normalizeSegmentationComparableValue(parentField);
+    const childComparable = normalizeSegmentationComparableValue(childField);
+    const parentHasValue = !isEmptySegmentationValue(parentField?.content);
+    const childHasValue = !isEmptySegmentationValue(childField?.content);
 
-    if (parentContent !== childContent && (parentContent || childContent)) {
-      const finalContent = parentContent || childContent;
-      const finalField = parentField || childField;
-      const incorporatedFromChild = !parentContent && childContent;
+    if (
+      parentComparable !== childComparable &&
+      (parentHasValue || childHasValue)
+    ) {
+      const finalField =
+        parentHasValue || !childHasValue ? parentField : childField;
+      const incorporatedFromChild = !parentHasValue && childHasValue;
 
-      const finalValue = formatSegmentationValue({
-        ...finalField,
-        content: finalContent,
-      });
-      const discardedContent = incorporatedFromChild
-        ? parentContent
-        : childContent;
-      const discardedValue = discardedContent
-        ? formatSegmentationValue({
-            ...finalField,
-            content: discardedContent,
-          })
-        : null;
+      const finalValue = formatSegmentationValue(finalField);
+      const discardedField = incorporatedFromChild ? parentField : childField;
+      const discardedValue =
+        discardedField &&
+        !isEmptySegmentationValue(discardedField.content) &&
+        normalizeSegmentationComparableValue(discardedField) !==
+          normalizeSegmentationComparableValue(finalField)
+          ? formatSegmentationValue(discardedField)
+          : null;
 
       fieldChanges.push({
         id: finalField.id,

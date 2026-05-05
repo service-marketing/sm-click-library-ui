@@ -1,3 +1,6 @@
+import "~/styles/tailwind.css";
+import baseTable from "~/components/apiTemplate/baseTable.vue";
+import templateTable from "~/components/apiTemplate/templateTable.vue";
 import primarySelect from "~/components/selects/primary_select/primary_select.vue";
 import simpleModal from "~/components/modals/simple_modal/simple_modal.vue";
 import simpleCard from "~/components/cards/simple_card/simple_card.vue";
@@ -7,7 +10,6 @@ import calendar from "./components/calendar/scheduledCalendar.vue";
 import MFA from "./components/mfa/mfa.vue";
 import MfaQrCode from "./components/mfa/MfaQrCode.vue";
 import chatWindow from "./components/intern-chat/chatWindow.vue";
-import MobileInternalChat from "./components/intern-chat/mobileChatWindow.vue";
 import departSelect from "./components/selects/departmentSelect/departSelect.vue";
 import attendantSelect from "./components/selects/attendantSelect/attendantSelect.vue";
 import FilterSelectLib from "./components/selects/filterSelect/filterSelect.vue";
@@ -47,6 +49,11 @@ export { useAttendantStore };
 export { useDepartmentStore };
 export { useInstanceStore };
 export { ContactCard };
+export { default as BaseTable } from "~/components/apiTemplate/baseTable.vue";
+export { default as TemplateTable } from "~/components/apiTemplate/templateTable.vue";
+export { default as FileBadgePopper } from "./components/calendar/components/EventItem/FileBadgePopper.vue";
+export { default as WafCaptchaModal } from "./components/waf/WafCaptchaModal.vue";
+export { default as CaptchaModal } from "./components/waf/WafCaptchaModal.vue";
 
 export {
   formatCurrency,
@@ -58,6 +65,7 @@ import CallHistory from "./components/chat/CallHistory.vue";
 import CallMessage from "./components/chat/CallMessage.vue";
 import ReminderModal from "./components/CRM+/reminders/reminderModal/reminderModal.vue";
 import { moveReminderToCompleted } from "./components/CRM+/reminders/reminderFunctions.js";
+import { preloadAllGroupChannels } from "./components/intern-chat/useChat";
 
 import api, {
   setApiBaseURL,
@@ -66,6 +74,16 @@ import api, {
 } from "~/utils/api";
 
 export { api, setRefreshTokenUrl };
+export { preloadAllGroupChannels };
+export {
+  useWafProtection,
+  setupWafProtection,
+} from "./composables/useWafProtection.js";
+
+export {
+  setupSdkConfig,
+  useCaptchaProtection,
+} from "./composables/recaptcha/useRecaptcha.js";
 
 function install(Vue) {
   Vue.component("primarySelect", primarySelect);
@@ -79,7 +97,6 @@ function install(Vue) {
   Vue.component("MfaQrCode", MfaQrCode);
   Vue.component("chatWindow", chatWindow);
   Vue.component("FilterSelectLib", FilterSelectLib);
-  Vue.component("MobileInternalChat", MobileInternalChat);
   Vue.component("RandomAvatar", RandomAvatar);
   Vue.component("MinModal", MinModal);
   Vue.component("LibPatchNotes", libPatchNotes);
@@ -104,6 +121,8 @@ function install(Vue) {
   Vue.component("WalletCard", WalletCard);
   Vue.component("ReminderModal", ReminderModal);
   Vue.component("SoundSelect", SoundSelect);
+  Vue.component("BaseTable", baseTable);
+  Vue.component("TemplateTable", templateTable);
 }
 
 export function attLibDeparts(department, action = "add") {
@@ -237,7 +256,6 @@ export default {
   departSelect,
   attendantSelect,
   FilterSelectLib,
-  MobileInternalChat,
   RandomAvatar,
   MinModal,
   libPatchNotes,

@@ -7,7 +7,7 @@
       :class="['send-audio-button', { recording: recording }]"
       v-if="!recording && !base64Audio"
       :disabled="recording || !canSendMessage"
-      @click="(startRecording(), (pausedTime = 0), (canceled = false))"
+      @click="startRecording(), (pausedTime = 0), (canceled = false)"
     >
       <svg
         class="start-recording-icon"
@@ -287,7 +287,7 @@ const sendAudio = async () => {
     props.selectedAttendant?.internal_chat?.channel_id,
     payload,
     props.attendant,
-    true,
+    true
   );
 
   emit("recording", false);
@@ -371,12 +371,12 @@ const resetAudio = async () => {
 }
 
 .send-audio-button {
-  position: absolute;
-  right: 0.5rem;
-  top: 0.65rem;
+  /* position: absolute; */
+  /* right: 0.5rem; */
+  /* top: 0.65rem; */
   background-color: #3b82f6;
   color: white;
-  padding: 0.3rem 0.7rem;
+  padding: 0.4rem;
   border-radius: 9999px;
   cursor: pointer;
   transition: background-color 0.3s ease;

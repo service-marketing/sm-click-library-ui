@@ -2,7 +2,7 @@
   <transition name="bounce">
     <div
       v-if="isRecording"
-      class="bg-base-300 absolute bottom-14 left-0 z-50 flex w-full items-center justify-between rounded-t-2xl p-3"
+      class="bg-base-300 absolute bottom-12 left-0 z-50 flex w-full items-center justify-between rounded-t-2xl p-3"
     >
       <div class="flex h-11 items-center">
         <section v-if="isRecording != 'paused'">Gravando</section>
@@ -50,7 +50,7 @@
 
     <button
       v-if="!isRecording"
-      class="rounded-full bg-primary p-2 send-audio-button"
+      class="rounded-full bg-primary send-audio-button"
       :disabled="disableBtn"
       @click="startRecorder()"
     >
@@ -218,7 +218,7 @@ const startRecorder = async () => {
         title: "Erro",
         text: "Permissões de microfone desativadas, ajuste nas configurações do dispositivo",
       },
-      4000,
+      4000
     );
   }
 };
@@ -371,7 +371,7 @@ const sendAudio = async () => {
       props.selectedAttendant.internal_chat.channel_id,
       payload,
       props.attendant,
-      true,
+      true
     );
     resetAudio();
   } catch (error) {
@@ -383,7 +383,7 @@ const sendAudio = async () => {
         title: "Erro",
         text: "Erro ao enviar áudio, tente novamente.",
       },
-      4000,
+      4000
     );
     return;
   }
@@ -392,13 +392,13 @@ const sendAudio = async () => {
 
 <style scoped>
 .send-audio-button {
-  position: absolute;
+  /* position: absolute;
   right: 0.5rem;
-  top: 0.65rem;
+  top: 0.65rem; */
   /* top: 3rem; */
   background-color: #3b82f6;
   color: white;
-  padding: 0.3rem 0.7rem;
+  padding: 0.4rem;
   border-radius: 9999px;
   cursor: pointer;
   transition: background-color 0.3s ease;

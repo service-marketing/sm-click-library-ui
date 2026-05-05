@@ -175,23 +175,22 @@ describe("WalletSection", () => {
     vi.spyOn(api, "get").mockResolvedValue({
       data: {
         wallet: [
-          { attendant_id: 1, department_id: 10 },
-          { attendant_id: 1, department_id: 20 },
-          { attendant_id: 2, department_id: 20 },
-          { attendant_id: 3, department_id: 30 },
+          { attendant_id: 1, department_id: 10 }, // dept supervisionado
+          { attendant_id: 1, department_id: 20 }, // dept atual, self
+          { attendant_id: 2, department_id: 20 }, // dept atual, outro atendente
         ],
       },
     });
 
-    const wrapper = buildWrapper({ currentAttendance: { id: 1 } });
+    // Alice é supervisora do dept 10 e agente do dept 20 (dept atual do chat)
+    const wrapper = buildWrapper({ currentAttendance: { departmentId: 20 } });
     await flushPromises();
 
     const cards = wrapper.findAllComponents({ name: "WalletCard" });
-    expect(cards).toHaveLength(4);
-    expect(cards[0].props("canRemove")).toBe(true);
-    expect(cards[1].props("canRemove")).toBe(true);
-    expect(cards[2].props("canRemove")).toBe(false);
-    expect(cards[3].props("canRemove")).toBe(false);
+    expect(cards).toHaveLength(3);
+    expect(cards[0].props("canRemove")).toBe(true); // supervisora do dept 10
+    expect(cards[1].props("canRemove")).toBe(true); // self no dept atual (dept 20)
+    expect(cards[2].props("canRemove")).toBe(false); // outro atendente no dept atual
   });
 
   it("uses fallback labels when attendant or department metadata is missing", async () => {
@@ -339,7 +338,10 @@ describe("WalletSection", () => {
       },
     });
 
-    const wrapper = buildWrapper({ currentAttendance: { id: 1 } });
+    // dept 10 supervisionado (canRemove = true), dept 20 = dept atual mas Alice não é supervisora (canRemove = false para Bob)
+    const wrapper = buildWrapper({
+      currentAttendance: { id: 1, departmentId: 20 },
+    });
     await flushPromises();
 
     const cards = wrapper.findAllComponents({ name: "WalletCard" });
@@ -457,7 +459,7 @@ describe("WalletSection", () => {
     await wrapper.setProps({ contactId: 77 });
     await flushPromises();
 
-    expect(getSpy).toHaveBeenCalledTimes(initialCalls + 2);
+    expect(getSpy).toHaveBeenCalledTimes(initialCalls + 1);
   });
 
   it("fetches when the page state changes to wallet", async () => {
