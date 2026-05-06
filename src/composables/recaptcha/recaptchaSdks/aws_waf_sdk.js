@@ -43,7 +43,7 @@ export function useAwsWafSdk({ integrationUrl, apiKey }) {
     renderCaptcha(containerId, { onSuccess, onError }) {
       const container = document.getElementById(containerId);
       if (!container || !window.AwsWafCaptcha) {
-        onSuccess("");
+        onError(new Error("AWS WAF captcha indisponível para renderização"));
         return;
       }
       container.innerHTML = "";

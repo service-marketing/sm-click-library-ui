@@ -5,16 +5,22 @@ import { useGoogleSdk } from "./recaptchaSdks/google_sdk.js";
 // --- Registra o provedor que será utilizado no recaptcha ---
 const sdkInitializers = {
   awswaf: (config) => useAwsWafSdk(config),
+  "aws-waf": (config) => useAwsWafSdk(config),
   google: (config) => useGoogleSdk(config),
+  "google-recaptcha": (config) => useGoogleSdk(config),
 };
 
 let _activeProvider = null;
 
 export function setupSdkConfig({ provider, ...config }) {
-  const initSdk = sdkInitializers[provider];
+  const normalizedProvider = String(provider || "")
+    .trim()
+    .toLowerCase();
+  const initSdk = sdkInitializers[normalizedProvider];
 
   if (!initSdk) {
     console.error("Provedor de SDK não suportado:", provider);
+    _activeProvider = null;
     return;
   }
 
@@ -81,15 +87,25 @@ export function useCaptchaProtection() {
 
   // ---- Render do CAPTCHA visível ----
   function renderVisibleCaptcha(containerId) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       if (!_activeProvider) {
-        captchaSolved.value = true;
-        resolve("");
+        reject(new Error("Captcha provider não configurado"));
+        return;
+      }
+
+      await loadSdk();
+      if (!_activeProvider.isReady()) {
+        reject(new Error("Captcha SDK não está pronto"));
         return;
       }
 
       _activeProvider.renderCaptcha(containerId, {
         onSuccess: (token) => {
+          if (!token) {
+            reject(new Error("Captcha retornou token vazio"));
+            return;
+          }
+
           captchaToken.value = token;
           captchaSolved.value = true;
           resolve(token);

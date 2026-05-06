@@ -63,7 +63,7 @@ export function useGoogleSdk({ siteKey, siteKeyVisible } = {}) {
       const recaptcha = getRecaptcha();
       const container = document.getElementById(containerId);
       if (!container || !recaptcha) {
-        onSuccess("");
+        onError(new Error("Google reCAPTCHA indisponível para renderização"));
         return;
       }
       container.innerHTML = "";
