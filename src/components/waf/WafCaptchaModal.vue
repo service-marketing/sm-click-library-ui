@@ -1,5 +1,14 @@
 <template>
-  <Teleport to="body">
+  <div v-if="isGoogleProvider && modelValue">
+    <div
+      ref="captchaContainerRef"
+      :id="containerId"
+      class="waf-captcha-body"
+      :class="{ 'waf-hidden': loading }"
+    />
+  </div>
+
+  <Teleport v-else to="body">
     <Transition name="waf-fade">
       <div @click="closeBlocked" v-if="modelValue" class="waf-overlay">
         <div class="waf-modal">
@@ -50,7 +59,8 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick, onBeforeUnmount } from "vue";
+import { ref, watch, nextTick, onBeforeUnmount, computed } from "vue";
+import { getActiveProvider } from "../../composables/recaptcha/useRecaptcha";
 
 const props = defineProps({
   modelValue: { type: Boolean, default: false },
@@ -60,6 +70,10 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["update:modelValue", "solved", "error"]);
+
+const isGoogleProvider = computed(
+  () => getActiveProvider()?.name === "google-recaptcha"
+);
 
 const containerId = `waf-captcha-${Math.random().toString(36).slice(2, 9)}`;
 const captchaContainerRef = ref(null);
@@ -117,7 +131,7 @@ async function renderChallenge() {
 
   const container = document.getElementById(containerId);
   if (container) container.innerHTML = "";
-
+  
   try {
     await props.renderCaptcha(containerId);
     loading.value = false;
