@@ -13,7 +13,7 @@
       <div @click="closeBlocked" v-if="modelValue" class="waf-overlay">
         <div class="waf-modal">
           <!-- Loading -->
-          <div v-if="loading" class="waf-loading">
+          <div v-if="loading && !isBlocked" class="waf-loading">
             <svg class="waf-spinner" viewBox="0 0 24 24" fill="none">
               <circle
                 cx="12"
@@ -39,7 +39,15 @@
           </span>
 
           <!-- Label de bloqueio -->
-          <p v-if="isBlocked" class="text-sm text-red-500">
+          <p v-if="isBlocked" class="text-sm text-red-500 text-center">
+            <Vue3Lottie
+              :animation-data="error_animate"
+              :height="180"
+              :width="180"
+              :auto-play="true"
+              :loop="true"
+            />
+
             Sua conta está temporariamente bloqueada devido a muitas tentativas
             de login.
           </p>
@@ -61,6 +69,7 @@
 <script setup>
 import { ref, watch, nextTick, onBeforeUnmount, computed } from "vue";
 import { getActiveProvider } from "../../composables/recaptcha/useRecaptcha";
+import error_animate from "../../assets/lottieAnimates/error.json";
 
 const props = defineProps({
   modelValue: { type: Boolean, default: false },
@@ -131,7 +140,7 @@ async function renderChallenge() {
 
   const container = document.getElementById(containerId);
   if (container) container.innerHTML = "";
-  
+
   try {
     await props.renderCaptcha(containerId);
     loading.value = false;
@@ -156,11 +165,6 @@ function observeContainer() {
   });
 
   observer.observe(container, { childList: true, subtree: true });
-}
-
-async function retryCaptcha() {
-  await renderChallenge();
-  observeContainer();
 }
 
 watch(
