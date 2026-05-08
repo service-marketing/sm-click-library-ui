@@ -92,6 +92,7 @@ export { preloadAllGroupChannels };
 export {
   setupSdkConfig,
   useCaptchaProtection,
+  getActiveProvider,
 } from "./composables/recaptcha/useRecaptcha.js";
 
 function install(Vue) {
