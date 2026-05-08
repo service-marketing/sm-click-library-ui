@@ -7,6 +7,7 @@
   ],
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   "version": "0.0.518",
 =======
   "version": "0.0.532",
@@ -14,6 +15,9 @@
 =======
   "version": "0.0.554",
 >>>>>>> 53aa53709a0c68ff93e0a4fbc6c20efc92660f14
+=======
+  "version": "0.0.557",
+>>>>>>> 90e2ee90e6933735cbaccfbe217d098ee1df9abb
   "main": "dist/sm-click-library-ui.es.js",
   "module": "dist/sm-click-library-ui.umd.js",
   "style": "dist/style.css",

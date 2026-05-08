@@ -2,19 +2,25 @@ import { ref, computed, readonly } from "vue";
 import { useAwsWafSdk } from "./recaptchaSdks/aws_waf_sdk.js";
 import { useGoogleSdk } from "./recaptchaSdks/google_sdk.js";
 
-// --- Provider registry ---
+// --- Registra o provedor que será utilizado no recaptcha ---
 const sdkInitializers = {
   awswaf: (config) => useAwsWafSdk(config),
+  "aws-waf": (config) => useAwsWafSdk(config),
   google: (config) => useGoogleSdk(config),
+  "google-recaptcha": (config) => useGoogleSdk(config),
 };
 
 let _activeProvider = null;
 
 export function setupSdkConfig({ provider, ...config }) {
-  const initSdk = sdkInitializers[provider];
+  const normalizedProvider = String(provider || "")
+    .trim()
+    .toLowerCase();
+  const initSdk = sdkInitializers[normalizedProvider];
 
   if (!initSdk) {
     console.error("Provedor de SDK não suportado:", provider);
+    _activeProvider = null;
     return;
   }
 
@@ -24,7 +30,7 @@ export function setupSdkConfig({ provider, ...config }) {
 export function getActiveProvider() {
   return _activeProvider;
 }
-// -------------------------------------------------------
+// -----------------------------------------------------------
 
 // --- Constantes ---
 const DELAY_MAP = {
@@ -37,7 +43,7 @@ const DELAY_MAP = {
 const MAX_DELAY = 5000;
 // ------------------
 
-// --- Composable multi-provider ---
+// --- SDK do CAPTCHA ---
 export function useCaptchaProtection() {
   const attempts = ref(0);
   const captchaToken = ref("");
@@ -81,15 +87,25 @@ export function useCaptchaProtection() {
 
   // ---- Render do CAPTCHA visível ----
   function renderVisibleCaptcha(containerId) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       if (!_activeProvider) {
-        captchaSolved.value = true;
-        resolve("");
+        reject(new Error("Captcha provider não configurado"));
+        return;
+      }
+
+      await loadSdk();
+      if (!_activeProvider.isReady()) {
+        reject(new Error("Captcha SDK não está pronto"));
         return;
       }
 
       _activeProvider.renderCaptcha(containerId, {
         onSuccess: (token) => {
+          if (!token) {
+            reject(new Error("Captcha retornou token vazio"));
+            return;
+          }
+
           captchaToken.value = token;
           captchaSolved.value = true;
           resolve(token);

@@ -60,6 +60,7 @@ export {
   getCurrencySymbol,
   getCurrencyLocale,
 } from "./utils/currencyUtils.js";
+import SmsPoolSelect from "./components/selects/smsPoolSelect/smsPoolSelect.vue";
 import RatingInput from "./components/inputs/ratingInput.vue";
 import CallHistory from "./components/chat/CallHistory.vue";
 import CallMessage from "./components/chat/CallMessage.vue";
@@ -74,15 +75,24 @@ import api, {
 } from "~/utils/api";
 
 export { api, setRefreshTokenUrl };
-export { preloadAllGroupChannels };
+export { SmsPoolSelect };
 export {
-  useWafProtection,
-  setupWafProtection,
-} from "./composables/useWafProtection.js";
+  getSmsPoolCredits,
+  getSmsValidContacts,
+  getSmsInvalidContacts,
+  getSmsContactName,
+  getSmsContactPhone,
+  getSmsCreditsToConsume,
+  listSmsPools,
+  listSmsPoolsPaginated,
+  updateSmsPool,
+} from "./composables/useSmsPools.js";
+export { preloadAllGroupChannels };
 
 export {
   setupSdkConfig,
   useCaptchaProtection,
+  getActiveProvider,
 } from "./composables/recaptcha/useRecaptcha.js";
 
 function install(Vue) {
@@ -121,6 +131,7 @@ function install(Vue) {
   Vue.component("WalletCard", WalletCard);
   Vue.component("ReminderModal", ReminderModal);
   Vue.component("SoundSelect", SoundSelect);
+  Vue.component("SmsPoolSelect", SmsPoolSelect);
   Vue.component("BaseTable", baseTable);
   Vue.component("TemplateTable", templateTable);
 }
