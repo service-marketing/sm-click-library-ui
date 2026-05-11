@@ -60,7 +60,7 @@ export function useCaptchaProtection() {
     return DELAY_MAP[attempts.value] ?? MAX_DELAY;
   });
 
-  const captchaEnabled = computed(() => !!_activeProvider);
+  const captchaEnabled = computed(() => !!_activeProvider && sdkReady.value);
 
   // ---- Mount do SDK ----
   async function loadSdk() {
@@ -77,9 +77,11 @@ export function useCaptchaProtection() {
 
     try {
       const token = await _activeProvider.getInvisibleToken();
+      sdkReady.value = _activeProvider.isReady() && !!token;
       captchaToken.value = token;
       return token;
     } catch (error) {
+      sdkReady.value = false;
       console.warn("[Captcha] Falha ao obter token invisível:", error);
       return "";
     }
@@ -101,6 +103,8 @@ export function useCaptchaProtection() {
 
       _activeProvider.renderCaptcha(containerId, {
         onSuccess: (token) => {
+          sdkReady.value = _activeProvider.isReady();
+
           if (!token) {
             reject(new Error("Captcha retornou token vazio"));
             return;
@@ -111,6 +115,7 @@ export function useCaptchaProtection() {
           resolve(token);
         },
         onError: (error) => {
+          sdkReady.value = _activeProvider.isReady();
           reject(error);
         },
       });
