@@ -29,7 +29,7 @@
           </div>
 
           <!-- Título -->
-          <span class="flex flex-col items-center py-3">
+          <span class="flex flex-col items-center py-3 text-black">
             <p class="text-lg font-semibold">
               Muitas tentativas de login simultâneas
             </p>
