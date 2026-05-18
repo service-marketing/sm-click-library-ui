@@ -64,6 +64,44 @@ import SmsPoolSelect from "./components/selects/smsPoolSelect/smsPoolSelect.vue"
 import RatingInput from "./components/inputs/ratingInput.vue";
 import CallHistory from "./components/chat/CallHistory.vue";
 import CallMessage from "./components/chat/CallMessage.vue";
+
+// Chat Message centralizado
+export {
+  LibMessage,
+  isAudio,
+  isImage,
+  isGif,
+  isSticker,
+  isVideo,
+  isHeif,
+  isObjectEmpty,
+  shouldDisplayAvatar,
+  formatTime,
+  MESSAGE_CONTEXT_KEY,
+  provideMessageContext,
+  useMessageContext,
+  useMediaPreviewMode,
+  Avatar,
+  AudioView,
+  ChatQuote,
+  MessageFileRenderer,
+  GroupMessages,
+  FileMessage,
+  FileLoading,
+  LocationMap,
+  TemplateMessage,
+  CallPermissionCard,
+  AdMessage,
+  ListMessage,
+  VCard,
+  Ciphertext,
+  MarkDown,
+  MediaHoverFrame,
+  VideoLazy,
+  ButtonMessage,
+  ModelButtons,
+} from "./components/chat/message/index.js";
+export * from "./components/chat/message/mediaTypes.js";
 import ReminderModal from "./components/CRM+/reminders/reminderModal/reminderModal.vue";
 import { moveReminderToCompleted } from "./components/CRM+/reminders/reminderFunctions.js";
 import { preloadAllGroupChannels } from "./components/intern-chat/useChat";

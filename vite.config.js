@@ -12,11 +12,26 @@ export default defineConfig({
       fileName: (format) => `sm-click-library-ui.${format}.js`,
     },
     rollupOptions: {
-      external: ["vue", "pinia"],
+      external: [
+        "vue",
+        "pinia",
+        /^@capacitor\//,
+        /^@capacitor-community\//,
+        "@fancyapps/ui",
+        "wavesurfer.js",
+        /^leaflet/,
+        "notiwind",
+      ],
       output: {
         globals: {
           vue: "Vue",
           pinia: "Pinia",
+          "@capacitor/filesystem": "CapacitorFilesystem",
+          "@capacitor-community/file-opener": "CapacitorFileOpener",
+          "@fancyapps/ui": "Fancybox",
+          "wavesurfer.js": "WaveSurfer",
+          leaflet: "L",
+          notiwind: "notiwind",
         },
       },
     },
