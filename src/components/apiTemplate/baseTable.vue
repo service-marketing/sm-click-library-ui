@@ -442,7 +442,7 @@ function getHeaderFlexClass(align) {
 }
 
 .filter-trigger.active {
-  @apply text-teal-500;
+  @apply text-primary;
 }
 
 .filter-count-badge {
