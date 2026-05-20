@@ -89,11 +89,7 @@
 }
 
 .search-icon {
-  background: linear-gradient(
-    135deg,
-    var(--primary-color, #14b8a6) 0%,
-    var(--primary-color-hover, #0d9488) 100%
-  );
+  background: var(--primary);
   color: white;
   padding: 0.3125rem;
   border-radius: 50%;
@@ -338,7 +334,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: var(--primary-color, #14b8a6);
+  background: var(--primary);
   opacity: 0;
   transition: opacity 0.15s ease;
   pointer-events: none;
@@ -349,7 +345,7 @@
 }
 
 .department-item:focus-visible {
-  outline: 2px solid var(--primary-color, #14b8a6);
+  outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
 
@@ -378,11 +374,7 @@
 } */
 
 .selected {
-  background: linear-gradient(
-    135deg,
-    var(--primary-color, #14b8a6) 0%,
-    var(--primary-color-hover, #0d9488) 100%
-  ) !important;
+  background: var(--primary);
   color: white;
   /* font-weight: 500; */
   box-shadow: 0 2px 6px rgba(20, 184, 166, 0.3);
@@ -452,8 +444,8 @@
 .library-loader {
   width: 1.5rem;
   height: 1.5rem;
-  border: 3px solid var(--primary-color-light, rgba(20, 184, 166, 0.2));
-  border-top-color: var(--primary-color, #14b8a6);
+  border: 3px solid var(--primary, rgba(20, 184, 166, 0.2));
+  border-top-color: var(--primary);
   border-radius: 50%;
   animation:
     library-loader-rotate 0.8s linear infinite,
@@ -479,8 +471,8 @@
 
 .native-select:focus {
   outline: none;
-  border-color: var(--primary-color, #14b8a6);
-  box-shadow: 0 0 0 2px var(--primary-color-light, rgba(20, 184, 166, 0.2));
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary, rgba(20, 184, 166, 0.2));
 }
 
 .native-select-icon {
