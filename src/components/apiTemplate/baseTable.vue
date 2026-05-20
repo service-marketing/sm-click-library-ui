@@ -325,7 +325,7 @@ function getHeaderFlexClass(align) {
                     <button
                       :title="isFilterActive(col) ? 'Filtro ativo' : 'Filtrar'"
                       :class="[
-                        'filter-trigger',
+                        'filter-trigger active:text-primary',
                         { active: isFilterActive(col) },
                       ]"
                     >
@@ -439,10 +439,6 @@ function getHeaderFlexClass(align) {
 .filter-trigger {
   position: relative;
   @apply flex-shrink-0 rounded-md p-1 transition-all duration-200 cursor-pointer text-gray-500 hover:text-current;
-}
-
-.filter-trigger.active {
-  @apply text-primary;
 }
 
 .filter-count-badge {
