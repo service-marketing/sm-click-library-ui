@@ -322,7 +322,7 @@ watch(
 
       <svg
         :class="[
-          'size-3.5 text-white transition duration-300',
+          'size-3.5 transition duration-300',
           isOpen ? 'rotate-180' : '',
         ]"
         aria-hidden="true"

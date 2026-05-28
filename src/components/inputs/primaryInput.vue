@@ -15,7 +15,7 @@ const contentHandler = reactive({
   title: props.content.title ?? "Nome do produto",
   svg:
     props.content.svg ??
-    `<svg class="size-4 flex items-center text-base-100" fill="currentColor" viewBox="0 0 495.554 495.554">
+    `<svg class="size-4 flex items-center text-current opacity-70" fill="currentColor" viewBox="0 0 495.554 495.554">
       <path d="M353.732,451.163c3.388,10.912-2.324,22.536-13.024,26.545c-35.256,13.208-68.455,17.846-111.453,17.846
       c-118.188,0-222.136-84.711-222.136-224.283C7.118,126.042,112.492,0,273.4,0c125.316,0,215.036,86.156,215.036,205.784
       c0,103.949-58.388,169.434-135.282,169.434c-33.456,0-57.69-17.076-61.225-54.813h-1.423
@@ -80,7 +80,7 @@ const isNumberType = computed(() => contentHandler.type === "number");
         arrow
       >
         <svg
-          class="size-4 text-white"
+          class="size-4 text-current"
           xmlns="http://www.w3.org/2000/svg"
           fill="currentColor"
           viewBox="0 0 24 24"
@@ -106,7 +106,7 @@ const isNumberType = computed(() => contentHandler.type === "number");
       <!-- Ícone -->
       <span
         v-if="contentHandler.type !== 'textArea' && !isNumberType"
-        :class="isEmpty ? 'text-red-500' : 'text-base-100'"
+        :class="isEmpty ? 'text-red-500' : 'text-current opacity-70'"
         v-html="contentHandler.svg"
       ></span>
 

@@ -818,7 +818,6 @@ const handlerToggleButtons = computed(() => {
   z-index: 50;
   width: min(94vw, 1140px);
   border-radius: 1rem;
-  @apply shadow shadow-black/60;
 }
 .modal-form-end-button {
   display: flex;
@@ -839,7 +838,7 @@ const handlerToggleButtons = computed(() => {
   display: flex;
   flex-direction: column;
   height: 85vh;
-  box-shadow: 0 16px 40px rgb(2 6 23 / 0.38);
+  @apply shadow-card;
 }
 
 .clients-form-background.noCrmPlus {

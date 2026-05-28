@@ -187,14 +187,14 @@ function handleTouchMoveEnd() {
 }
 
 .dark .color-disabled {
-  color: #475569;
+  color: #8695aa;
 }
 
 .dark .text-primary {
-  color: #d97706;
+  color: #e4cf0f;
 }
 
 .dark .text-hover {
-  color: #b45309;
+  color: #cec10d;
 }
 </style>

@@ -57,17 +57,17 @@ const toggleSelect = (item) => {
       @click="isOpen = !isOpen"
       class="flex flex-wrap items-center justify-between gap-2 bg-base-300 p-3 rounded-md border border-base-300 cursor-pointer"
     >
-      <span v-if="!modelValue.length" class="text-gray-500 text-xs">
+      <span v-if="!modelValue.length" class="opacity-70 text-xs">
         {{ placeholder }}
       </span>
 
-      <span class="text-gray-300 text-xs" v-else>
+      <span class="opacity-70 text-xs" v-else>
         Selecionados: <a class="text-green-500">{{ modelValue.length }}</a>
       </span>
 
       <svg
         :class="[
-          'size-3.5 text-white transition duration-300',
+          'size-3.5 text-current transition duration-300',
           isOpen ? 'rotate-180' : '',
         ]"
         aria-hidden="true"

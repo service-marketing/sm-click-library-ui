@@ -49,7 +49,7 @@ const visibleTags = computed(() => props.clients?.tags?.slice(0, 4) || []);
         <!-- Primeira letra da tag -->
         <span
           :style="{ backgroundColor: tag.color || '#fff' }"
-          class="w-full ml-[-0.10rem] rounded-r-md inline-flex items-center justify-center px-1 border-b-2 border-gray-900"
+          class="w-full ml-[-0.10rem] rounded-r-md inline-flex items-center justify-center px-1 "
         >
           <p class="text-[8px] font-bold">
             {{ tag.name.charAt(0).toUpperCase() }}
@@ -149,16 +149,6 @@ const visibleTags = computed(() => props.clients?.tags?.slice(0, 4) || []);
   margin-left: -0.5rem;
 }
 
-.tag-view-theme {
-  --popper-theme-background-color: #111b21;
-  --popper-theme-background-color-hover: #111b21;
-  --popper-theme-text-color: #ffffff;
-  --popper-theme-border-width: 0px;
-  --popper-theme-border-style: solid;
-  --popper-theme-border-radius: 6px;
-  --popper-theme-padding: 8px;
-  --popper-theme-box-shadow: 0 6px 30px -6px rgba(35, 99, 3, 0.25);
-}
 
 .tag-view-popper-content-text {
   max-width: 8rem;

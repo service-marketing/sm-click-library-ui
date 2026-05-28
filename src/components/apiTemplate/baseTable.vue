@@ -36,6 +36,7 @@ import FilterText from "./sections/FilterText.vue";
 import FilterSelect from "./sections/FilterSelect.vue";
 import FilterMultiselect from "./sections/FilterMultiselect.vue";
 import TableEmptyState from "./sections/TableEmptyState.vue";
+import TablePagination from "./sections/TablePagination.vue";
 
 const props = defineProps({
   columns: { type: Array, required: true },
@@ -211,36 +212,29 @@ function getHeaderFlexClass(align) {
 
     <template v-else>
       <!-- Table -->
-      <div class="w-full overflow-x-auto">
-        <table class="w-full text-center text-sm">
-          <thead
-            class="bg-base-200 border-base-200 bg-opacity-100 shadow text-xs uppercase text-current"
-          >
-            <tr>
+      <div class="w-full">
+        <table class="table-base">
+          <thead>
+            <tr class="text-left">
               <th
                 v-for="col in columns"
                 :key="col.key"
                 scope="col"
-                :class="[
-                  'py-3.5 px-4 font-normal text-current',
-                  getHeaderAlignClass(col.headerAlign),
-                  col.width,
-                  col.headerClass,
-                ]"
+                :class="['table-th', col.width, col.headerClass]"
               >
                 <div
                   class="flex items-center gap-1.5"
                   :class="getHeaderFlexClass(col.headerAlign)"
                 >
                   <span>{{ col.label }}</span>
-
+                  <slot :name="`header-${col.key}`" />
                   <!-- Column filter dropdown -->
                   <Popper
                     v-if="col.filter"
-                    placement="right"
+                    placement="bottom"
                     :hover="false"
                     :arrow="false"
-                    class="filter-popper"
+                    class="filter-popper z-50"
                     @close:popper="onPopperClose(col)"
                   >
                     <template #content>
@@ -358,16 +352,16 @@ function getHeaderFlexClass(align) {
               </th>
             </tr>
           </thead>
-          <tbody v-if="rows.length > 0">
+          <tbody v-if="rows.length > 0" class="divide-y divide-white/[0.04]">
             <tr
               v-for="(row, index) in rows"
               :key="row.id ?? index"
-              class="table-td"
+              class="bg-base-300 hover:bg-base-content/[0.02] transition-colors"
             >
               <td
                 v-for="col in columns"
                 :key="col.key"
-                :class="['px-4 py-3 text-sm', col.cellClass]"
+                :class="['px-4 py-2.5 whitespace-nowrap', col.cellClass]"
               >
                 <slot
                   :name="`cell-${col.key}`"
@@ -408,18 +402,17 @@ function getHeaderFlexClass(align) {
       </div>
 
       <!-- Pagination -->
-      <nav
-        class="flex items-center justify-center py-2 bg-base-200 rounded-b-xl overflow-hidden"
+      <footer
+        v-if="totalItems > itemsPerPage"
+        class="flex flex-shrink-0 items-center justify-between border-t border-white/[0.05] bg-base-200 rounded-b-xl"
       >
-        <vue-awesome-paginate
-          v-if="totalItems > itemsPerPage"
+        <TablePagination
+          :current-page="currentPage"
           :total-items="totalItems"
           :items-per-page="itemsPerPage"
-          :max-pages-shown="5"
-          :model-value="currentPage"
-          @click="$emit('update:currentPage', $event)"
+          @change="$emit('update:currentPage', $event)"
         />
-      </nav>
+      </footer>
     </template>
   </div>
 </template>

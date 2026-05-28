@@ -256,7 +256,7 @@ const displayLabel = computed(() => {
     <div
       @click="isOpen = !isOpen"
       :class="[
-        'flex flex-wrap shadow shadow-gray-900 dark:shadow-gray-400 items-center justify-between p-3 gap-2 rounded-md cursor-pointer transition',
+        'flex flex-wrap  items-center justify-between p-3 gap-2 rounded-md cursor-pointer transition',
         theme,
       ]"
       ref="triggerRef"
