@@ -538,7 +538,7 @@ function isItemDisabled(attendantId) {
                   selected: attendant.selected,
                   'is-disabled': isItemDisabled(attendant.id),
                 }"
-                class="department-item bg-slate-500/20 hover:bg-teal-600"
+                class="department-item bg-slate-500/20 hover:bg-primary"
               >
                 <div v-if="showAvatar" style="padding-left: 5px">
                   <PhotoDisplay

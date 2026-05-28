@@ -524,7 +524,7 @@ function isItemDisabled(departmentId) {
                   selected: department.selected,
                   'is-disabled': isItemDisabled(department.id),
                 }"
-                class="department-item bg-slate-500/20 hover:bg-teal-600"
+                class="department-item bg-slate-500/20 hover:bg-primary"
               >
                 <span
                   @click="selectDepartment(department)"

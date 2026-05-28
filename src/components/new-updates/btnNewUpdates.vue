@@ -254,7 +254,7 @@ const openNewUpdates = () => {
   transition: background-color 0.3s ease-in;
 }
 .sparkle_update-button {
-  background-color: #03b5eb;
+  background-color: var(--primary);
 }
 .new_update-button,
 .new_update-button-open-side {
@@ -277,7 +277,7 @@ const openNewUpdates = () => {
   /* popper styles */
 }
 .update-button:hover {
-  background-color: #03b5eb;
+  background-color: var(--primary);
   padding: 1rem ease-in;
   border-radius: 9999px;
 }
@@ -308,7 +308,7 @@ const openNewUpdates = () => {
   text-align: center;
   width: 182px;
   border-radius: 6px;
-  background-color: #03b5eb;
+  background-color: var(--primary);
   color: white;
   padding: 4px 8px;
 }

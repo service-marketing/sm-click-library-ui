@@ -629,7 +629,7 @@ watch(
 }
 
 .chat-box.closed:hover {
-  background-color: #03b5eb;
+  background-color: var(--primary);
 }
 
 .chat-box.open {
@@ -706,9 +706,9 @@ watch(
   width: 150px;
   padding: 4px 8px;
   top: 0;
-  left: 3.5rem; /* Left position from the icon */
+  left: 2.5rem; /* Left position from the icon */
   border-radius: 0.375rem; /* Equivalente a rounded-md */
-  background-color: #02a9db;
+  background-color: var(--primary);
   opacity: 0; /* Hidden by default */
   display: flex;
   justify-content: center;
@@ -726,7 +726,7 @@ watch(
 }
 
 .chat-count {
-  background-color: #1090b8;
+  background-color: var(--primary);
   border-radius: 9999px;
   display: flex;
   align-items: center;
