@@ -92,6 +92,7 @@ const columns = computed(() => {
       key: "lang",
       label: "Idioma",
       width: "w-20",
+       headerAlign: "left",
       filter: {
         type: "select",
         key: "language",
@@ -136,6 +137,7 @@ const columns = computed(() => {
       key: "department",
       label: "Departamento(s)",
       width: "w-28",
+       headerAlign: "center",
       filter: {
         type: "multiselect",
         key: "departments",
@@ -442,7 +444,8 @@ defineExpose({ refresh: fetchTemplates });
 
     <!-- Departments (optional) -->
     <template v-if="showDepartments" #cell-department="{ row }">
-      <Popper placement="top" :arrow="false" class="tip-popper">
+      <div class="mx-auto flex justify-center">
+      <Popper placement="top" :arrow="false" class="tip-popper ">
         <template #content>
           <section class="w-72 rounded-lg p-2">
             <div class="text-sm font-semibold text-slate-100 pb-2">
@@ -487,6 +490,7 @@ defineExpose({ refresh: fetchTemplates });
           }}</span>
         </div>
       </Popper>
+      </div>
     </template>
 
     <!-- Actions -->

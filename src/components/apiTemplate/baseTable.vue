@@ -223,7 +223,7 @@ function getHeaderFlexClass(align) {
                 :class="['table-th', col.width, col.headerClass]"
               >
                 <div
-                  class="flex items-center gap-1.5"
+                  class="flex items-center font-bold gap-1.5"
                   :class="getHeaderFlexClass(col.headerAlign)"
                 >
                   <span>{{ col.label }}</span>
