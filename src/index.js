@@ -1,6 +1,7 @@
 import "~/styles/tailwind.css";
 import baseTable from "~/components/apiTemplate/baseTable.vue";
 import templateTable from "~/components/apiTemplate/templateTable.vue";
+import CategoryBadge from "~/components/apiTemplate/CategoryBadge.vue";
 import primarySelect from "~/components/selects/primary_select/primary_select.vue";
 import simpleModal from "~/components/modals/simple_modal/simple_modal.vue";
 import simpleCard from "~/components/cards/simple_card/simple_card.vue";
@@ -51,6 +52,7 @@ export { useInstanceStore };
 export { ContactCard };
 export { default as BaseTable } from "~/components/apiTemplate/baseTable.vue";
 export { default as TemplateTable } from "~/components/apiTemplate/templateTable.vue";
+export { default as CategoryBadge } from "~/components/apiTemplate/CategoryBadge.vue";
 export { default as FileBadgePopper } from "./components/calendar/components/EventItem/FileBadgePopper.vue";
 export { default as WafCaptchaModal } from "./components/waf/WafCaptchaModal.vue";
 export { default as CaptchaModal } from "./components/waf/WafCaptchaModal.vue";
@@ -134,6 +136,7 @@ function install(Vue) {
   Vue.component("SmsPoolSelect", SmsPoolSelect);
   Vue.component("BaseTable", baseTable);
   Vue.component("TemplateTable", templateTable);
+  Vue.component("CategoryBadge", CategoryBadge);
 }
 
 export function attLibDeparts(department, action = "add") {
