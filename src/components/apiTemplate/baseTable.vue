@@ -5,10 +5,12 @@
  * Each column can declare a `filter` object to enable a filter dropdown:
  *
  *   filter: {
- *     type:         'text' | 'select' | 'checkbox' | 'multiselect'
+ *     type:         'text' | 'select' | 'checkbox' | 'multiselect' | 'tag'
  *     key?:         string       — API param key (defaults to col.key)
  *     placeholder?: string       — for text / multiselect
  *     options?:     Array<{ value: string, label: string }>  — for select/checkbox/multiselect
+ *     allTags?:     Object       — for tag type (from API or static data)
+ *     multiple?:    boolean      — for tag type (default: true)
  *   }
  *
  * Props:
@@ -31,10 +33,18 @@
  *   empty-action
  *   loading
  */
-import { ref, watch, computed } from "vue";
+import {
+  ref,
+  watch,
+  computed,
+  nextTick,
+  onMounted,
+  onBeforeUnmount,
+} from "vue";
 import FilterText from "./sections/FilterText.vue";
 import FilterSelect from "./sections/FilterSelect.vue";
 import FilterMultiselect from "./sections/FilterMultiselect.vue";
+import SelectMultipleTags from "../selects/multiSelects/selectMultipleTags.vue";
 import TableEmptyState from "./sections/TableEmptyState.vue";
 import TablePagination from "./sections/TablePagination.vue";
 
@@ -50,6 +60,11 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["update:currentPage", "update:filters"]);
+
+const openFilterKey = ref(null);
+const filterPanelRef = ref(null);
+const filterPanelStyle = ref({});
+const filterTriggerRefs = ref({});
 
 // ── filter logic ──────────────────────────────────────────────────
 // internalFilters = committed (sent to API, shown in badges)
@@ -68,6 +83,41 @@ watch(
 
 function getFilterKey(col) {
   return col.filter?.key || col.key;
+}
+
+function setFilterTriggerRef(key, el) {
+  if (el) {
+    filterTriggerRefs.value[key] = el;
+  } else {
+    delete filterTriggerRefs.value[key];
+  }
+}
+
+const openFilterColumn = computed(() => {
+  if (!openFilterKey.value) return null;
+  return props.columns.find((col) => getFilterKey(col) === openFilterKey.value) || null;
+});
+
+function getTagFilterAllTags(col) {
+  const source = col.filter?.allTags ?? col.filter?.options ?? [];
+
+  if (Array.isArray(source)) {
+    return {
+      results: source.map((item) => {
+        if (item && typeof item === "object" && "id" in item && "name" in item) {
+          return item;
+        }
+
+        return {
+          id: String(item?.value ?? item?.id ?? item ?? ""),
+          name: item?.label ?? item?.name ?? String(item?.value ?? item?.id ?? item ?? ""),
+          color: item?.color,
+        };
+      }),
+    };
+  }
+
+  return source;
 }
 
 function isFilterActive(col) {
@@ -93,26 +143,90 @@ function emitFilters() {
   emit("update:filters", buildActiveFilters());
 }
 
+function commitFilter(key) {
+  const pending = pendingFilters.value[key];
+  const current = internalFilters.value[key];
+
+  if (JSON.stringify(pending ?? null) !== JSON.stringify(current ?? null)) {
+    internalFilters.value[key] = pending ?? null;
+    emitFilters();
+  }
+}
+
 /** Write to pending — no API call yet */
 function setFilter(col, value) {
   pendingFilters.value[getFilterKey(col)] = value;
 }
 
-/** Called when the Popper dropdown closes — commit pending → internal → API */
 function onPopperClose(col) {
+  commitFilter(getFilterKey(col));
+}
+
+function updateFilterPanelPosition() {
+  const key = openFilterKey.value;
+  if (!key) return;
+
+  const trigger = filterTriggerRefs.value[key];
+  if (!trigger) return;
+
+  const rect = trigger.getBoundingClientRect();
+  const panelWidth = Math.max(240, Math.min(340, Math.round(rect.width + 8)));
+  const margin = 8;
+  let left = Math.round(rect.left);
+
+  if (left + panelWidth > window.innerWidth - margin) {
+    left = Math.max(margin, window.innerWidth - panelWidth - margin);
+  }
+
+  filterPanelStyle.value = {
+    position: "fixed",
+    top: `${Math.round(rect.bottom + 6)}px`,
+    left: `${left}px`,
+    width: `${panelWidth}px`,
+    zIndex: 9999,
+  };
+}
+
+function openFilter(col) {
   const key = getFilterKey(col);
-  const pending = pendingFilters.value[key];
-  const current = internalFilters.value[key];
-  const pendingActive = Array.isArray(pending)
-    ? pending.length > 0
-    : pending != null && pending !== "";
-  const currentActive = Array.isArray(current)
-    ? current.length > 0
-    : current != null && current !== "";
-  // Only emit if value actually changed
-  if (JSON.stringify(pending ?? null) !== JSON.stringify(current ?? null)) {
-    internalFilters.value[key] = pending ?? null;
-    emitFilters();
+
+  if (openFilterKey.value === key) {
+    closeFilter();
+    return;
+  }
+
+  if (openFilterKey.value) {
+    commitFilter(openFilterKey.value);
+  }
+
+  openFilterKey.value = key;
+}
+
+function closeFilter() {
+  if (!openFilterKey.value) return;
+
+  commitFilter(openFilterKey.value);
+  openFilterKey.value = null;
+  filterPanelStyle.value = {};
+}
+
+function handleOutsideMouseDown(event) {
+  if (!openFilterKey.value) return;
+
+  const target = event.target;
+  const trigger = filterTriggerRefs.value[openFilterKey.value];
+  const panel = filterPanelRef.value;
+
+  if (trigger?.contains(target) || panel?.contains(target)) {
+    return;
+  }
+
+  closeFilter();
+}
+
+function handleViewportChange() {
+  if (openFilterKey.value) {
+    updateFilterPanelPosition();
   }
 }
 
@@ -154,6 +268,12 @@ const activeFilterChips = computed(() => {
         label = `"${v}"`;
       } else if (col.filter.type === "select") {
         label = col.filter.options?.find((o) => o.value === v)?.label ?? v;
+      } else if (col.filter.type === "tag") {
+        // For tag type, v is an array of { id, name, color }
+        const names = (Array.isArray(v) ? v : [])
+          .map((tag) => tag.name || tag)
+          .filter(Boolean);
+        label = names.length ? names.join(", ") : "";
       } else if (
         col.filter.type === "multiselect" ||
         col.filter.type === "checkbox"
@@ -194,10 +314,30 @@ function getHeaderFlexClass(align) {
       ? "justify-end"
       : "justify-center";
 }
+
+watch(openFilterKey, async (key) => {
+  if (!key) return;
+
+  await nextTick();
+  updateFilterPanelPosition();
+  requestAnimationFrame(updateFilterPanelPosition);
+});
+
+onMounted(() => {
+  document.addEventListener("mousedown", handleOutsideMouseDown);
+  window.addEventListener("scroll", handleViewportChange, true);
+  window.addEventListener("resize", handleViewportChange);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener("mousedown", handleOutsideMouseDown);
+  window.removeEventListener("scroll", handleViewportChange, true);
+  window.removeEventListener("resize", handleViewportChange);
+});
 </script>
 
 <template>
-  <div class="w-full">
+  <div class="overflow-x-auto relative h-full w-full">
     <!-- Loading state -->
     <div
       v-if="loading"
@@ -212,7 +352,7 @@ function getHeaderFlexClass(align) {
 
     <template v-else>
       <!-- Table -->
-      <div class="w-full">
+      <div class="w-full overflow-y-hidden overflow-x-auto">
         <table class="table-base">
           <thead>
             <tr class="text-left">
@@ -255,6 +395,7 @@ function getHeaderFlexClass(align) {
                     placement="bottom"
                     :hover="false"
                     :arrow="false"
+                    :locked="true"
                     class="filter-popper z-50"
                     @close:popper="onPopperClose(col)"
                   >
@@ -333,15 +474,29 @@ function getHeaderFlexClass(align) {
                             (v) => setFilter(col, v.length ? v : null)
                           "
                         />
+
+                        <!-- Tag selector -->
+                        <SelectMultipleTags
+                          v-else-if="col.filter.type === 'tag'"
+                          :model-value="pendingFilters[getFilterKey(col)] ?? []"
+                          :all-tags="getTagFilterAllTags(col)"
+                          :overlay="true"
+                          :multiple="col.filter.multiple !== false"
+                          @update:model-value="
+                            (v) => setFilter(col, v.length ? v : null)
+                          "
+                        />
+                        
                       </div>
+          
                     </template>
 
                     <!-- Trigger: funnel icon + optional count badge -->
                     <button
                       :title="isFilterActive(col) ? 'Filtro ativo' : 'Filtrar'"
                       :class="[
-                        'filter-trigger active:text-primary',
-                        { active: isFilterActive(col) },
+                        'filter-trigger ',
+                        { 'text-primary': isFilterActive(col) },
                       ]"
                     >
                       <svg
@@ -400,7 +555,7 @@ function getHeaderFlexClass(align) {
             <tr>
               <td :colspan="columns.length" class="bg-base-300 py-4">
                 <div
-                  class="flex h-64 w-full items-center justify-center text-center"
+                  class="flex min-h-[500px] w-full items-center justify-center text-center"
                 >
                   <slot name="empty">
                     <TableEmptyState

@@ -364,7 +364,7 @@ const toggleIgPopover = (e) => {
             v-if="whatsappBindings.length"
             placement="bottom-start"
             :show="showWaPopover"
-            :arrow="true"
+            
             :offsetDistance="4"
             class="popper-dark"
           >
@@ -392,7 +392,7 @@ const toggleIgPopover = (e) => {
             v-if="instagramBindings.length"
             placement="bottom-start"
             :show="showIgPopover"
-            :arrow="true"
+            
             :offsetDistance="4"
             class="popper-dark"
           >

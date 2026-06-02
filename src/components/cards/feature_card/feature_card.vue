@@ -162,7 +162,7 @@ const pillDateClass = computed(() => ({
           class="pill_date_popper"
           hover
           :disabled="state === 'updated'"
-          :arrow="true"
+          
           content="Essa é uma data prevista para o lançamento deste recurso, a mesma está sujeita a mudanças a qualquer momento"
         >
           <div :class="pillDateClass">

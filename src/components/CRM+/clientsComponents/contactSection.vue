@@ -96,7 +96,7 @@ const showBsuidHelp = ref(false);
           v-if="hasContactBindings"
           class="dark:popper-light popper-dark"
           placement="bottom"
-          :arrow="true"
+          
           :offsetDistance="4"
         >
           <button

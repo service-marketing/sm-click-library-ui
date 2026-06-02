@@ -26,7 +26,7 @@
     </section>
 
     <!-- <section v-if="generated">
-      <Popper placement="top" :arrow="true" :hover="true" class="">
+      <Popper placement="top"  :hover="true" class="">
         <button @click="expandQr = true">
           <svg
             class="w-12 h-12 text-gray-800"

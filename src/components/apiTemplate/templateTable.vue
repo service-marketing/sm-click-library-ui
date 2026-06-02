@@ -153,7 +153,7 @@ const columns = computed(() => {
     key: "actions",
     label: "Ações",
     width: "w-44",
-    cellClass: "whitespace-nowrap",
+    cellClass: "whitespace-nowrap relative z-20",
   });
   return cols;
 });
@@ -431,7 +431,7 @@ defineExpose({ refresh: fetchTemplates });
 
     <!-- Actions -->
     <template #cell-actions="{ row }">
-      <main class="flex items-center justify-center gap-2">
+      <main class="relative z-20 flex items-center justify-center gap-2">
         <!-- Preview (always visible) -->
         <Popper placement="left" class="preview-popper">
           <template #content>
@@ -463,7 +463,7 @@ defineExpose({ refresh: fetchTemplates });
               />
             </svg>
             <span
-              class="pointer-events-none absolute -left-0 top-[-60px] z-30 m-2 mx-auto -translate-x-1/3 rounded-md bg-slate-700 p-2 text-sm text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+              class="pointer-events-none absolute -left-0 top-[-60px] z-50 m-2 mx-auto -translate-x-1/3 rounded-md bg-slate-700 p-2 text-sm text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100"
               >Pré-visualizar</span
             >
           </button>
@@ -493,7 +493,7 @@ defineExpose({ refresh: fetchTemplates });
             />
           </svg>
           <span
-            class="pointer-events-none absolute -left-0 top-[-60px] z-30 m-2 mx-auto -translate-x-1/3 rounded-md bg-slate-700 p-2 text-sm text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+            class="pointer-events-none absolute -left-0 top-[-60px] z-50 m-2 mx-auto -translate-x-1/3 rounded-md bg-slate-700 p-2 text-sm text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100"
             >Enviar modelo</span
           >
         </button>
@@ -515,7 +515,7 @@ defineExpose({ refresh: fetchTemplates });
             />
           </svg>
           <span
-            class="pointer-events-none absolute -left-0 top-[-60px] z-30 m-2 mx-auto -translate-x-1/3 rounded-md bg-slate-700 p-2 text-sm text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+            class="pointer-events-none absolute -left-0 top-[-60px] z-50 m-2 mx-auto -translate-x-1/3 rounded-md bg-slate-700 p-2 text-sm text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100"
             >Editar Template</span
           >
         </button>
@@ -538,7 +538,7 @@ defineExpose({ refresh: fetchTemplates });
             />
           </svg>
           <span
-            class="pointer-events-none absolute -left-0 top-[-60px] z-30 m-2 mx-auto -translate-x-1/3 rounded-md bg-slate-700 p-2 text-sm text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+            class="pointer-events-none absolute -left-0 top-[-60px] z-50 m-2 mx-auto -translate-x-1/3 rounded-md bg-slate-700 p-2 text-sm text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100"
             >Excluir</span
           >
         </button>
@@ -570,7 +570,7 @@ defineExpose({ refresh: fetchTemplates });
             />
           </svg>
           <span
-            class="pointer-events-none absolute -left-0 top-[-60px] z-30 m-2 mx-auto -translate-x-1/3 rounded-md bg-slate-700 p-2 text-sm text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+            class="pointer-events-none absolute -left-0 top-[-60px] z-50 m-2 mx-auto -translate-x-1/3 rounded-md bg-slate-700 p-2 text-sm text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100"
             >Copiar ID</span
           >
         </button>
