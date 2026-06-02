@@ -496,7 +496,7 @@ onBeforeUnmount(() => {
                       :title="isFilterActive(col) ? 'Filtro ativo' : 'Filtrar'"
                       :class="[
                         'filter-trigger',
-                        { 'filter-trigger--active': isFilterActive(col) },
+                        { 'filter-trigger--active ring-primary/20 text-primary': isFilterActive(col) },
                       ]"
                     >
                       <svg
@@ -518,7 +518,7 @@ onBeforeUnmount(() => {
                           col.filter?.type === 'multiselect' &&
                           getActiveCount(col) > 0
                         "
-                        class="filter-count-badge"
+                        class="filter-count-badge bg-secondary text-secondary-content"
                       >
                         {{ getActiveCount(col) }}
                       </span>
@@ -611,7 +611,7 @@ onBeforeUnmount(() => {
 }
 
 .filter-trigger--active {
-  @apply text-primary bg-primary/10 ring-1 ring-primary/20;
+  @apply  ring-1;
 }
 
 .filter-count-badge {
@@ -627,7 +627,6 @@ onBeforeUnmount(() => {
   font-size: 9px;
   font-weight: 800;
   line-height: 1;
-  @apply bg-secondary text-secondary-content;
   box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.9);
 }
 
