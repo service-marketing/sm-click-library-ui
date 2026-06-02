@@ -495,8 +495,8 @@ onBeforeUnmount(() => {
                     <button
                       :title="isFilterActive(col) ? 'Filtro ativo' : 'Filtrar'"
                       :class="[
-                        'filter-trigger ',
-                        { 'text-primary': isFilterActive(col) },
+                        'filter-trigger',
+                        { 'filter-trigger--active': isFilterActive(col) },
                       ]"
                     >
                       <svg
@@ -610,6 +610,10 @@ onBeforeUnmount(() => {
   @apply flex-shrink-0 rounded-md p-1 transition-all duration-200 cursor-pointer text-gray-500 hover:text-current;
 }
 
+.filter-trigger--active {
+  @apply text-primary bg-primary/10 ring-1 ring-primary/20;
+}
+
 .filter-count-badge {
   position: absolute;
   top: -4px;
@@ -623,8 +627,7 @@ onBeforeUnmount(() => {
   font-size: 9px;
   font-weight: 800;
   line-height: 1;
-  background: #69eeb7;
-  color: #0f172a;
+  @apply bg-secondary text-secondary-content;
   box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.9);
 }
 

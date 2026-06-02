@@ -217,7 +217,7 @@ function avatarColor(label) {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 10px 10px 6px;
+  margin: 10px 0px 6px;
   padding: 7px 10px;
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -303,7 +303,7 @@ function avatarColor(label) {
   gap: 9px;
   width: 100%;
   padding: 7px 8px;
-  border-radius: 9px;
+  border-radius: 6px;
   border: 1px solid transparent;
   background: transparent;
   cursor: pointer;
