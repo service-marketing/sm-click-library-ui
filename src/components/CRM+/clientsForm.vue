@@ -377,7 +377,7 @@ const handlerToggleButtons = computed(() => {
         <div class="modal-form-container">
           <div
             :class="{ noCrmPlus: !hasCrmPlus }"
-            class="clients-form-background relative rounded-2xl bg-base-200"
+            class="clients-form-background shadow-card relative rounded-2xl bg-base-200"
           >
             <!-- --- Header --- -->
             <div class="modal-form-header bg-base-300">
@@ -838,7 +838,7 @@ const handlerToggleButtons = computed(() => {
   display: flex;
   flex-direction: column;
   height: 85vh;
-  @apply shadow-card;
+  /* box-shadow: var(--shadow-card); */
 }
 
 .clients-form-background.noCrmPlus {
