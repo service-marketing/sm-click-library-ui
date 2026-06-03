@@ -337,7 +337,8 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="overflow-x-auto relative h-full w-full">
+  <section class="">
+  <div class="relative h-full w-full">
     <!-- Loading state -->
     <div
       v-if="loading"
@@ -352,7 +353,7 @@ onBeforeUnmount(() => {
 
     <template v-else>
       <!-- Table -->
-      <div class="w-full overflow-y-hidden overflow-x-auto">
+      <div class="w-full overflow-y-hidden">
         <table class="table-base">
           <thead>
             <tr class="text-left">
@@ -591,6 +592,7 @@ onBeforeUnmount(() => {
       </footer>
     </template>
   </div>
+  </section>
 </template>
 
 <style scoped>
