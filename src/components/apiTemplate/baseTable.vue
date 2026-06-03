@@ -337,8 +337,8 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <section class="">
-  <div class="relative h-full w-full">
+  <section class="flex flex-col h-full min-h-0">
+  <div class="flex flex-col flex-1 min-h-0 w-full">
     <!-- Loading state -->
     <div
       v-if="loading"
@@ -353,7 +353,7 @@ onBeforeUnmount(() => {
 
     <template v-else>
       <!-- Table -->
-      <div class="w-full overflow-y-hidden">
+      <div class="flex-1 pb-1 min-h-0 w-full overflow-x-auto overflow-y-auto">
         <table class="table-base">
           <thead>
             <tr class="text-left">
