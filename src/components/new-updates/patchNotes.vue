@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import SendSuggestion from "./sendSuggestion.vue";
 import FeatureCard from "../../components/cards/feature_card/feature_card.vue";
 import V3InfiniteLoading from "v3-infinite-loading";
@@ -24,9 +24,7 @@ const emit = defineEmits([
   "loadMoreLatestUpdates",
 ]);
 
-const getSuggestionText = (suggestion) => {
-  emit("postSuggestion", suggestion);
-};
+const getSuggestionText = (suggestion) => emit("postSuggestion", suggestion);
 
 const close = () => {
   emit("close");
@@ -46,66 +44,76 @@ const loadMoreLatestUpdates = ({ loaded, complete }) => {
 
 const isRecent = (dateString) => {
   if (!dateString) return false;
-  const today = new Date();
-  const launchedDate = new Date(dateString + "T12:00:00");
-  const diffTime = Math.abs(today - launchedDate);
-  const diffDays = diffTime / (1000 * 60 * 60 * 24);
+  const diffDays =
+    Math.abs(new Date() - new Date(dateString + "T12:00:00")) /
+    (1000 * 60 * 60 * 24);
   return diffDays <= 3;
 };
 </script>
 
 <template>
-  <main>
-    <div class="modal-overlay-patch-notes">
-      <div class="modal-backdrop-patch-notes"></div>
-    </div>
+  <div class="pn-overlay">
+    <div class="pn-backdrop" @click="close()"></div>
+  </div>
 
-    <div class="modal-container-patch-notes">
-      <div
-        class="modal-content-patch-notes scroll_area_patch_notes_latest_update"
-      >
-        <div class="modal-header-patch-notes">
-          <button @click="close()" class="modal-close-btn-patch-notes">
-            <svg
-              class="modal-close-icon-patch-notes"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 14 14"
-            >
-              <path
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-              />
-            </svg>
-          </button>
+  <div class="pn-container" role="dialog" aria-modal="true">
+    <div class="pn-modal">
+      <!-- Header -->
+      <header class="pn-header">
+        <div class="pn-header__brand">
+          <svg
+            class="pn-header__icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <h1 class="pn-header__title">Novidades</h1>
         </div>
+        <button @click="close()" class="pn-close-btn" aria-label="Fechar">
+          <svg
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 14 14"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+            />
+          </svg>
+        </button>
+      </header>
 
-        <div class="modal-body-patch-notes">
-          <div class="modal-body-control">
-            <section
-              class="modal-section-patch-notes updates-section-patch-notes"
-            >
-              <h1 class="header_latest_update">Ultimas Atualizações</h1>
-
-              <div
-                ref="scrollLasContainer"
-                class="features-list scrollable-section scroll_area_patch_notes_latest_update"
-              >
-                <section v-if="!latest_update" class="sections-skeleton-loader">
-                  <div
-                    class="skeleton-loader skeleton-color-latest_update"
-                    v-for="skeleton in 15"
-                  ></div>
-                </section>
-
-                <span v-else-if="latest_update <= 0" class="text-not-patchs">
-                  Nenhuma atualização programada
-                </span>
-
+      <!-- Body -->
+      <div class="pn-body pn-scroll">
+        <div class="pn-columns">
+          <!-- Latest Updates -->
+          <section class="pn-section pn-section--info">
+            <div class="pn-section__header pn-section__header--info">
+              <span class="pn-section__dot"></span>
+              <h2 class="pn-section__label">Últimas Atualizações</h2>
+            </div>
+            <div ref="scrollLasContainer" class="pn-list pn-scroll">
+              <template v-if="!latest_update">
+                <div class="pn-skeleton-group">
+                  <div class="pn-skeleton" v-for="n in 8" :key="n"></div>
+                </div>
+              </template>
+              <template v-else-if="!latest_update.length">
+                <div class="pn-empty">Nenhuma atualização disponível</div>
+              </template>
+              <template v-else>
                 <FeatureCard
                   v-for="(last, index) in latest_update"
                   :key="index"
@@ -117,52 +125,41 @@ const isRecent = (dateString) => {
                   :flag="last.flag"
                   :sparkles="isRecent(last.launched_at)"
                 />
-
-                <V3InfiniteLoading
-                  :distance="20"
-                  :target="scrollLasContainer"
-                  @infinite="loadMoreLatestUpdates"
-                >
-                  <template #complete>
-                    <span class=""></span>
-                  </template>
-
-                  <template #spinner>
-                    <section class="sections-skeleton-loader">
-                      <div class="skeleton-loader skeleton-color-latest_update">
-                        <div class="infinite-loader-spin"></div>
-                      </div>
-                    </section>
-                  </template>
-                </V3InfiniteLoading>
-              </div>
-            </section>
-
-            <section
-              class="modal-section-patch-notes future-section-patch-notes"
-            >
-              <h1 class="header_future_updates">Futuras Atualizações</h1>
-
-              <div
-                ref="scrollFutContainer"
-                class="features-list scrollable-section scroll_area_patch_notes_future_updates"
+              </template>
+              <V3InfiniteLoading
+                :distance="20"
+                :target="scrollLasContainer"
+                @infinite="loadMoreLatestUpdates"
               >
-                <section
-                  v-if="!future_updates"
-                  class="sections-skeleton-loader"
-                >
-                  <div
-                    class="skeleton-loader skeleton-color-latest_update"
-                    v-for="skeleton in 15"
-                  ></div>
-                </section>
+                <template #complete><span></span></template>
+                <template #spinner>
+                  <div class="pn-skeleton-group">
+                    <div class="pn-skeleton pn-skeleton--center">
+                      <div class="pn-spinner pn-spinner--info"></div>
+                    </div>
+                  </div>
+                </template>
+              </V3InfiniteLoading>
+            </div>
+          </section>
 
-                <span v-else-if="future_updates <= 0" class="text-not-patchs">
-                  Nenhuma atualização programada
-                </span>
-
+          <!-- Future Updates -->
+          <section class="pn-section pn-section--success">
+            <div class="pn-section__header pn-section__header--success">
+              <span class="pn-section__dot"></span>
+              <h2 class="pn-section__label">Futuras Atualizações</h2>
+            </div>
+            <div ref="scrollFutContainer" class="pn-list pn-scroll">
+              <template v-if="!future_updates">
+                <div class="pn-skeleton-group">
+                  <div class="pn-skeleton" v-for="n in 8" :key="n"></div>
+                </div>
+              </template>
+              <template v-else-if="!future_updates.length">
+                <div class="pn-empty">Nenhuma atualização programada</div>
+              </template>
+              <template v-else>
                 <FeatureCard
-                  v-else
                   v-for="(fut, index) in future_updates"
                   :key="index"
                   state="future-update"
@@ -172,299 +169,391 @@ const isRecent = (dateString) => {
                   :tutorial="fut.tutorial"
                   :flag="fut.flag"
                 />
-
-                <V3InfiniteLoading
-                  :distance="20"
-                  :target="scrollFutContainer"
-                  @infinite="loadMoreFutureUpdates"
-                >
-                  <template #complete>
-                    <span class=""></span>
-                  </template>
-
-                  <template #spinner>
-                    <section class="sections-skeleton-loader">
-                      <div
-                        class="skeleton-loader skeleton-color-future_updates"
-                      >
-                        <div class="infinite-loader-spin"></div>
-                      </div>
-                    </section>
-                  </template>
-                </V3InfiniteLoading>
-              </div>
-            </section>
-          </div>
-
-          <SendSuggestion
-            :loader="loader"
-            :sentSuccess="sentSuccess"
-            @postSuccess="getSuggestionText"
-          />
+              </template>
+              <V3InfiniteLoading
+                :distance="20"
+                :target="scrollFutContainer"
+                @infinite="loadMoreFutureUpdates"
+              >
+                <template #complete><span></span></template>
+                <template #spinner>
+                  <div class="pn-skeleton-group">
+                    <div class="pn-skeleton pn-skeleton--center">
+                      <div class="pn-spinner pn-spinner--success"></div>
+                    </div>
+                  </div>
+                </template>
+              </V3InfiniteLoading>
+            </div>
+          </section>
         </div>
+
+        <SendSuggestion
+          :loader="loader"
+          :sentSuccess="sentSuccess"
+          @postSuccess="getSuggestionText"
+        />
       </div>
     </div>
-  </main>
+  </div>
 </template>
 
 <style scoped>
-.modal-overlay-patch-notes {
+/* ── Overlay & backdrop ──────────────────────────────────── */
+.pn-overlay {
   position: fixed;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 50;
-  animation: modalani 0.1s ease-out;
-  transition: opacity 0.2s ease-in-out;
 }
 
-.modal-backdrop-patch-notes {
+.pn-backdrop {
   position: absolute;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.2);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(4px);
 }
 
-.modal-container-patch-notes {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.pn-container {
   position: fixed;
   inset: 0;
-  z-index: 50;
-}
-
-.modal-body-control {
-  display: flex;
-  gap: 0.5rem;
-  grid-column: span 2 / span 2;
-  width: 100%;
-}
-
-.modal-content-patch-notes {
-  padding: 0.25rem;
-  width: 100%;
-  background-color: var(--base-300, #0f172a);
-  border-radius: 0.5rem;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
-  max-width: 90rem;
-  max-height: 100vh;
-  overflow-y: auto;
-  position: relative;
-}
-
-.modal-header-patch-notes {
+  z-index: 51;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  padding: 0.5rem;
-  border-radius: 0.5rem 0.5rem 0 0;
-}
-
-.modal-close-btn-patch-notes {
-  color: #9ca3af;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  border-radius: 0.5rem;
-  width: 2rem;
-  height: 2rem;
-  display: inline-flex;
   justify-content: center;
+  padding: 1rem;
+  pointer-events: none;
+}
+
+/* ── Modal shell ─────────────────────────────────────────── */
+.pn-modal {
+  /* Design tokens — cascade from host theme, fallback to project vars, then hardcoded */
+  --_bg: var(
+    --bg-modal,
+    var(--color-background-default, rgb(var(--bg-base-200, 32 44 51)))
+  );
+  --_panel: rgb(var(--bg-base-200, 32 44 51));
+  --_surface: rgb(var(--bg-base-100, 48 66 77));
+  --_primary: var(
+    --color-patch-notes-updates,
+    var(--color-state-info, var(--primary, #3666f0))
+  );
+  --_success: var(
+    --color-patch-notes-future,
+    var(--color-state-success, var(--accent, #21b458))
+  );
+  --_text: var(--color-text-primary, rgb(var(--text-base, 231 234 240)));
+  --_muted: var(--color-text-muted, rgb(var(--text-muted, 148 163 184)));
+  --_border: var(
+    --color-border-default,
+    var(--border-default, rgba(255, 255, 255, 0.08))
+  );
+  --_inverse: var(--color-text-inverse, rgb(var(--text-inverted, 255 255 255)));
+
+  background: var(--_bg);
+  border-radius: 1.25rem;
+  box-shadow:
+    0 30px 60px rgba(0, 0, 0, 0.5),
+    -6px -6px 18px rgba(255, 255, 255, 0.03),
+    6px 6px 18px rgba(0, 0, 0, 0.45);
+  width: 100%;
+  max-width: 90rem;
+  max-height: calc(100vh - 2rem);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  pointer-events: all;
+  animation: pn-enter 0.15s ease-out;
+}
+
+/* ── Header ──────────────────────────────────────────────── */
+.pn-header {
+  display: flex;
   align-items: center;
-}
-
-.modal-close-btn-patch-notes:hover {
-  background-color: #e5e7eb;
-  color: #111827;
-}
-
-.modal-close-btn-patch-notes:hover svg {
-  color: #111827;
-}
-
-.modal-close-icon-patch-notes {
-  width: 0.75rem;
-  height: 0.75rem;
-}
-
-.modal-body-patch-notes {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
   justify-content: space-between;
-  padding: 0.5rem;
-  overflow-y: auto;
-  width: 100%;
+  padding: 1rem 1.5rem;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
-.modal-section-patch-notes {
-  width: 100%;
-  border-radius: 10px;
-  padding: 0.5rem;
+.pn-header__brand {
   display: flex;
-  flex-direction: column;
-}
-
-.features-list {
-  position: relative;
-  height: 70vh;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 0.5rem;
-  margin-top: 0.5rem;
 }
 
-@media (min-width: 1280px) {
-  .modal-body-patch-notes {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-  }
+.pn-header__icon {
+  width: 1.1rem;
+  height: 1.1rem;
+  color: var(--_primary);
+  flex-shrink: 0;
+}
+
+.pn-header__title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--_text);
+  line-height: 1;
+  margin: 0;
+}
+
+.pn-close-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.875rem;
+  height: 1.875rem;
+  border-radius: 0.5rem;
+  border: none;
+  background: transparent;
+  color: var(--_text);
+  opacity: 0.5;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    opacity 0.2s,
+    box-shadow 0.2s;
+  flex-shrink: 0;
+}
+
+.pn-close-btn:hover {
+  background: var(--_surface);
+  opacity: 1;
+  box-shadow:
+    -2px -2px 6px rgba(255, 255, 255, 0.04),
+    2px 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.pn-close-btn svg {
+  width: 0.6875rem;
+  height: 0.6875rem;
+}
+
+/* ── Body ────────────────────────────────────────────────── */
+.pn-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  overflow-y: auto;
+}
+
+/* ── Columns (update sections) ───────────────────────────── */
+.pn-columns {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 @media (min-width: 864px) {
-  .modal-content-patch-notes {
-    margin: 0;
-  }
-
-  .features-list {
-    /* min-height: 70vh;
-    max-height: 70vh; */
+  .pn-columns {
+    flex-direction: row;
   }
 }
 
-.updates-section-patch-notes {
-  background-color: rgba(54, 102, 240, 0.2);
+@media (min-width: 1280px) {
+  .pn-body {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .pn-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
-.future-section-patch-notes {
-  background-color: rgba(33, 180, 88, 0.2);
-}
-
-.scrollable-section {
-  overflow: auto;
-}
-
-.header_latest_update {
-  background: #3666f0;
-  padding: 16px;
-  border-radius: 10px;
-  color: white;
-  font-size: 0.9rem;
-  line-height: 1rem;
-  font-weight: 600;
-}
-
-.header_future_updates {
-  background: #21b458;
-  padding: 16px;
-  border-radius: 10px;
-  color: white;
-  font-size: 0.9rem;
-  line-height: 1rem;
-  font-weight: 600;
-}
-
-.scroll_area_patch_notes_latest_update::-webkit-scrollbar {
-  width: 3px;
-}
-
-.scroll_area_patch_notes_latest_update::-webkit-scrollbar-thumb {
-  background-color: rgba(33, 180, 87, 0);
-  border-radius: 4px;
-}
-
-.scroll_area_patch_notes_latest_update::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.scroll_area_patch_notes_future_updates::-webkit-scrollbar {
-  width: 3px;
-}
-
-.scroll_area_patch_notes_future_updates::-webkit-scrollbar-thumb {
-  background-color: rgba(33, 180, 87, 0);
-  border-radius: 4px;
-}
-
-.scroll_area_patch_notes_future_updates::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.text-not-patchs {
-  color: white;
-  justify-content: center;
-  align-items: center;
+/* ── Section card ────────────────────────────────────────── */
+.pn-section {
+  flex: 1;
   display: flex;
-  height: 100%;
-  font-weight: 500;
+  flex-direction: column;
+  background: var(--_panel);
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow:
+    inset 2px 2px 8px rgba(0, 0, 0, 0.3),
+    inset -1px -1px 4px rgba(255, 255, 255, 0.03);
 }
 
-.sections-skeleton-loader {
-  width: 100%;
+.pn-section--info {
+  background: color-mix(in srgb, var(--_primary) 8%, var(--_panel));
+}
+
+.pn-section--success {
+  background: color-mix(in srgb, var(--_success) 8%, var(--_panel));
+}
+
+.pn-section__header {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.875rem 1rem;
+  flex-shrink: 0;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+.pn-section--info .pn-section__header {
+  background: color-mix(in srgb, var(--_primary) 14%, transparent);
+}
+
+.pn-section--success .pn-section__header {
+  background: color-mix(in srgb, var(--_success) 14%, transparent);
+}
+
+.pn-section__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.pn-section__header--info .pn-section__dot {
+  background: var(--_primary);
+  box-shadow: 0 0 7px var(--_primary);
+}
+
+.pn-section__header--success .pn-section__dot {
+  background: var(--_success);
+  box-shadow: 0 0 7px var(--_success);
+}
+
+.pn-section__label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--_text);
+  line-height: 1;
+  margin: 0;
+}
+
+/* ── Scrollable list ─────────────────────────────────────── */
+.pn-list {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  padding: 0.625rem;
+  max-height: 50vh;
+  overflow-y: auto;
 }
 
-.skeleton-loader {
+@media (min-width: 864px) {
+  .pn-list {
+    height: 62vh;
+    max-height: 62vh;
+  }
+}
+
+/* ── Scrollbar ───────────────────────────────────────────── */
+.pn-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.pn-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.pn-scroll::-webkit-scrollbar-thumb {
+  background: var(--_border);
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+.pn-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--_muted);
+}
+
+/* ── Empty state ─────────────────────────────────────────── */
+.pn-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  color: var(--_muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+/* ── Skeletons ───────────────────────────────────────────── */
+.pn-skeleton-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
   width: 100%;
-  height: 7.1rem;
-  border-radius: 10px;
-  @apply justify-center items-center mx-auto flex;
+  animation: pn-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-.skeleton-color-latest_update {
-  background-color: #27435b;
+.pn-skeleton {
+  width: 100%;
+  height: 7rem;
+  border-radius: 0.5rem;
+  background: var(--_surface);
 }
 
-.skeleton-color-future_updates {
-  background-color: #225a49;
+.pn-skeleton--center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-@keyframes pulse {
-  50% {
-    opacity: 0.5;
-  }
-}
-
-@keyframes modalani {
-  0% {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.infinite-loader-spin {
+/* ── Spinner ─────────────────────────────────────────────── */
+.pn-spinner {
   --r1: 154%;
   --r2: 68.5%;
+  --spin-color: var(--_primary);
   width: 20px;
   aspect-ratio: 1;
   border-radius: 50%;
   background:
-    radial-gradient(var(--r1) var(--r2) at top, #0000 79.5%, #269af2 80%),
-    radial-gradient(var(--r1) var(--r2) at bottom, #269af2 79.5%, #0000 80%),
-    radial-gradient(var(--r1) var(--r2) at top, #0000 79.5%, #269af2 80%), #ccc;
+    radial-gradient(
+      var(--r1) var(--r2) at top,
+      #0000 79.5%,
+      var(--spin-color) 80%
+    ),
+    radial-gradient(
+      var(--r1) var(--r2) at bottom,
+      var(--spin-color) 79.5%,
+      #0000 80%
+    ),
+    radial-gradient(
+      var(--r1) var(--r2) at top,
+      #0000 79.5%,
+      var(--spin-color) 80%
+    ),
+    var(--_surface);
   background-size: 50.5% 220%;
   background-position:
     -100% 0%,
     0% 0%,
     100% 0%;
   background-repeat: no-repeat;
-  animation: l9 2s infinite linear;
+  animation: pn-spin 2s infinite linear;
 }
 
-@keyframes l9 {
+.pn-spinner--success {
+  --spin-color: var(--_success);
+}
+
+/* ── Animations ──────────────────────────────────────────── */
+@keyframes pn-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes pn-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@keyframes pn-spin {
   33% {
     background-position:
       0% 33%,
