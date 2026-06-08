@@ -390,141 +390,38 @@ onBeforeUnmount(() => {
                     </svg>
                   </Popper>
                   <slot :name="`header-${col.key}`" />
-                  <!-- Column filter dropdown -->
-                  <Popper
+                  <!-- Column filter trigger -->
+                  <button
                     v-if="col.filter"
-                    placement="bottom"
-                    :hover="false"
-                    :arrow="false"
-                    :locked="true"
-                    class="filter-popper z-50"
-                    @close:popper="onPopperClose(col)"
+                    :ref="(el) => setFilterTriggerRef(getFilterKey(col), el)"
+                    :title="isFilterActive(col) ? 'Filtro ativo' : 'Filtrar'"
+                    :class="[
+                      'filter-trigger',
+                      { 'filter-trigger--active ring-primary/20 text-primary': isFilterActive(col) },
+                    ]"
+                    @click.stop="openFilter(col)"
                   >
-                    <template #content>
-                      <div class="filter-dropdown" @click.stop>
-                        <!-- Header -->
-                        <div class="filter-dropdown-header">
-                          <span class="filter-dropdown-title">
-                            {{ col.label }}
-                          </span>
-                          <button
-                            v-if="isFilterActive(col)"
-                            @click="clearFilter(col)"
-                            class="filter-clear-btn"
-                            title="Limpar filtro"
-                          >
-                            <svg
-                              class="size-3.5"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              stroke-width="2.5"
-                            >
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M6 18L18 6M6 6l12 12"
-                              />
-                            </svg>
-                          </button>
-                        </div>
-
-                        <!-- Text input ──────────────────── -->
-                        <FilterText
-                          v-if="col.filter.type === 'text'"
-                          :model-value="pendingFilters[getFilterKey(col)]"
-                          :placeholder="col.filter.placeholder"
-                          @update:model-value="(v) => setFilter(col, v)"
-                        />
-
-                        <!-- Select / single-choice chips ── -->
-                        <FilterSelect
-                          v-else-if="col.filter.type === 'select'"
-                          :options="col.filter.options"
-                          :model-value="pendingFilters[getFilterKey(col)]"
-                          @update:model-value="(v) => setFilter(col, v)"
-                        />
-
-                        <!-- Checkbox (legacy multi-select) ─ -->
-                        <div
-                          v-else-if="col.filter.type === 'checkbox'"
-                          class="filter-dropdown-body"
-                        >
-                          <label
-                            v-for="opt in col.filter.options"
-                            :key="opt.value"
-                            class="filter-checkbox-row"
-                          >
-                            <input
-                              type="checkbox"
-                              :checked="isCheckboxChecked(col, opt.value)"
-                              @change="onCheckboxToggle(col, opt.value)"
-                              class="filter-checkbox"
-                            />
-                            <span>{{ opt.label }}</span>
-                          </label>
-                        </div>
-
-                        <!-- Multiselect (emits comma-separated IDs) -->
-                        <FilterMultiselect
-                          v-else-if="col.filter.type === 'multiselect'"
-                          :options="col.filter.options"
-                          :model-value="pendingFilters[getFilterKey(col)] ?? []"
-                          :placeholder="col.filter.placeholder"
-                          @update:model-value="
-                            (v) => setFilter(col, v.length ? v : null)
-                          "
-                        />
-
-                        <!-- Tag selector -->
-                        <SelectMultipleTags
-                          v-else-if="col.filter.type === 'tag'"
-                          :model-value="pendingFilters[getFilterKey(col)] ?? []"
-                          :all-tags="getTagFilterAllTags(col)"
-                          :overlay="true"
-                          :multiple="col.filter.multiple !== false"
-                          @update:model-value="
-                            (v) => setFilter(col, v.length ? v : null)
-                          "
-                        />
-                        
-                      </div>
-          
-                    </template>
-
-                    <!-- Trigger: funnel icon + optional count badge -->
-                    <button
-                      :title="isFilterActive(col) ? 'Filtro ativo' : 'Filtrar'"
-                      :class="[
-                        'filter-trigger',
-                        { 'filter-trigger--active ring-primary/20 text-primary': isFilterActive(col) },
-                      ]"
+                    <svg
+                      class="size-3.5"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
                     >
-                      <svg
-                        class="size-3.5"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          d="M5.05 3C3.291 3 2.352 5.024 3.51 6.317l5.422 6.059v4.874c0 .472.227.917.613 1.2l3.069 2.25c1.01.742 2.454.036 2.454-1.2v-7.124l5.422-6.059C21.647 5.024 20.708 3 18.95 3H5.05Z"
-                        />
-                      </svg>
-                      <!-- Count badge for multiselect -->
-                      <span
-                        v-if="
-                          col.filter?.type === 'multiselect' &&
-                          getActiveCount(col) > 0
-                        "
-                        class="filter-count-badge bg-secondary text-secondary-content"
-                      >
-                        {{ getActiveCount(col) }}
-                      </span>
-                    </button>
-                  </Popper>
+                      <path
+                        d="M5.05 3C3.291 3 2.352 5.024 3.51 6.317l5.422 6.059v4.874c0 .472.227.917.613 1.2l3.069 2.25c1.01.742 2.454.036 2.454-1.2v-7.124l5.422-6.059C21.647 5.024 20.708 3 18.95 3H5.05Z"
+                      />
+                    </svg>
+                    <!-- Count badge for multiselect -->
+                    <span
+                      v-if="col.filter?.type === 'multiselect' && getActiveCount(col) > 0"
+                      class="filter-count-badge bg-secondary text-secondary-content"
+                    >
+                      {{ getActiveCount(col) }}
+                    </span>
+                  </button>
                 </div>
               </th>
             </tr>
@@ -593,6 +490,84 @@ onBeforeUnmount(() => {
     </template>
   </div>
   </section>
+
+  <!-- Filter panel — teleported to body to escape modal stacking context -->
+  <Teleport to="body">
+    <div
+      v-if="openFilterKey && openFilterColumn"
+      ref="filterPanelRef"
+      :style="filterPanelStyle"
+      class="filter-panel-teleport filter-dropdown"
+      @click.stop
+    >
+      <!-- Header -->
+      <div class="filter-dropdown-header">
+        <span class="filter-dropdown-title">{{ openFilterColumn.label }}</span>
+        <button
+          v-if="isFilterActive(openFilterColumn)"
+          class="filter-clear-btn"
+          title="Limpar filtro"
+          @click="clearFilter(openFilterColumn)"
+        >
+          <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Text -->
+      <FilterText
+        v-if="openFilterColumn.filter.type === 'text'"
+        :model-value="pendingFilters[getFilterKey(openFilterColumn)]"
+        :placeholder="openFilterColumn.filter.placeholder"
+        @update:model-value="(v) => setFilter(openFilterColumn, v)"
+      />
+
+      <!-- Select -->
+      <FilterSelect
+        v-else-if="openFilterColumn.filter.type === 'select'"
+        :options="openFilterColumn.filter.options"
+        :model-value="pendingFilters[getFilterKey(openFilterColumn)]"
+        @update:model-value="(v) => { setFilter(openFilterColumn, v); closeFilter(); }"
+      />
+
+      <!-- Checkbox -->
+      <div v-else-if="openFilterColumn.filter.type === 'checkbox'" class="filter-dropdown-body">
+        <label
+          v-for="opt in openFilterColumn.filter.options"
+          :key="opt.value"
+          class="filter-checkbox-row"
+        >
+          <input
+            type="checkbox"
+            :checked="isCheckboxChecked(openFilterColumn, opt.value)"
+            class="filter-checkbox"
+            @change="onCheckboxToggle(openFilterColumn, opt.value)"
+          />
+          <span>{{ opt.label }}</span>
+        </label>
+      </div>
+
+      <!-- Multiselect -->
+      <FilterMultiselect
+        v-else-if="openFilterColumn.filter.type === 'multiselect'"
+        :options="openFilterColumn.filter.options"
+        :model-value="pendingFilters[getFilterKey(openFilterColumn)] ?? []"
+        :placeholder="openFilterColumn.filter.placeholder"
+        @update:model-value="(v) => setFilter(openFilterColumn, v.length ? v : null)"
+      />
+
+      <!-- Tag selector -->
+      <SelectMultipleTags
+        v-else-if="openFilterColumn.filter.type === 'tag'"
+        :model-value="pendingFilters[getFilterKey(openFilterColumn)] ?? []"
+        :all-tags="getTagFilterAllTags(openFilterColumn)"
+        :overlay="true"
+        :multiple="openFilterColumn.filter.multiple !== false"
+        @update:model-value="(v) => setFilter(openFilterColumn, v.length ? v : null)"
+      />
+    </div>
+  </Teleport>
 </template>
 
 <style scoped>
@@ -692,6 +667,79 @@ onBeforeUnmount(() => {
 }
 
 .filter-checkbox {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.04);
+  accent-color: #69eeb7;
+}
+</style>
+
+<style>
+/* Teleported filter panel — must be global (outside modal stacking context) */
+.filter-panel-teleport {
+  border-radius: 12px;
+  box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.7);
+  padding: 8px;
+  @apply bg-base-200 border border-base-100
+}
+
+.filter-panel-teleport .filter-dropdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; 
+  padding: 4px 4px 8px;
+  @apply border-b border-base-100
+}
+
+.filter-panel-teleport .filter-dropdown-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.6;
+}
+
+.filter-panel-teleport .filter-clear-btn {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  color: rgba(252, 165, 165, 0.9);
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+
+.filter-panel-teleport .filter-clear-btn:hover {
+  background: rgba(239, 68, 68, 0.18);
+  transform: translateY(-1px);
+}
+
+.filter-panel-teleport .filter-dropdown-body {
+  padding-top: 10px;
+}
+
+.filter-panel-teleport .filter-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.75);
+  transition: background 120ms ease;
+}
+
+.filter-panel-teleport .filter-checkbox-row:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.filter-panel-teleport .filter-checkbox {
   width: 16px;
   height: 16px;
   border-radius: 4px;
