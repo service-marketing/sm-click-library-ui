@@ -79,6 +79,15 @@ const sendSuggestions = () => {
 
 <style scoped>
 .main-send-suggestion {
+  --fc-text: var(
+    --_text,
+    var(--color-text-primary, rgb(var(--text-base, 231 234 240)))
+  );
+  --fc-muted: var(
+    --_muted,
+    var(--color-text-muted, rgb(var(--text-muted, 148 163 184)))
+  );
+
   position: relative;
 }
 
@@ -100,33 +109,40 @@ const sendSuggestions = () => {
   flex-direction: column;
   justify-content: space-between;
   text-align: center;
-  color: white;
+  color: var(--fc-muted);
 }
 
 .container-send-suggestion {
-  --blue-primary: #2563eb;
-  --gray-primary: #46637b;
-  --gray-secondary: #9ca0a6;
-
   height: 100%;
-  background-color: #212730;
+  background-color: var(
+    --_panel,
+    var(--color-surface-default, rgb(var(--bg-base-200, 32 44 51)))
+  );
   padding: 0.5rem;
-  border-radius: 10px;
+  border-radius: 0.75rem;
   display: flex;
   flex-direction: column;
   gap: 8px;
+  box-shadow: inset 2px 2px 8px rgba(0, 0, 0, 0.25),
+    inset -1px -1px 4px rgba(255, 255, 255, 0.03);
 }
 
 .tool_tip_suggestion_error {
   text-align: center;
-  color: rgba(199, 40, 8, 0.977);
+  color: var(--color-state-error, rgba(199, 40, 8, 0.977));
   transition: ease-in;
 }
 
 .input_send_suggestion {
   width: 100%;
-  background-color: var(--gray-primary);
-  color: white;
+  background-color: var(
+    --_surface,
+    var(--color-surface-elevated, rgb(var(--bg-base-100, 48 66 77)))
+  );
+  color: var(
+    --_text,
+    var(--color-text-primary, rgb(var(--text-base, 231 234 240)))
+  );
   font-size: 12px;
   border-radius: 10px;
   padding: 12px;
@@ -135,7 +151,10 @@ const sendSuggestions = () => {
 }
 
 .input_send_suggestion::placeholder {
-  color: var(--gray-secondary);
+  color: var(
+    --_muted,
+    var(--color-text-muted, rgb(var(--text-muted, 148 163 184)))
+  );
 }
 
 .textarea-send-suggestion {
@@ -145,33 +164,45 @@ const sendSuggestions = () => {
 }
 
 .submit-button-send-suggestion {
-  background-color: var(--blue-primary);
+  background-color: var(
+    --_primary,
+    var(--color-brand-primary, var(--primary, #2563eb))
+  );
   width: 100%;
   min-height: 40px;
   padding: 0.5rem;
-  color: white;
+  color: var(--_inverse, var(--color-text-inverse, #ffffff));
   border-radius: 10px;
   font-size: 0.875rem;
   border: none;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, box-shadow 0.2s;
   display: flex;
   justify-content: center;
   font-weight: 600;
 }
 
 .submit-button-send-suggestion:hover {
-  background-color: #1e40af;
+  background-color: var(--primary-alt, var(--color-brand-primary-alt, #1e40af));
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
 }
 
 .header_send_suggestion {
-  background: #333741;
+  background: var(
+    --_surface,
+    var(--color-surface-elevated, rgb(var(--bg-base-100, 48 66 77)))
+  );
   padding: 16px;
   border-radius: 10px;
-  color: white;
+  color: var(
+    --_text,
+    var(--color-text-primary, rgb(var(--text-base, 231 234 240)))
+  );
   font-size: 0.9rem;
   line-height: 1rem;
   font-weight: 600;
+  box-shadow: inset 1px 1px 4px rgba(0, 0, 0, 0.2),
+    inset -1px -1px 3px rgba(255, 255, 255, 0.04);
 }
 
 .loader-suggestion {
@@ -179,7 +210,7 @@ const sendSuggestions = () => {
   padding: 6px;
   aspect-ratio: 1;
   border-radius: 50%;
-  background: #ffffff;
+  background: var(--_inverse, #ffffff);
   --_m: conic-gradient(#0000 10%, #000), linear-gradient(#000 0 0) content-box;
   -webkit-mask: var(--_m);
   mask: var(--_m);
@@ -187,6 +218,7 @@ const sendSuggestions = () => {
   mask-composite: subtract;
   animation: l3 1s infinite linear;
 }
+
 @keyframes l3 {
   to {
     transform: rotate(1turn);
