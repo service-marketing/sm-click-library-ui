@@ -529,7 +529,7 @@ onBeforeUnmount(() => {
               </th>
             </tr>
           </thead>
-          <tbody v-if="rows.length > 0" class="divide-y divide-white/[0.04]">
+          <tbody v-if="rows.length > 0" class="divide-y divide-base-100/20">
             <tr
               v-for="(row, index) in rows"
               :key="row.id ?? index"

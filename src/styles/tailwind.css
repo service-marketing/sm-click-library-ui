@@ -7,7 +7,7 @@
 }
 
 .action-btn {
-  @apply bg-base-200 relative rounded-md border border-base-200 p-1 hover:bg-base-100/70 hover:scale-105 transition-all hover:text-white;
+  @apply bg-base-200 relative rounded-lg border border-base-200 p-1 hover:bg-base-100/70 hover:scale-105 transition-all hover:text-white;
 }
 
 /* Action buttons styles */
@@ -25,4 +25,19 @@
 
 .action-btn-info {
   @apply text-cyan-100 dark:text-cyan-400 hover:bg-cyan-500/15 hover:border hover:border-cyan-300/50;
+}
+
+/* ── Icon action button (tables, lists, toolbars) ─────── */
+/* .action-btn {
+    @apply p-1.5 rounded-lg transition-colors cursor-pointer flex items-center justify-center;
+} */
+
+/* ── Table header cell ─────────────────────────────────── */
+.table-th {
+    @apply bg-base-200/40 backdrop-blur-sm text-current px-4 py-2.5 text-[12px] font-semibold uppercase tracking-wide whitespace-nowrap sticky top-0 z-10;
+}
+
+/* ── Base table ────────────────────────────────────────── */
+.table-base {
+    @apply w-full border-collapse border-base-200 text-sm;
 }
