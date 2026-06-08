@@ -397,7 +397,7 @@ onBeforeUnmount(() => {
                     :title="isFilterActive(col) ? 'Filtro ativo' : 'Filtrar'"
                     :class="[
                       'filter-trigger',
-                      { 'filter-trigger--active ring-primary/20 text-primary': isFilterActive(col) },
+                      { 'filter-trigger--active  text-primary': isFilterActive(col) },
                     ]"
                     @click.stop="openFilter(col)"
                   >
@@ -584,11 +584,7 @@ onBeforeUnmount(() => {
 
 .filter-trigger {
   position: relative;
-  @apply flex-shrink-0 rounded-md p-1 transition-all duration-200 cursor-pointer text-gray-500 hover:text-current;
-}
-
-.filter-trigger--active {
-  @apply  ring-1;
+  @apply flex-shrink-0 rounded-md p-1 transition-all duration-200 cursor-pointer hover:text-current;
 }
 
 .filter-count-badge {
@@ -682,7 +678,7 @@ onBeforeUnmount(() => {
   border-radius: 12px;
   box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.7);
   padding: 8px;
-  @apply bg-base-200 border border-base-100
+  @apply bg-base-200 text-white/80 dark:text-gray-800 border border-base-100
 }
 
 .filter-panel-teleport .filter-dropdown-header {
