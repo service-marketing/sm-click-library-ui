@@ -95,7 +95,10 @@ function setFilterTriggerRef(key, el) {
 
 const openFilterColumn = computed(() => {
   if (!openFilterKey.value) return null;
-  return props.columns.find((col) => getFilterKey(col) === openFilterKey.value) || null;
+  return (
+    props.columns.find((col) => getFilterKey(col) === openFilterKey.value) ||
+    null
+  );
 });
 
 function getTagFilterAllTags(col) {
@@ -104,13 +107,21 @@ function getTagFilterAllTags(col) {
   if (Array.isArray(source)) {
     return {
       results: source.map((item) => {
-        if (item && typeof item === "object" && "id" in item && "name" in item) {
+        if (
+          item &&
+          typeof item === "object" &&
+          "id" in item &&
+          "name" in item
+        ) {
           return item;
         }
 
         return {
           id: String(item?.value ?? item?.id ?? item ?? ""),
-          name: item?.label ?? item?.name ?? String(item?.value ?? item?.id ?? item ?? ""),
+          name:
+            item?.label ??
+            item?.name ??
+            String(item?.value ?? item?.id ?? item ?? ""),
           color: item?.color,
         };
       }),
@@ -338,157 +349,163 @@ onBeforeUnmount(() => {
 
 <template>
   <section class="flex flex-col h-full min-h-0">
-  <div class="flex flex-col flex-1 min-h-0 w-full">
-    <!-- Loading state -->
-    <div
-      v-if="loading"
-      class="flex justify-center rounded-b-xl p-10 bg-base-200"
-    >
-      <slot name="loading">
-        <div
-          class="mx-auto size-14 animate-spin rounded-full border-4 border-teal-600 border-t-transparent"
-        ></div>
-      </slot>
-    </div>
-
-    <template v-else>
-      <!-- Table -->
-      <div class="flex-1 pb-1 min-h-0 w-full overflow-x-auto overflow-y-auto">
-        <table class="table-base">
-          <thead>
-            <tr class="text-left">
-              <th
-                v-for="col in columns"
-                :key="col.key"
-                scope="col"
-                :class="['table-th', col.width, col.headerClass]"
-              >
-                <div
-                  class="flex items-center font-bold gap-1.5"
-                  :class="getHeaderFlexClass(col.headerAlign)"
-                >
-                  <span>{{ col.label }}</span>
-
-                  <!-- Tooltip de informação -->
-                  <Popper
-                    v-if="col.tooltip"
-                    placement="top"
-                    :arrow="true"
-                    :hover="true"
-                    :content="col.tooltip"
-                  >
-                    <svg
-                      class="size-3.5 text-current opacity-70 hover:opacity-100 transition-opacity cursor-help"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
-                      />
-                    </svg>
-                  </Popper>
-                  <slot :name="`header-${col.key}`" />
-                  <!-- Column filter trigger -->
-                  <button
-                    v-if="col.filter"
-                    :ref="(el) => setFilterTriggerRef(getFilterKey(col), el)"
-                    :title="isFilterActive(col) ? 'Filtro ativo' : 'Filtrar'"
-                    :class="[
-                      'filter-trigger',
-                      { 'filter-trigger--active  text-primary': isFilterActive(col) },
-                    ]"
-                    @click.stop="openFilter(col)"
-                  >
-                    <svg
-                      class="size-3.5"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        d="M5.05 3C3.291 3 2.352 5.024 3.51 6.317l5.422 6.059v4.874c0 .472.227.917.613 1.2l3.069 2.25c1.01.742 2.454.036 2.454-1.2v-7.124l5.422-6.059C21.647 5.024 20.708 3 18.95 3H5.05Z"
-                      />
-                    </svg>
-                    <!-- Count badge for multiselect -->
-                    <span
-                      v-if="col.filter?.type === 'multiselect' && getActiveCount(col) > 0"
-                      class="filter-count-badge bg-secondary text-secondary-content"
-                    >
-                      {{ getActiveCount(col) }}
-                    </span>
-                  </button>
-                </div>
-              </th>
-            </tr>
-          </thead>
-          <tbody v-if="rows.length > 0" class="divide-y divide-base-100/20">
-            <tr
-              v-for="(row, index) in rows"
-              :key="row.id ?? index"
-              class="bg-base-300 hover:bg-base-content/[0.02] transition-colors"
-            >
-              <td
-                v-for="col in columns"
-                :key="col.key"
-                :class="['px-4 py-2.5 whitespace-nowrap', col.cellClass]"
-              >
-                <slot
-                  :name="`cell-${col.key}`"
-                  :row="row"
-                  :value="row[col.key]"
-                >
-                  <span class="whitespace-nowrap">{{ row[col.key] }}</span>
-                </slot>
-              </td>
-            </tr>
-          </tbody>
-
-          <!-- Empty state inside the table so the thead (filters) stays visible -->
-          <tbody v-else>
-            <tr>
-              <td :colspan="columns.length" class="bg-base-300 py-4">
-                <div
-                  class="flex min-h-[500px] w-full items-center justify-center text-center"
-                >
-                  <slot name="empty">
-                    <TableEmptyState
-                      :empty-text="emptyText"
-                      :has-active-filters="hasActiveFilters"
-                      :chips="activeFilterChips"
-                      @clear-filter="clearFilter"
-                      @clear-all="clearAllFilters"
-                    >
-                      <template #empty-action>
-                        <slot name="empty-action" />
-                      </template>
-                    </TableEmptyState>
-                  </slot>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+    <div class="flex flex-col flex-1 min-h-0 w-full">
+      <!-- Loading state -->
+      <div
+        v-if="loading"
+        class="flex justify-center rounded-b-xl p-10 bg-base-200"
+      >
+        <slot name="loading">
+          <div
+            class="mx-auto size-14 animate-spin rounded-full border-4 border-teal-600 border-t-transparent"
+          ></div>
+        </slot>
       </div>
 
-      <!-- Pagination -->
-      <footer
-        v-if="totalItems > itemsPerPage"
-        class="flex flex-shrink-0 items-center justify-between border-t border-white/[0.05] bg-base-200 rounded-b-xl"
-      >
-        <TablePagination
-          :current-page="currentPage"
-          :total-items="totalItems"
-          :items-per-page="itemsPerPage"
-          @change="$emit('update:currentPage', $event)"
-        />
-      </footer>
-    </template>
-  </div>
+      <template v-else>
+        <!-- Table -->
+        <div class="flex-1 pb-1 min-h-0 w-full overflow-x-auto overflow-y-auto">
+          <table class="table-base">
+            <thead>
+              <tr class="text-left">
+                <th
+                  v-for="col in columns"
+                  :key="col.key"
+                  scope="col"
+                  :class="['table-th', col.width, col.headerClass]"
+                >
+                  <div
+                    class="flex items-center font-bold gap-1.5"
+                    :class="getHeaderFlexClass(col.headerAlign)"
+                  >
+                    <span>{{ col.label }}</span>
+
+                    <!-- Tooltip de informação -->
+                    <Popper
+                      v-if="col.tooltip"
+                      placement="top"
+                      :arrow="true"
+                      :hover="true"
+                      :content="col.tooltip"
+                    >
+                      <svg
+                        class="size-3.5 text-current opacity-70 hover:opacity-100 transition-opacity cursor-help"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
+                        />
+                      </svg>
+                    </Popper>
+                    <slot :name="`header-${col.key}`" />
+                    <!-- Column filter trigger -->
+                    <button
+                      v-if="col.filter"
+                      :ref="(el) => setFilterTriggerRef(getFilterKey(col), el)"
+                      :title="isFilterActive(col) ? 'Filtro ativo' : 'Filtrar'"
+                      :class="[
+                        'filter-trigger',
+                        {
+                          'filter-trigger--active  text-primary':
+                            isFilterActive(col),
+                        },
+                      ]"
+                      @click.stop="openFilter(col)"
+                    >
+                      <svg
+                        class="size-3.5"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          d="M5.05 3C3.291 3 2.352 5.024 3.51 6.317l5.422 6.059v4.874c0 .472.227.917.613 1.2l3.069 2.25c1.01.742 2.454.036 2.454-1.2v-7.124l5.422-6.059C21.647 5.024 20.708 3 18.95 3H5.05Z"
+                        />
+                      </svg>
+                      <!-- Count badge for multiselect -->
+                      <span
+                        v-if="
+                          col.filter?.type === 'multiselect' &&
+                          getActiveCount(col) > 0
+                        "
+                        class="filter-count-badge bg-secondary text-secondary-content"
+                      >
+                        {{ getActiveCount(col) }}
+                      </span>
+                    </button>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody v-if="rows.length > 0" class="divide-y divide-base-100/20">
+              <tr
+                v-for="(row, index) in rows"
+                :key="row.id ?? index"
+                class="bg-base-300 hover:bg-base-content/[0.02] transition-colors"
+              >
+                <td
+                  v-for="col in columns"
+                  :key="col.key"
+                  :class="['px-4 py-2.5 whitespace-nowrap', col.cellClass]"
+                >
+                  <slot
+                    :name="`cell-${col.key}`"
+                    :row="row"
+                    :value="row[col.key]"
+                  >
+                    <span class="whitespace-nowrap">{{ row[col.key] }}</span>
+                  </slot>
+                </td>
+              </tr>
+            </tbody>
+
+            <!-- Empty state inside the table so the thead (filters) stays visible -->
+            <tbody v-else>
+              <tr>
+                <td :colspan="columns.length" class="bg-base-300 py-4">
+                  <div
+                    class="flex min-h-[500px] w-full items-center justify-center text-center"
+                  >
+                    <slot name="empty">
+                      <TableEmptyState
+                        :empty-text="emptyText"
+                        :has-active-filters="hasActiveFilters"
+                        :chips="activeFilterChips"
+                        @clear-filter="clearFilter"
+                        @clear-all="clearAllFilters"
+                      >
+                        <template #empty-action>
+                          <slot name="empty-action" />
+                        </template>
+                      </TableEmptyState>
+                    </slot>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <footer
+          v-if="totalItems > itemsPerPage"
+          class="flex flex-shrink-0 items-center justify-between border-t border-white/[0.05] bg-base-200"
+        >
+          <TablePagination
+            :current-page="currentPage"
+            :total-items="totalItems"
+            :items-per-page="itemsPerPage"
+            @change="$emit('update:currentPage', $event)"
+          />
+        </footer>
+      </template>
+    </div>
   </section>
 
   <!-- Filter panel — teleported to body to escape modal stacking context -->
@@ -509,8 +526,18 @@ onBeforeUnmount(() => {
           title="Limpar filtro"
           @click="clearFilter(openFilterColumn)"
         >
-          <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          <svg
+            class="size-3.5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
       </div>
@@ -528,11 +555,19 @@ onBeforeUnmount(() => {
         v-else-if="openFilterColumn.filter.type === 'select'"
         :options="openFilterColumn.filter.options"
         :model-value="pendingFilters[getFilterKey(openFilterColumn)]"
-        @update:model-value="(v) => { setFilter(openFilterColumn, v); closeFilter(); }"
+        @update:model-value="
+          (v) => {
+            setFilter(openFilterColumn, v);
+            closeFilter();
+          }
+        "
       />
 
       <!-- Checkbox -->
-      <div v-else-if="openFilterColumn.filter.type === 'checkbox'" class="filter-dropdown-body">
+      <div
+        v-else-if="openFilterColumn.filter.type === 'checkbox'"
+        class="filter-dropdown-body"
+      >
         <label
           v-for="opt in openFilterColumn.filter.options"
           :key="opt.value"
@@ -554,7 +589,9 @@ onBeforeUnmount(() => {
         :options="openFilterColumn.filter.options"
         :model-value="pendingFilters[getFilterKey(openFilterColumn)] ?? []"
         :placeholder="openFilterColumn.filter.placeholder"
-        @update:model-value="(v) => setFilter(openFilterColumn, v.length ? v : null)"
+        @update:model-value="
+          (v) => setFilter(openFilterColumn, v.length ? v : null)
+        "
       />
 
       <!-- Tag selector -->
@@ -564,7 +601,9 @@ onBeforeUnmount(() => {
         :all-tags="getTagFilterAllTags(openFilterColumn)"
         :overlay="true"
         :multiple="openFilterColumn.filter.multiple !== false"
-        @update:model-value="(v) => setFilter(openFilterColumn, v.length ? v : null)"
+        @update:model-value="
+          (v) => setFilter(openFilterColumn, v.length ? v : null)
+        "
       />
     </div>
   </Teleport>
@@ -678,15 +717,15 @@ onBeforeUnmount(() => {
   border-radius: 12px;
   box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.7);
   padding: 8px;
-  @apply bg-base-200 text-white/80 dark:text-gray-800 border border-base-100
+  @apply bg-base-200 text-white/80 dark:text-gray-800 border border-base-100;
 }
 
 .filter-panel-teleport .filter-dropdown-header {
   display: flex;
   align-items: center;
-  justify-content: space-between; 
+  justify-content: space-between;
   padding: 4px 4px 8px;
-  @apply border-b border-base-100
+  @apply border-b border-base-100;
 }
 
 .filter-panel-teleport .filter-dropdown-title {
