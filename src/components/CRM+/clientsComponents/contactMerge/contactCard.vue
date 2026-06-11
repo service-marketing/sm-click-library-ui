@@ -52,6 +52,14 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  avatarVariant: {
+    type: String,
+    default: "default", // "default" | "brand"
+  },
+  showStartChat: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(["select"]);
@@ -187,7 +195,9 @@ const avatarClasses = computed(() => {
 
   if (props.size === "large") classes.push("merge-card__avatar--lg");
 
-  if (props.selected) {
+  if (props.avatarVariant === "brand") {
+    classes.push("merge-card__avatar--brand");
+  } else if (props.selected) {
     classes.push("merge-card__avatar--selected");
   } else if (props.variant === "primary") {
     classes.push("merge-card__avatar--primary");
@@ -247,6 +257,7 @@ const toggleIgPopover = (e) => {
     :class="rootClasses"
     :title="rootTitle"
     @click="onRootClick"
+    :style="`border-radius: ${props.showStartChat ? '0.5rem 0.5rem 0rem 0rem' : '0.5rem'};`"
   >
     <div class="relative shrink-0">
       <div :class="avatarClasses">
@@ -591,6 +602,17 @@ const toggleIgPopover = (e) => {
   width: 4rem;
   height: 4rem;
   font-size: 1.25rem;
+}
+
+.merge-card__avatar--brand {
+  background: linear-gradient(
+    135deg,
+    rgb(var(--primary-rgb)),
+    var(--primary-alt)
+  );
+  color: #fff;
+  box-shadow: 0 0 0 3px rgb(var(--primary-rgb) / 0.12),
+    inset 0 1px 1px rgb(255 255 255 / 0.25);
 }
 
 .merge-card__avatar--primary {

@@ -5,6 +5,7 @@ import CategoryBadge from "~/components/apiTemplate/CategoryBadge.vue";
 import primarySelect from "~/components/selects/primary_select/primary_select.vue";
 import simpleModal from "~/components/modals/simple_modal/simple_modal.vue";
 import simpleCard from "~/components/cards/simple_card/simple_card.vue";
+import ContactMessageCard from "~/components/cards/contact_card/contactMessageCard.vue";
 import instanceSelect from "~/components/selects/instance_select/index.vue";
 import SoundSelect from "~/components/selects/soundSelect.vue";
 import calendar from "./components/calendar/scheduledCalendar.vue";
@@ -50,6 +51,7 @@ export { useAttendantStore };
 export { useDepartmentStore };
 export { useInstanceStore };
 export { ContactCard };
+export { ContactMessageCard };
 export { default as BaseTable } from "~/components/apiTemplate/baseTable.vue";
 export { default as TemplateTable } from "~/components/apiTemplate/templateTable.vue";
 export { default as CategoryBadge } from "~/components/apiTemplate/CategoryBadge.vue";
@@ -130,6 +132,7 @@ function install(Vue) {
   Vue.component("CallMessage", CallMessage);
   Vue.component("ListProducts", ListProducts);
   Vue.component("ContactCard", ContactCard);
+  Vue.component("ContactMessageCard", ContactMessageCard);
   Vue.component("WalletCard", WalletCard);
   Vue.component("ReminderModal", ReminderModal);
   Vue.component("SoundSelect", SoundSelect);
@@ -289,6 +292,7 @@ export default {
   CallMessage,
   ListProducts,
   ContactCard,
+  ContactMessageCard,
   ReminderModal,
   attReminderByLib,
   SoundSelect,
