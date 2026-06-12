@@ -64,6 +64,7 @@ export {
   getCurrencySymbol,
   getCurrencyLocale,
 } from "./utils/currencyUtils.js";
+import TimezoneSelect from "./components/selects/timezoneSelect/TimezoneSelect.vue";
 import SmsPoolSelect from "./components/selects/smsPoolSelect/smsPoolSelect.vue";
 import RatingInput from "./components/inputs/ratingInput.vue";
 import CallHistory from "./components/chat/CallHistory.vue";
@@ -79,6 +80,7 @@ import api, {
 } from "~/utils/api";
 
 export { api, setRefreshTokenUrl };
+export { TimezoneSelect };
 export { SmsPoolSelect };
 export {
   getSmsPoolCredits,
@@ -136,6 +138,7 @@ function install(Vue) {
   Vue.component("WalletCard", WalletCard);
   Vue.component("ReminderModal", ReminderModal);
   Vue.component("SoundSelect", SoundSelect);
+  Vue.component("TimezoneSelect", TimezoneSelect);
   Vue.component("SmsPoolSelect", SmsPoolSelect);
   Vue.component("BaseTable", baseTable);
   Vue.component("TemplateTable", templateTable);
@@ -296,6 +299,7 @@ export default {
   ReminderModal,
   attReminderByLib,
   SoundSelect,
+  TimezoneSelect,
   formatCurrency,
   getCurrencySymbol,
   getCurrencyLocale,
