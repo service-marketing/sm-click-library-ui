@@ -90,17 +90,28 @@ const buttons = [
 <style scoped>
 .header-buttons-container {
   @apply flex;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .selector-button {
   flex: 1;
-  padding: 0.75rem;
+  padding: 0.65rem 0.75rem;
   text-align: center;
   cursor: pointer;
   border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.2s ease;
+  font-size: 0.85rem;
+  border-radius: 0;
+  opacity: 0.65;
+}
+
+.selector-button:hover {
+  opacity: 0.9;
+  background: rgba(59, 130, 246, 0.05);
 }
 
 .selector-label {
@@ -114,16 +125,24 @@ const buttons = [
 }
 
 .selector-button.active {
-  font-weight: bold;
+  font-weight: 600;
   border-bottom: 2px solid #3b82f6;
   color: #3b82f6;
+  opacity: 1;
+  background: rgba(59, 130, 246, 0.06);
 }
 
 .unread-dot {
-  width: 10px;
-  height: 10px;
+  width: 7px;
+  height: 7px;
   border-radius: 9999px;
-  background-color: rgb(34 197 94);
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.12);
+  background: #22c55e;
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.55);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 5px rgba(34, 197, 94, 0.5); }
+  50% { box-shadow: 0 0 10px rgba(34, 197, 94, 0.85), 0 0 18px rgba(34, 197, 94, 0.3); }
 }
 </style>

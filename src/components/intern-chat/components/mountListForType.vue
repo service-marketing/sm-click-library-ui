@@ -73,6 +73,20 @@ const getStatusStyle = (status, groupLength) => {
   );
 };
 // -------------------------------------------------
+
+const getNotPhotoContent = computed(() => {
+  if (isGroup.value) {
+    return {
+      icon: '<svg style="margin-left: 0.15rem" class="size-8 mt-0.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" > <path fill-rule="evenodd" d="M12 6a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Zm-1.5 8a4 4 0 0 0-4 4 2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 4 4 0 0 0-4-4h-3Zm6.82-3.096a5.51 5.51 0 0 0-2.797-6.293 3.5 3.5 0 1 1 2.796 6.292ZM19.5 18h.5a2 2 0 0 0 2-2 4 4 0 0 0-4-4h-1.1a5.503 5.503 0 0 1-.471.762A5.998 5.998 0 0 1 19.5 18ZM4 7.5a3.5 3.5 0 0 1 5.477-2.889 5.5 5.5 0 0 0-2.796 6.293A3.501 3.501 0 0 1 4 7.5ZM7.1 12H6a4 4 0 0 0-4 4 2 2 0 0 0 2 2h.5a5.998 5.998 0 0 1 3.071-5.238A5.505 5.505 0 0 1 7.1 12Z" clip-rule="evenodd" /> </svg>',
+      // color: "rgba(2, 169, 219, 0.3)",
+    };
+  } else {
+    return {
+      icon: '<svg style="margin-left: 0.15rem" class="size-8 mt-0.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" > <path fill-rule="evenodd" d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4h-4Z" clip-rule="evenodd" /> </svg>',
+      // color: "rgba(2, 169, 219, 0.3)",
+    };
+  }
+});
 </script>
 
 <template>
@@ -135,7 +149,7 @@ const getStatusStyle = (status, groupLength) => {
       :key="att.id"
       @click="openChat(att)"
       :class="['atendente-item', att.isMoved ? 'moved' : '']"
-      class="border-b even:bg-base-300 bg-blue-400/10 border-base-200 hover:bg-base-200 relative"
+      class="border-l border-base-100 even:bg-base-300 hover:bg-base-200"
     >
       <!-- Informações principais do atendente -->
       <section class="atendente-main">
@@ -143,44 +157,13 @@ const getStatusStyle = (status, groupLength) => {
           style="background-color: rgba(2, 169, 219, 0.3)"
           class="relative rounded-full"
         >
-          <div class="size-10" v-if="att.photo">
-            <Avatar :url="att.photo" />
-          </div>
-
-          <Avatar v-else :url="att.photo">
-            <div class="flex items-center justify-center mt-0.5 mr-0.8">
-              <svg
-                v-if="isGroup"
-                style="margin-left: 0.15rem"
-                class="size-8 mt-0.5"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M12 6a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Zm-1.5 8a4 4 0 0 0-4 4 2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 4 4 0 0 0-4-4h-3Zm6.82-3.096a5.51 5.51 0 0 0-2.797-6.293 3.5 3.5 0 1 1 2.796 6.292ZM19.5 18h.5a2 2 0 0 0 2-2 4 4 0 0 0-4-4h-1.1a5.503 5.503 0 0 1-.471.762A5.998 5.998 0 0 1 19.5 18ZM4 7.5a3.5 3.5 0 0 1 5.477-2.889 5.5 5.5 0 0 0-2.796 6.293A3.501 3.501 0 0 1 4 7.5ZM7.1 12H6a4 4 0 0 0-4 4 2 2 0 0 0 2 2h.5a5.998 5.998 0 0 1 3.071-5.238A5.505 5.505 0 0 1 7.1 12Z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-
-              <svg
-                v-else
-                style="margin-left: 0.15rem"
-                class="size-8 mt-0.5"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4h-4Z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-            </div>
+          <Avatar :url="att.photo">
+            <template #no-item v-if="!att.photo">
+              <div
+                v-html="getNotPhotoContent.icon"
+                :style="{ color: 'rgba(2, 169, 219, 0.3)' }"
+              ></div>
+            </template>
           </Avatar>
 
           <div
@@ -251,26 +234,25 @@ const getStatusStyle = (status, groupLength) => {
 </template>
 
 <style scoped>
-/* Itens da lista de atendentes */
-/* Itens da lista de atendentes */
 .atendente-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem;
+  padding: 0.5rem 0.75rem;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
   padding-right: 1rem;
+  border-radius: 10px;
+  margin: 1px 4px;
 }
 
-/* Efeito de hover */
 .atendente-item:hover {
-  background-color: rgba(59, 130, 246, 0.2);
+  background-color: rgba(59, 130, 246, 0.1);
+  transform: translateX(2px);
 }
 
-/* Animação ao passar o mouse */
 .atendente-item:hover .hover-action {
   right: 10px;
 }
@@ -278,7 +260,7 @@ const getStatusStyle = (status, groupLength) => {
 .atendente-main {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
 .atendente-name {
@@ -288,21 +270,14 @@ const getStatusStyle = (status, groupLength) => {
   @apply text-xs;
 }
 
-.atendente-item {
-  transition:
-    transform 0.3s ease,
-    background-color 0.3s ease;
-}
-
 .atendente-item.moved {
   animation: highlight 0.8s ease-in-out;
 }
 
 @keyframes highlight {
   0% {
-    background-color: rgba(59, 130, 246, 0.2);
+    background-color: rgba(59, 130, 246, 0.18);
   }
-
   100% {
     background-color: transparent;
   }
@@ -313,70 +288,47 @@ const getStatusStyle = (status, groupLength) => {
   right: -100px;
   top: 50%;
   transform: translateY(-50%);
-  background-color: #3b82f6;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
   color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 7px;
-  font-size: 0.9rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
   font-weight: 600;
-  transition: right 0.3s ease;
+  transition: right 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
   white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
 }
 
-/* Animação ao passar o mouse */
-.atendente-item:hover .hover-action {
-  right: 10px;
-}
-
-.atendente-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  padding-right: 1rem;
-}
-
-/* Efeito de hover */
-.atendente-item:hover {
-  background-color: rgba(59, 130, 246, 0.2);
-}
-
-/* Lista de atendentes ocupa o espaço disponível */
 .atendentes-list {
   flex-grow: 1;
-  /* Faz a lista ocupar o espaço restante */
   list-style: none;
   overflow-y: auto;
-  /* Habilita rolagem se houver muitos atendentes */
   height: 100%;
+  padding: 2px 0;
 }
 
 .message-indicator {
-  background-color: rgb(34 197 94);
+  background: linear-gradient(135deg, #22c55e, #16a34a);
   color: white;
-  padding: 0.5rem;
-  padding-top: 0px;
-  padding-bottom: 0px;
-  border-radius: 9999px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(22, 163, 74, 0.38);
 }
 
 .status-indicator {
-  width: 12px;
-  height: 12px;
+  width: 11px;
+  height: 11px;
   border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.18);
 }
 
-/* --- Classe para esconder a barra de rolagem, mantendo a rolagem funcional --- */
 .hide-scrollbar {
-  -ms-overflow-style: none; /* IE 10+ */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-/* --- Chrome, Edge (Blink), Safari, Opera --- */
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
   width: 0;
@@ -402,6 +354,7 @@ const getStatusStyle = (status, groupLength) => {
   padding-left: 1rem;
   padding-right: 0.875rem;
   transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
   @apply text-white;
 }
 
@@ -419,10 +372,7 @@ const getStatusStyle = (status, groupLength) => {
   white-space: nowrap;
   pointer-events: none;
   transform: translateX(0.35rem);
-  transition:
-    max-width 0.3s ease,
-    opacity 0.2s ease,
-    transform 0.3s ease;
+  transition: max-width 0.3s ease, opacity 0.2s ease, transform 0.3s ease;
 }
 
 .create-group-button:hover .create-group-label,
@@ -439,28 +389,28 @@ const getStatusStyle = (status, groupLength) => {
   flex-shrink: 0;
 }
 
-/* Botão de alternar ao redor do gatilho do popper */
 .popper-toggle {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 0.35rem;
   border-radius: 9999px;
-  border: 2px solid #3b82f6; /* borda arredondada azul */
+  border: 2px solid #3b82f6;
   background: transparent;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .popper-toggle:hover {
-  background: rgba(59, 130, 246, 0.06);
+  background: rgba(59, 130, 246, 0.08);
+  transform: scale(1.05);
 }
 
 .popper-toggle:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
-/* Carregando */
 .loading {
   display: flex;
   justify-content: center;
@@ -475,12 +425,10 @@ const getStatusStyle = (status, groupLength) => {
   color: #f3f4f6;
 }
 
-/* Animação de rotação */
 @keyframes spin {
   0% {
     transform: rotate(0deg);
   }
-
   100% {
     transform: rotate(360deg);
   }

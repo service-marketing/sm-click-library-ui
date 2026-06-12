@@ -146,12 +146,9 @@
           <!-- Exibir separador de datas -->
           <div
             v-if="shouldShowDateSeparator(index)"
-            class="date-separator flex items-center justify-center my-4"
+            class="date-separator flex items-center justify-center"
           >
-            <div
-              style="background-color: rgb(17 27 33 / 0.5)"
-              class="p-1 px-2 rounded-md text-xs text-gray-400"
-            >
+            <div class="divider-messages-pill">
               <p>{{ formatDateSeparator(msg.created_at) }}</p>
             </div>
           </div>
@@ -209,7 +206,7 @@
                       @click="
                         toggleDownloadFunctions(
                           msg.content.media,
-                          msg.content.media.name,
+                          msg.content.media.name
                         )
                       "
                     >
@@ -228,7 +225,16 @@
                   },
                 ]"
               >
-                <div class="text-black font-bold text-sm">
+                <div
+                  :class="[
+                    'text-primary ',
+                    {
+                      me: msg.sender.id === attendant.id,
+                      'text-secondary': msg.sender.id !== attendant.id,
+                    },
+                  ]"
+                  v-if="msg.sender.id !== attendant.id"
+                >
                   {{ msg.sender.name }}
                 </div>
                 <PreviewFiles
@@ -240,7 +246,7 @@
                   @download="
                     toggleDownloadFunctions(
                       msg.content.media,
-                      msg.content.media.name,
+                      msg.content.media.name
                     )
                   "
                   @open-mobile-pdf="openPdf(msg.content.media.data)"
@@ -417,7 +423,7 @@ const handlerDescriptionChat = () => {
 const isGroupChat = computed(() => Boolean(props.selectedAttendant?.is_group));
 
 const participantIds = computed(
-  () => props.selectedAttendant?.participants || [],
+  () => props.selectedAttendant?.participants || []
 );
 
 // Participantes reais do grupo (ordenados, com o usuário atual primeiro)
@@ -483,8 +489,8 @@ const toggleDownloadFunctions = (file, name) => {
 
 const hasNextPage = computed(() =>
   props.hasNextPageForAtendente(
-    props.selectedAttendant.internal_chat.channel_id,
-  ),
+    props.selectedAttendant.internal_chat.channel_id
+  )
 );
 
 const formatMessageTime = (dateStr) => {
@@ -552,7 +558,7 @@ const loadMoreMessages = async ($state) => {
 
     // Carrega mais mensagens
     await props.loadMessagesForAtendente(
-      props.selectedAttendant.internal_chat.channel_id,
+      props.selectedAttendant.internal_chat.channel_id
     );
 
     // Aguarda a renderização das novas mensagens
@@ -583,7 +589,7 @@ const enviarMensagem = async () => {
       await props.sendMessageToAtendente(
         channel_id,
         newMessage,
-        props.attendant,
+        props.attendant
       );
       await nextTick();
       scrollToBottom();
@@ -666,14 +672,14 @@ watch(
   () => props.selectedAttendant?.internal_chat?.channel_id,
   () => {
     focusMessageInput();
-  },
+  }
 );
 
 watch(
   () => props.isLoadingMessages,
   (isLoading) => {
     if (!isLoading) focusMessageInput();
-  },
+  }
 );
 
 watch(
@@ -691,7 +697,7 @@ watch(
         });
       }, 100);
     }
-  },
+  }
 );
 
 watch(novaMensagem, async () => {
@@ -749,9 +755,9 @@ const downloadFiles = async (url, name = "undefined") => {
   --popper-theme-text-color: #ffffff;
   --popper-theme-border-width: 0px;
   --popper-theme-border-style: solid;
-  --popper-theme-border-radius: 6px;
+  --popper-theme-border-radius: 8px;
   --popper-theme-padding: 0px;
-  --popper-theme-box-shadow: 0 6px 30px -6px rgba(0, 0, 0, 0.25);
+  --popper-theme-box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
 .dropdown-container-internal-messages {
@@ -760,12 +766,14 @@ const downloadFiles = async (url, name = "undefined") => {
 }
 
 .dropdown-toggle-internal-messages {
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.5);
   padding: 0.25rem;
-  border-radius: 0.375rem;
+  border-radius: 6px;
   border: none;
   cursor: pointer;
   opacity: 0;
+  transition: opacity 0.15s ease;
+  backdrop-filter: blur(4px);
 }
 
 .dropdown-icon-internal-messages {
@@ -780,7 +788,7 @@ const downloadFiles = async (url, name = "undefined") => {
   justify-content: center;
   align-items: center;
   background-color: #111b21;
-  border-radius: 0.375rem;
+  border-radius: 8px;
   padding: 0.5rem;
   cursor: pointer;
   border: none;
@@ -790,60 +798,66 @@ const downloadFiles = async (url, name = "undefined") => {
 }
 
 .download-button-internal-messages:hover {
-  background-color: #26343d;
+  background-color: #1e2d36;
 }
 
-/* Estilos para o messages-container principal */
 .messages-container {
   display: flex;
   flex-direction: column;
   height: 100%;
-  border-radius: 7px;
+  border-radius: 0;
 }
 
-/* Cabeçalho */
 .header-intern {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  height: 52px;
-  /* background-color: white; */
-  border-radius: 7px 7px 0 0;
-  padding: 0.5rem;
+  gap: 0.75rem;
+  height: 60px;
+  border-radius: 0;
+  padding: 0 1rem;
   flex-shrink: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(10px);
 }
 
 .back-button {
-  /* color: #6b7280; */
   cursor: pointer;
-  transition: color 0.3s ease;
+  transition: all 0.2s ease;
+  border-radius: 6px;
+  padding: 4px;
 }
 
 .back-button:hover {
   color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
 }
 
 .atendente-photo {
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
   background-color: #1e3a8a;
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.12), 0 2px 8px rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
 }
 
 .atendente-photo img {
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
+  object-fit: cover;
 }
 
 .atendente-name {
-  font-size: 0.975rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
 }
 
-/* Área de mensagens */
 .buttons-container {
   padding-right: 0.6rem;
   padding-bottom: 0.6rem;
@@ -854,11 +868,10 @@ const downloadFiles = async (url, name = "undefined") => {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background:
-    linear-gradient(
-      to top right,
-      rgba(59, 107, 184, 0.85),
-      rgba(55, 61, 150, 0.95)
+  background: linear-gradient(
+      to bottom right,
+      rgba(30, 50, 120, 0.88),
+      rgba(20, 30, 90, 0.96)
     ),
     url("https://smzap-bucket.s3.us-east-1.amazonaws.com/arquivos_site/background-whats.png");
   background-repeat: no-repeat, repeat;
@@ -868,7 +881,6 @@ const downloadFiles = async (url, name = "undefined") => {
   position: relative;
 }
 
-/* Carregando */
 .loading {
   display: flex;
   justify-content: center;
@@ -883,21 +895,17 @@ const downloadFiles = async (url, name = "undefined") => {
   color: #f3f4f6;
 }
 
-/* Animação de rotação */
 @keyframes spin {
   0% {
     transform: rotate(0deg);
   }
-
   100% {
     transform: rotate(360deg);
   }
 }
 
-/* Estilos das mensagens */
 .message {
-  margin-bottom: 0.25rem;
-  /* max-width: 80%; */
+  margin-bottom: 0.2rem;
   word-wrap: break-word;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
@@ -923,10 +931,11 @@ const downloadFiles = async (url, name = "undefined") => {
 
 .message-content {
   display: inline-block;
-  padding: 0.5rem;
-  border-radius: 1rem;
-  color: black;
-  max-width: 16rem;
+  padding: 8px 13px;
+  border-radius: 18px;
+  max-width: 17rem;
+  line-height: 1.5;
+  word-break: break-word;
 }
 
 .message:hover .dropdown-toggle-internal-messages {
@@ -934,71 +943,71 @@ const downloadFiles = async (url, name = "undefined") => {
 }
 
 .message-content.me {
-  background-color: #60a5fa;
-  /* color: white; */
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border-radius: 18px 18px 4px 18px;
 }
 
 .message-content.not-me {
-  background-color: rgba(125, 211, 252, 0.9);
-  /* color: black; */
+  background: rgb(32 44 51);
+  /* backdrop-filter: blur(4px); */
+  color: white;
+  border-radius: 18px 18px 18px 4px;
 }
 
 .message-time {
-  font-size: 0.75rem;
-  /* color: #374151; */
+  font-size: 0.68rem;
   text-align: right;
-  /* margin-top: -0.25rem; */
-  opacity: 50%;
+  opacity: 0.55;
+  letter-spacing: 0.02em;
+  margin-top: 2px;
 }
 
-/* Estilos do separador de datas */
 .date-separator {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.4rem 0;
   border-radius: 4px;
-  margin-top: 0.5rem /* 7px */;
-  margin-bottom: 0.5rem /* 7px */;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .date-separator-line {
   flex-grow: 1;
-  border-top: 2px solid #d1d5db;
-  margin-left: 12px;
-  margin-right: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  margin-left: 8px;
+  margin-right: 8px;
 }
 
 .date-separator-text {
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 0.68rem;
+  font-weight: 500;
   white-space: nowrap;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.6;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.08);
 }
-
-/* Animação para a mensagem */
-/* .new-message { animation: bounce-in 0.6s ease-in-out; } */
 
 @keyframes bounce-in {
   0% {
     transform: scale(0.8);
     opacity: 0;
   }
-
   50% {
     transform: scale(1.1);
     opacity: 1;
   }
-
   100% {
     transform: scale(1);
   }
 }
 
-/* Animação para as mensagens enviadas pelo usuário (vindo da esquerda) */
 .message-enter-active {
-  transition:
-    transform 0.3s ease,
-    opacity 0.3s ease;
+  transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
 .message.me.new-message {
@@ -1012,14 +1021,12 @@ const downloadFiles = async (url, name = "undefined") => {
     transform: translateX(-100%);
     opacity: 0;
   }
-
   100% {
     transform: translateX(0);
     opacity: 1;
   }
 }
 
-/* Animação para as mensagens enviadas por outra pessoa (vindo da direita) */
 .message.not-me.new-message {
   transform: translateX(100%);
   opacity: 0;
@@ -1031,7 +1038,6 @@ const downloadFiles = async (url, name = "undefined") => {
     transform: translateX(100%);
     opacity: 0;
   }
-
   100% {
     transform: translateX(0);
     opacity: 1;
@@ -1044,53 +1050,52 @@ const downloadFiles = async (url, name = "undefined") => {
   position: relative;
   width: 100%;
   flex-shrink: 0;
+  padding: 10px 12px;
+  gap: 8px;
+  /* background: rgba(0, 0, 0, 0.2); */
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  outline: none;
 }
 
 .message-input {
   width: 100%;
-  /* background-color: white; */
-  /* color: black; */
   resize: none;
-  padding: 0.5rem;
-  height: 56px;
+  padding: 10px 14px;
+  height: 44px;
+  /* border-radius: 999px; */
+  /* background: rgba(0, 0, 0, 0.2); */
   border: none;
+  color: inherit;
   outline: none;
-  /* padding-right: 110px; */
-  border-radius: 0 0 7px 7px;
-  outline: 2px solid transparent;
-  outline-offset: 2px;
-  border-style: none;
+  /* transition: border-color 0.2s ease, box-shadow 0.2s ease; */
   @apply hide-scrollbar;
 }
 
 .message-input:focus {
-  outline: 2px solid transparent;
-  outline-offset: 2px;
-  border-style: none;
-  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0
-    var(--tw-ring-offset-width) var(--tw-ring-offset-color);
-  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0
-    calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color);
-  box-shadow: var(--tw-ring-offset-shadow);
+  outline: none;
 }
 
 .send-button {
-  /* position: absolute;
-  right: 0.5rem;
-  top: 0.65rem; */
-  background-color: #3b82f6;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color: white;
-  border-radius: 9999px;
+  border-radius: 12px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.2s ease;
   font-size: 15px;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+  flex-shrink: 0;
   @apply size-8 flex items-center justify-center;
+}
+
+.send-button:hover:not(:disabled) {
+  transform: scale(1.06) translateY(-1px);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.5);
 }
 
 .send-audio-button.recording {
   position: absolute;
   width: 100%;
-  /* background-color: #111b21; */
   inset: 0px;
   display: flex;
   justify-content: flex-end;
@@ -1100,42 +1105,47 @@ const downloadFiles = async (url, name = "undefined") => {
 }
 
 .send-files-button {
-  /* position: absolute;
-  right: 3.5rem;
-  top: 0.65rem; */
-  background-color: #3b82f6;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color: white;
-  /* padding: 0.4rem; */
-  border-radius: 9999px;
+  border-radius: 999px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.2s ease;
   font-size: 15px;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+  flex-shrink: 0;
   @apply w-8 h-8 flex items-center justify-center;
 }
 
-.send-files-button:hover {
-  background-color: #2563eb;
+.send-files-button:hover:not(:disabled) {
+  transform: scale(1.06) translateY(-1px);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.5);
 }
 
 .send-button.disabled,
 .send-files-button.disabled,
 .send-button:disabled,
 .send-files-button:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
   pointer-events: none;
 }
 
-/* --- Classe para esconder a barra de rolagem, mantendo a rolagem funcional --- */
 .hide-scrollbar {
-  -ms-overflow-style: none; /* IE 10+ */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-/* --- Chrome, Edge (Blink), Safari, Opera --- */
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
   width: 0;
   height: 0;
+}
+
+.divider-messages-pill {
+  @apply flex items-center gap-2 rounded-full px-3 py-1.5 text-[10px] font-semibold uppercase;
+  border-color: rgb(var(--text-base) / 0.2);
+  background: rgb(var(--bg-base-100) / 0.78);
+  color: rgb(var(--text-base) / 0.82);
+  letter-spacing: 0;
 }
 </style>

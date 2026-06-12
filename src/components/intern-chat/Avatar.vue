@@ -4,9 +4,14 @@
     :class="style"
   >
     <!-- Se houver conteúdo slot, usa o slot -->
-    <slot v-if="$slots.default"></slot>
+    <slot name="no-item" v-if="slots['no-item']"></slot>
     <!-- Senão, se houver URL, mostra a imagem -->
-    <img v-else-if="url" style="object-fit: scale-down" :src="url" />
+    <img
+      class="w-10 h-10"
+      v-else-if="url"
+      style="object-fit: scale-down"
+      :src="url"
+    />
     <!-- Senão, mostra o SVG padrão de pessoa -->
     <svg
       v-else
@@ -27,6 +32,10 @@
 </template>
 
 <script setup>
+import { useSlots } from "vue";
+
+const slots = useSlots();
+
 const props = defineProps({
   url: { type: String },
   style: { type: String, default: "size-10" },
