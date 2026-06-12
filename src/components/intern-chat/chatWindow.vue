@@ -82,72 +82,111 @@
         {{ countTotalUnreadMessages }}
       </section>
 
-      <div
-        @click.stop="handleChatClick"
-        class="group relative"
-        :class="
-          isChatOpen
-            ? 'chat-box border-base-200 open bg-base-200'
-            : 'chat-box closed'
-        "
-        :style="chatBoxStyle"
-      >
-        <span v-if="!isChatOpen" class="chat-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
-            <path
-              :class="
-                mode === 'dark' ? 'dark-chat-window-icon' : 'chat-window-icon'
-              "
-              fill="currentColor"
-              d="M208 352c114.9 0 208-78.8 208-176S322.9 0 208 0S0 78.8 0 176c0 38.6 14.7 74.3 39.6 103.4c-3.5 9.4-8.7 17.7-14.2 24.7c-4.8 6.2-9.7 11-13.3 14.3c-1.8 1.6-3.3 2.9-4.3 3.7c-.5 .4-.9 .7-1.1 .8l-.2 .2s0 0 0 0s0 0 0 0C1 327.2-1.4 334.4 .8 340.9S9.1 352 16 352c21.8 0 43.8-5.6 62.1-12.5c9.2-3.5 17.8-7.4 25.2-11.4C134.1 343.3 169.8 352 208 352zM448 176c0 112.3-99.1 196.9-216.5 207C255.8 457.4 336.4 512 432 512c38.2 0 73.9-8.7 104.7-23.9c7.5 4 16 7.9 25.2 11.4c18.3 6.9 40.3 12.5 62.1 12.5c6.9 0 13.1-4.5 15.2-11.1c2.1-6.6-.2-13.8-5.8-17.9c0 0 0 0 0 0s0 0 0 0l-.2-.2c-.2-.2-.6-.4-1.1-.8c-1-.8-2.5-2-4.3-3.7c-3.6-3.3-8.5-8.1-13.3-14.3c-5.5-7-10.7-15.4-14.2-24.7c24.9-29 39.6-64.7 39.6-103.4c0-92.8-84.9-168.9-192.6-175.5c.4 5.1 .6 10.3 .6 15.5z"
-            />
-          </svg>
-          <span v-if="unreadMessagesCount > 0" class="unread-count">{{
-            unreadMessagesCount
-          }}</span>
-          <div class="chat-tooltip">
-            <div class="text-sm my-auto text-center">Chat interno</div>
-          </div>
-        </span>
+      <Teleport :disabled="!isFullscreen" to="body">
+        <div
+          @click.stop="handleChatClick"
+          class="group relative"
+          :class="[
+            isChatOpen
+              ? 'chat-box border-base-200 open bg-base-200'
+              : 'chat-box closed',
+            wrapperClass,
+          ]"
+          :style="chatBoxStyle"
+        >
+          <span v-if="!isChatOpen" class="chat-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
+              <path
+                :class="
+                  mode === 'dark' ? 'dark-chat-window-icon' : 'chat-window-icon'
+                "
+                fill="currentColor"
+                d="M208 352c114.9 0 208-78.8 208-176S322.9 0 208 0S0 78.8 0 176c0 38.6 14.7 74.3 39.6 103.4c-3.5 9.4-8.7 17.7-14.2 24.7c-4.8 6.2-9.7 11-13.3 14.3c-1.8 1.6-3.3 2.9-4.3 3.7c-.5 .4-.9 .7-1.1 .8l-.2 .2s0 0 0 0s0 0 0 0C1 327.2-1.4 334.4 .8 340.9S9.1 352 16 352c21.8 0 43.8-5.6 62.1-12.5c9.2-3.5 17.8-7.4 25.2-11.4C134.1 343.3 169.8 352 208 352zM448 176c0 112.3-99.1 196.9-216.5 207C255.8 457.4 336.4 512 432 512c38.2 0 73.9-8.7 104.7-23.9c7.5 4 16 7.9 25.2 11.4c18.3 6.9 40.3 12.5 62.1 12.5c6.9 0 13.1-4.5 15.2-11.1c2.1-6.6-.2-13.8-5.8-17.9c0 0 0 0 0 0s0 0 0 0l-.2-.2c-.2-.2-.6-.4-1.1-.8c-1-.8-2.5-2-4.3-3.7c-3.6-3.3-8.5-8.1-13.3-14.3c-5.5-7-10.7-15.4-14.2-24.7c24.9-29 39.6-64.7 39.6-103.4c0-92.8-84.9-168.9-192.6-175.5c.4 5.1 .6 10.3 .6 15.5z"
+              />
+            </svg>
+            <span v-if="unreadMessagesCount > 0" class="unread-count">{{
+              unreadMessagesCount
+            }}</span>
+            <div class="chat-tooltip">
+              <div class="text-sm my-auto text-center">Chat interno</div>
+            </div>
+          </span>
 
-        <transition name="fade">
-          <div v-if="isChatOpen && !isClosing" class="chat-content">
-            <ChatContent
-              ref="chatContentRef"
-              :isMobile="isMobile"
-              :showChatLoading="showChatLoading"
-              :selectedAttendant="selectedAttendant"
-              :currentAttendant="currentAttendant"
-              :isLoadingMessages="loadingMessages"
-              :listAttendants="filteredListAttendants"
-              :listGroups="listGroups"
-              :listAttendancesByGroup="listAttendants"
-              v-model:currentList="currentList"
-              v-model:searchQuery="searchQuery"
-              :sendFilesToAttendant="sendMessageToChannel"
-              :loadMessagesForAtendente="loadMessagesByChannel"
-              :sendMessageToAtendente="sendMessageToChannel"
-              :hasNextPageForAtendente="hasNextPageForChannel"
-              :downloadFilesMobile="downloadFilesMobile"
-              :openMobilePdf="openMobilePdf"
-              @voltar="handleVoltar"
-              @send-files="onSendFiles"
-            >
-              <template #modals>
-                <CreateOrEditModal
-                  v-if="showCreateOrEditModal.show"
-                  :mode="showCreateOrEditModal.mode"
-                  :selectedGroup="showCreateOrEditModal.groupData"
-                  :submitGroup="handleCreateGroup"
-                  :listAttendances="filteredListAttendants"
-                  :errorMap="groupActionErrors"
-                  :isCreatingGroup="isSubmittingGroupAction"
-                />
-              </template>
-            </ChatContent>
-          </div>
-        </transition>
-      </div>
+          <transition name="fade">
+            <div v-if="isChatOpen && !isClosing" class="chat-content">
+              <button
+                @click.stop="toggleFullscreen"
+                class="fullscreen-btn"
+                :title="isFullscreen ? 'Recolher chat' : 'Expandir chat'"
+              >
+                <svg
+                  v-if="!isFullscreen"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="15 3 21 3 21 9" />
+                  <polyline points="9 21 3 21 3 15" />
+                  <line x1="21" y1="3" x2="14" y2="10" />
+                  <line x1="3" y1="21" x2="10" y2="14" />
+                </svg>
+                <svg
+                  v-else
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="4 14 10 14 10 20" />
+                  <polyline points="20 10 14 10 14 4" />
+                  <line x1="10" y1="14" x2="3" y2="21" />
+                  <line x1="21" y1="3" x2="14" y2="10" />
+                </svg>
+              </button>
+              <ChatContent
+                ref="chatContentRef"
+                :isMobile="isMobile"
+                :showChatLoading="showChatLoading"
+                :selectedAttendant="selectedAttendant"
+                :currentAttendant="currentAttendant"
+                :isLoadingMessages="loadingMessages"
+                :listAttendants="filteredListAttendants"
+                :listGroups="listGroups"
+                :listAttendancesByGroup="listAttendants"
+                v-model:currentList="currentList"
+                v-model:searchQuery="searchQuery"
+                :sendFilesToAttendant="sendMessageToChannel"
+                :loadMessagesForAtendente="loadMessagesByChannel"
+                :sendMessageToAtendente="sendMessageToChannel"
+                :hasNextPageForAtendente="hasNextPageForChannel"
+                :downloadFilesMobile="downloadFilesMobile"
+                :openMobilePdf="openMobilePdf"
+                @voltar="handleVoltar"
+                @send-files="onSendFiles"
+              >
+                <template #modals>
+                  <CreateOrEditModal
+                    v-if="showCreateOrEditModal.show"
+                    :mode="showCreateOrEditModal.mode"
+                    :selectedGroup="showCreateOrEditModal.groupData"
+                    :submitGroup="handleCreateGroup"
+                    :listAttendances="filteredListAttendants"
+                    :errorMap="groupActionErrors"
+                    :isCreatingGroup="isSubmittingGroupAction"
+                  />
+                </template>
+              </ChatContent>
+            </div>
+          </transition>
+        </div>
+      </Teleport>
     </template>
   </div>
 </template>
@@ -196,6 +235,9 @@ const props = defineProps({
   isMobile: { type: Boolean, default: false },
   downloadFilesMobile: { type: Function },
   openMobilePdf: { type: Function },
+  fullscreenTarget: { type: String, default: "" },
+  externalChatOpen: { default: null },
+  wrapperClass: { type: String, default: "" },
 });
 
 // --- Seção que controla o estado da lista de chats ---
@@ -303,7 +345,7 @@ const filteredListAttendants = computed(() => {
     : [];
 
   const listAttendantsExcludingCurrent = listAttendantsList.filter(
-    (att) => att.id !== currentAttendantId,
+    (att) => att.id !== currentAttendantId
   );
 
   return listAttendantsExcludingCurrent || [];
@@ -368,7 +410,7 @@ watch(
 
     groupActionErrors.value = [];
     isSubmittingGroupAction.value = false;
-  },
+  }
 );
 
 // --- Seção que lista o total de mensagens não lidas ---
@@ -393,14 +435,14 @@ const isChatVisible = computed(() => props.isMobile || isChatOpen.value);
 
 const showChatLoading = computed(
   () =>
-    loadingMessages.value || loadingGroupList.value || loadingAttendants.value,
+    loadingMessages.value || loadingGroupList.value || loadingAttendants.value
 );
 
 // Computed property para obter o número de mensagens não lidas
 const unreadMessagesCount = computed(() => {
   if (selectedAttendant.value) {
     const atendente = listAttendants.value.find(
-      (att) => att.id === selectedAttendant.value.id,
+      (att) => att.id === selectedAttendant.value.id
     );
     return atendente ? atendente.internal_chat.unread : 0;
   }
@@ -409,6 +451,7 @@ const unreadMessagesCount = computed(() => {
 
 const handleClickOutside = (event) => {
   if (props.isMobile) return;
+  if (isFullscreen.value) return;
 
   // Se o clique foi fora do chatContainer, fecha o chat
   const clickedInsideChat = chatContainer.value?.contains(event.target);
@@ -426,19 +469,67 @@ const handleClickOutside = (event) => {
 onMounted(() => {
   if (!props.isMobile) {
     document.addEventListener("click", handleClickOutside);
+    window.addEventListener("resize", onWindowResize);
   }
 });
 
 onBeforeUnmount(() => {
   if (!props.isMobile) {
     document.removeEventListener("click", handleClickOutside);
+    window.removeEventListener("resize", onWindowResize);
+  }
+  resizeObserver?.disconnect();
+});
+
+const isAnimating = ref(false);
+const isClosing = ref(false);
+const isFullscreen = ref(false);
+const fullscreenStyle = ref(null);
+
+let resizeObserver = null;
+
+watch(isFullscreen, (active) => {
+  if (active && props.fullscreenTarget) {
+    const el = document.querySelector(props.fullscreenTarget);
+    if (el) {
+      resizeObserver = new ResizeObserver(() => {
+        fullscreenStyle.value = computeFullscreenStyle();
+      });
+      resizeObserver.observe(el);
+    }
+  } else {
+    resizeObserver?.disconnect();
+    resizeObserver = null;
   }
 });
 
-const isAnimating = ref(false); // Controla a animação de abertura/fechamento
-const isClosing = ref(false); // Controla o estado de fechamento
+function computeFullscreenStyle() {
+  if (!props.fullscreenTarget) return null;
+  const el = document.querySelector(props.fullscreenTarget);
+  if (!el) return null;
+  const r = el.getBoundingClientRect();
+  return {
+    position: "fixed",
+    top: r.top + "px",
+    left: r.left + "px",
+    width: r.width + "px",
+    height: r.height + "px",
+    bottom: "auto",
+    right: "auto",
+    zIndex: "45",
+    borderRadius: "6px",
+    transform: "none",
+    maxHeight: "none",
+    minHeight: "none",
+    boxShadow: "none",
+    transition: "none",
+  };
+}
 
 const chatBoxStyle = computed(() => {
+  if (isFullscreen.value && fullscreenStyle.value) {
+    return fullscreenStyle.value;
+  }
   if (isClosing.value) {
     return {
       position: "absolute",
@@ -463,23 +554,34 @@ const chatBoxStyle = computed(() => {
   }
 });
 
+const toggleFullscreen = () => {
+  isFullscreen.value = !isFullscreen.value;
+  fullscreenStyle.value = isFullscreen.value ? computeFullscreenStyle() : null;
+};
+
+function onWindowResize() {
+  if (isFullscreen.value) {
+    fullscreenStyle.value = computeFullscreenStyle();
+  }
+}
+
 const toggleChat = () => {
   if (props.isMobile) return;
 
   if (isChatOpen.value) {
-    // Inicia o processo de fechamento
     isClosing.value = true;
+    isFullscreen.value = false;
+    fullscreenStyle.value = null;
     setTimeout(() => {
       isChatOpen.value = false;
-      isClosing.value = false; // Remove o estado de fechamento
-    }, 200); // Espera a animação de 200ms antes de realmente fechar
+      isClosing.value = false;
+    }, 200);
   } else {
-    // Abre o chat imediatamente
     isChatOpen.value = true;
     isAnimating.value = true;
     setTimeout(() => {
       isAnimating.value = false;
-    }, 200); // Duração da animação de abertura
+    }, 200);
   }
 };
 
@@ -517,7 +619,7 @@ const getSocketParticipantIds = (message) => {
 
   return attendants
     .map((attendant) =>
-      typeof attendant === "string" ? attendant : attendant?.id,
+      typeof attendant === "string" ? attendant : attendant?.id
     )
     .filter(Boolean);
 };
@@ -532,7 +634,7 @@ watch(
         addMessageToChannel(
           newVal,
           isChatVisible.value,
-          selectedAttendant.value?.internal_chat?.channel_id,
+          selectedAttendant.value?.internal_chat?.channel_id
         );
       } else if (event === "new-chat-internal-group") {
         const message = newVal?.message;
@@ -560,7 +662,17 @@ watch(
         }
       }
     }
-  },
+  }
+);
+
+watch(
+  () => props.externalChatOpen,
+  (newVal, oldVal) => {
+    if (newVal && newVal !== oldVal && isFullscreen.value) {
+      isFullscreen.value = false;
+      fullscreenStyle.value = null;
+    }
+  }
 );
 
 let loadingToastOpen = false;
@@ -576,19 +688,18 @@ watch(
           title: "Carregando",
           text: "Carregando mensagens…",
         },
-        2000,
+        2000
       );
     }
 
     if (!isLoading) {
       loadingToastOpen = false;
     }
-  },
+  }
 );
 </script>
 
 <style scoped>
-/* Posicionamento fixo do chat no canto inferior direito */
 .chat-container {
   position: relative;
 }
@@ -601,7 +712,6 @@ watch(
   height: 100%;
 }
 
-/* Animação de transição ao abrir e fechar o chat */
 .chat-box {
   display: flex;
   align-items: center;
@@ -611,14 +721,15 @@ watch(
 .chat-box.open {
   width: 400px;
   height: 65vh;
-  border-width: 1px;
+  border-width: 0;
   max-height: 65vh;
   min-height: 350px;
-  border-radius: 8px;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.7);
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.32), 0 8px 24px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
   position: absolute;
   bottom: -5rem;
-  /* Move o chat para a direita */
+  overflow: hidden;
 }
 
 .chat-box.closed {
@@ -626,10 +737,13 @@ watch(
   height: 42px;
   border-radius: 50%;
   position: relative;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .chat-box.closed:hover {
   background-color: var(--primary);
+  transform: scale(1.1) translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
 }
 
 .chat-box.open {
@@ -642,7 +756,6 @@ watch(
   }
 }
 
-/* Ícone de mensagem */
 .chat-icon {
   font-size: 2rem;
   width: 22px;
@@ -650,28 +763,26 @@ watch(
   color: white;
 }
 
-/* Contador de mensagens não lidas */
 .unread-count {
   position: absolute;
   top: -8px;
   right: -8px;
-  background-color: #32d432;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
   color: white;
   border-radius: 50%;
-  padding: 0.15rem 0.5rem;
-  font-size: 0.8rem;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(22, 163, 74, 0.45);
 }
 
-/* Conteúdo do chat */
 .chat-content {
   position: relative;
   width: 100%;
-  border-radius: 10px;
+  border-radius: 16px;
   height: 100%;
-  /* Para manter o conteúdo dentro da caixa */
 }
 
-/* Botão de fechar o chat */
 .close-button {
   position: absolute;
   top: 12px;
@@ -686,12 +797,13 @@ watch(
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.2s ease;
+  transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+  transform: scale(0.97) translateY(6px);
 }
 
 .chat-icon {
@@ -702,20 +814,21 @@ watch(
   position: absolute;
   color: white;
   pointer-events: none;
-  transition: opacity 300ms ease;
+  transition: opacity 250ms ease;
   width: 150px;
   padding: 4px 8px;
   top: 0;
-  left: 2.5rem; /* Left position from the icon */
-  border-radius: 0.375rem; /* Equivalente a rounded-md */
+  left: 2.5rem;
+  border-radius: 8px;
   background-color: var(--primary);
-  opacity: 0; /* Hidden by default */
+  opacity: 0;
   display: flex;
   justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
 }
 
 .group:hover .chat-tooltip {
-  opacity: 1; /* Show tooltip on hover */
+  opacity: 1;
 }
 
 .chat-tooltip .text-sm {
@@ -735,15 +848,46 @@ watch(
   z-index: 10;
   left: 1.25rem;
   bottom: 1.5rem;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .chat-window-icon {
   color: white;
   transition: color 0.3s ease-in;
 }
+
 .dark-chat-window-icon {
   color: #4b5563;
   transition: color 0.3s ease-in;
+}
+
+.fullscreen-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 10;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  backdrop-filter: blur(6px);
+  color: var(--primary);
+  cursor: pointer;
+  padding: 4px;
+  transition: all 0.2s ease;
+}
+
+.fullscreen-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: scale(1.05);
+}
+
+.fullscreen-btn svg {
+  width: 16px;
+  height: 16px;
 }
 </style>
