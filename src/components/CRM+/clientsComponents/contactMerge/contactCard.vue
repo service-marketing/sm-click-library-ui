@@ -654,14 +654,15 @@ const toggleIgPopover = (e) => {
 }
 
 .merge-card__avatar--brand {
+  background-color: #0ea5e9;
   background: linear-gradient(
     135deg,
-    rgb(var(--primary-rgb)),
-    var(--primary-alt)
+    rgb(var(--primary-rgb, 14 165 233)),
+    var(--primary-alt, #0369a1)
   );
   color: #fff;
   box-shadow:
-    0 0 0 3px rgb(var(--primary-rgb) / 0.12),
+    0 0 0 3px rgb(var(--primary-rgb, 14 165 233) / 0.16),
     inset 0 1px 1px rgb(255 255 255 / 0.25);
 }
 

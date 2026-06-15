@@ -137,6 +137,10 @@ const infoChips = computed(() => {
   return chips;
 });
 
+const hasBottomAddon = computed(
+  () => props.showStartChat || infoChips.value.length > 0,
+);
+
 function formatAddress(addr) {
   return [addr.street, addr.city, addr.state, addr.zip, addr.country]
     .filter(Boolean)
@@ -172,7 +176,7 @@ async function copy(text, key) {
         :contact="adaptedContact"
         mode="merge"
         avatar-variant="brand"
-        :show-start-chat="showStartChat"
+        :show-start-chat="hasBottomAddon"
       />
     </div>
 
