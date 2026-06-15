@@ -250,11 +250,11 @@ const getStatusStyle = (status, groupLength) => {
   width: 5px;
   height: 24px;
   border-radius: 0 85% 85% 0;
-  @apply bg-base-100;
+  background-color: rgba(var(--bg-base-100));
 }
 
 .chat-item-pill.unread {
-  @apply bg-primary;
+  background-color: rgba(var(--primary-rgb));
 }
 
 .atendente-name {
@@ -309,7 +309,7 @@ const getStatusStyle = (status, groupLength) => {
   font-weight: 600;
   box-shadow: 0 2px 6px rgba(22, 163, 74, 0.38);
   margin-right: 0.9rem;
-  @apply bg-primary;
+  background-color: rgba(var(--primary-rgb));
 }
 
 .status-indicator {
