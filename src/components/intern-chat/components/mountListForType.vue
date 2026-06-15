@@ -73,20 +73,6 @@ const getStatusStyle = (status, groupLength) => {
   );
 };
 // -------------------------------------------------
-
-const getNotPhotoContent = computed(() => {
-  if (isGroup.value) {
-    return {
-      icon: '<svg style="margin-left: 0.15rem" class="size-8 mt-0.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" > <path fill-rule="evenodd" d="M12 6a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Zm-1.5 8a4 4 0 0 0-4 4 2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 4 4 0 0 0-4-4h-3Zm6.82-3.096a5.51 5.51 0 0 0-2.797-6.293 3.5 3.5 0 1 1 2.796 6.292ZM19.5 18h.5a2 2 0 0 0 2-2 4 4 0 0 0-4-4h-1.1a5.503 5.503 0 0 1-.471.762A5.998 5.998 0 0 1 19.5 18ZM4 7.5a3.5 3.5 0 0 1 5.477-2.889 5.5 5.5 0 0 0-2.796 6.293A3.501 3.501 0 0 1 4 7.5ZM7.1 12H6a4 4 0 0 0-4 4 2 2 0 0 0 2 2h.5a5.998 5.998 0 0 1 3.071-5.238A5.505 5.505 0 0 1 7.1 12Z" clip-rule="evenodd" /> </svg>',
-      // color: "rgba(2, 169, 219, 0.3)",
-    };
-  } else {
-    return {
-      icon: '<svg style="margin-left: 0.15rem" class="size-8 mt-0.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" > <path fill-rule="evenodd" d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4h-4Z" clip-rule="evenodd" /> </svg>',
-      // color: "rgba(2, 169, 219, 0.3)",
-    };
-  }
-});
 </script>
 
 <template>
@@ -149,22 +135,21 @@ const getNotPhotoContent = computed(() => {
       :key="att.id"
       @click="openChat(att)"
       :class="['atendente-item', att.isMoved ? 'moved' : '']"
-      class="border-l border-base-100 even:bg-base-300 hover:bg-base-200"
     >
       <!-- Informações principais do atendente -->
-      <section class="atendente-main">
+      <section class="atendente-main relative">
+        <div
+          :class="[
+            'chat-item-pill',
+            att.internal_chat.unread > 0 ? 'unread' : '',
+          ]"
+        ></div>
+
         <div
           style="background-color: rgba(2, 169, 219, 0.3)"
-          class="relative rounded-full"
+          class="relative rounded-full ml-3"
         >
-          <Avatar :url="att.photo">
-            <template #no-item v-if="!att.photo">
-              <div
-                v-html="getNotPhotoContent.icon"
-                :style="{ color: 'rgba(2, 169, 219, 0.3)' }"
-              ></div>
-            </template>
-          </Avatar>
+          <Avatar :url="att.photo" :isGroup="isGroup"> </Avatar>
 
           <div
             v-if="!isGroup"
@@ -198,11 +183,9 @@ const getNotPhotoContent = computed(() => {
       </section>
 
       <!-- Indicador de status -->
-      <footer class="flex items-center gap-4">
-        <span v-if="att.internal_chat.unread > 0" class="message-indicator">
-          {{ att.internal_chat.unread }}
-        </span>
-      </footer>
+      <span v-if="att.internal_chat.unread > 0" class="message-indicator">
+        {{ att.internal_chat.unread }}
+      </span>
 
       <!-- Indicador de "conversar" no hover -->
       <div class="hover-action">Conversar</div>
@@ -238,19 +221,17 @@ const getNotPhotoContent = computed(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 0.75rem;
+  padding: 0.55rem 0 0.55rem 0;
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
-  padding-right: 1rem;
-  border-radius: 10px;
-  margin: 1px 4px;
+  /* border-radius: 10px; */
+  gap: 0.75rem;
 }
 
 .atendente-item:hover {
   background-color: rgba(59, 130, 246, 0.1);
-  transform: translateX(2px);
 }
 
 .atendente-item:hover .hover-action {
@@ -261,6 +242,19 @@ const getNotPhotoContent = computed(() => {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+}
+
+.chat-item-pill {
+  position: absolute;
+  left: -1px;
+  width: 5px;
+  height: 24px;
+  border-radius: 0 85% 85% 0;
+  @apply bg-base-100;
+}
+
+.chat-item-pill.unread {
+  @apply bg-primary;
 }
 
 .atendente-name {
@@ -308,13 +302,14 @@ const getNotPhotoContent = computed(() => {
 }
 
 .message-indicator {
-  background: linear-gradient(135deg, #22c55e, #16a34a);
   color: white;
   padding: 2px 7px;
   border-radius: 10px;
   font-size: 0.7rem;
   font-weight: 600;
   box-shadow: 0 2px 6px rgba(22, 163, 74, 0.38);
+  margin-right: 0.9rem;
+  @apply bg-primary;
 }
 
 .status-indicator {

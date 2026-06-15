@@ -115,8 +115,12 @@
           <transition name="fade">
             <div v-if="isChatOpen && !isClosing" class="chat-content">
               <button
+                v-show="!showChatLoading"
                 @click.stop="toggleFullscreen"
-                class="fullscreen-btn"
+                :class="[
+                  'fullscreen-btn',
+                  selectedAttendant ? 'fullscreen-chat-open' : '',
+                ]"
                 :title="isFullscreen ? 'Recolher chat' : 'Expandir chat'"
               >
                 <svg
@@ -561,7 +565,11 @@ const toggleFullscreen = () => {
 
 function onWindowResize() {
   if (isFullscreen.value) {
-    fullscreenStyle.value = computeFullscreenStyle();
+    if (window.innerWidth < 864) {
+      toggleFullscreen();
+    } else {
+      fullscreenStyle.value = computeFullscreenStyle();
+    }
   }
 }
 
@@ -867,7 +875,7 @@ watch(
   position: absolute;
   top: 6px;
   right: 6px;
-  z-index: 10;
+  z-index: 60;
   width: 28px;
   height: 28px;
   display: flex;
@@ -879,6 +887,13 @@ watch(
   cursor: pointer;
   padding: 4px;
   transition: all 0.2s ease;
+  @apply hidden md:block;
+}
+
+.fullscreen-btn.fullscreen-chat-open {
+  right: 16px;
+  top: 16px;
+  translate: translateY(-4px);
 }
 
 .fullscreen-btn:hover {
