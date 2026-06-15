@@ -548,6 +548,7 @@ onBeforeUnmount(() => {
         :model-value="pendingFilters[getFilterKey(openFilterColumn)]"
         :placeholder="openFilterColumn.filter.placeholder"
         @update:model-value="(v) => setFilter(openFilterColumn, v)"
+        @submit="closeFilter"
       />
 
       <!-- Select -->

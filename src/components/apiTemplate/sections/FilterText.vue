@@ -6,7 +6,7 @@ const props = defineProps({
   placeholder: { type: String, default: "Buscar..." },
 });
 
-const emit = defineEmits(["update:modelValue"]);
+const emit = defineEmits(["update:modelValue", "submit"]);
 
 const local = ref(props.modelValue ?? "");
 
@@ -20,6 +20,15 @@ watch(
 function onInput(e) {
   local.value = e.target.value;
   emit("update:modelValue", local.value || null);
+}
+
+function onKeydown(e) {
+  e.stopPropagation();
+
+  if (e.key !== "Enter" || e.isComposing) return;
+
+  e.preventDefault();
+  emit("submit");
 }
 </script>
 
@@ -41,7 +50,7 @@ function onInput(e) {
       <input
         :value="local"
         @input="onInput"
-        @keydown.stop
+        @keydown="onKeydown"
         type="text"
         :placeholder="placeholder"
         class="w-full py-2 pl-8 pr-3 ring-0  rounded-lg text-sm border-base-200 bg-base-300  placeholder:text-gray-500 outline-none transition-colors"
