@@ -82,7 +82,7 @@
         {{ countTotalUnreadMessages }}
       </section>
 
-      <Teleport :disabled="!isFullscreen" to="body">
+      <Teleport :disabled="!isChatOpen && !isFullscreen" to="body">
         <div
           @click.stop="handleChatClick"
           class="group relative"
@@ -115,7 +115,7 @@
           <transition name="fade">
             <div v-if="isChatOpen && !isClosing" class="chat-content">
               <button
-                v-show="!showChatLoading"
+                v-show="!showChatLoading && !disableFullscreen"
                 @click.stop="toggleFullscreen"
                 :class="[
                   'fullscreen-btn',
@@ -242,6 +242,7 @@ const props = defineProps({
   fullscreenTarget: { type: String, default: "" },
   externalChatOpen: { default: null },
   wrapperClass: { type: String, default: "" },
+  disableFullscreen: { type: Boolean, default: false },
 });
 
 // --- Seção que controla o estado da lista de chats ---
@@ -457,7 +458,7 @@ const handleClickOutside = (event) => {
   if (props.isMobile) return;
   if (isFullscreen.value) return;
 
-  // Se o clique foi fora do chatContainer, fecha o chat
+  // Se o clique foi fora do chatContainer e fora do popup teleportado, fecha o chat
   const clickedInsideChat = chatContainer.value?.contains(event.target);
   const clickedInsideFancybox = event.target.closest(".fancybox__container");
 
@@ -489,6 +490,7 @@ const isAnimating = ref(false);
 const isClosing = ref(false);
 const isFullscreen = ref(false);
 const fullscreenStyle = ref(null);
+const chatOpenPosition = ref({ left: "0px", bottom: "0px" });
 
 let resizeObserver = null;
 
@@ -530,23 +532,42 @@ function computeFullscreenStyle() {
   };
 }
 
+function computeChatOpenPosition() {
+  if (!chatContainer.value) return;
+  const rect = chatContainer.value.getBoundingClientRect();
+  const remInPx =
+    parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+  chatOpenPosition.value = {
+    left: `${rect.right}px`,
+    bottom: `${window.innerHeight - rect.bottom - 5 * remInPx}px`,
+  };
+}
+
 const chatBoxStyle = computed(() => {
   if (isFullscreen.value && fullscreenStyle.value) {
     return fullscreenStyle.value;
   }
   if (isClosing.value) {
     return {
-      position: "absolute",
+      position: "fixed",
       width: "42px",
       height: "42px",
       transition: "width 0.2s ease-in, height 0.2s ease-out",
+      left: chatOpenPosition.value.left,
+      bottom: chatOpenPosition.value.bottom,
+      transform: "none",
+      zIndex: "200",
     };
   } else if (isAnimating.value || isChatOpen.value) {
     return {
-      position: "absolute",
+      position: "fixed",
       width: "400px",
       height: "65vh",
       transition: "width 0.2s ease-in, height 0.2s ease-out",
+      left: chatOpenPosition.value.left,
+      bottom: chatOpenPosition.value.bottom,
+      transform: "none",
+      zIndex: "200",
     };
   } else {
     return {
@@ -565,11 +586,13 @@ const toggleFullscreen = () => {
 
 function onWindowResize() {
   if (isFullscreen.value) {
-    if (window.innerWidth < 864) {
+    if (window.innerWidth < 768) {
       toggleFullscreen();
     } else {
       fullscreenStyle.value = computeFullscreenStyle();
     }
+  } else if (isChatOpen.value) {
+    computeChatOpenPosition();
   }
 }
 
@@ -585,6 +608,7 @@ const toggleChat = () => {
       isClosing.value = false;
     }, 200);
   } else {
+    computeChatOpenPosition();
     isChatOpen.value = true;
     isAnimating.value = true;
     setTimeout(() => {
@@ -735,8 +759,6 @@ watch(
   border-radius: 16px;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.32), 0 8px 24px rgba(0, 0, 0, 0.2),
     0 0 0 1px rgba(255, 255, 255, 0.06);
-  position: absolute;
-  bottom: -5rem;
   overflow: hidden;
 }
 
@@ -752,16 +774,6 @@ watch(
   background-color: var(--primary);
   transform: scale(1.1) translateY(-2px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-}
-
-.chat-box.open {
-  transform: translate(2.85rem, 0);
-}
-
-@media (min-width: 1280px) {
-  .chat-box.open {
-    transform: translate(3.45rem, 0);
-  }
 }
 
 .chat-icon {
