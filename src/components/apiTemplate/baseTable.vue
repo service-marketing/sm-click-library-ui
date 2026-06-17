@@ -78,7 +78,7 @@ watch(
     internalFilters.value = { ...v };
     pendingFilters.value = { ...v };
   },
-  { deep: true },
+  { deep: true }
 );
 
 function getFilterKey(col) {
@@ -291,8 +291,7 @@ const activeFilterChips = computed(() => {
       ) {
         const names = (Array.isArray(v) ? v : [])
           .map(
-            (id) =>
-              col.filter.options?.find((o) => o.value === id)?.label ?? id,
+            (id) => col.filter.options?.find((o) => o.value === id)?.label ?? id
           )
           .filter(Boolean);
         label = names.length ? names.join(", ") : "";
@@ -314,16 +313,16 @@ function getHeaderAlignClass(align) {
   return align === "left"
     ? "text-left"
     : align === "right"
-      ? "text-right"
-      : "text-center";
+    ? "text-right"
+    : "text-center";
 }
 
 function getHeaderFlexClass(align) {
   return align === "left"
     ? "justify-start"
     : align === "right"
-      ? "justify-end"
-      : "justify-center";
+    ? "justify-end"
+    : "justify-center";
 }
 
 watch(openFilterKey, async (key) => {
@@ -495,7 +494,7 @@ onBeforeUnmount(() => {
         <!-- Pagination -->
         <footer
           v-if="totalItems > itemsPerPage"
-          class="flex flex-shrink-0 items-center justify-between border-t border-white/[0.05] bg-base-200"
+          class="flex flex-shrink-0 items-center justify-between border-t border-white/[0.05]"
         >
           <TablePagination
             :current-page="currentPage"
