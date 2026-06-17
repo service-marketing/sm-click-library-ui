@@ -142,6 +142,7 @@ const hasBottomAddon = computed(
 );
 
 function formatAddress(addr) {
+  if (typeof addr === "string") return addr;
   return [addr.street, addr.city, addr.state, addr.zip, addr.country]
     .filter(Boolean)
     .join(", ");
