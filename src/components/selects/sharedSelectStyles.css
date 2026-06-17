@@ -289,7 +289,6 @@
   width: 100%;
   align-items: center;
   display: flex;
-  gap: 0.25rem;
   border-radius: calc(var(--border-radius, 0.75rem) * 0.6);
   transition: all 0.15s ease;
   position: relative;

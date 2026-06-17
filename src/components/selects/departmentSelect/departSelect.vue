@@ -292,6 +292,11 @@ function isItemDisabled(departmentId) {
     return id === departmentId;
   });
 }
+
+function departmentStyle(department) {
+  const color = department?.color;
+  return color ? { color } : {};
+}
 </script>
 
 <template>
@@ -361,6 +366,22 @@ function isItemDisabled(departmentId) {
                 }"
                 class="dropdown-option"
               >
+                <svg
+                  class="size-4 shrink-0"
+                  :style="departmentStyle(department)"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M4 4a1 1 0 0 1 1-1h14a1 1 0 1 1 0 2v14a1 1 0 1 1 0 2H5a1 1 0 1 1 0-2V5a1 1 0 0 1-1-1Zm5 2a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H9Zm5 0a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1h-1Zm-5 4a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1a1 1 0 0 0-1-1H9Zm5 0a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1a1 1 0 0 0-1-1h-1Zm-3 4a2 2 0 0 0-2 2v3h2v-3h2v3h2v-3a2 2 0 0 0-2-2h-2Z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
                 <span
                   class="dropdown-option-label"
                   @mouseenter="showEllipsisTooltip"
@@ -524,10 +545,26 @@ function isItemDisabled(departmentId) {
                   selected: department.selected,
                   'is-disabled': isItemDisabled(department.id),
                 }"
-                class="department-item bg-slate-500/20 hover:bg-primary"
+                class="department-item bg-slate-500/20"
+                @click="selectDepartment(department)"
               >
+                <svg
+                  class="size-4 shrink-0 ml-1.5"
+                  :style="departmentStyle(department)"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M4 4a1 1 0 0 1 1-1h14a1 1 0 1 1 0 2v14a1 1 0 1 1 0 2H5a1 1 0 1 1 0-2V5a1 1 0 0 1-1-1Zm5 2a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H9Zm5 0a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1h-1Zm-5 4a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1a1 1 0 0 0-1-1H9Zm5 0a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1a1 1 0 0 0-1-1h-1Zm-3 4a2 2 0 0 0-2 2v3h2v-3h2v3h2v-3a2 2 0 0 0-2-2h-2Z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
                 <span
-                  @click="selectDepartment(department)"
                   class="department-name h-full w-full"
                   @mouseenter="showEllipsisTooltip"
                   @mouseleave="hideEllipsisTooltip"
@@ -547,6 +584,7 @@ function isItemDisabled(departmentId) {
                   <select
                     v-model="department.permission"
                     @change="changePermission(department)"
+                    @click.stop
                     class="select-dropdown-depart bg-base-300"
                   >
                     <option value="normal">normal</option>
@@ -638,5 +676,34 @@ function isItemDisabled(departmentId) {
   word-break: break-word;
   font-weight: 500;
   text-align: right;
+}
+
+/* ===== HOVER/SELECTED: BASE COLORS ===== */
+
+.department-item:hover::before {
+  opacity: 0 !important;
+}
+
+.department-item:hover:not(.is-disabled) {
+  background-color: rgb(var(--bg-base-200)) !important;
+}
+
+.department-item.selected {
+  background-color: rgb(var(--bg-base-100)) !important;
+  color: currentColor !important;
+  box-shadow: none !important;
+}
+
+.department-item.selected:hover {
+  background-color: rgb(var(--bg-base-100)) !important;
+  box-shadow: none !important;
+}
+
+.dropdown-option:hover {
+  background-color: rgb(var(--bg-base-200)) !important;
+}
+
+.dropdown-option-selected {
+  background-color: rgb(var(--bg-base-100)) !important;
 }
 </style>
