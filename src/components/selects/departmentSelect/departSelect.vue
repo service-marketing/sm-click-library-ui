@@ -13,6 +13,7 @@ import {
   showEllipsisTooltip,
   hideEllipsisTooltip,
 } from "~/utils/functions/ellipsisTooltip";
+import { getContrastColor } from "~/utils/functions/getContrastColor";
 const slots = useSlots();
 
 const props = defineProps({
@@ -297,6 +298,16 @@ function departmentStyle(department) {
   const color = department?.color;
   return color ? { color } : {};
 }
+
+function departmentChipStyle(department) {
+  const color = department?.color;
+  if (!color) return {};
+  const contrastClass = getContrastColor(color);
+  return {
+    backgroundColor: color,
+    color: contrastClass === "text-white" ? "#ffffff" : "#000000",
+  };
+}
 </script>
 
 <template>
@@ -505,6 +516,7 @@ function departmentStyle(department) {
             v-for="(depart, index) in departmentSelected"
             :key="depart.id"
             class="selection-item"
+            :style="departmentChipStyle(depart)"
           >
             <span class="selection-item-label">{{ depart.name }}</span>
             <button @click="eraseDepartment(depart, index)" class="close-btn">
