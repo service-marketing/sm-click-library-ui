@@ -520,7 +520,7 @@ async function copy(text, key) {
   display: flex;
   flex-direction: column;
   gap: 0;
-  @apply lg:min-w-[340px] md:min-w-full sm:min-w-[290px] min-w-[240px];
+  @apply min-w-[230px];
 }
 
 .contact-card-shell {
