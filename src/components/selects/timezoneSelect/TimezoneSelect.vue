@@ -15,6 +15,18 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  bg: {
+    type: String,
+    default: "bg-base-200",
+  },
+  rounded: {
+    type: String,
+    default: "rounded-xl",
+  },
+  borderColor: {
+    type: String,
+    default: "border-transparent",
+  },
 });
 
 const emit = defineEmits(["update:modelValue", "change"]);
@@ -43,7 +55,7 @@ function sortTimezones(list) {
   const national = [];
   const others = [];
   list.forEach((tz) =>
-    (brazilianTimezones.includes(tz) ? national : others).push(tz),
+    (brazilianTimezones.includes(tz) ? national : others).push(tz)
   );
   national.sort();
   others.sort();
@@ -57,17 +69,17 @@ const allTimezones = sortTimezones(
     } catch {
       return brazilianTimezones;
     }
-  })(),
+  })()
 );
 
 function getUTCOffset(tz) {
   try {
     const now = new Date();
     const utcMs = new Date(
-      now.toLocaleString("en-US", { timeZone: "UTC" }),
+      now.toLocaleString("en-US", { timeZone: "UTC" })
     ).getTime();
     const tzMs = new Date(
-      now.toLocaleString("en-US", { timeZone: tz }),
+      now.toLocaleString("en-US", { timeZone: tz })
     ).getTime();
     const totalMinutes = Math.round((tzMs - utcMs) / 60000);
     const sign = totalMinutes >= 0 ? "+" : "-";
@@ -120,7 +132,8 @@ onClickOutside(target, () => {
       type="button"
       :disabled="disabled || saving"
       @click.stop="isOpen = !isOpen"
-      class="tz-trigger flex w-full items-center justify-between gap-2 rounded-xl border border-transparent px-4 text-sm outline-none transition-all disabled:cursor-not-allowed disabled:opacity-50"
+      :class="[bg, rounded, borderColor]"
+      class="tz-trigger flex w-full items-center justify-between gap-2 border px-4 text-sm outline-none transition-all disabled:cursor-not-allowed disabled:opacity-50"
     >
       <span class="flex min-w-0 items-center gap-2">
         <span class="truncate">{{ formatTzName(modelValue) }}</span>
@@ -169,7 +182,8 @@ onClickOutside(target, () => {
     <Transition name="tz-fade">
       <div
         v-if="isOpen"
-        class="tz-dropdown absolute left-0 right-0 top-[calc(100%+4px)] z-30 rounded-xl border shadow-lg"
+        :class="rounded"
+        class="tz-dropdown absolute left-0 right-0 top-[calc(100%+4px)] z-30 border shadow-lg"
       >
         <div class="relative p-2">
           <div
@@ -229,7 +243,6 @@ onClickOutside(target, () => {
 <style scoped>
 .tz-trigger {
   height: 3rem;
-  @apply bg-base-200;
 }
 .tz-trigger:focus,
 .tz-trigger:not(:disabled):hover {
@@ -243,7 +256,7 @@ onClickOutside(target, () => {
 .tz-search {
   background-color: hsl(var(--bc, 215 14% 90%) / 0.04);
   color: inherit;
-    @apply border-none outline-none focus:border-none
+  @apply border-none outline-none focus:border-none;
 }
 .tz-search:focus {
   background-color: hsl(var(--bc, 215 14% 90%) / 0.07);
